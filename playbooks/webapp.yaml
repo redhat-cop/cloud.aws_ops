@@ -1,0 +1,37 @@
+- hosts: localhost
+  gather_facts: false
+
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  collections:
+    - community.aws
+    - amazon.aws
+
+  vars_files:
+    - vars/main.yaml
+
+  tasks:
+    - fail:
+        msg: "resource prefix should be defined as resource_prefix"
+      when: resource_prefix is not defined
+
+    - import_tasks: "tasks/{{ operation }}.yaml"
+
+- name: Deploy resource from Bastion 
+  hosts: bastion
+  gather_facts: false
+
+  collections:
+    - community.aws
+    - amazon.aws
+
+  vars_files:
+    - vars/main.yaml
+
+  tasks:
+    - import_tasks: tasks/deploy_app.yaml
