@@ -1,0 +1,211 @@
+---
+- name: Get image ID to create an instance
+  ec2_ami_info:
+    filters:
+      architecture: x86_64
+      virtualization-type: hvm
+      root-device-type: ebs
+      name: "{{ image_filter }}"
+  register: images
+
+- name: list availability zones from aws region
+  aws_az_info:
+    filters:
+      region-name: "{{ aws_region }}"
+  register: zones
+    
+- set_fact:
+    region_av_zones: "{{ zones.availability_zones | map(attribute='zone_name') }}"
+
+- name: Create a VPC to work in
+  ec2_vpc_net:
+    cidr_block: '{{ vpc_cidr }}'
+    name: '{{ vpc_name }}'
+  register: vpc
+
+# Public and Private subnets should be in the same availability zone
+# So that the load balancer can target workers instances
+- set_fact:
+    shared_az: '{{ region_av_zones[0] }}'
+
+- name: Create a public subnet for bastion
+  ec2_vpc_subnet:
+    vpc_id: '{{ vpc.vpc.id }}'
+    cidr: '{{ subnet_cidr[0] }}'
+    az: "{{ shared_az }}"
+  register: subnet
+
+- name: Create private subnet for workers
+  ec2_vpc_subnet:
+    vpc_id: '{{ vpc.vpc.id }}'
+    cidr: '{{ subnet_cidr[1] }}'
+    az: "{{ shared_az }}"
+  register: private_subnet
+
+- name: Create another private subnet for RDS
+  ec2_vpc_subnet:
+    vpc_id: '{{ vpc.vpc.id }}'
+    cidr: '{{ subnet_cidr[2] }}'
+    az: '{{ region_av_zones[1] }}'
+  register: rds_subnet
+
+- name: Create subnet group for RDS instance
+  rds_subnet_group:
+    name: '{{ rds_subnet_group_name }}'
+    description: "subnet group for RDS instance to be hidden"
+    subnets:
+      - "{{ rds_subnet.subnet.id }}"
+      - "{{ private_subnet.subnet.id }}"
+    state: present
+
+- name: Create internet gateway attached to the VPC
+  ec2_vpc_igw:
+    vpc_id: '{{ vpc.vpc.id }}'
+    state: present
+  register: internet_gw
+
+- name: Create NAT gateway (allow access to internet for instances in private subnet)
+  ec2_vpc_nat_gateway:
+    subnet_id: "{{ subnet.subnet.id }}"
+    if_exist_do_not_create: true
+    wait: true
+    state: present
+  register: nat_gw
+
+- name: Create Route table for internet gateway (public subnet)
+  ec2_vpc_route_table:
+    vpc_id: '{{ vpc.vpc.id }}'
+    subnets:
+      - "{{ subnet.subnet.id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ internet_gw.gateway_id }}"
+    lookup: tag
+    resource_tags:
+      subnet: public
+      route: internet
+    state: present
+
+- name: Create Route table for NAT gateway (private subnet)
+  ec2_vpc_route_table:
+    vpc_id: '{{ vpc.vpc.id }}'
+    subnets:
+      - "{{ private_subnet.subnet.id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ nat_gw.nat_gateway_id }}"
+    lookup: tag
+    resource_tags:
+      subnet: private
+      route: nat-gateway
+    state: present
+
+- name: Create security group for bastion
+  ec2_group:
+    name: "{{ public_secgroup_name }}"
+    vpc_id: '{{ vpc.vpc.id }}'
+    description: "Security group for Bastion host"
+    rules:
+      - cidr_ip: "0.0.0.0/0"
+        proto: tcp
+        from_port: 22
+        to_port: 22
+      - cidr_ip: "0.0.0.0/0"
+        proto: tcp
+        from_port: "{{ app_listening_port }}"
+        to_port: "{{ app_listening_port }}"
+    rules_egress:
+      - cidr_ip: "0.0.0.0/0"
+        proto: -1
+    tags: "{{ resource_tags }}"
+    state: present
+  register: secgroup
+
+- name: Create security group for RDS instance
+  ec2_group:
+    name: "{{ rds_secgroup_name }}"
+    vpc_id: '{{ vpc.vpc.id }}'
+    description: "Security group to allow RDS instance port"
+    rules:
+      - cidr_ip: "0.0.0.0/0"
+        proto: tcp
+        from_port: "{{ rds_listening_port }}"
+        to_port: "{{ rds_listening_port }}"
+    tags: "{{ resource_tags }}"
+    state: present
+  register: rds_sg
+
+- name: Get RDS instance info
+  rds_instance_info:
+    db_instance_identifier: "{{ rds_identifier }}"
+  register: rds_info
+
+- block:
+  - name: Create RDS instance (PostGreSQL Database)
+    rds_instance:
+      force_update_password: true
+      wait: true
+      allocated_storage: "{{ rds_allocated_storage_gb }}"
+      backup_retention_period: 0
+      db_instance_class: "{{ rds_instance_class }}"
+      db_instance_identifier: "{{ rds_identifier }}"
+      db_name: "{{ rds_instance_name }}"
+      engine: "{{ rds_engine }}"
+      engine_version: "{{ rds_engine_version }}"
+      master_user_password: "{{ rds_master_password }}"
+      master_username: "{{ rds_master_user }}"
+      monitoring_interval: 0
+      storage_type: standard
+      skip_final_snapshot: true
+      db_subnet_group_name: '{{ rds_subnet_group_name }}'
+      vpc_security_group_ids:
+        - "{{ rds_sg.group_id }}"
+
+  when: rds_info.instances | length == 0
+
+- name: Get RDS instance info
+  rds_instance_info:
+    db_instance_identifier: "{{ rds_identifier }}"
+  register: rds_info
+
+- name: Create key pair to connect to the VM
+  ec2_key:
+    name: '{{ sshkey_pair_name }}'
+    key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Create a virtual machine
+  ec2_instance:
+    name: "{{ bastion_host_name }}"
+    instance_type: "{{ bastion_host_type }}"
+    image_id: "{{ images.images.0.image_id }}"
+    key_name: '{{ sshkey_pair_name }}'
+    subnet_id: '{{ subnet.subnet.id }}'
+    network:
+      assign_public_ip: true
+      groups:
+        - "{{ secgroup.group_id }}"
+    security_groups:
+      - "{{ secgroup.group_id }}"
+    wait: true
+    state: started
+  register: result
+
+- name: Add host to inventory
+  ansible.builtin.add_host:
+    hostname: bastion
+    ansible_ssh_user: "fedora"
+    ansible_host: "{{ result.instances.0.public_ip_address }}"
+    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no
+    ansible_host_name: "{{ result.instances.0.public_dns_name | split('.') | first }}"
+    host_config:
+      public_subnet_id: "{{ subnet.subnet.id }}"
+      private_subnet_id: "{{ private_subnet.subnet.id }}"
+      image_id: "{{ images.images.0.image_id }}"
+      group_id: "{{ secgroup.group_id }}"
+      private_ip: "{{ result.instances.0.private_ip_address }}"
+      vpc_id: "{{ vpc.vpc.id }}"
+      rds_info:
+        host: "{{ rds_info.instances.0.endpoint.address }}"
+        name: "{{ aws_postgresql_dbname | default('mysampledb123') }}"
+        master_user_password: "{{ aws_postgresql_master_password | default('L#5cH2mgy_') }}"
+        master_username: "{{ aws_postgresql_master_user | default('ansible') }}"
