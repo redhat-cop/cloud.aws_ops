@@ -1,23 +1,23 @@
-# See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html
-
-namespace: community
-name: FIXME
-version: 0.1.0
-readme: README.md
+---
 authors:
-  - YOUR NAME (github.com/YOURGITHUB)
-description: null
+  - Aubin Bibkouo (https://github.com/abikouo)
+  - Jill Rouleau (https://github.com/jillr)
+description: Amazon AWS roles and playbooks for Ansible.
+documentation: ''
+homepage: ''
+issues: https://github.com/ansible-collections/cloud.aws_roles/issues
 license_file: LICENSE
+namespace: cloud
+name: aws_roles
+readme: README.md
+repository: https://github.com/ansible-collections/cloud.aws_roles
 tags:
-# tags so people can search for collections https://galaxy.ansible.com/search
-# tags are all lower-case, no spaces, no dashes.
-  - example1
-  - example2
-repository: https://github.com/ansible-collections/community.REPO_NAME
-#documentation: https://github.com/ansible-collection-migration/community.REPO_NAME/tree/main/docs
-homepage: https://github.com/ansible-collections/community.REPO_NAME
-issues: https://github.com/ansible-collections/community.REPO_NAME/issues
+  - amazon
+  - aws
+  - cloud
+  - infrastructure
+  - cluster
+version: 0.1.0
 build_ignore:
-# https://docs.ansible.com/ansible/devel/dev_guide/developing_collections_distributing.html#ignoring-files-and-folders
-  - .gitignore
-  - changelogs/.plugin-cache.yaml
+  - .DS_Store
+  - '*.tar.gz'

@@ -15,45 +15,45 @@
           instance-type: "{{ bastion_host_type }}"
           key-name: "{{ sshkey_pair_name }}"
           vpc-id: "{{ vpc_id }}"
-      register: bastion
+      register: proxy
 
     - name: Delete EC2 instances with dependant Resources
       block:
         - set_fact:
-            instance_host_name: "{{ bastion.instances.0.public_dns_name | split('.') | first }}"
+            host_prefix: "{{ proxy.instances.0.public_dns_name | split('.') | first }}"
 
         - name: Delete workers key pair
           ec2_key:
-            name: "{{ instance_host_name }}-key"
+            name: "{{ host_prefix }}-key"
             state: absent
 
         - name: Delete load balancer
           elb_classic_lb:
-            name: "{{ instance_host_name }}-lb"
+            name: "{{ host_prefix }}-lb"
             wait: true
             state: absent
 
         - name: List workers
           ec2_instance_info:
             filters:
-              tag:Name: "{{ instance_host_name }}-workers"
+              tag:Name: "{{ host_prefix }}-workers"
               instance-state-name: running
-          register: running
+          register: vms
 
         - name: Delete workers
           ec2_instance:
-            instance_ids: "{{ running.instances | map(attribute='instance_id') | list }}"
+            instance_ids: "{{ vms.instances | map(attribute='instance_id') | list }}"
             wait: true
             state: terminated
 
         - name: Delete bastion host
           ec2_instance:
-            instance_ids: 
-              - "{{ bastion.instances.0.instance_id }}"
+            instance_ids:
+              - "{{ proxy.instances.0.instance_id }}"
             wait: true
             state: terminated
 
-      when: bastion.instances | length == 1
+      when: proxy.instances | length == 1
 
     - name: Delete RDS instance
       rds_instance:
@@ -77,13 +77,13 @@
         filters:
           vpc-id: "{{ vpc_id }}"
           tag:prefix: "{{ resource_prefix }}"
-      register: secgroups
+      register: sg
 
     - name: Delete security groups
       ec2_group:
         state: absent
         group_id: "{{ item }}"
-      with_items: "{{ secgroups.security_groups | map(attribute='group_id') | list }}"
+      with_items: "{{ sg.security_groups | map(attribute='group_id') | list }}"
 
     - name: List routes table from VPC
       ec2_vpc_route_table_info:
@@ -122,8 +122,9 @@
         state: absent
         vpc_id: "{{ vpc_id }}"
       with_items: "{{ subnet_cidr }}"
-    
-    # As ec2_vpc_route_table can't delete route table, the vpc still has dependencies and cannot be deleted.
+
+    # As ec2_vpc_route_table can't delete route table,
+    # the vpc still has dependencies and cannot be deleted.
     # You need to do it delete it manually using either the console or the cli.
     - name: Delete VPC
       ec2_vpc_net:

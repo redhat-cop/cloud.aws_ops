@@ -13,9 +13,9 @@
     filters:
       region-name: "{{ aws_region }}"
   register: zones
-    
+
 - set_fact:
-    region_av_zones: "{{ zones.availability_zones | map(attribute='zone_name') }}"
+    region_zones: "{{ zones.availability_zones | map(attribute='zone_name') }}"
 
 - name: Create a VPC to work in
   ec2_vpc_net:
@@ -26,7 +26,7 @@
 # Public and Private subnets should be in the same availability zone
 # So that the load balancer can target workers instances
 - set_fact:
-    shared_az: '{{ region_av_zones[0] }}'
+    shared_az: '{{ region_zones[0] }}'
 
 - name: Create a public subnet for bastion
   ec2_vpc_subnet:
@@ -46,7 +46,7 @@
   ec2_vpc_subnet:
     vpc_id: '{{ vpc.vpc.id }}'
     cidr: '{{ subnet_cidr[2] }}'
-    az: '{{ region_av_zones[1] }}'
+    az: '{{ region_zones[1] }}'
   register: rds_subnet
 
 - name: Create subnet group for RDS instance
@@ -141,25 +141,25 @@
   register: rds_info
 
 - block:
-  - name: Create RDS instance (PostGreSQL Database)
-    rds_instance:
-      force_update_password: true
-      wait: true
-      allocated_storage: "{{ rds_allocated_storage_gb }}"
-      backup_retention_period: 0
-      db_instance_class: "{{ rds_instance_class }}"
-      db_instance_identifier: "{{ rds_identifier }}"
-      db_name: "{{ rds_instance_name }}"
-      engine: "{{ rds_engine }}"
-      engine_version: "{{ rds_engine_version }}"
-      master_user_password: "{{ rds_master_password }}"
-      master_username: "{{ rds_master_user }}"
-      monitoring_interval: 0
-      storage_type: standard
-      skip_final_snapshot: true
-      db_subnet_group_name: '{{ rds_subnet_group_name }}'
-      vpc_security_group_ids:
-        - "{{ rds_sg.group_id }}"
+    - name: Create RDS instance (PostGreSQL Database)
+      rds_instance:
+        force_update_password: true
+        wait: true
+        allocated_storage: "{{ rds_allocated_storage_gb }}"
+        backup_retention_period: 0
+        db_instance_class: "{{ rds_instance_class }}"
+        db_instance_identifier: "{{ rds_identifier }}"
+        db_name: "{{ rds_instance_name }}"
+        engine: "{{ rds_engine }}"
+        engine_version: "{{ rds_engine_version }}"
+        master_user_password: "{{ rds_master_password }}"
+        master_username: "{{ rds_master_user }}"
+        monitoring_interval: 0
+        storage_type: standard
+        skip_final_snapshot: true
+        db_subnet_group_name: '{{ rds_subnet_group_name }}'
+        vpc_security_group_ids:
+          - "{{ rds_sg.group_id }}"
 
   when: rds_info.instances | length == 0
 
@@ -206,6 +206,6 @@
       vpc_id: "{{ vpc.vpc.id }}"
       rds_info:
         host: "{{ rds_info.instances.0.endpoint.address }}"
-        name: "{{ aws_postgresql_dbname | default('mysampledb123') }}"
-        master_user_password: "{{ aws_postgresql_master_password | default('L#5cH2mgy_') }}"
-        master_username: "{{ aws_postgresql_master_user | default('ansible') }}"
+        name: "{{ rds_instance_name }}"
+        master_user_password: "{{ rds_master_password }}"
+        master_username: "{{ rds_master_user }}"
