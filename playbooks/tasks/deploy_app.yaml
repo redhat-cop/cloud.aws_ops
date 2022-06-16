@@ -46,6 +46,10 @@
           instance-state-name: running
       register: vms
 
+    - name: Compute number of instances to create/delete
+      set_fact:
+        expected_instances: "{{ number_of_workers | int - vms.instances | length }}"
+
     - name: Create list of targets hosts
       ec2_instance:
         name: "{{ instance_name }}"
@@ -61,10 +65,10 @@
         security_groups:
           - "{{ host_config.group_id }}"
         wait: true
-        count: "{{ number_of_workers }}"
+        count: "{{ expected_instances }}"
         state: started
       register: workers
-      when: vms.instances | length == 0
+      when: expected_instances | int > 0
 
     - name: List running instances (once again)
       ec2_instance_info:
@@ -87,7 +91,7 @@
     src: inventory.j2
     dest: "~/inventory.ini"
   vars:
-    workers_instances: "{{ running.instances }}"
+    workers_instances: "{{ vms.instances }}"
     workers_join: "{{ instances_list | join(',') }}"
 
 - name: Create vars file
@@ -215,6 +219,4 @@
   delegate_to: localhost
 
 - debug:
-    msg: >
-      Application can be accessed at:
-      {{ lb_result.elb.dns_name }}:{{ app_listening_port }}
+    msg: "Application URL: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"
