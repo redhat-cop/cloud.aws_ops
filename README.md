@@ -1,6 +1,6 @@
 # cloud.amazon_roles roles/playbook to demo ansible on aws
 
-This repository hosts the `cloud.amazon_roles` Ansible Collection.
+This repository hosts the `cloud.aws_roles` Ansible Collection.
 
 The collection includes a variety of Ansible roles and playbook to help automate the management of resources on AWS.
 
