@@ -2,7 +2,7 @@
 
 A playbook to create a webapp on AWS. The webapp consists of multiple resources.
 
-How to create a web application ?
+How to create a web application?
 
 ```
 ansible-playbook webapp.yaml -e "@credentials.yaml"
