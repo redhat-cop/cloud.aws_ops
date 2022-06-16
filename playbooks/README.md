@@ -1,6 +1,6 @@
 ### cloud.amazon_roles.webapp
 
-A playbook to create a webapp on AWS. The webapp consists in mutiple resources
+A playbook to create a webapp on AWS. The webapp consists of multiple resources.
 
 How to create a web application ?
 
