@@ -44,7 +44,7 @@
         filters:
           tag:Name: "{{ instance_name }}"
           instance-state-name: running
-      register: running
+      register: vms
 
     - name: Create list of targets hosts
       ec2_instance:
@@ -64,14 +64,14 @@
         count: "{{ number_of_workers }}"
         state: started
       register: workers
-      when: running.instances | length == 0
+      when: vms.instances | length == 0
 
     - name: List running instances (once again)
       ec2_instance_info:
         filters:
           tag:Name: "{{ instance_name }}"
           instance-state-name: running
-      register: running
+      register: vms
 
     - name: Create list of instances (join)
       set_fact:
@@ -80,7 +80,7 @@
     - name: Update join_instances
       set_fact:
         instances_list: "{{ instances_list + [ item.instance_id + ':' + item.private_ip_address ] }}"
-      with_items: "{{ running.instances }}"
+      with_items: "{{ vms.instances }}"
 
 - name: Create inventory file
   template:
@@ -200,7 +200,7 @@
         instance_port: 5000
         protocol: HTTP
         instance_protocol: HTTP
-    instance_ids: "{{ running.instances | map(attribute='instance_id') | list }}"
+    instance_ids: "{{ vms.instances | map(attribute='instance_id') | list }}"
     security_group_ids:
       - "{{ host_config.group_id }}"
     subnets:
@@ -215,4 +215,6 @@
   delegate_to: localhost
 
 - debug:
-    msg: "Application can be accessed at: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"
+    msg: >
+      Application can be accessed at:
+      {{ lb_result.elb.dns_name }}:{{ app_listening_port }}

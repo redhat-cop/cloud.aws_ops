@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  gather_facts: no
+  gather_facts: false
   strategy: free
   become: true
 
@@ -28,8 +28,12 @@
     - name: Pull image from private registry
       shell:
         cmd: >
-          podman login {{ registry_host_port }} -u {{ registry_login.user }} -p {{ registry_login.password }} --tls-verify=false &&
-          podman pull {{ registry_host_port }}/ansible-webapp --tls-verify=false
+          podman login {{ registry_host_port }}
+          -u {{ registry_login.user }}
+          -p {{ registry_login.password }}
+          --tls-verify=false &&
+          podman pull {{ registry_host_port }}/ansible-webapp
+          --tls-verify=false
 
     - name: Check running container
       shell:
