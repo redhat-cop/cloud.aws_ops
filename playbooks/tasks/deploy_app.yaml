@@ -44,7 +44,11 @@
         filters:
           tag:Name: "{{ instance_name }}"
           instance-state-name: running
-      register: running
+      register: vms
+
+    - name: Compute number of instances to create/delete
+      set_fact:
+        expected_instances: "{{ number_of_workers | int - vms.instances | length }}"
 
     - name: Create list of targets hosts
       ec2_instance:
@@ -61,17 +65,17 @@
         security_groups:
           - "{{ host_config.group_id }}"
         wait: true
-        count: "{{ number_of_workers }}"
+        count: "{{ expected_instances }}"
         state: started
       register: workers
-      when: running.instances | length == 0
+      when: expected_instances | int > 0
 
     - name: List running instances (once again)
       ec2_instance_info:
         filters:
           tag:Name: "{{ instance_name }}"
           instance-state-name: running
-      register: running
+      register: vms
 
     - name: Create list of instances (join)
       set_fact:
@@ -80,14 +84,14 @@
     - name: Update join_instances
       set_fact:
         instances_list: "{{ instances_list + [ item.instance_id + ':' + item.private_ip_address ] }}"
-      with_items: "{{ running.instances }}"
+      with_items: "{{ vms.instances }}"
 
 - name: Create inventory file
   template:
     src: inventory.j2
     dest: "~/inventory.ini"
   vars:
-    workers_instances: "{{ running.instances }}"
+    workers_instances: "{{ vms.instances }}"
     workers_join: "{{ instances_list | join(',') }}"
 
 - name: Create vars file
@@ -200,7 +204,7 @@
         instance_port: 5000
         protocol: HTTP
         instance_protocol: HTTP
-    instance_ids: "{{ running.instances | map(attribute='instance_id') | list }}"
+    instance_ids: "{{ vms.instances | map(attribute='instance_id') | list }}"
     security_group_ids:
       - "{{ host_config.group_id }}"
     subnets:
@@ -215,4 +219,4 @@
   delegate_to: localhost
 
 - debug:
-    msg: "Application can be accessed at: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"
+    msg: "Application URL: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"

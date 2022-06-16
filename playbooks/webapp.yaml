@@ -22,7 +22,7 @@
 
     - import_tasks: "tasks/{{ operation }}.yaml"
 
-- name: Deploy resource from Bastion 
+- name: Deploy resource from Bastion
   hosts: bastion
   gather_facts: false
 
