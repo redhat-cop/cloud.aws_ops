@@ -1,0 +1,14 @@
+---
+- name: List existing AMI by name
+  ec2_ami_info:
+    filters:
+      name: "{{ custom_ami_name }}"
+  register: existing
+
+- name: Delete AMI
+  ec2_ami:
+    name: "{{ item.name }}"
+    image_id: "{{ item.image_id }}"
+    wait: true
+    state: absent
+  with_items: "{{ existing.images }}"
