@@ -171,7 +171,14 @@
 - name: Create key pair to connect to the VM
   ec2_key:
     name: '{{ sshkey_pair_name }}'
-    key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  register: rsa_key
+
+- name: Save private key into file
+  copy:
+    content: "{{ rsa_key.key.private_key  }}"
+    dest: "~/private-key-{{ sshkey_pair_name }}"
+    mode: 400
+  when: rsa_key is changed
 
 - name: Create a virtual machine
   ec2_instance:
@@ -195,7 +202,7 @@
     hostname: bastion
     ansible_ssh_user: "fedora"
     ansible_host: "{{ result.instances.0.public_ip_address }}"
-    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no
+    ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i ~/private-key-{{ sshkey_pair_name }}'
     ansible_host_name: "{{ result.instances.0.public_dns_name | split('.') | first }}"
     host_config:
       public_subnet_id: "{{ subnet.subnet.id }}"
