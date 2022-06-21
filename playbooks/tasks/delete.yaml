@@ -95,6 +95,7 @@
       ec2_vpc_route_table:
         route_table_id: "{{ item }}"
         vpc_id: "{{ vpc_id }}"
+        lookup: id
         state: absent
       with_items: "{{ route_table.route_tables | map(attribute='id') | list }}"
 
@@ -123,9 +124,6 @@
         vpc_id: "{{ vpc_id }}"
       with_items: "{{ subnet_cidr }}"
 
-    # As ec2_vpc_route_table can't delete route table,
-    # the vpc still has dependencies and cannot be deleted.
-    # You need to do it delete it manually using either the console or the cli.
     - name: Delete VPC
       ec2_vpc_net:
         name: '{{ vpc_name }}'
