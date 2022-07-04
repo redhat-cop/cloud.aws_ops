@@ -1,0 +1,50 @@
+---
+- fail:
+    msg: "The DB instance identifier must be defined as troubleshoot_rds_connectivity_db_instance_id"
+  when: troubleshoot_rds_connectivity_db_instance_id is not defined
+
+- fail:
+    msg: "The EC2 instance identifier must be defined as troubleshoot_rds_connectivity_ec2_instance_id"
+  when: troubleshoot_rds_connectivity_ec2_instance_id is not defined
+
+- fail:
+    msg: "Invalid value specified for EC2 instance identifer, allowed pattern '^i-[a-z0-9]{8,17}$'"
+  when: troubleshoot_rds_connectivity_ec2_instance_id | regex_search('^i-[a-z0-9]{8,17}$') is none
+
+- block:
+    - include_tasks: get_rds_instance_info.yml
+    - include_tasks: get_ec2_instance_info.yml
+
+    # Evaluates security group rules.
+    - name: Evaluate Security Group Rules
+      validate_security_group_rules:
+        dest_subnet_cidrs: "{{ rds_subnets_cidrs }}"
+        dest_security_groups: "{{ rds_security_groups.security_groups }}"
+        dest_port: "{{ rds_instance_endpoint_port }}"
+        src_security_groups: "{{ ec2_security_groups.security_groups }}"
+        src_private_ip: "{{ ec2_private_ip_addrs | first }}"
+
+    # Evaluates network ACLs.
+    - name: Evaluate network ACLS
+      validate_network_acls:
+        dest_subnet_cidrs: "{{ rds_subnets_cidrs }}"
+        dest_network_acl_rules: "{{ rds_network_acl.nacls }}"
+        dest_port:
+          - "{{ rds_instance_endpoint_port }}"
+        src_network_acl_rules: "{{ ec2_network_acl.nacls }}"
+        src_private_ip: "{{ ec2_private_ip_addrs }}"
+
+    # Evaluates route tables.
+    - name: Evaluate route tables
+      validate_route_tables:
+        dest_subnets: "{{ rds_subnets_info.subnets }}"
+        dest_route_tables: "{{ rds_subnet_route_table.route_tables }}"
+        dest_vpc_route_tables: "{{ rds_vpc_route_table.route_tables }}"
+        src_subnets: "{{ ec2_subnets_info.subnets }}"
+        src_private_ip: "{{ ec2_private_ip_addrs }}"
+        src_route_tables: "{{ ec2_subnet_route_table.route_tables }}"
+        src_vpc_route_tables: "{{ ec2_vpc_route_table.route_tables }}"
+
+  module_defaults:
+    group/aws:
+      "{{ aws_role_credentials }}"
