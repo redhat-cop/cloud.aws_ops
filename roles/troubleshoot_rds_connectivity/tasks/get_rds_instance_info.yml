@@ -1,0 +1,58 @@
+---
+- name: Get RDS instance properties
+  rds_instance_info:
+    db_instance_identifier: "{{ troubleshoot_rds_connectivity_db_instance_id }}"
+  register: rds_info
+
+- name: Assert that DB instance exists
+  fail:
+    msg: "No DB instance found with identifier '{{ troubleshoot_rds_connectivity_db_instance_id }}'"
+  when: rds_info.instances | length == 0
+
+- name: Assert that DB Instance status is 'available'
+  fail:
+    msg: "Bad DB instance status, expecting 'available', found '{{ rds_info.instances.0.db_instance_status }}'"
+  when: rds_info.instances.0.db_instance_status != "available"
+
+- set_fact:
+    rds_instance_endpoint_addr: "{{ rds_instance_info.endpoint.address }}"
+    rds_instance_endpoint_port: "{{ rds_instance_info.endpoint.port }}"
+    # rds_instance_publicly_accessible: "{{ rds_instance_info.publicly_accessible }}"
+    rds_instance_subnets: "{{ rds_instance_info.db_subnet_group.subnets | map(attribute='subnet_identifier') | list }}"
+    rds_instance_vpc_id: "{{ rds_instance_info.db_subnet_group.vpc_id }}"
+    rds_instance_vpc_security_groups: "{{ rds_instance_info.vpc_security_groups | map(attribute='vpc_security_group_id') | list }}"
+  vars:
+    rds_instance_info: "{{ rds_info.instances.0 }}"
+
+- name: Get RDS Network ACL Rules
+  ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id: "{{ rds_instance_subnets }}"
+  register: rds_network_acl
+
+- name: Get RDS Subnet info
+  ec2_vpc_subnet_info:
+    subnet_ids: "{{ rds_instance_subnets }}"
+  register: rds_subnets_info
+
+- set_fact:
+    rds_subnets_cidrs: "{{ rds_subnets_info.subnets | map(attribute='cidr_block') | list }}"
+
+- name: Get RDS Security Groups
+  ec2_group_info:
+    filters:
+      group-id: "{{ rds_instance_vpc_security_groups }}"
+  register: rds_security_groups
+
+- name: Get RDS Route Tables
+  ec2_vpc_route_table_info:
+    filters:
+      association.subnet-id: "{{ rds_instance_subnets }}"
+  register: rds_subnet_route_table
+
+- name: Get RDS VPC Route Tables
+  ec2_vpc_route_table_info:
+    filters:
+      association.main: true
+      vpc-id: "{{ rds_instance_vpc_id }}"
+  register: rds_vpc_route_table
