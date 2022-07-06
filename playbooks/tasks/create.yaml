@@ -177,7 +177,7 @@
   copy:
     content: "{{ rsa_key.key.private_key  }}"
     dest: "~/private-key-{{ sshkey_pair_name }}"
-    mode: 400
+    mode: 0400
   when: rsa_key is changed
 
 - name: Create a virtual machine
