@@ -89,6 +89,7 @@
       ec2_vpc_route_table_info:
         filters:
           vpc-id: "{{ vpc_id }}"
+          association.main: false
       register: route_table
 
     - name: Delete VPC route table
