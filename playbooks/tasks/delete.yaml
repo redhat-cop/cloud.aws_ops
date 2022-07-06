@@ -97,7 +97,7 @@
         vpc_id: "{{ vpc_id }}"
         lookup: id
         state: absent
-      with_items: "{{ route_table.route_tables | selectattr('associations.0.main', 'equalto', 'false')  map(attribute='id') | list }}"
+      with_items: "{{ route_table.route_tables | selectattr('associations.0.main', 'equalto', 'false') | map(attribute='id') | list }}"
 
     - name: Get NAT gateway
       ec2_vpc_nat_gateway_info:
