@@ -28,195 +28,203 @@
     src: "~/.ssh/id_rsa.pub"
   register: sshkey
 
-- name: Create Cloud Resources (workers, load balancer, etc)
-  delegate_to: localhost
-  vars:
-    localhost_key_pair: "{{ ansible_host_name }}-key"
-    instance_name: "{{ ansible_host_name }}-workers"
-  block:
-    - name: Create key pair to connect to the VM
-      ec2_key:
-        name: '{{ localhost_key_pair }}'
-        key_material: "{{ sshkey.content | b64decode }}"
-
-    - name: List running instances
-      ec2_instance_info:
-        filters:
-          tag:Name: "{{ instance_name }}"
-          instance-state-name: running
-      register: vms
-
-    - name: Compute number of instances to create/delete
-      set_fact:
-        expected_instances: "{{ number_of_workers | int - vms.instances | length }}"
-
-    - name: Create list of targets hosts
-      ec2_instance:
-        name: "{{ instance_name }}"
-        instance_type: "{{ workers_instance_type }}"
-        image_id: "{{ host_config.image_id }}"
-        key_name: '{{ localhost_key_pair }}'
-        subnet_id: '{{ host_config.private_subnet_id }}'
-        network:
-          assign_public_ip: false
-          delete_on_termination: true
-          groups:
-            - "{{ host_config.group_id }}"
-        security_groups:
-          - "{{ host_config.group_id }}"
-        wait: true
-        count: "{{ expected_instances }}"
-        state: started
-      register: workers
-      when: expected_instances | int > 0
-
-    - name: List running instances (once again)
-      ec2_instance_info:
-        filters:
-          tag:Name: "{{ instance_name }}"
-          instance-state-name: running
-      register: vms
-
-    - name: Create list of instances (join)
-      set_fact:
-        instances_list: []
-
-    - name: Update join_instances
-      set_fact:
-        instances_list: "{{ instances_list + [ item.instance_id + ':' + item.private_ip_address ] }}"
-      with_items: "{{ vms.instances }}"
-
-- name: Create inventory file
-  template:
-    src: inventory.j2
-    dest: "~/inventory.ini"
-  vars:
-    workers_instances: "{{ vms.instances }}"
-    workers_join: "{{ instances_list | join(',') }}"
-
-- name: Create vars file
-  template:
-    src: vars.yaml.j2
-    dest: "~/vars.yaml"
-
-- name: Create private registry and store webapp container image
-  block:
-    - name: Clone git repository for web application
-      git:
-        repo: "{{ app_git_repository }}"
-        dest: ~/webapp
-
-    - name: Build webapp container image
-      shell:
-        cmd: podman build -t webapp .
-      args:
-        chdir: "~/webapp"
-
-    - name: Check running registry
-      shell:
-        cmd: >
-          podman container
-          ps -a
-          -f name=registry500x
-          --format=.Names
-      register: container
-      become: true
-
-    - name: Create private registry
-      become: true
+- block:
+    - name: Create Cloud Resources (workers, load balancer, etc)
+      delegate_to: localhost
+      vars:
+        localhost_key_pair: "{{ ansible_host_name }}-key"
+        instance_name: "{{ ansible_host_name }}-workers"
       block:
-        - name: Create folders for the registry
-          file:
-            path: "/opt/registry/{{ item }}"
-            state: directory
-          with_items:
-            - auth
-            - certs
-            - data
+        - name: Create key pair to connect to the VM
+          ec2_key:
+            name: '{{ localhost_key_pair }}'
+            key_material: "{{ sshkey.content | b64decode }}"
 
-        - name: Generate credentials for accessing the registry
+        - name: List running instances
+          ec2_instance_info:
+            filters:
+              tag:Name: "{{ instance_name }}"
+              instance-state-name: running
+          register: vms
+
+        - name: Compute number of instances to create/delete
+          set_fact:
+            expected_instances: "{{ number_of_workers | int - vms.instances | length }}"
+
+        - name: Create list of targets hosts
+          ec2_instance:
+            name: "{{ instance_name }}"
+            instance_type: "{{ workers_instance_type }}"
+            image_id: "{{ host_config.image_id }}"
+            key_name: '{{ localhost_key_pair }}'
+            subnet_id: '{{ host_config.private_subnet_id }}'
+            network:
+              assign_public_ip: false
+              delete_on_termination: true
+              groups:
+                - "{{ host_config.group_id }}"
+            security_groups:
+              - "{{ host_config.group_id }}"
+            wait: true
+            count: "{{ expected_instances }}"
+            state: started
+          register: workers
+          when: expected_instances | int > 0
+
+        - name: List running instances (once again)
+          ec2_instance_info:
+            filters:
+              tag:Name: "{{ instance_name }}"
+              instance-state-name: running
+          register: vms
+
+        - name: Create list of instances (join)
+          set_fact:
+            instances_list: []
+
+        - name: Update join_instances
+          set_fact:
+            instances_list: "{{ instances_list + [ item.instance_id + ':' + item.private_ip_address ] }}"
+          with_items: "{{ vms.instances }}"
+
+    - name: Create inventory file
+      template:
+        src: inventory.j2
+        dest: "~/inventory.ini"
+      vars:
+        workers_instances: "{{ vms.instances }}"
+        workers_join: "{{ instances_list | join(',') }}"
+
+    - name: Create vars file
+      template:
+        src: vars.yaml.j2
+        dest: "~/vars.yaml"
+
+    - name: Create private registry and store webapp container image
+      block:
+        - name: Clone git repository for web application
+          git:
+            repo: "{{ app_git_repository }}"
+            dest: ~/webapp
+
+        - name: Build webapp container image
+          shell:
+            cmd: podman build -t webapp .
+          args:
+            chdir: "~/webapp"
+
+        - name: Check running registry
           shell:
             cmd: >
-              htpasswd -bBc /opt/registry/auth/htpasswd
-              {{ local_registry_user }}
-              {{ local_registry_pwd }}
+              podman container
+              ps -a
+              -f name=registry500x
+              --format=.Names
+          register: container
+          become: true
 
-        - name: Start the registry
+        - name: Create private registry
+          become: true
+          block:
+            - name: Create folders for the registry
+              file:
+                path: "/opt/registry/{{ item }}"
+                state: directory
+              with_items:
+                - auth
+                - certs
+                - data
+
+            - name: Generate credentials for accessing the registry
+              shell:
+                cmd: >
+                  htpasswd -bBc /opt/registry/auth/htpasswd
+                  {{ local_registry_user }}
+                  {{ local_registry_pwd }}
+
+            - name: Start the registry
+              shell:
+                cmd: >
+                  podman run --name registry500x
+                  -p {{ local_registry_port }}:5000
+                  -v /opt/registry/data:/var/lib/registry:z
+                  -v /opt/registry/auth:/auth:z
+                  -e "REGISTRY_AUTH=htpasswd"
+                  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
+                  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+                  -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
+                  -d
+                  docker.io/library/registry:latest
+          when:
+            - container.stdout == ""
+
+        - name: Push image into private registry
           shell:
             cmd: >
-              podman run --name registry500x
-              -p {{ local_registry_port }}:5000
-              -v /opt/registry/data:/var/lib/registry:z
-              -v /opt/registry/auth:/auth:z
-              -e "REGISTRY_AUTH=htpasswd"
-              -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
-              -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
-              -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
-              -d
-              docker.io/library/registry:latest
-      when:
-        - container.stdout == ""
+              podman login 127.0.0.1:{{ local_registry_port }} -u '{{ local_registry_user }}' -p '{{ local_registry_pwd }}' --tls-verify=false &&
+              podman tag webapp 127.0.0.1:{{ local_registry_port }}/ansible-webapp &&
+              podman push 127.0.0.1:{{ local_registry_port }}/ansible-webapp --tls-verify=false
 
-    - name: Push image into private registry
+    - name: Initialize database tables
       shell:
         cmd: >
-          podman login 127.0.0.1:{{ local_registry_port }} -u '{{ local_registry_user }}' -p '{{ local_registry_pwd }}' --tls-verify=false &&
-          podman tag webapp 127.0.0.1:{{ local_registry_port }}/ansible-webapp &&
-          podman push 127.0.0.1:{{ local_registry_port }}/ansible-webapp --tls-verify=false
+          podman run --rm
+          -e FLASK_APP="{{ app_config.app_dir }}"
+          -e FLASK_ENV="{{ app_config.env }}"
+          -e DATABASE_HOST="{{ host_config.rds_info.host }}"
+          -e DATABASE_INSTANCE="{{ host_config.rds_info.name }}"
+          -e DATABASE_USER="{{ host_config.rds_info.master_username }}"
+          -e DATABASE_PASSWORD="{{ host_config.rds_info.master_user_password }}"
+          -e ADMIN_USER="{{ app_config.admin_user }}"
+          -e ADMIN_PASSWORD="{{ app_config.admin_password }}"
+          -e WORKER_HOSTNAME="{{ inventory_hostname }}"
+          -e WORKERS_HOSTS="bastion"
+          webapp flask {{ app_force_init | bool | ternary('force-init-db', 'init-db') }}
+      run_once: true
 
-- name: Initialize database tables
-  shell:
-    cmd: >
-      podman run --rm
-      -e FLASK_APP="{{ app_config.app_dir }}"
-      -e FLASK_ENV="{{ app_config.env }}"
-      -e DATABASE_HOST="{{ host_config.rds_info.host }}"
-      -e DATABASE_INSTANCE="{{ host_config.rds_info.name }}"
-      -e DATABASE_USER="{{ host_config.rds_info.master_username }}"
-      -e DATABASE_PASSWORD="{{ host_config.rds_info.master_user_password }}"
-      -e ADMIN_USER="{{ app_config.admin_user }}"
-      -e ADMIN_PASSWORD="{{ app_config.admin_password }}"
-      -e WORKER_HOSTNAME="{{ inventory_hostname }}"
-      -e WORKERS_HOSTS="bastion"
-      webapp flask {{ app_force_init | bool | ternary('force-init-db', 'init-db') }}
-  run_once: true
+    - name: Copy playbook into bastion host
+      copy:
+        src: run_app.yaml
+        dest: "~/playbook.yaml"
 
-- name: Copy playbook into bastion host
-  copy:
-    src: run_app.yaml
-    dest: "~/playbook.yaml"
+    - name: Deploy application into workers
+      shell:
+        cmd: >
+          ansible-playbook playbook.yaml -i inventory.ini -v
+          -e '@vars.yaml'
+          -e registry_host_port='{{ host_config.private_ip }}:{{ local_registry_port }}'
+      args:
+        chdir: "~/"
 
-- name: Deploy application into workers
-  shell:
-    cmd: >
-      ansible-playbook playbook.yaml -i inventory.ini -v
-      -e '@vars.yaml'
-      -e registry_host_port='{{ host_config.private_ip }}:{{ local_registry_port }}'
-  args:
-    chdir: "~/"
+    - name: Create load balancer
+      elb_classic_lb:
+        state: present
+        name: "{{ ansible_host_name }}-lb"
+        listeners:
+          - load_balancer_port: "{{ app_listening_port }}"
+            instance_port: 5000
+            protocol: HTTP
+            instance_protocol: HTTP
+        instance_ids: "{{ vms.instances | map(attribute='instance_id') | list }}"
+        security_group_ids:
+          - "{{ host_config.group_id }}"
+        subnets:
+          - '{{ host_config.public_subnet_id }}'
+        scheme: "internet-facing"
+        wait: true
+        wait_timeout: 360
+      retries: 5
+      delay: 10
+      until: lb_result is successful
+      register: lb_result
+      delegate_to: localhost
 
-- name: Create load balancer
-  elb_classic_lb:
-    state: present
-    name: "{{ ansible_host_name }}-lb"
-    listeners:
-      - load_balancer_port: "{{ app_listening_port }}"
-        instance_port: 5000
-        protocol: HTTP
-        instance_protocol: HTTP
-    instance_ids: "{{ vms.instances | map(attribute='instance_id') | list }}"
-    security_group_ids:
-      - "{{ host_config.group_id }}"
-    subnets:
-      - '{{ host_config.public_subnet_id }}'
-    scheme: "internet-facing"
-    wait: true
-    wait_timeout: 360
-  retries: 5
-  delay: 10
-  until: lb_result is successful
-  register: lb_result
-  delegate_to: localhost
+    - debug:
+        msg: "Application url: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"
 
-- debug:
-    msg: "Application URL: {{ lb_result.elb.dns_name }}:{{ app_listening_port }}"
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region | default(aws_region) }}"
