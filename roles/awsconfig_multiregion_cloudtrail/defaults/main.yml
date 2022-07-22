@@ -1,0 +1,3 @@
+---
+# defaults file for awsconfig_multiregion_cloudtrail
+operation: create

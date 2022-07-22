@@ -1,0 +1,60 @@
+awsconfig_multiregion_cloudtrail
+==================
+
+A role to create/delete a Trail for multiple regions.
+
+Requirements
+------------
+
+AWS User Account with the following permission:
+
+* cloudtrail:CreateTrail
+* cloudtrail:StartLogging
+* cloudtrail:GetTrail
+* s3:PutObject
+* s3:GetBucketAcl
+* s3:PutBucketLogging
+* s3:ListBucket
+
+Role Variables
+--------------
+
+* **aws_profile**: The AWS profile.
+* **aws_access_key**: The AWS access key to use.
+* **aws_secret_key**: The AWS secret key that corresponds to the access key.
+* **aws_security_token**: The AWS security token if using temporary access and secret keys.
+* **operation**: Whether to create or delete the Trail. Choices: 'create', 'delete'. Default: 'create'.
+* **bucket_name**: The name of the Amazon S3 bucket you want to upload logs to. Required when **operation** is set to **create**.
+* **key_prefix**: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
+* **trail_name**: The name of the CloudTrail trail to be created.
+
+Dependencies
+------------
+
+- NA
+
+Example Playbook
+----------------
+
+    - hosts: localhost
+      roles:
+        - role: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+          aws_profile: xxxxxxxxxxx
+          aws_access_key: xxxxxxxxxxx
+          aws_secret_key: xxxxxxxxxxx
+          operation: create
+          bucket_name: mys3bucket
+          key_prefix: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
+          trail_name: mytrail
+
+License
+-------
+
+GNU General Public License v3.0 or later
+
+See [LICENCE](https://github.com/ansible-collections/cloud.azure_roles/blob/main/LICENSE) to see the full text.
+
+Author Information
+------------------
+
+- Ansible Cloud Content Team
