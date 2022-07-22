@@ -1,0 +1,39 @@
+---
+
+- block:
+
+    - name: Verify that tag to terminate instances was provided
+      ansible.builtin.debug: msg="Please set 'terminate_tagged_instances' to 'true' to terminate instances..."
+      when: terminate_tagged_instances == False
+
+    - when: terminate_tagged_instances == True
+      block:
+          - name: Get instances to be terminated
+            amazon.aws.ec2_instance_info:
+              filters:
+                instance-state-name: running
+                "tag:ToTerminate": "True"
+            register: tagged_instances
+
+          # above task could be modified to work based on a user specific tag instead of
+          # working on hard coded tag "'ToTerminate': 'True'"
+          # Issue faced with this is that filters in "amazon.aws.ec2_instance" is not able to
+          # or probably I am not able to make use of a variable in filters tag
+          # - name: Get instances to be terminated
+          #   amazon.aws.ec2_instance_info:
+          #     filters:
+          #       instance-state-name: running
+          #       "tag:{{ tag_to_terminate_instance_on }}": "*"
+          #   register: tagged_instances
+
+          - name: Create a list of instance ids to be terminated
+            set_fact:
+              instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
+
+          - name: terminate instances
+            amazon.aws.ec2_instance:
+              instance_ids:
+                - "{{ item }}"
+              state: absent
+            with_items:
+              - "{{ instance_ids }}"
