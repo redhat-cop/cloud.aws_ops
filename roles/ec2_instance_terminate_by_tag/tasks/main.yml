@@ -37,3 +37,34 @@
               state: absent
             with_items:
               - "{{ instance_ids }}"
+
+# Below is another possible approach where we can terminate ec2 instances which have a tag-key
+# matching to one provided by user in role-vars
+---
+
+# - block:
+
+#     - name: Verify that tag to terminate instances with was provided
+#       ansible.builtin.debug: msg="Please set 'tag_to_terminate_instances' to a tag key based on which instances should be terminated..."
+#       when: tag_to_terminate_instances | length == 0
+
+#     - when: tag_to_terminate_instances != 0
+#       block:
+#           - name: Get instances to be terminated
+#             amazon.aws.ec2_instance_info:
+#               filters:
+#                 instance-state-name: running
+#                 tag-key: "{{ tag_to_terminate_instances }}"
+#             register: tagged_instances
+
+#           - name: Create a list of instance ids to be terminated
+#             set_fact:
+#               instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
+
+#           - name: terminate instances
+#             amazon.aws.ec2_instance:
+#               instance_ids:
+#                 - "{{ item }}"
+#               state: absent
+#             with_items:
+#               - "{{ instance_ids }}"
