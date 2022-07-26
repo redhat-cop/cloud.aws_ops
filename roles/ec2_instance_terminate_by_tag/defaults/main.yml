@@ -1,2 +1,3 @@
 ---
-terminate_tagged_instances: false
+tag_key_to_terminate_instances: ToBeTerminated
+tag_value_to_terminate_instances: False
