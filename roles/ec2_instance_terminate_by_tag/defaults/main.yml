@@ -1,3 +1,4 @@
 ---
 tag_key_to_terminate_instances: ToBeTerminated
 tag_value_to_terminate_instances: False
+terminate_termination_protected_instances: False
