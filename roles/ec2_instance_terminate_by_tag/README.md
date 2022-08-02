@@ -1,5 +1,4 @@
 # ec2_instance_terminate_by_tag
--------
 
 A role to terminate the ec2_instances having a specific tag.
 User can specify a tag key-value pair for which the ec2 instances with matching tag key-value pair will be terminated.
