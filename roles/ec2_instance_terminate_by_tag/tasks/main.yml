@@ -9,32 +9,32 @@
     - when: tag_key_to_terminate_instances | length != 0
       block:
 
-          - name: prepare filters dict to filter running instances with specified tag
-            ansible.builtin.set_fact:
-                instance_filters: "{{ { 'instance-state-name': 'running' ,  'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances } }}"
+        - name: prepare filters dict to filter running instances with specified tag
+          ansible.builtin.set_fact:
+            instance_filters: "{{ { 'instance-state-name': 'running' ,  'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances } }}"
 
-          - name: Get instances to be terminated
-            amazon.aws.ec2_instance_info:
-              filters: "{{ instance_filters }}"
-            register: tagged_instances
+        - name: Get instances to be terminated
+          amazon.aws.ec2_instance_info:
+            filters: "{{ instance_filters }}"
+          register: tagged_instances
 
-          - name: Create a list of instance ids to be terminated
-            set_fact:
-              instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
+        - name: Create a list of instance ids to be terminated
+          set_fact:
+            instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
 
-          - name: disable instance termination protection if terminate_termination_protected_instances is true
-            amazon.aws.ec2_instance:
-              instance_ids:
-                - "{{ item }}"
-              termination_protection: false
-            with_items: "{{ instance_ids }}"
-            when: terminate_termination_protected_instances == True
+        - name: disable instance termination protection if terminate_termination_protected_instances is true
+          amazon.aws.ec2_instance:
+            instance_ids:
+              - "{{ item }}"
+            termination_protection: false
+          with_items: "{{ instance_ids }}"
+          when: terminate_termination_protected_instances == True
 
-          - name: terminate instances
-            amazon.aws.ec2_instance:
-              instance_ids:
-                - "{{ item }}"
-              state: absent
-            register: terminate_result
-            with_items:
-              - "{{ instance_ids }}"
+        - name: terminate instances
+          amazon.aws.ec2_instance:
+            instance_ids:
+              - "{{ item }}"
+            state: absent
+          register: terminate_result
+          with_items:
+            - "{{ instance_ids }}"
