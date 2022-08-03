@@ -9,7 +9,7 @@
     - when: tag_key_to_terminate_instances | length != 0
       block:
 
-        - name: prepare filters dict to filter running instances with specified tag
+        - name: Prepare filters dict to filter running instances with specified tag
           ansible.builtin.set_fact:
             instance_filters: "{{ { 'instance-state-name': 'running' ,  'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances } }}"
 
@@ -22,15 +22,22 @@
           ansible.builtin.set_fact:
             instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
 
-        - name: disable instance termination protection if terminate_termination_protected_instances is true
-          amazon.aws.ec2_instance:
-            instance_ids:
-              - "{{ item }}"
-            termination_protection: false
-          with_items: "{{ instance_ids }}"
-          when: terminate_termination_protected_instances == True
+        - when: terminate_termination_protected_instances == True
+          block:
+            - debug:
+                msg:
+                  - "'terminate_termination_protected_instances' is set to True..."
+                  - "Instances with termination protection enabled will also be terminated..."
+              when: "{{ instance_ids | length }} != 0"
 
-        - name: terminate instances
+            - name: Disable instance termination protection if terminate_termination_protected_instances is true
+              amazon.aws.ec2_instance:
+                instance_ids:
+                  - "{{ item }}"
+                termination_protection: false
+              with_items: "{{ instance_ids }}"
+
+        - name: Terminate instances
           amazon.aws.ec2_instance:
             instance_ids:
               - "{{ item }}"
@@ -41,5 +48,6 @@
 
         - name: Create list of terminated instances
           ansible.builtin.set_fact:
-            terminated_instances: "{{ terminate_result.results| map(attribute='terminate_success') | list | flatten }}"
+            terminated_instances: "{{ terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
         - debug: msg="Terminated instances successfully -> {{ terminated_instances }}"
+          when: "{{ terminated_instances | length }} != 0"
