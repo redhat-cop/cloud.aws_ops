@@ -19,7 +19,7 @@
           register: tagged_instances
 
         - name: Create a list of instance ids to be terminated
-          set_fact:
+          ansible.builtin.set_fact:
             instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
 
         - name: disable instance termination protection if terminate_termination_protected_instances is true
@@ -38,3 +38,8 @@
           register: terminate_result
           with_items:
             - "{{ instance_ids }}"
+
+        - name: Create list of terminated instances
+          ansible.builtin.set_fact:
+            terminated_instances: "{{ terminate_result.results| map(attribute='terminate_success') | list | flatten }}"
+        - debug: msg="Terminated instances successfully -> {{ terminated_instances_info }}"
