@@ -3,7 +3,9 @@
 - block:
 
     - name: Verify that tag to terminate instances with was provided
-      ansible.builtin.debug: msg="Please set 'tag_key_to_terminate_instances' to a tag based on which instances should be terminated..."
+      ansible.builtin.fail:
+        msg:
+          -"Please set 'tag_key_to_terminate_instances' to a tag based on which instances should be terminated..."
       when: tag_key_to_terminate_instances | length == 0
 
     - when: tag_key_to_terminate_instances | length != 0
@@ -22,15 +24,16 @@
           ansible.builtin.set_fact:
             instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
 
-        - when: terminate_termination_protected_instances == True
+        - when: terminate_protected_instances == True
           block:
             - debug:
                 msg:
-                  - "'terminate_termination_protected_instances' is set to True..."
+                  - "'terminate_protected_instances' is set to True..."
                   - "Instances with termination protection enabled will also be terminated..."
               when: "{{ instance_ids | length }} != 0"
+              verbosity: 3
 
-            - name: Disable instance termination protection if terminate_termination_protected_instances is true
+            - name: Disable instance termination protection if terminate_protected_instances is true
               amazon.aws.ec2_instance:
                 instance_ids:
                   - "{{ item }}"
@@ -49,5 +52,7 @@
         - name: Create list of terminated instances
           ansible.builtin.set_fact:
             terminated_instances: "{{ terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
-        - debug: msg="Terminated instances successfully -> {{ terminated_instances }}"
+        - debug:
+            msg:
+              - "Terminated instances successfully -> {{ terminated_instances }}"
           when: "{{ terminated_instances | length }} != 0"
