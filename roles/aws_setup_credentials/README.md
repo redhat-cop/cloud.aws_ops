@@ -11,10 +11,6 @@ N/A
 Role Variables
 --------------
 
-* **aws_debug_botocore_endpoint_logs**:
-    - Use a botocore.endpoint logger to parse the unique (rather than total) "resource:action" API calls made during a task, outputing the set to the resource_actions key in the task results. 
-    - Environment variable:
-        - ANSIBLE_DEBUG_BOTOCORE_LOGS
 * **aws_endpoint_url**:
     - URL to use to connect to EC2 or your Eucalyptus cloud (by default the module will use EC2 endpoints). Ignored for modules where region is required. Must be specified for all other modules if region is not used.
     - Environment variable:
