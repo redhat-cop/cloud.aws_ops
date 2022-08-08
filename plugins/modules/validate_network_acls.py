@@ -166,11 +166,13 @@ class ValidateNetworkACL(AnsibleModule):
                         denied_ports.append(port)
 
         if len(denied_ports) > 0:
+            acl_type = "egress" if egress else "ingress"
             self.fail_json(
                 msg="Network acl {id} is not allowing traffic for port(s) {ports}."
-                    "Please review network acl for egress rules allowing port(s) {ports}".format(
+                    "Please review network acl for {acl_type} rules allowing port(s) {ports}".format(
                         id=acl.get("nacl_id"),
                         ports=denied_ports,
+                        acl_type=acl_type,
                     )
             )
 
