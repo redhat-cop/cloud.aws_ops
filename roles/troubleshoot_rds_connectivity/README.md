@@ -2,6 +2,7 @@ troubleshoot_rds_connectivity
 ==================
 
 A role to troubleshoot RDS connectivity from an EC2 instance.
+The role diagnoses connectivity issues between an EC2 instance and an Amazon Relational Database Service instance, ensures the DB instance is available, and then checks the associated security group rules, network access control lists (network ACLs), and route tables for potential connectivity issues.
 
 Requirements
 ------------

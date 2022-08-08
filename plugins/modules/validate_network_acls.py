@@ -116,6 +116,12 @@ from ansible.module_utils.basic import AnsibleModule
 NACLEntry = namedtuple('NACLEntry', ['rule_number', 'protocol', 'rule_action', 'cidr_block', 'icmp_type', 'icmp_code', 'port_range_from', 'port_range_to'])
 
 
+def is_port_in_range(port, from_port, to_port):
+    if from_port is not None and to_port is not None:
+        return port in range(from_port, to_port + 1)
+    return True
+
+
 class ValidateNetworkACL(AnsibleModule):
 
     def __init__(self):
@@ -130,54 +136,34 @@ class ValidateNetworkACL(AnsibleModule):
 
         super(ValidateNetworkACL, self).__init__(argument_spec=argument_spec)
 
+        for key in argument_spec:
+            setattr(self, key, self.params.get(key))
+
         self.execute_module()
 
-    def evaluate_traffic_basedon_cidr(self, acl):
+    def evaluate_network_traffic(self, acl, egress=True):
         allowed_ports = []
         denied_ports = []
-        allowed_cidrs = {}
-        denied_cidrs = {}
 
-        for port in self.params.get("dest_port"):
-            if not (port in allowed_ports or port in denied_ports):
-                for entry in acl.get("egress", []):
-                    nacl_entry = NACLEntry(*entry)
-                    if not (port in allowed_ports or port in denied_ports):
-                        if nacl_entry.protocol in ("all", "tcp"):
-                            for cidr in self.params.get("dest_subnet_cidrs"):
-                                if not (port in allowed_ports or port in denied_ports):
-                                    if ip_network(nacl_entry.cidr_block, strict=False).overlaps(
-                                        ip_network(cidr, strict=False)
-                                    ):
-                                        if nacl_entry.port_range_from is not None and nacl_entry.port_range_to is not None:
-                                            if port in range(
-                                                nacl_entry.port_range_from, nacl_entry.port_range_to + 1
-                                            ):
-                                                if nacl_entry.rule_action == "allow":
-                                                    allowed_ports.append(port)
-                                                    allowed_cidrs[port] = [nacl_entry.rule_number]
-                                                else:
-                                                    denied_ports.append(port)
-                                                    denied_cidrs[port] = [nacl_entry.rule_number]
-                                            else:
-                                                continue
-                                        else:
-                                            if nacl_entry.rule_action == "allow":
-                                                allowed_ports.append(port)
-                                                allowed_cidrs[port] = [nacl_entry.rule_number]
-                                                break
-                                            else:
-                                                denied_ports.append(port)
-                                                denied_cidrs[port] = [nacl_entry.rule_number]
-                                                break
-                                    else:
-                                        continue
-                                else:
-                                    break
-                        else:
-                            continue
+        for port in self.dest_port:
+            if port in allowed_ports or port in denied_ports:
+                continue
+            acl_entries = acl.get("egress", []) if egress else acl.get("ingress", [])
+            for entry in acl_entries:
+                nacl_entry = NACLEntry(*entry)
+
+                if egress:
+                    # Evaluate traffic based on CIDR when egress is set to True
+                    eval_traffic = (ip_network(nacl_entry.cidr_block, strict=False).overlaps(ip_network(cidr, strict=False)) for cidr in self.dest_subnet_cidrs)
+                else:
+                    # Evaluate traffic based on IP when egress is set to False
+                    eval_traffic = (ip_address(ip) in ip_network(nacl_entry.cidr_block, strict=False) for ip in self.src_private_ip)
+
+                if nacl_entry.protocol in ("all", "tcp") and is_port_in_range(port, nacl_entry.port_range_from, nacl_entry.port_range_to) and any(eval_traffic):
+                    if nacl_entry.rule_action == "allow":
+                        allowed_ports.append(port)
                     else:
-                        break
+                        denied_ports.append(port)
 
         if len(denied_ports) > 0:
             self.fail_json(
@@ -188,73 +174,15 @@ class ValidateNetworkACL(AnsibleModule):
                     )
             )
 
-    def evaluate_traffic_basedon_ip(self, acl):
-        allowed_ports = []
-        denied_ports = []
-        allowed_ips = {}
-        denied_ips = {}
-
-        for port in self.params.get("dest_port"):
-            if not (port in allowed_ports or port in denied_ports):
-                for entry in acl.get("ingress", []):
-                    nacl_entry = NACLEntry(*entry)
-                    if not (port in allowed_ports or port in denied_ports):
-                        if nacl_entry.protocol in ("all", "tcp"):
-                            for ip in self.params.get("src_private_ip"):
-                                if not (port in allowed_ports or port in denied_ports):
-                                    if ip_address(ip) in ip_network(
-                                        nacl_entry.cidr_block, strict=False
-                                    ):
-                                        if nacl_entry.port_range_from is not None and nacl_entry.port_range_to is not None:
-                                            if port in range(
-                                                nacl_entry.port_range_from, nacl_entry.port_range_to + 1
-                                            ):
-                                                if nacl_entry.rule_action == "allow":
-                                                    allowed_ports.append(port)
-                                                    allowed_ips[port] = [nacl_entry.rule_number]
-                                                else:
-                                                    denied_ports.append(port)
-                                                    denied_ips[port] = [nacl_entry.rule_number]
-                                            else:
-                                                continue
-                                        else:
-                                            if nacl_entry.rule_action == "allow":
-                                                allowed_ports.append(port)
-                                                allowed_ips[port] = [nacl_entry.rule_number]
-                                                break
-                                            else:
-                                                denied_ports.append(port)
-                                                denied_ips[port] = [nacl_entry.rule_number]
-                                                break
-                                    else:
-                                        continue
-                                else:
-                                    break
-                        else:
-                            continue
-                    else:
-                        break
-            else:
-                continue
-
-        if len(denied_ports) > 0:
-            self.fail_json(
-                msg="Network acl {id} is not allowing traffic for port(s) {ports}."
-                    "Please review network acl for ingress rules allowing port(s) {ports}".format(
-                        id=acl.get("nacl_id"),
-                        ports=denied_ports,
-                    )
-            )
-
     def execute_module(self):
         try:
             # Verify Egress traffic from Source to Destination subnets
-            for acl in self.params.get("src_network_acl_rules"):
-                self.evaluate_traffic_basedon_cidr(acl)
+            for acl in self.src_network_acl_rules:
+                self.evaluate_network_traffic(acl, egress=True)
 
             # Verify Ingress traffic to Destination from Source Instance IP
-            for acl in self.params.get("dest_network_acl_rules"):
-                self.evaluate_traffic_basedon_ip(acl)
+            for acl in self.dest_network_acl_rules:
+                self.evaluate_network_traffic(acl, egress=False)
 
             self.exit_json(
                 result="Network ACL validation successful"
