@@ -1,0 +1,3 @@
+---
+tag_value_to_terminate_instances:
+terminate_protected_instances: False
