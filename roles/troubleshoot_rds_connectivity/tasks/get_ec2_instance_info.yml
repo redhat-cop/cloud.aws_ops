@@ -1,0 +1,48 @@
+---
+- name: Describe EC2 instance
+  ec2_instance_info:
+    instance_ids:
+      - "{{ troubleshoot_rds_connectivity_ec2_instance_id }}"
+  register: result
+
+- fail:
+    msg: "EC2 instance not found with id: {{ troubleshoot_rds_connectivity_ec2_instance_id }}"
+  when: result.instances | length == 0
+
+- set_fact:
+    ec2_security_group_ids: "{{ ec2_instance_info.security_groups | map(attribute='group_id') | list }}"
+    ec2_subnet_id: "{{ ec2_instance_info.subnet_id }}"
+    ec2_vpc_id: "{{ ec2_instance_info.vpc_id }}"
+    ec2_private_ip_addrs: "{{ ec2_instance_info.network_interfaces | map(attribute='private_ip_addresses') | flatten | map(attribute='private_ip_address') | list }}"
+  vars:
+    ec2_instance_info: "{{ result.instances.0 }}"
+
+- name: Get EC2 Subnet info
+  ec2_vpc_subnet_info:
+    subnet_ids: "{{ ec2_subnet_id }}"
+  register: ec2_subnets_info
+
+- name: Get EC2 Network Acl Rules
+  ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id: "{{ ec2_subnet_id }}"
+  register: ec2_network_acl
+
+- name: Get EC2 Security Groups info
+  ec2_group_info:
+    filters:
+      group-id: "{{ ec2_security_group_ids }}"
+  register: ec2_security_groups
+
+- name: Get EC2 Route Tables
+  ec2_vpc_route_table_info:
+    filters:
+      association.subnet-id: "{{ ec2_subnet_id }}"
+  register: ec2_subnet_route_table
+
+- name: Get EC2 Vpc Route Tables
+  ec2_vpc_route_table_info:
+    filters:
+      association.main: true
+      vpc-id: "{{ ec2_vpc_id }}"
+  register: ec2_vpc_route_table
