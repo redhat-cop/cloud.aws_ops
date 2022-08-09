@@ -55,8 +55,4 @@
 
   module_defaults:
     group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      aws_profile: "{{ aws_profile | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ aws_region }}"
+      "{{ aws_role_credentials }}"
