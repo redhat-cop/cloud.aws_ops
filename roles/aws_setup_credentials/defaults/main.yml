@@ -1,0 +1,38 @@
+---
+aws_connection_env:
+  aws_profile:
+    env:
+      - AWS_PROFILE
+      - AWS_DEFAULT_PROFILE
+  aws_endpoint_url:
+    env:
+      - AWS_URL
+      - EC2_URL
+  aws_access_key:
+    env:
+      - AWS_ACCESS_KEY_ID
+      - AWS_ACCESS_KEY
+      - EC2_ACCESS_KEY
+  aws_secret_key:
+    env:
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SECRET_KEY
+      - EC2_SECRET_KEY
+  aws_security_token:
+    env:
+      - AWS_SECURITY_TOKEN
+      - AWS_SESSION_TOKEN
+      - EC2_SECURITY_TOKEN
+  aws_ca_bundle:
+    env:
+      - AWS_CA_BUNDLE
+  aws_validate_certs:
+    dest: validate_certs
+    env:
+      - AWS_VALIDATE_CERTS
+  aws_region:
+    env:
+      - AWS_REGION
+      - EC2_REGION
+  aws_config:
+    env: []

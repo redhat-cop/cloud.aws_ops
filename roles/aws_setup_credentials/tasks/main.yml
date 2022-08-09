@@ -1,0 +1,8 @@
+---
+- name: Define intial value for credentials
+  set_fact:
+    aws_role_credentials: {}
+
+- name: Create auth credentials
+  include_tasks: read_option.yml
+  with_dict: "{{ aws_connection_env }}"

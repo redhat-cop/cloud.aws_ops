@@ -1,0 +1,13 @@
+---
+- include_role:
+    name: cloud.aws_roles.aws_setup_credentials
+  vars:
+    aws_profile: profile-1
+
+- name: Ensure credentials contain only aws_profile key
+  assert:
+    that:
+      - aws_role_credentials is defined
+      - aws_role_credentials.keys() | length == 1
+      - '"aws_profile" in aws_role_credentials'
+      - aws_role_credentials.aws_profile == 'profile-1'
