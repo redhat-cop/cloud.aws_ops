@@ -1,0 +1,58 @@
+---
+- fail:
+    msg: "Internet gateway Id to delete must be defined as internet_gateway_id"
+  when: internet_gateway_id is not defined
+
+- block:
+
+    # Wait for Internet Gateway Id being available
+    - name: Wait for internet gateway being available
+      amazon.aws.ec2_vpc_igw_info:
+        internet_gateway_ids:
+          - "{{ internet_gateway_id }}"
+      register: result
+      retries: 30
+      delay: 5
+      until:
+        - '"internet_gateways" in result'
+        - result.internet_gateways | length > 0
+        - result.internet_gateways.0.attachments | map(attribute='state') | list | unique == ['available']
+      ignore_errors: true
+
+    - fail:
+        msg: "{{ result.msg }}"
+      when: '"internet_gateways" not in result'
+
+    - fail:
+        msg: "Internet gateway not available: {{ result.internet_gateways.0.attachments }}"
+      when: result is failed
+
+    # Retrieves a specified virtual private gateway configuration.
+    - name: Detach and delete Internet Gateway from VPC
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ result.internet_gateways.0.attachments.0.vpc_id }}"
+        state: absent
+      ignore_errors: true
+      register: detach
+
+    - fail:
+        msg: >-
+          Some Amazon EC2 instances in your virtual private cloud ({{ result.internet_gateways.0.attachments.0.vpc_id }})
+          have elastic IP addresses or public IPv4 addresses associated with them,
+          Please unmap those public address(es) before detaching the gateway.
+      when:
+        - detach is failed
+        - '"error" in detach'
+        - detach.error.code == "DependencyViolation"
+        - '"has some mapped public address(es)" in detach.error.message'
+
+    - fail:
+        msg: "{{ detach.msg }}"
+      when: detach is failed
+
+    - debug:
+        msg: "Internet Gateway Id {{ internet_gateway_id }} detached from VPC and successfully deleted."
+
+  module_defaults:
+    group/aws:
+      "{{ aws_role_credentials }}"
