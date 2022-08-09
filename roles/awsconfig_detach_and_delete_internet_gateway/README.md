@@ -15,10 +15,6 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **aws_profile**: The AWS profile.
-* **aws_access_key**: The AWS access key to use.
-* **aws_secret_key**: The AWS secret key that corresponds to the access key.
-* **aws_security_token**: The AWS security token if using temporary access and secret keys.
 * **internet_gateway_id**: (Required) The ID of the internet gateway that you want to delete.
 
 Dependencies
