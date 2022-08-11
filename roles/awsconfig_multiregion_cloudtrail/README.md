@@ -19,10 +19,6 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **aws_profile**: The AWS profile.
-* **aws_access_key**: The AWS access key to use.
-* **aws_secret_key**: The AWS secret key that corresponds to the access key.
-* **aws_security_token**: The AWS security token if using temporary access and secret keys.
 * **operation**: Whether to create or delete the Trail. Choices: 'create', 'delete'. Default: 'create'.
 * **bucket_name**: The name of the Amazon S3 bucket you want to upload logs to. Required when **operation** is set to **create**.
 * **key_prefix**: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
@@ -31,7 +27,7 @@ Role Variables
 Dependencies
 ------------
 
-- NA
+- role: aws_setup_credentials
 
 Example Playbook
 ----------------

@@ -20,7 +20,7 @@ Role Variables
 Dependencies
 ------------
 
-- NA
+- role: [aws_setup_credentials](../aws_setup_credentials/README.md)
 
 Example Playbook
 ----------------
