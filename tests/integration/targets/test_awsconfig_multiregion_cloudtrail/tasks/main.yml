@@ -1,0 +1,42 @@
+- set_fact:
+    test_resource_prefix: "ansible-multiregion-cloudtrail-{{ 101 | random(1,10) }}"
+
+- block:
+    - set_fact:
+        s3_bucket_name: "s3-{{ test_resource_prefix }}"
+        cloud_trail_name: "trail-{{ test_resource_prefix }}"
+  
+    - name: Create S3 Bucket
+      s3_bucket:
+        name: "{{ s3_bucket_name }}"
+        state: present
+        policy: "{{ lookup('template', 'policy.json') }}"
+
+    # Create multiregion cloud trail
+    - name: Create Multi-region cloud trail
+      include_role:
+        name: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+      vars:
+        operation: create
+        bucket_name: "{{ s3_bucket_name }}"
+        trail_name: "{{ cloud_trail_name }}"
+        key_prefix: ansible
+
+    # Validate that the cloud trail has been created
+
+    # Delete cloud trail
+    - name: Create Multi-region cloud trail
+      include_role:
+        name: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+      vars:
+        operation: delete
+        trail_name: "{{ cloud_trail_name }}"
+
+    # Validate that the cloud trail has been deleted
+
+  always:
+    - name: Delete S3 bucket
+      s3_bucket:
+        name: "s3-{{ s3_bucket_name }}"
+        state: absent
+      ignore_errors: true
