@@ -45,3 +45,7 @@
           when: not result.changed
 
       when: operation == 'delete'
+
+  module_defaults:
+    group/aws:
+      "{{ aws_role_credentials }}"
