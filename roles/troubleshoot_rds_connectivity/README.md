@@ -18,7 +18,7 @@ Role Variables
 Dependencies
 ------------
 
-- role: aws_setup_credentials
+- role: [aws_setup_credentials](../aws_setup_credentials/README.md)
 
 Example Playbook
 ----------------
