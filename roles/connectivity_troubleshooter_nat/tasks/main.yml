@@ -1,0 +1,65 @@
+---
+# tasks file for roles/connectivity_troubleshooter_nat
+
+- fail:
+    msg: "Next hop type '{{ next_hop }}' is not supported by this role"
+  when: "'nat-' not in next_hop"
+
+- name: Gather information about NAT gateway
+  amazon.aws.ec2_vpc_nat_gateway_info:
+    filters:
+      nat-gateway-id: "{{ next_hop }}"
+  register: __describe_nat_gw
+
+- set_facts:
+    nat_subnet_id: "{{ __nat_gw_info.subnet_id }}"
+    nat_vpc_id: "{{ __nat_gw_info.vpc_id }}"
+  vars:
+    __nat_gw_info: "{{ __describe_nat_gw.0 }}"
+
+- name: Gather information about NAT gateway subnet networks ACLs
+  community.aws.ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id: "{{ nat_subnet_id }}"
+  register: nat_network_acls_info
+
+- name: Gather information about VPC route table
+  amazon.aws.ec2_vpc_route_table_info:
+    filters:
+      association.subnet-id': "{{ nat_subnet_id }}"
+  register: __nat_route_table
+
+- set_fact:
+    nat_routes: "{{ __nat_route_table['routes'] }}"
+  when: __nat_route_table | length > 0
+
+# if RouteTable is not returned, this indicates association of subnet with main route table
+- block:
+    - name: Gather information about VPC route table
+      amazon.aws.ec2_vpc_route_table_info:
+        filters:
+          association.main: "true"
+          vpc-id: "{{ nat_vpc_id }}"
+      register: __nat_route_table_retry
+
+    - fail:
+        msg: "Could not find route table for NAT Gateway"
+      when: __nat_route_table_retry | length == 0
+
+    - set_fact:
+        nat_routes: "{{ __nat_route_table_retry['routes'] }}"
+
+  when: __nat_route_table | length == 0
+
+- name: Evaluate ingress and egress NAT netwok ACLs
+  eval_nat_network_acls:
+    src_ip: "{{ connectivity_troubleshooter_igw_source_ip }}"
+    src_subnet_id: "{{ src_subnet_id }}"
+    src_port_range: "{{ connectivity_troubleshooter_nat_source_port_range }}"
+    dst_ip: "{{ connectivity_troubleshooter_nat_destination_ip }}"
+    dst_port: "{{ connectivity_troubleshooter_nat_destination_port }}"
+    nat_subnet_id: "{{ nat_subnet_id }}"
+    nat_network_acls: "{{ nat_network_acls_info }}"
+    routes: "{{ nat_routes }}"
+  register: __result_eval_nat_network_acls
+
