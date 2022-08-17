@@ -1,0 +1,64 @@
+---
+# tasks file for roles/connectivity_troubleshooter_local
+
+- fail:
+    msg: "Next hop type '{{ next_hop }}' is not supported by this role"
+  when: "next_hop != 'local'"
+
+- name: Gather information about Destination ENI
+  community.aws.ec2_eni_info:
+    filters:
+      addresses.private-ip-address: "{{ connectivity_troubleshooter_local_destination_ip }}"
+  register: __describe_dst_eni
+
+- set_fact:
+    dst_vpc_id: "{{ __dst_network_interface_info.vpc_id }}"
+    dst_subnet_id: "{{ __dst_network_interface_info.subnet_id }}"
+    dst_security_groups: "{{ __dst_network_interface_info.groups | map(attribute='group_id') | list }}"
+  vars:
+    __dst_network_interface_info: "{{ __describe_dst_eni.network_interfaces.0 }}"
+
+- fail:
+    msg: "Kindly check the connectivity_troubleshooter_local_destination_ip parameter, no network interface found"
+  when: __describe_dst_eni['network_interfaces'] | length == 0
+
+- fail:
+    msg: "Kindly check the source route table to ensure a more specific route is present towards required destination VPC"
+  when: connectivity_troubleshooter_local_destination_vpc is defined and connectivity_troubleshooter_local_destination_vpc != dest_vpc_id
+
+- name: Gather information about Source and Destination security groups
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-ids:
+        - "{{ src_security_groups }}"
+        - "{{ dst_security_groups }}"
+  register: security_groups_info
+
+- name: Evaluate ingress and egress security group rules
+  eval_security_groups:
+    src_ip: "{{ connectivity_troubleshooter_local_source_ip }}"
+    src_security_groups: "{{ src_security_groups }}"
+    dst_ip: "{{ connectivity_troubleshooter_local_destination_ip }}"
+    dst_port: "{{ connectivity_troubleshooter_local_destination_port }}"
+    dst_security_groups: "{{ dst_security_groups }}"
+    security_groups: "{{ security_groups_info }}"
+  register: __result_eval_security_groups
+
+- name: Gather information about Source and Destination subnet network ACLs
+  community.aws.ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id:
+        - "{{ src_subnet_id }}"
+        - "{{ dst_subnet_id }}"
+  register: network_acls_info
+
+- name: Evaluate ingress and egress netwok ACLs
+  eval_network_acls:
+    src_ip: "{{ connectivity_troubleshooter_local_source_ip }}"
+    src_subnet_id: "{{ src_subnet_id }}"
+    src_port_range: "{{ connectivity_troubleshooter_local_source_port_range }}"
+    dst_ip: "{{ connectivity_troubleshooter_local_destination_ip }}"
+    dst_port: "{{ connectivity_troubleshooter_local_destination_port }}"
+    dst_subnet_id: "{{ dst_subnet_id }}"
+    network_acls: "{{ network_acls_info }}"
+  register: __result_eval_network_acls
