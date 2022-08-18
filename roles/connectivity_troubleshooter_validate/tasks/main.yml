@@ -18,11 +18,16 @@
   when: connectivity_troubleshooter_validate_source_ip == connectivity_troubleshooter_validate_destination_ip
 
 # Source
+- set_fact:
+    __filter_eni: {addresses.private-ip-address: "{{ connectivity_troubleshooter_validate_source_ip }}"}
+
+- set_fact:
+    __filter_eni: "{{ filter_eni | combine( { vpc-id: connectivity_troubleshooter_validate_source_vpc } ) }}"
+  when: connectivity_troubleshooter_validate_source_vpc is defined
+
 - name: Gather information about Source ENI
-  community.aws.ec2_eni_info:
-    filters:
-      addresses.private-ip-address: "{{ connectivity_troubleshooter_validate_source_ip }}"
-      vpc-id: "{{ connectivity_troubleshooter_validate_source_vpc | default(None) }}"
+  amazon.aws.ec2_eni_info:
+    filters: "{{ __filter_eni }}"
   register: __describe_src_eni
 
 - fail:
@@ -43,8 +48,8 @@
   register: __src_route_table
 
 - set_fact:
-    routes: "{{ __src_route_table['routes'] }}"
-  when: __src_route_table | length > 0
+    routes: "{{ __src_route_table.route_tables.0.routes }}"
+  when: __src_route_table.route_tables | length > 0
 
 # if RouteTable is not returned, this indicates association of subnet with main route table
 - block:
@@ -57,11 +62,11 @@
 
     - fail:
         msg: "Could not find route table for connectivity_troubleshooter_validate_source_ip"
-      when: __src_route_table_retry | length == 0
+      when: __src_route_table_retry.route_tables | length == 0
 
     - set_fact:
-        routes: "{{ __src_route_table_retry['routes'] }}"
-  when: __src_route_table | length == 0
+        routes: "{{ __src_route_table_retry.route_tables.0.routes }}"
+  when: __src_route_table.route_tables | length == 0
 
 - name: Get connection next hop
   get_connection_next_hop:

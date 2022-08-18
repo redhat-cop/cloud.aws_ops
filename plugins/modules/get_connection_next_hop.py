@@ -25,7 +25,7 @@ options:
     required: true
   routes:
     description:
-    - VPC route tables.
+    - Source VPC route tables.
     type: list
     elements: dict
     required: true
@@ -35,13 +35,27 @@ options:
 EXAMPLES = r"""
 - name: Get connection next hop type
   get_connection_next_hop:
-    ...
-
+    dst_ip: 172.32.2.13
+    routes:
+        - destination_cidr_block: "172.32.0.0/16",
+          gateway_id: "local",
+          instance_id: null,
+          interface_id: null,
+          network_interface_id: null,
+          origin: "CreateRouteTable",
+          state: "active"
+        - destination_cidr_block: "0.0.0.0/0",
+          gateway_id: "igw-0b9da14cbd81d415c",
+          instance_id: null,
+          interface_id: null,
+          network_interface_id: null,
+          origin: "CreateRoute",
+          state: "active"
 """
 
 
 RETURN = r"""
-result:
+next_hop:
   type: str
   description: Results from get connection next hop type.
   returned: success
@@ -58,7 +72,7 @@ class GetConnectionNextHopType(AnsibleModule):
 
         argument_spec = dict(
             dst_ip=dict(type="str", required=True),
-            routes=dict(type="list", elements="str", required=True),
+            routes=dict(type="list", elements="dict", required=True),
         )
 
         super(GetConnectionNextHopType, self).__init__(argument_spec=argument_spec)
@@ -103,7 +117,7 @@ class GetConnectionNextHopType(AnsibleModule):
 
         try:
             next_hop = self.get_next_hop()
-            self.exit_json(next_hoop=next_hop)
+            self.exit_json(next_hop=next_hop)
         except Exception as e:
             self.fail_json(
                 msg="Failed to get connection next hop type: {}".format(e), exception=e
