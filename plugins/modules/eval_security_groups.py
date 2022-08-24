@@ -28,7 +28,7 @@ options:
     description:
     - Destination Security Groups.
     type: list
-    elements: list
+    elements: str
     required: true
   dst_ip:
     description:
@@ -38,7 +38,7 @@ options:
   dst_port:
     description:
     - The port number you want to connect to on the destination resource.
-    type: str
+    type: int
     required: true
   dst_security_groups:
     description:
@@ -58,8 +58,12 @@ options:
 EXAMPLES = r"""
 - name: Evaluate ingress and egress security group rules
   eval_security_groups:
-    ...
-
+    src_ip: "{{ connectivity_troubleshooter_local_source_ip }}"
+    src_security_groups: "{{ src_security_groups }}"
+    dst_ip: "{{ connectivity_troubleshooter_local_destination_ip }}"
+    dst_port: "{{ connectivity_troubleshooter_local_destination_port }}"
+    dst_security_groups: "{{ dst_security_groups }}"
+    security_groups: "{{ security_groups_info }}"
 """
 
 
@@ -83,7 +87,7 @@ class EvalSecurityGroups(AnsibleModule):
             src_ip=dict(type="str", required=True),
             src_security_groups=dict(type="list", elements="str", required=True),
             dst_ip=dict(type="str", required=True),
-            dst_port=dict(type="str", required=True),
+            dst_port=dict(type="int", required=True),
             dst_security_groups=dict(type="list", elements="str", required=True),
             security_groups=dict(type="list", elements="dict", required=True),
         )
@@ -104,7 +108,7 @@ class EvalSecurityGroups(AnsibleModule):
             for src_security_group in self.src_security_groups:
                 sg = [
                     group
-                    for group in self.security_groups["security_groups"]
+                    for group in self.security_groups
                     if group["group_id"] == src_security_group
                 ][0]
                 for rule in sg["ip_permissions_egress"]:
@@ -134,7 +138,7 @@ class EvalSecurityGroups(AnsibleModule):
             for dst_security_group in self.dst_security_groups:
                 sg = [
                     group
-                    for group in self.security_groups["security_groups"]
+                    for group in self.security_groups
                     if group["group_id"] == dst_security_group
                 ][0]
                 for rule in sg["ip_permissions"]:
@@ -169,7 +173,10 @@ class EvalSecurityGroups(AnsibleModule):
         dst_ip = ip_address(self.dst_ip)
         dst_port = int(self.dst_port)
 
-        for sg in self.src_security_groups:
+        for sg_id in self.src_security_groups:
+            sg = [
+                group for group in self.security_groups if group["group_id"] == sg_id
+            ][0]
             for rule in sg["ip_permissions_egress"]:
                 if (
                     (rule.get("ip_protocol") == "-1")
@@ -191,7 +198,7 @@ class EvalSecurityGroups(AnsibleModule):
 
     def execute_module(self):
         try:
-            # Evluate Ingress and Egress security groups rules
+            # Evaluate Ingress and Egress security groups rules
             self.check_src_egress_rules()
             self.eval_sg_rules()
             self.exit_json(result="Security Groups rules validation successful")

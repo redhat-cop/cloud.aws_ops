@@ -6,7 +6,7 @@
   when: "next_hop != 'local'"
 
 - name: Gather information about Destination ENI
-  community.aws.ec2_eni_info:
+  amazon.aws.ec2_eni_info:
     filters:
       addresses.private-ip-address: "{{ connectivity_troubleshooter_local_destination_ip }}"
   register: __describe_dst_eni
@@ -24,15 +24,41 @@
 
 - fail:
     msg: "Kindly check the source route table to ensure a more specific route is present towards required destination VPC"
-  when: connectivity_troubleshooter_local_destination_vpc is defined and connectivity_troubleshooter_local_destination_vpc != dest_vpc_id
+  when: connectivity_troubleshooter_local_destination_vpc is defined and connectivity_troubleshooter_local_destination_vpc != dst_vpc_id
 
-- name: Gather information about Source and Destination security groups
+- name: Gather information about Source security groups
   amazon.aws.ec2_security_group_info:
     filters:
-      group-ids:
-        - "{{ src_security_groups }}"
-        - "{{ dst_security_groups }}"
-  register: security_groups_info
+      group_id: "{{ item }}"
+  register: __src_security_groups_info
+  with_items: "{{ src_security_groups }}"
+
+- name: Gather information about Destination security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group_id: "{{ item }}"
+  register: __dst_security_groups_info
+  with_items: "{{ dst_security_groups }}"
+
+- set_fact:
+    src_security_groups_info: "{{ __src_security_groups_info.results | sum(attribute='security_groups', start=[]) }}"
+    dst_security_groups_info: "{{ __dst_security_groups_info.results | sum(attribute='security_groups', start=[]) }}"
+
+- set_fact:
+    security_groups_info: "{{ security_groups_info | default([]) + item.security_groups }}"
+  with_items:
+    - "{{ __src_security_groups_info.results }}"
+    - "{{ __dst_security_groups_info.results }}"
+
+- name: Gather information about Destination security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group_id: "{{ item }}"
+  register: __security_groups_info
+  with_items: "{{ src_security_groups + dst_security_groups }}"
+
+- set_fact:
+    security_groups_info: "{{ __security_groups_info.results | sum(attribute='security_groups', start=[]) }}"
 
 - name: Evaluate ingress and egress security group rules
   eval_security_groups:
@@ -44,13 +70,19 @@
     security_groups: "{{ security_groups_info }}"
   register: __result_eval_security_groups
 
-- name: Gather information about Source and Destination subnet network ACLs
+- name: Gather information about Source subnet network ACLs
   community.aws.ec2_vpc_nacl_info:
     filters:
       association.subnet-id:
         - "{{ src_subnet_id }}"
+  register: src_network_acls_info
+
+- name: Gather information about Destination network ACLs
+  community.aws.ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id:
         - "{{ dst_subnet_id }}"
-  register: network_acls_info
+  register: dst_network_acls_info
 
 - name: Evaluate ingress and egress netwok ACLs
   eval_network_acls:
@@ -60,5 +92,6 @@
     dst_ip: "{{ connectivity_troubleshooter_local_destination_ip }}"
     dst_port: "{{ connectivity_troubleshooter_local_destination_port }}"
     dst_subnet_id: "{{ dst_subnet_id }}"
-    network_acls: "{{ network_acls_info }}"
+    src_network_acls: "{{ src_network_acls_info }}"
+    dst_network_acls: "{{ dst_network_acls_info }}"
   register: __result_eval_network_acls

@@ -47,11 +47,15 @@ options:
     - Destination Subnet id.
     type: str
     required: true
-  network_acls:
+  src_network_acls:
     description:
-    - Network ACL Rules.
-    type: list
-    elements: dict
+    - Source Network ACL Rules.
+    type: dict
+    required: true
+  dst_network_acls:
+    description:
+    - Destination Network ACL Rules.
+    type: dict
     required: true
 """
 
@@ -84,7 +88,8 @@ class EvalNetworkAcls(AnsibleModule):
             dst_ip=dict(type="str", required=True),
             dst_subnet_id=dict(type="str", required=True),
             dst_port=dict(type="str", required=True),
-            network_acls=dict(type="list", elements="dict", required=True),
+            src_network_acls=dict(type="dict", required=True),
+            dst_network_acls=dict(type="dict", required=True),
         )
 
         super(EvalNetworkAcls, self).__init__(argument_spec=argument_spec)
@@ -95,8 +100,9 @@ class EvalNetworkAcls(AnsibleModule):
         self.execute_module()
 
     def eval_nacls(self):
-        src_port_from = int(self.src_port_range.split("-")[0])
-        src_port_to = int(self.src_port_range.split("-")[1])
+        if self.src_port_range:
+            src_port_from = int(self.src_port_range.split("-")[0])
+            src_port_to = int(self.src_port_range.split("-")[1])
         src_ip = ip_address(self.src_ip)
         dst_ip = ip_address(self.dst_ip)
         dst_port = int(self.dst_port)
@@ -104,20 +110,22 @@ class EvalNetworkAcls(AnsibleModule):
         if self.src_subnet_id == self.dst_subnet_id:
             return True
 
-        src_acls = [
-            acl["entries"]
-            for acl in self.network_acls
-            if self.src_subnet_id in str(acl["associations"])
-        ][0]
-        dst_acls = [
-            acl["entries"]
-            for acl in self.network_acls
-            if self.dst_subnet_id in str(acl["associations"])
-        ][0]
-
         def eval_src_nacls(acls):
+            # entry list format
+            keys = [
+                "rule_number",
+                "protocol",
+                "rule_action",
+                "cidr_block",
+                "icmp_type",
+                "icmp_code",
+                "port_from",
+                "port_to",
+            ]
+
             def check_egress_acls(acls, dst_ip, dst_port):
-                for acl in acls:
+                for item in acls:
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
@@ -126,8 +134,8 @@ class EvalNetworkAcls(AnsibleModule):
                             if (acl.get("protocol") == "-1") or (
                                 dst_port
                                 in range(
-                                    acl["port_range"]["from"],
-                                    acl["port_range"]["to"] + 1,
+                                    acl["port_from"],
+                                    acl["port_to"] + 1,
                                 )
                             ):
                                 # Check Action
@@ -143,17 +151,20 @@ class EvalNetworkAcls(AnsibleModule):
                     )
 
             def check_ingress_acls(acls, src_ip):
-                for acl in acls:
+                for item in acls:
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
                         if src_ip in ip_network(acl["cidr_block"], strict=False):
                             # Check Port
                             if (acl.get("protocol") == "-1") or (
-                                set(range(src_port_from, src_port_to)).issubset(
+                                src_port_from
+                                and src_port_to
+                                and set(range(src_port_from, src_port_to)).issubset(
                                     range(
-                                        acl["port_range"]["from"],
-                                        acl["port_range"]["to"] + 1,
+                                        acl["port_from"],
+                                        acl["port_to"] + 1,
                                     )
                                 )
                             ):
@@ -169,8 +180,9 @@ class EvalNetworkAcls(AnsibleModule):
                         msg=f"Source Subnet Network Acl Ingress Rules do not allow inbound traffic from destination: {self.dst_ip}"
                     )
 
-            egress_acls = [acl for acl in acls if acl["egress"]]
-            ingress_acls = [acl for acl in acls if not acl["egress"]]
+            egress_acls = [acl for acl in acls["nacls"] if acl["egress"]]
+            ingress_acls = [acl for acl in acls["nacls"] if not acl["egress"]]
+
 
             src_egress_check_pass = check_egress_acls(egress_acls, dst_ip, dst_port)
             src_ingress_check_pass = check_ingress_acls(ingress_acls, dst_ip)
@@ -187,7 +199,9 @@ class EvalNetworkAcls(AnsibleModule):
                         if dst_ip in ip_network(acl["cidr_block"], strict=False):
                             # Check Port
                             if (acl.get("protocol") == "-1") or (
-                                set(range(src_port_from, src_port_to)).issubset(
+                                src_port_from
+                                and src_port_to
+                                and set(range(src_port_from, src_port_to)).issubset(
                                     range(
                                         acl["port_range"]["from"],
                                         acl["port_range"]["to"] + 1,
@@ -232,8 +246,8 @@ class EvalNetworkAcls(AnsibleModule):
                         msg=f"Destination Subnet Network Acl Ingress Rules do not allow inbound traffic from source: {self.src_ip} towards destination port {str(self.dst_port)}"
                     )
 
-            egress_acls = [acl for acl in acls if acl["egress"]]
-            ingress_acls = [acl for acl in acls if not acl["egress"]]
+            egress_acls = [acl for acl in acls["nacls"] if acl["egress"]]
+            ingress_acls = [acl for acl in acls["nacls"] if not acl["egress"]]
 
             dst_ingress_check_pass = check_ingress_acls(ingress_acls, src_ip, dst_port)
             dst_egress_check_pass = check_egress_acls(egress_acls, src_ip)
@@ -241,14 +255,14 @@ class EvalNetworkAcls(AnsibleModule):
             if dst_ingress_check_pass and dst_egress_check_pass:
                 return True
 
-        eval_src_nacls(src_acls)
-        eval_dst_nacls(dst_acls)
+        eval_src_nacls(self.src_network_acls)
+        eval_dst_nacls(self.dts_network_acls)
 
         return True
 
     def execute_module(self):
         try:
-            # Evluate Ingress and Egress network ACLs
+            # Evaluate Ingress and Egress network ACLs
             self.eval_nacls()
             self.exit_json(result="Network ACLs evaluation successful")
         except Exception as e:

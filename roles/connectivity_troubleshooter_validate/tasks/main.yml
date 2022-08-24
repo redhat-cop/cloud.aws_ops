@@ -19,11 +19,13 @@
 
 # Source
 - set_fact:
-    __filter_eni: {addresses.private-ip-address: "{{ connectivity_troubleshooter_validate_source_ip }}"}
+    __filter_eni: {'addresses.private-ip-address': "{{ connectivity_troubleshooter_validate_source_ip }}"}
+
+- debug: var=connectivity_troubleshooter_validate_source_vpc
 
 - set_fact:
-    __filter_eni: "{{ filter_eni | combine( { vpc-id: connectivity_troubleshooter_validate_source_vpc } ) }}"
-  when: connectivity_troubleshooter_validate_source_vpc is defined
+    __filter_eni: "{{ __filter_eni | combine( { 'vpc-id': connectivity_troubleshooter_validate_source_vpc } ) }}"
+  when: connectivity_troubleshooter_validate_source_vpc | default('', true) | trim != ''
 
 - name: Gather information about Source ENI
   amazon.aws.ec2_eni_info:
