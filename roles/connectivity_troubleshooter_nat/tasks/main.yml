@@ -62,4 +62,3 @@
     nat_network_acls: "{{ nat_network_acls_info }}"
     routes: "{{ nat_routes }}"
   register: __result_eval_nat_network_acls
-
