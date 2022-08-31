@@ -1,2 +1,3 @@
 ---
 # defaults file for roles/connectivity_troubleshooter_nat
+connectivity_troubleshooter_nat_source_port_range:

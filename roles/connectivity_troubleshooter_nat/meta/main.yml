@@ -1,6 +1,0 @@
-dependencies:
-  - role: connectivity_troubleshooter_validate
-    connectivity_troubleshooter_validate_destination_ip: "{{ connectivity_troubleshooter_nat_destination_ip }}"
-    connectivity_troubleshooter_validate_destination_port: "{{ connectivity_troubleshooter_nat_destination_port }}"
-    connectivity_troubleshooter_validate_source_ip: "{{ connectivity_troubleshooter_nat_source_ip }}"
-    connectivity_troubleshooter_validate_source_vpc: "{{ connectivity_troubleshooter_nat_source_vpc }}"

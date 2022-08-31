@@ -11,27 +11,35 @@
       nat-gateway-id: "{{ next_hop }}"
   register: __describe_nat_gw
 
-- set_facts:
+- set_fact:
     nat_subnet_id: "{{ __nat_gw_info.subnet_id }}"
     nat_vpc_id: "{{ __nat_gw_info.vpc_id }}"
   vars:
-    __nat_gw_info: "{{ __describe_nat_gw.0 }}"
+    __nat_gw_info: "{{ __describe_nat_gw.result.0 }}"
 
 - name: Gather information about NAT gateway subnet networks ACLs
   community.aws.ec2_vpc_nacl_info:
     filters:
       association.subnet-id: "{{ nat_subnet_id }}"
-  register: nat_network_acls_info
+  register: __nat_network_acls_info
+
+- set_fact:
+    nat_network_acls: "{{ nat_network_acls|d([]) + [dict(_keys|zip(_vals))] }}"
+  loop: "{{ __nat_network_acls_info.nacls }}"
+  vars:
+    _keys: "{{ ['egress', 'ingress'] }}"
+    _vals: "{{ ['egress', 'ingress']|map('extract', item) }}"
 
 - name: Gather information about VPC route table
   amazon.aws.ec2_vpc_route_table_info:
     filters:
-      association.subnet-id': "{{ nat_subnet_id }}"
+      association.subnet-id: 
+        - "{{ nat_subnet_id }}"
   register: __nat_route_table
 
 - set_fact:
-    nat_routes: "{{ __nat_route_table['routes'] }}"
-  when: __nat_route_table | length > 0
+    nat_routes: "{{ __nat_route_table.route_tables.0.routes  }}"
+  when: __nat_route_table.route_tables | length > 0
 
 # if RouteTable is not returned, this indicates association of subnet with main route table
 - block:
@@ -44,21 +52,24 @@
 
     - fail:
         msg: "Could not find route table for NAT Gateway"
-      when: __nat_route_table_retry | length == 0
+      when: __nat_route_table_retry.route_tables | length == 0
 
     - set_fact:
-        nat_routes: "{{ __nat_route_table_retry['routes'] }}"
+        nat_routes: "{{ __nat_route_table_retry.route_tables.0.routes }}"
 
-  when: __nat_route_table | length == 0
+  when: __nat_route_table.route_tables | length == 0
+
+- debug: var=nat_routes
+- debug: var=nat_network_acls
 
 - name: Evaluate ingress and egress NAT netwok ACLs
   eval_nat_network_acls:
-    src_ip: "{{ connectivity_troubleshooter_igw_source_ip }}"
+    src_ip: "{{ connectivity_troubleshooter_nat_source_ip }}"
     src_subnet_id: "{{ src_subnet_id }}"
     src_port_range: "{{ connectivity_troubleshooter_nat_source_port_range }}"
     dst_ip: "{{ connectivity_troubleshooter_nat_destination_ip }}"
     dst_port: "{{ connectivity_troubleshooter_nat_destination_port }}"
     nat_subnet_id: "{{ nat_subnet_id }}"
-    nat_network_acls: "{{ nat_network_acls_info }}"
+    nat_network_acls: "{{ nat_network_acls }}"
     routes: "{{ nat_routes }}"
   register: __result_eval_nat_network_acls

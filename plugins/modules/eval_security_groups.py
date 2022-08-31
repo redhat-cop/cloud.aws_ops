@@ -16,6 +16,7 @@ module: eval_security_groups
 short_description: Evaluate ingress and egress security group rules
 description:
   - Evaluates ingress and egress security group rules.
+  - Confirms whether the security group rules allow the needed traffic between the source and destination resources.
 author:
   - Alina Buzachis (@alinabuzachis)
 options:
@@ -58,12 +59,61 @@ options:
 EXAMPLES = r"""
 - name: Evaluate ingress and egress security group rules
   eval_security_groups:
-    src_ip: "{{ connectivity_troubleshooter_local_source_ip }}"
-    src_security_groups: "{{ src_security_groups }}"
-    dst_ip: "{{ connectivity_troubleshooter_local_destination_ip }}"
-    dst_port: "{{ connectivity_troubleshooter_local_destination_port }}"
-    dst_security_groups: "{{ dst_security_groups }}"
-    security_groups: "{{ security_groups_info }}"
+    src_ip: 172.32.1.31
+    src_security_groups:
+        - sg-0258afe8541042bac
+    dst_ip: 172.32.2.13
+    dst_port: 3389
+    dst_security_groups:
+        - sg-05f6695f90530a499
+    security_groups:
+        - description: "security group for jumphosts within the public subnet of ansible VPC"
+          group_id: "sg-0258afe8541042bac"
+          group_name: "sg_ansibleVPC_publicsubnet_jumphost"
+          ip_permissions:
+            - from_port: 3389
+              ip_protocol: "tcp"
+              ip_ranges:
+                - cidr_ip: "0.0.0.0/0"
+                  description: "allow rdp to jumphost"
+              ipv6_ranges: []
+              prefix_list_ids: []
+              to_port: 3389
+              user_id_group_pairs: []
+          ip_permissions_egress:
+            - ip_protocol: "-1"
+              ip_ranges":
+                - cidr_ip: "0.0.0.0/0"
+              ipv6_ranges: [],
+              prefix_list_ids: []
+              user_id_group_pairs: []
+          owner_id: "721066863947"
+          tags: {},
+          vpc_id: "vpc-097bb89457aa6d8f3"
+        - description: "security group for private subnet that allows limited access from public subnet"
+          group_id: "sg-05f6695f90530a499"
+          group_name: "sg_ansibleVPC_privatesubnet_servers"
+          ip_permissions:
+            - from_port: 3389
+              ip_protocol: "tcp"
+              ip_ranges: []
+              ipv6_ranges: []
+              prefix_list_ids: []
+              to_port: 3389
+              user_id_group_pairs:
+                - description: "allow only rdp access from public to private subnet servers"
+                  group_id: "sg-0258afe8541042bac"
+                  user_id: "721066863947"
+          ip_permissions_egress:
+            - ip_protocol: "-1"
+              ip_ranges:
+                - cidr_ip: "0.0.0.0/0"
+              ipv6_ranges: []
+              prefix_list_ids: []
+              user_id_group_pairs: []
+          owner_id: "721066863947"
+          tags: {}
+          vpc_id: "vpc-097bb89457aa6d8f3"
 """
 
 

@@ -50,21 +50,68 @@ options:
   src_network_acls:
     description:
     - Source Network ACL Rules.
-    type: dict
+    type: list
+    elements: dict
     required: true
   dst_network_acls:
     description:
     - Destination Network ACL Rules.
-    type: dict
+    type: list
+    elements: dict
     required: true
 """
+
 
 EXAMPLES = r"""
 - name: Evaluate ingress and egress netwok ACLs
   eval_network_acls:
-    ...
-
+    src_ip: "172.32.1.31"
+    src_subnet_id: "subnet-0d8ddbeaa790da839"
+    dst_ip: "172.32.2.13"
+    dst_port: 3389
+    dst_subnet_id: "subnet-06cc4582cb0dde318"
+    # Network ACL entries order
+    # ["rule_number", "protocol", "rule_action", "cidr_block", "icmp_type", "icmp_code", "port_from", "port_to"]
+    src_network_acls:
+        - egress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
+        - ingress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
+    dst_network_acls:
+        - egress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
+        - ingress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
 """
+
 
 RETURN = r"""
 result:
@@ -73,6 +120,7 @@ result:
   returned: success
   sample: 'Network ACLs evaluation successful'
 """
+
 
 from ipaddress import ip_network, ip_address
 from ansible.module_utils.basic import AnsibleModule
@@ -88,8 +136,8 @@ class EvalNetworkAcls(AnsibleModule):
             dst_ip=dict(type="str", required=True),
             dst_subnet_id=dict(type="str", required=True),
             dst_port=dict(type="str", required=True),
-            src_network_acls=dict(type="dict", required=True),
-            dst_network_acls=dict(type="dict", required=True),
+            src_network_acls=dict(type="list", elements="dict", required=True),
+            dst_network_acls=dict(type="list", elements="dict", required=True),
         )
 
         super(EvalNetworkAcls, self).__init__(argument_spec=argument_spec)
@@ -126,7 +174,7 @@ class EvalNetworkAcls(AnsibleModule):
         def eval_src_nacls(acls):
             def check_egress_acls(acls, dst_ip, dst_port):
                 for item in acls:
-                    acl = dict(zip(keys, *item))
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
@@ -153,7 +201,7 @@ class EvalNetworkAcls(AnsibleModule):
 
             def check_ingress_acls(acls, src_ip):
                 for item in acls:
-                    acl = dict(zip(keys, *item))
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
@@ -181,8 +229,8 @@ class EvalNetworkAcls(AnsibleModule):
                         msg=f"Source Subnet Network Acl Ingress Rules do not allow inbound traffic from destination: {self.dst_ip}"
                     )
 
-            egress_acls = [acl["egress"] for acl in acls["nacls"] if acl["egress"]]
-            ingress_acls = [acl["ingress"] for acl in acls["nacls"] if acl["ingress"]]
+            egress_acls = [acl["egress"] for acl in acls if acl["egress"]][0]
+            ingress_acls = [acl["ingress"] for acl in acls if acl["ingress"]][0]
 
             src_egress_check_pass = check_egress_acls(egress_acls, dst_ip, dst_port)
             src_ingress_check_pass = check_ingress_acls(ingress_acls, dst_ip)
@@ -193,7 +241,7 @@ class EvalNetworkAcls(AnsibleModule):
         def eval_dst_nacls(acls):
             def check_egress_acls(acls, dst_ip):
                 for item in acls:
-                    acl = dict(zip(keys, *item))
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
@@ -223,7 +271,7 @@ class EvalNetworkAcls(AnsibleModule):
 
             def check_ingress_acls(acls, src_ip, dst_port):
                 for item in acls:
-                    acl = dict(zip(keys, *item))
+                    acl = dict(zip(keys, item))
                     # Check ipv4 acl rule only
                     if acl.get("cidr_block"):
                         # Check IP
@@ -248,8 +296,8 @@ class EvalNetworkAcls(AnsibleModule):
                         msg=f"Destination Subnet Network Acl Ingress Rules do not allow inbound traffic from source: {self.src_ip} towards destination port {str(self.dst_port)}"
                     )
 
-            egress_acls = [acl["egress"] for acl in acls["nacls"] if acl["egress"]]
-            ingress_acls = [acl["ingress"] for acl in acls["nacls"] if acl["ingress"]]
+            egress_acls = [acl["egress"] for acl in acls if acl["egress"]][0]
+            ingress_acls = [acl["ingress"] for acl in acls if acl["ingress"]][0]
 
             dst_ingress_check_pass = check_ingress_acls(ingress_acls, src_ip, dst_port)
             dst_egress_check_pass = check_egress_acls(egress_acls, src_ip)

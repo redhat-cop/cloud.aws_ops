@@ -75,14 +75,30 @@
     filters:
       association.subnet-id:
         - "{{ src_subnet_id }}"
-  register: src_network_acls_info
+  register: __network_acls_info
+
+- set_fact:
+      src_network_acls_info: "{{ src_network_acls_info|d([]) + [dict(_keys|zip(_vals))] }}"
+  loop: "{{ __network_acls_info.nacls }}"
+  vars:
+    _keys: "{{ ['egress', 'ingress'] }}"
+    _vals: "{{ ['egress', 'ingress']|map('extract', item) }}"
+
+- debug: var=src_network_acls_info
 
 - name: Gather information about Destination network ACLs
   community.aws.ec2_vpc_nacl_info:
     filters:
       association.subnet-id:
         - "{{ dst_subnet_id }}"
-  register: dst_network_acls_info
+  register: __network_acls_info
+
+- set_fact:
+      dst_network_acls_info: "{{ dst_network_acls_info|d([]) + [dict(_keys|zip(_vals))] }}"
+  loop: "{{ __network_acls_info.nacls }}"
+  vars:
+    _keys: "{{ ['egress', 'ingress'] }}"
+    _vals: "{{ ['egress', 'ingress']|map('extract', item) }}"
 
 - name: Evaluate ingress and egress netwok ACLs
   eval_network_acls:

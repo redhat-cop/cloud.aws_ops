@@ -1,0 +1,5 @@
+---
+# defaults file for roles/connectivity_troubleshooter_igw
+connectivity_troubleshooter_igw_source_port_range:
+connectivity_troubleshooter_igw_destination_vpc:
+connectivity_troubleshooter_igw_source_vpc:

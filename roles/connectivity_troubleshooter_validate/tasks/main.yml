@@ -17,13 +17,14 @@
     msg: "connectivity_troubleshooter_validate_source_ip and connectivity_troubleshooter_validate_destination_ip are same, kindly provide different values"
   when: connectivity_troubleshooter_validate_source_ip == connectivity_troubleshooter_validate_destination_ip
 
-# Source
+- debug:
+    var: connectivity_troubleshooter_validate_source_vpc | default('', true)
 - set_fact:
     __filter_eni: {'addresses.private-ip-address': "{{ connectivity_troubleshooter_validate_source_ip }}"}
 
-# - set_fact:
-#     __filter_eni: "{{ __filter_eni | combine( { 'vpc-id': connectivity_troubleshooter_validate_source_vpc } ) }}"
-#   when: connectivity_troubleshooter_validate_source_vpc | default('', true) | trim != ''
+- set_fact:
+    __filter_eni: "{{ __filter_eni | combine( { 'vpc-id': connectivity_troubleshooter_validate_source_vpc } ) }}"
+  when: connectivity_troubleshooter_validate_source_vpc | default('', true) | trim != ''
 
 - name: Gather information about Source ENI
   amazon.aws.ec2_eni_info:
@@ -38,6 +39,7 @@
     src_subnet_id: "{{ __src_network_interface_info.subnet_id }}"
     src_vpc_id: "{{ __src_network_interface_info.vpc_id }}"
     src_security_groups: "{{ __src_network_interface_info.groups | map(attribute='group_id')| list }}"
+    src_network_interface: "{{ __src_network_interface_info }}"
   vars:
     __src_network_interface_info: "{{ __describe_src_eni.network_interfaces.0 }}"
 

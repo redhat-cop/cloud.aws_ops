@@ -1,0 +1,62 @@
+---
+# tasks file for roles/connectivity_troubleshooter_peering_destination
+
+- fail:
+    msg: "Next hop type '{{ next_hop }}' is not supported by this role"
+  when: "'pcx-' not in next_hop"
+
+- name: Gather information about peering connection
+  ec2_vpc_peering_info:
+    filters:
+      vpc-peering-connection-id:
+        - "{{ next_hop }}"
+  register: vpc_peering_connection_info
+
+- name: Gather information about Network Interface of the Destination peer
+  ec2_eni_info:
+    filters:
+      addresses.private-ip-address: "{{ connectivity_troubleshooter_peering_destination_ip }}"
+  register: __dst_peer_eni
+
+- set_fact:
+    dst_peer_vpc_id: "{{ __dst_peer_eni_info.vpc_id }}"
+    dst_peer_subnet_id: "{{ __dst_peer_eni_info.subnet_id }}"
+  vars:
+    __dst_peer_eni_info: "{{ __dst_peer_eni.network_interfaces.0 }}"
+
+- name: Gather information about Destination peer subnet
+  amazon.aws.ec2_vpc_route_table_info:
+    filters:
+      association.subnet-id: 
+        - "{{ dst_peer_subnet_id }}"
+  register: __dst_peer_route_table
+
+- set_fact:
+    routes: "{{ __dst_peer_route_table.route_tables.0.routes  }}"
+  when: __dst_peer_route_table.route_tables | length > 0
+
+# if RouteTable is not returned, this indicates association of subnet with main route table
+- block:
+    - name: Gather information about Destination peer subnet
+      amazon.aws.ec2_vpc_route_table_info:
+        filters:
+          association.main: "true"
+          vpc-id: "{{ dst_peer_vpc_id }}"
+      register: __dst_peer_route_table_retry
+
+    - fail:
+        msg: "Could not find route table for Destination peer"
+      when: __dst_peer_route_table_retry.route_tables | length == 0
+
+    - set_fact:
+        routes: "{{ __dst_peer_route_table_retry.route_tables.0.routes }}"
+
+  when: __dst_peer_route_table.route_tables | length == 0
+
+- name: Evaluate VPC peering connection
+  eval_vpc_peering:
+    src_ip: "{{ connectivity_troubleshooter_peering_source_ip  }}"
+    peering_id: "{{ next_hop }}"
+    dst_vpc: "{{ connectivity_troubleshooter_peering_destination_vpc }}"
+    routes: "{{ routes }}"
+    vpc_peering_connection: "{{ vpc_peering_connection_info.vpc_peering_connections.0 }}"

@@ -1,0 +1,4 @@
+---
+# defaults file for roles/connectivity_troubleshooter_peering_destination
+connectivity_troubleshooter_peering_source_port_range:
+connectivity_troubleshooter_peering_destination_vpc:

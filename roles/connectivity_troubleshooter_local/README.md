@@ -15,14 +15,13 @@ Role Variables
 **connectivity_troubleshooter_local_destination_port**: (Required) The port number you want to connect to on the destination resource.
 **connectivity_troubleshooter_local_destination_vpc**: (Optional) The ID of the Amazon VPC you want to test connectivity to.
 **connectivity_troubleshooter_local_source_ip**: (Required) The private IPv4 address of the AWS resource in your Amazon VPC you want to test connectivity from.
-**connectivity_troubleshooter_local_destination_port_range**: (Optional) The port range used by the AWS resource in your Amazon VPC you want to test connectivity from.
-**connectivity_troubleshooter_local_source_vpc**: (Optional) The ID of the Amazon VPC you want to test connectivity from.
+**connectivity_troubleshooter_local_source_port_range**: (Optional) The port range used by the AWS resource in your Amazon VPC you want to test connectivity from.
+
 
 Dependencies
 ------------
 
-- role: aws_setup_credentials
-- role: connectivity_troubleshooter_validate
+N/A
 
 Example Playbook
 ----------------

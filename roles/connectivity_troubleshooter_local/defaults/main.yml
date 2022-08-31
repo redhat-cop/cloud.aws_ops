@@ -1,4 +1,4 @@
 ---
 # defaults file for roles/connectivity_troubleshooter_local
 connectivity_troubleshooter_local_source_port_range:
-connectivity_troubleshooter_local_destination_port:
+connectivity_troubleshooter_local_destination_vpc:

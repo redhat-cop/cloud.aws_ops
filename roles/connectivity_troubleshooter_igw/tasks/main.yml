@@ -1,0 +1,42 @@
+---
+# tasks file for roles/connectivity_troubleshooter_igw
+
+- fail:
+    msg: "Next hop type '{{ next_hop }}' is not supported by this role"
+  when: "'igw-' not in next_hop"
+
+- name: Gather information about Source security groups
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group_id: "{{ item }}"
+  register: __src_security_groups
+  with_items: "{{ src_security_groups }}"
+
+- name: Gather information about Source subnet network ACLs
+  community.aws.ec2_vpc_nacl_info:
+    filters:
+      association.subnet-id:
+        - "{{ src_subnet_id }}"
+  register: __src_subnet_nacls
+
+- set_fact:
+      src_subnet_nacls: "{{ src_subnet_nacls|d([]) + [dict(_keys|zip(_vals))] }}"
+  loop: "{{ __src_subnet_nacls.nacls }}"
+  vars:
+    _keys: "{{ ['egress', 'ingress'] }}"
+    _vals: "{{ ['egress', 'ingress']|map('extract', item) }}"
+
+- set_fact:
+    src_security_groups_info: "{{ __src_security_groups.results | sum(attribute='security_groups', start=[]) }}"
+
+- name: Evaluate ingress and egress netwok ACLs
+  eval_src_igw_route:
+    src_ip: "{{ connectivity_troubleshooter_igw_source_ip }}"
+    src_port_range: "{{ connectivity_troubleshooter_igw_source_port_range }}"
+    src_subnet_id: "{{ src_subnet_id }}"
+    dst_ip: "{{ connectivity_troubleshooter_igw_destination_ip }}"
+    dst_port: "{{ connectivity_troubleshooter_igw_destination_port }}"
+    src_network_interface: "{{ src_network_interface }}"
+    src_security_groups_info: "{{ src_security_groups_info }}"
+    src_network_acls: "{{ src_subnet_nacls }}"
+  register: __result_eval_src_igw_route

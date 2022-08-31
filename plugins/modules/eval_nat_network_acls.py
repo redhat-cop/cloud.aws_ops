@@ -11,10 +11,11 @@ __metaclass__ = type
 
 DOCUMENTATION = r"""
 ---
-module: eval_network_acls
+module: eval_nat_network_acls
 short_description: Evaluate ingress and egress NAT netwok ACLs
 description:
   - Evaluate ingress and egress NAT netwok ACLs.
+  - Confirms whether the NACLs allow the needed traffic between the source and destination resources.
 author:
   - Alina Buzachis (@alinabuzachis)
 options:
@@ -54,7 +55,7 @@ options:
     type: list
     elements: dict
     required: true
-   routes:
+  routes:
     description:
     - NAT routes.
     type: list
@@ -94,8 +95,8 @@ class EvalNatNetworkAcls(AnsibleModule):
             dst_ip=dict(type="str", required=True),
             dst_port=dict(type="str", required=True),
             nat_subnet_id=dict(type="str", required=True),
-            nat_network_acls=dict(type="list", elements="dict ", required=True),
-            routes=dict(type="list", elements="dict ", required=True),
+            nat_network_acls=dict(type="list", elements="dict", required=True),
+            routes=dict(type="list", elements="dict", required=True),
         )
 
         super(EvalNatNetworkAcls, self).__init__(argument_spec=argument_spec)
@@ -109,24 +110,43 @@ class EvalNatNetworkAcls(AnsibleModule):
         src_ip = ip_address(self.src_ip)
         dst_ip = ip_address(self.dst_ip)
         dst_port = int(self.dst_port)
-        src_port_from = int(self.src_port_range.split("-")[0])
-        src_port_to = int(self.src_port_range.split("-")[1])
+        src_port_from = None
+        src_port_to = None
+        # entry list format
+        keys = [
+            "rule_number",
+            "protocol",
+            "rule_action",
+            "cidr_block",
+            "icmp_type",
+            "icmp_code",
+            "port_from",
+            "port_to",
+        ]
+        if self.src_port_range:
+            src_port_from = int(self.src_port_range.split("-")[0])
+            src_port_to = int(self.src_port_range.split("-")[1])
 
-        nat_acls = self.nat_network_acls[0]["entries"]
-        egress_acls = [acl for acl in nat_acls if acl["egress"]]
-        ingress_acls = [acl for acl in nat_acls if not acl["egress"]]
+        egress_acls = [acl["egress"] for acl in self.nat_network_acls if acl["egress"]][
+            0
+        ]
+        ingress_acls = [
+            acl["ingress"] for acl in self.nat_network_acls if acl["ingress"]
+        ][0]
 
         def check_egress_towards_dst(acls, dst_ip, dst_port):
-            for acl in acls:
+            for item in acls:
+                acl = dict(zip(keys, item))
                 # Check ipv4 acl rule only
                 if acl.get("cidr_block"):
                     # Check IP
                     if dst_ip in ip_network(acl["cidr_block"], strict=False):
                         # Check Port
-                        if (acl.get("protocol") == "-1") or (
+                        if (acl.get("protocol") == "all") or (
                             dst_port
                             in range(
-                                acl["por_range"]["from"], acl["port_range"]["To"] + 1
+                                acl["port_from"],
+                                acl["port_to"] + 1,
                             )
                         ):
                             # Check Action
@@ -142,17 +162,20 @@ class EvalNatNetworkAcls(AnsibleModule):
                 )
 
         def check_ingress_from_dst(acls, src_ip):
-            for acl in acls:
+            for item in acls:
+                acl = dict(zip(keys, item))
                 # Check ipv4 acl rule only
                 if acl.get("cidr_block"):
                     # Check IP
                     if src_ip in ip_network(acl["cidr_block"], strict=False):
                         # Check Port
-                        if (acl.get("protocol") == "-1") or (
-                            set(range(src_port_from, src_port_to)).issubset(
+                        if (acl.get("protocol") == "all") or (
+                            src_port_from
+                            and src_port_to
+                            and set(range(src_port_from, src_port_to)).issubset(
                                 range(
-                                    acl["port_range"]["from"],
-                                    acl["port_range"]["to"] + 1,
+                                    acl["port_from"],
+                                    acl["port_to"] + 1,
                                 )
                             )
                         ):
@@ -169,16 +192,18 @@ class EvalNatNetworkAcls(AnsibleModule):
                 )
 
         def check_ingress_from_src(acls, src_ip, dst_port):
-            for acl in acls:
+            for item in acls:
+                acl = dict(zip(keys, item))
                 # Check ipv4 acl rule only
                 if acl.get("cidr_block"):
                     # Check IP
                     if src_ip in ip_network(acl["cidr_block"], strict=False):
                         # Check Port
-                        if (acl.get("protocol") == "-1") or (
+                        if (acl.get("protocol") == "all") or (
                             dst_port
                             in range(
-                                acl["port_range"]["from"], acl["port_range"]["to"] + 1
+                                acl["port_from"],
+                                acl["port_to"] + 1,
                             )
                         ):
                             # Check Action
@@ -194,17 +219,20 @@ class EvalNatNetworkAcls(AnsibleModule):
                 )
 
         def check_egress_towards_src(acls, dst_ip):
-            for acl in acls:
+            for item in acls:
+                acl = dict(zip(keys, item))
                 # Check ipv4 acl rule only
                 if acl.get("cidr_block"):
                     # Check IP
                     if dst_ip in ip_network(acl["cidr_block"], strict=False):
                         # Check Port
-                        if (acl.get("protocol") == "-1") or (
-                            set(range(src_port_from, src_port_to)).issubset(
+                        if (acl.get("protocol") == "all") or (
+                            src_port_from
+                            and src_port_to
+                            and set(range(src_port_from, src_port_to)).issubset(
                                 range(
-                                    acl["port_range"]["from"],
-                                    acl["port_range"]["to"] + 1,
+                                    acl["port_from"],
+                                    acl["port_to"] + 1,
                                 )
                             )
                         ):
@@ -241,6 +269,7 @@ class EvalNatNetworkAcls(AnsibleModule):
             )
 
         for route in self.routes:
+            # Confirms whether the source has a public IP address associated with the resource, if the route destination is an internet gateway.
             if route.get("destination_cidr_block"):
                 mask = int(route["destination_cidr_block"].split("/")[1])
                 if (

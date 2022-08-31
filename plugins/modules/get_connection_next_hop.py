@@ -15,6 +15,7 @@ module: get_connection_next_hop
 short_description: Get connection next hop type
 description:
   - Get connection next hop type.
+  - Determines the destination of network traffic from the Amazon resource using the routes. 
 author:
   - Alina Buzachis (@alinabuzachis)
 options:
@@ -37,20 +38,20 @@ EXAMPLES = r"""
   get_connection_next_hop:
     dst_ip: 172.32.2.13
     routes:
-        - destination_cidr_block: "172.32.0.0/16",
-          gateway_id: "local",
-          instance_id: null,
-          interface_id: null,
-          network_interface_id: null,
-          origin: "CreateRouteTable",
-          state: "active"
-        - destination_cidr_block: "0.0.0.0/0",
-          gateway_id: "igw-0b9da14cbd81d415c",
-          instance_id: null,
-          interface_id: null,
-          network_interface_id: null,
-          origin: "CreateRoute",
-          state: "active"
+      - destination_cidr_block: "172.32.0.0/16"
+        gateway_id: "local"
+        instance_id: null
+        interface_id: null
+        network_interface_id: null
+        origin: "CreateRouteTable"
+        state: "active"
+      - destination_cidr_block: "0.0.0.0/0"
+        gateway_id: "igw-0b9da14cbd81d415c"
+        instance_id: null
+        interface_id: null
+        network_interface_id: null
+        origin: "CreateRoute"
+        state: "active"
 """
 
 
