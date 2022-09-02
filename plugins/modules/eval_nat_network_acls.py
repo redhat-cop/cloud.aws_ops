@@ -106,7 +106,6 @@ EXAMPLES = r"""
           state: "active"
     src_ip: "192.168.0.28"
     src_subnet_id: "subnet-05ad2d0f8648dfb41"
-
 """
 
 

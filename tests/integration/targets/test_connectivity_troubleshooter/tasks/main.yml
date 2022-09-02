@@ -1,0 +1,66 @@
+---
+# tasks file for tests/integration/targets/test_connectivity_troubleshooter
+
+- block:
+  - name: Get image ID to for EC2 instance
+    ec2_ami_info:
+      filters:
+        architecture: x86_64
+        virtualization-type: hvm
+        root-device-type: ebs
+        name: 'Fedora-Cloud-Base-34-1.2.x86_64*'
+    register: fedora_images
+
+  - set_fact:
+      image_id: '{{ fedora_images.images.0.image_id }}'
+  
+  - block:
+    - include_tasks: setup_classic.yml
+
+    # local 
+    - include_role:
+        name: cloud.aws_roles.connectivity_troubleshooter
+      vars:
+        connectivity_troubleshooter_destination_ip: "{{ ip_instance_2 }}"
+        connectivity_troubleshooter_destination_port: 80
+        connectivity_troubleshooter_source_ip: "{{ ip_instance_1 }}"
+
+    # NAT
+    - include_role:
+        name: cloud.aws_roles.connectivity_troubleshooter
+      vars:
+        connectivity_troubleshooter_destination_ip: 8.8.8.8 
+        connectivity_troubleshooter_destination_port: 80
+        connectivity_troubleshooter_source_ip: "{{ ip_instance_2 }}"
+
+    # IGW
+    - include_role:
+        name: cloud.aws_roles.connectivity_troubleshooter
+      vars:
+        connectivity_troubleshooter_destination_ip: 8.8.8.8 
+        connectivity_troubleshooter_destination_port: 80
+        connectivity_troubleshooter_source_ip: "{{ ip_instance_1 }}"
+
+  always:
+     - include_tasks: cleanup_classic.yml
+    
+- block:
+    - include_tasks: setup_destination_peering.yml
+
+    # Peering
+    - include_role:
+        name: cloud.aws_roles.connectivity_troubleshooter
+      vars:
+        connectivity_troubleshooter_destination_ip: "{{ ip_instance_2 }}"
+        connectivity_troubleshooter_destination_port: 12345
+        connectivity_troubleshooter_source_ip: "{{ ip_instance_1 }}"
+
+  always:
+    - include_tasks: cleanup_destination_peering.yml
+  
+  # module_defaults:
+  #    group/aws:
+  #      aws_access_key: "{{ aws_access_key }}"
+  #      aws_secret_key: "{{ aws_secret_key }}"
+  #      security_token: "{{ security_token | default(omit) }}"
+  #      region: "{{ aws_region }}"

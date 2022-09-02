@@ -1,0 +1,11 @@
+---
+# defaults file for tests/integration/targets/test_connectivity_troubleshooter
+vpc_name: "test_cloud_roles"
+instance_name: "test_cloud_roles"
+igw_name: "test_cloud_roles_igw"
+vpc_1_cidr: 192.168.0.0/24
+vpc_2_cidr: 192.169.0.0/24
+vpc_1_subnet_cidr_1: 192.168.0.0/28
+vpc_1_subnet_cidr_2: 192.168.0.16/28
+vpc_2_subnet_cidr_1: 192.169.0.0/28
+vpc_2_subnet_cidr_2: 192.168.0.16/28

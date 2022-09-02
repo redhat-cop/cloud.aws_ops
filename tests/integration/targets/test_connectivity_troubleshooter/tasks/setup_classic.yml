@@ -1,0 +1,151 @@
+---
+- name: Create VPC
+  ec2_vpc_net:
+    name: "{{ vpc_name }}"
+    cidr_block: "{{ vpc_1_cidr }}"
+  register: __create_vpc_1
+
+- name: Creating public and private subnets
+  ec2_vpc_subnet:
+    cidr: "{{ item.cidr }}"
+    map_public: "{{ item.pubstatus }}"
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    state: present
+  loop:
+    - { cidr: "{{ vpc_1_subnet_cidr_1}}", pubstatus: 'yes' }
+    - { cidr: "{{ vpc_1_subnet_cidr_2}}", pubstatus: 'no' }
+  register: __subnet_private_public
+
+- name: Create Internet Gateway
+  ec2_vpc_igw:
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    state: present
+    tags:
+      Name: "{{ igw_name }}"
+  register: __create_igw
+
+- name: Gather Route Tables
+  ec2_vpc_route_table_info:
+    filters:
+      vpc-id: "{{ __create_vpc_1.vpc.id }}"
+  register: __route_table_info
+
+- name: Set Route Table for public subnet
+  ec2_vpc_route_table:
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    tags:
+      Name: "{{ vpc_name }}-public-subnet"
+    subnets:  
+      - "{{ __subnet_private_public.results[0].subnet.id }}" 
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ __create_igw.gateway_id }}"
+  register: __route_table_public
+
+- name: Create NAT gateway
+  ec2_vpc_nat_gateway:
+    subnet_id:  "{{ __subnet_private_public.results[0].subnet.id }}"
+    wait: yes
+    if_exist_do_not_create: true
+  register: __create_nat_gw
+
+- name: Set Route Table for private subnet
+  ec2_vpc_route_table:
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    tags:
+      Name: "{{ vpc_name }}-private-subnet"
+    subnets:
+      - "{{ __subnet_private_public.results[1].subnet.id }}" 
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ __create_nat_gw.nat_gateway_id }}"
+  register: __route_table_private
+
+- name: Create private Security Group
+  ec2_group:
+    name: "{{ vpc_name }}-private-sg"
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    purge_rules: true
+    description: Ansible-Generated internal rule
+    rules:
+      - proto: udp
+        from_port: 12345
+        to_port: 12345
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+  register: __security_group_in
+
+- name: Create public Security Group
+  ec2_group:
+    name: "{{ vpc_name }}-public-sg"
+    vpc_id: "{{ __create_vpc_1.vpc.id }}"
+    purge_rules: true
+    description: Ansible-Generated internal rule
+    rules:
+      - proto: udp
+        from_port: 12345
+        to_port: 12345
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 3128
+        to_port: 3128
+        cidr_ip: "{{ vpc_1_subnet_cidr_1 }}"
+  register: __security_group_out
+
+- name: Deploy EC2 instance 1
+  ec2_instance:
+    instance_type: t2.micro
+    image_id: "{{ image_id }}"
+    wait: yes
+    network:
+      assign_public_ip: yes
+    vpc_subnet_id: "{{ __subnet_private_public.results[0].subnet.id }}"
+    security_groups: "{{ __security_group_in.group_id }}"
+    tags:
+      Name: "{{ instance_name }}-1"
+  register: __create_ec2_instance_1
+
+- name: Deploy EC2 instance 2
+  ec2_instance:
+    instance_type: t2.micro
+    image_id: "{{ image_id }}"
+    wait: yes
+    network:
+      assign_public_ip: yes
+    vpc_subnet_id:  "{{ __subnet_private_public.results[1].subnet.id }}"
+    security_groups: "{{ __security_group_out.group_id }}"
+    tags:
+      Name: "{{ instance_name }}-2"
+  register: __create_ec2_instance_2
+
+- set_fact:
+    ip_instance_1: "{{ __create_ec2_instance_1.instances.0.private_ip_address }}"
+    ip_instance_2:  "{{ __create_ec2_instance_2.instances.0.private_ip_address }}"
