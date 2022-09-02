@@ -67,7 +67,45 @@ options:
 EXAMPLES = r"""
 - name: Evaluate ingress and egress NAT netwok ACLs
   eval_nat_network_acls:
-    ...
+    dst_ip: "8.8.8.8"
+    dst_port: 80
+    nat_network_acls:
+        - egress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
+        - ingress:
+            - - 100
+              - "all"
+              - "allow"
+              - "0.0.0.0/0"
+              - null
+              - null
+              - 0
+              - 65535
+    nat_subnet_id: "subnet-0ffc739798db41a1c"
+    routes:
+        - destination_cidr_block: "192.168.0.0/24"
+          gateway_id: "local"
+          instance_id: null
+          interface_id: null
+          network_interface_id: null
+          origin: "CreateRouteTable"
+          state: "active"
+        - destination_cidr_block: "0.0.0.0/0"
+          gateway_id: "igw-0b9da14cbd81d415c"
+          instance_id: null
+          interface_id: null
+          network_interface_id: null
+          origin: "CreateRoute"
+          state: "active"
+    src_ip: "192.168.0.28"
+    src_subnet_id: "subnet-05ad2d0f8648dfb41"
 
 """
 

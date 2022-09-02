@@ -59,9 +59,6 @@
 
   when: __nat_route_table.route_tables | length == 0
 
-- debug: var=nat_routes
-- debug: var=nat_network_acls
-
 - name: Evaluate ingress and egress NAT netwok ACLs
   eval_nat_network_acls:
     src_ip: "{{ connectivity_troubleshooter_nat_source_ip }}"

@@ -11,8 +11,7 @@
 
 - fail:
     msg: "Next hop type '{{ next_hop }}' is not supported by this role"
-  when: "'{{ item }}' not in next_hop"
-  loop: ['local', 'nat-', 'igw-', 'pcx-']
+  when: "next_hop != 'local' and not next_hop.startswith('nat-') and not next_hop.startswith('igw-') and not next_hop.startswith('pcx-')"
 
 - include_role:
     name: cloud.aws_roles.connectivity_troubleshooter_local

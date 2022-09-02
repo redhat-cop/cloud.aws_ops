@@ -24,7 +24,7 @@
 
 - fail:
     msg: "Kindly check the source route table to ensure a more specific route is present towards required destination VPC"
-  when: connectivity_troubleshooter_local_destination_vpc is defined and connectivity_troubleshooter_local_destination_vpc != dst_vpc_id
+  when: connectivity_troubleshooter_local_destination_vpc | default('', true) | trim and connectivity_troubleshooter_local_destination_vpc != dst_vpc_id
 
 - name: Gather information about Source security groups
   amazon.aws.ec2_security_group_info:
