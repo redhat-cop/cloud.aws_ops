@@ -71,6 +71,13 @@
   loop: '{{ __security_groups.security_groups }}'
   ignore_errors: true
 
+- name: Delete subnet
+  ec2_vpc_subnet:
+    cidr: "{{ vpc_1_subnet_cidr_1 }}"
+    state: absent
+    vpc_id: "{{ vpc_id_1 }}"
+  ignore_errors: true
+
 - name: Gater information about VPC route tables
   ec2_vpc_route_table_info:
     filters:
@@ -86,13 +93,6 @@
     lookup: id
     state: absent
   with_items: "{{ __route_table_info.route_tables | map(attribute='id') | list }}"
-  ignore_errors: true
-
-- name: Delete subnet
-  ec2_vpc_subnet:
-    cidr: "{{ vpc_1_subnet_cidr_1 }}"
-    state: absent
-    vpc_id: "{{ vpc_id_1 }}"
   ignore_errors: true
 
 - name: Delete VPC 1
@@ -119,7 +119,7 @@
   register: __ec2_instances_info
   ignore_errors: true
 
-- name: Delete EC2 instance
+- name: Delete EC2 instances
   ec2_instance:
     instance_ids:
       - "{{ __ec2_instances_info.instances.0.instance_id }}"
@@ -145,6 +145,13 @@
   loop: '{{ __security_groups.security_groups }}'
   ignore_errors: true
 
+- name: Delete subnet
+  ec2_vpc_subnet:
+    cidr: "{{ vpc_2_subnet_cidr_1 }}"
+    state: absent
+    vpc_id: "{{ vpc_id_2 }}"
+  ignore_errors: true
+
 - name: Gater information about VPC route tables
   ec2_vpc_route_table_info:
     filters:
@@ -166,13 +173,6 @@
   ec2_vpc_igw:
     vpc_id: '{{ vpc_id_2 }}'
     state: absent
-  ignore_errors: true
-
-- name: Delete subnet
-  ec2_vpc_subnet:
-    cidr: "{{ vpc_2_subnet_cidr_1 }}"
-    state: absent
-    vpc_id: "{{ vpc_id_2 }}"
   ignore_errors: true
 
 - name: Delete VPC 2

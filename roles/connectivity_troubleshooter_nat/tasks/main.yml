@@ -33,7 +33,7 @@
 - name: Gather information about VPC route table
   amazon.aws.ec2_vpc_route_table_info:
     filters:
-      association.subnet-id: 
+      association.subnet-id:
         - "{{ nat_subnet_id }}"
   register: __nat_route_table
 

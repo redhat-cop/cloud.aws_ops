@@ -43,6 +43,46 @@
   loop: '{{ __security_groups.security_groups }}'
   ignore_errors: true
 
+- name: Gather information about NAT gateway
+  ec2_vpc_nat_gateway_info:
+    filters:
+      subnet-id: "{{ __subnet_private_public.results[0].subnet.id }}"
+      state: ['available']
+  register: __nat_gateway
+  ignore_errors: true
+
+- name: Delete NAT Gateway
+  ec2_vpc_nat_gateway:
+    nat_gateway_id: "{{ __nat_gateway.result.0.nat_gateway_id }}"
+    state: absent
+    release_eip: yes
+  ignore_errors: true
+
+- name: Ensure EIP is actually released
+  ec2_eip:
+    state: absent
+    device_id: '{{ item.nat_gateway_addresses[0].network_interface_id }}'
+    in_vpc: true
+    wait: true
+  with_items: '{{ __nat_gateway.result }}'
+  ignore_errors: true
+
+- name: Delete subnets
+  ec2_vpc_subnet:
+    cidr: "{{ vpc_1_subnet_cidr_1 }}"
+    state: absent
+    vpc_id: "{{ vpc_id_1 }}"
+    wait: true
+  ignore_errors: true
+
+- name: Delete subnets
+  ec2_vpc_subnet:
+    cidr: "{{ vpc_1_subnet_cidr_2 }}"
+    state: absent
+    vpc_id: "{{ vpc_id_1 }}"
+    wait: true
+  ignore_errors: true
+
 - name: Gater information about VPC route tables
   ec2_vpc_route_table_info:
     filters:
@@ -63,42 +103,6 @@
   ec2_vpc_igw:
     vpc_id: "{{ vpc_id_1 }}"
     state: absent
-  ignore_errors: true
-
-- name: Gather information about NAT gateway
-  ec2_vpc_nat_gateway_info:
-    filters:
-      subnet-id: "{{ __subnet_private_public.results[0].subnet.id }}"
-      state: ['available']
-  register: __nat_gateway
-  ignore_errors: true
-
-- name: Delete NAT Gateway
-  ec2_vpc_nat_gateway:
-    nat_gateway_id: "{{ __nat_gateway.result.0.nat_gateway_id }}"
-    state: absent
-  ignore_errors: true
-
-- name: Delete subnets
-  ec2_vpc_subnet:
-    cidr: "{{ vpc_1_subnet_cidr_1 }}"
-    state: absent
-    vpc_id: "{{ vpc_id_1 }}"
-  ignore_errors: true
-
-- name: Delete subnets
-  ec2_vpc_subnet:
-    cidr: "{{ vpc_1_subnet_cidr_2 }}"
-    state: absent
-    vpc_id: "{{ vpc_id_1 }}"
-  ignore_errors: true
-
-- name: Ensure EIP is actually released
-  ec2_eip:
-    state: absent
-    device_id: '{{ item.nat_gateway_addresses[0].network_interface_id }}'
-    in_vpc: true
-  with_items: '{{ __nat_gateway.result }}'
   ignore_errors: true
 
 - name: Delete VPC 1

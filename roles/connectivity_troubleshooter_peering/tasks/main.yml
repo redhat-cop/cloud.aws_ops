@@ -27,7 +27,7 @@
 - name: Gather information about Destination peer subnet
   amazon.aws.ec2_vpc_route_table_info:
     filters:
-      association.subnet-id: 
+      association.subnet-id:
         - "{{ dst_peer_subnet_id }}"
   register: __dst_peer_route_table
 

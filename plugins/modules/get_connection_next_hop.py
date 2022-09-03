@@ -15,7 +15,7 @@ module: get_connection_next_hop
 short_description: Get connection next hop type
 description:
   - Get connection next hop type.
-  - Determines the destination of network traffic from the Amazon resource using the routes. 
+  - Determines the destination of network traffic from the Amazon resource using the routes.
 author:
   - Alina Buzachis (@alinabuzachis)
 options:
@@ -91,7 +91,7 @@ class GetConnectionNextHopType(AnsibleModule):
             if route.get("destination_cidr_block"):
                 mask = int(route["destination_cidr_block"].split("/")[1])
                 if (
-                    not "destination_prefix_list_id" in str(route)
+                    "destination_prefix_list_id" not in str(route)
                     and destination
                     in ip_network(route["destination_cidr_block"], strict=False)
                     and mask > most_specific

@@ -20,7 +20,7 @@
   register: __src_subnet_nacls
 
 - set_fact:
-      src_subnet_nacls: "{{ src_subnet_nacls|d([]) + [dict(_keys|zip(_vals))] }}"
+    src_subnet_nacls: "{{ src_subnet_nacls|d([]) + [dict(_keys|zip(_vals))] }}"
   loop: "{{ __src_subnet_nacls.nacls }}"
   vars:
     _keys: "{{ ['egress', 'ingress'] }}"

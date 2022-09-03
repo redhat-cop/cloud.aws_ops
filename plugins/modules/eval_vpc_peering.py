@@ -162,7 +162,7 @@ class EvalVpcPeering(AnsibleModule):
             if route.get("destination_cidr_block"):
                 mask = int(route["destination_cidr_block"].split("/")[1])
                 if (
-                    not "destination_prefix_list_id" in str(route)
+                    "destination_prefix_list_id" not in str(route)
                     and src_ip
                     in ip_network(route["destination_cidr_block"], strict=False)
                     and mask > most_specific
