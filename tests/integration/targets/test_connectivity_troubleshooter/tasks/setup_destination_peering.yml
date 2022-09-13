@@ -20,7 +20,7 @@
 
 - name: Create Subnet 2
   ec2_vpc_subnet:
-    cidr: "{{ vpc_2_subnet_cidr_1 }}"
+    cidr: "{{ vpc_2_subnet_cidr }}"
     vpc_id: "{{ __create_vpc_2.vpc.id }}"
     state: present
     map_public: yes
@@ -60,7 +60,7 @@
     subnets:  
       - "{{ __create_vpc_subnet_1.subnet.id }}" 
     routes:
-      - dest: "{{ vpc_2_subnet_cidr_1 }}"
+      - dest: "{{ vpc_2_subnet_cidr }}"
         vpc_peering_connection_id: "{{ __create_vpc_peering.peering_id }}"
   register: __route_table_out
 

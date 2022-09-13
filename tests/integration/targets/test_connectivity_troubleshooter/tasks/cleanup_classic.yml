@@ -1,5 +1,5 @@
 ---
-- name: Gater information about VPC
+- name: Gather information about VPC
   ec2_vpc_net_info:
     filters:
       tag:Name: "{{ vpc_name }}"
@@ -9,7 +9,7 @@
 - set_fact:
     vpc_id_1: "{{ __vpc_info_1.vpcs.0.vpc_id }}"
 
-- name: Gater information about EC2 instances
+- name: Gather information about EC2 instances
   ec2_instance_info:
     filters:
       vpc-id: "{{ vpc_id_1 }}"
@@ -83,7 +83,7 @@
     wait: true
   ignore_errors: true
 
-- name: Gater information about VPC route tables
+- name: Gather information about VPC route tables
   ec2_vpc_route_table_info:
     filters:
       vpc-id: "{{ vpc_id_1 }}"

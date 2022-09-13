@@ -58,7 +58,7 @@ options:
     required: true
   src_network_acls:
     description:
-    - Source subnet netwrork ACLs rules.
+    - Source subnet network ACLs rules.
     type: list
     elements: dict
     required: true
@@ -66,7 +66,7 @@ options:
 
 
 EXAMPLES = r"""
-- name: Evaluate ingress and egress netwok ACLs
+- name: Evaluate ingress and egress network ACLs
   eval_src_igw_route:
     src_ip: "192.168.0.112
     src_subnet_id: "subnet-03181dc286eca1244"

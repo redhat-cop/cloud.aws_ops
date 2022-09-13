@@ -12,9 +12,9 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: eval_nat_network_acls
-short_description: Evaluate ingress and egress NAT netwok ACLs
+short_description: Evaluate ingress and egress NAT network ACLs
 description:
-  - Evaluate ingress and egress NAT netwok ACLs.
+  - Evaluate ingress and egress NAT network ACLs.
   - Confirms whether the NACLs allow the needed traffic between the source and destination resources.
 author:
   - Alina Buzachis (@alinabuzachis)
@@ -65,7 +65,7 @@ options:
 
 
 EXAMPLES = r"""
-- name: Evaluate ingress and egress NAT netwok ACLs
+- name: Evaluate ingress and egress NAT network ACLs
   eval_nat_network_acls:
     dst_ip: "8.8.8.8"
     dst_port: 80
@@ -327,7 +327,7 @@ class EvalNatNetworkAcls(AnsibleModule):
 
     def execute_module(self):
         try:
-            # Evaluate ingress and egress NAT netwok ACLs
+            # Evaluate ingress and egress NAT network ACLs
             self.eval_nat_nacls()
             self.get_nat_next_hop()
             self.exit_json(result="NAT Network ACLs evaluation successful")

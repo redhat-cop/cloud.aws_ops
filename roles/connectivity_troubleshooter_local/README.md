@@ -30,7 +30,7 @@ Example Playbook
 
       roles:
         - role: cloud.aws_roles.connectivity_troubleshooter_local:
-          cconnectivity_troubleshooter_local_destination_ip: 172.31.2.8
+          connectivity_troubleshooter_local_destination_ip: 172.31.2.8
           connectivity_troubleshooter_local_destination_port: 443
           connectivity_troubleshooter_local_source_ip: 172.31.2.7
 
