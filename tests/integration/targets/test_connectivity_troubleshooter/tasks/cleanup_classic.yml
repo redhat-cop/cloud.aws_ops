@@ -8,6 +8,7 @@
 
 - set_fact:
     vpc_id_1: "{{ __vpc_info_1.vpcs.0.vpc_id }}"
+  when: __vpc_info_1.vpcs | length != 0
 
 - name: Gather information about EC2 instances
   ec2_instance_info:
@@ -56,6 +57,7 @@
     nat_gateway_id: "{{ __nat_gateway.result.0.nat_gateway_id }}"
     state: absent
     release_eip: yes
+    wait: true
   ignore_errors: true
 
 - name: Ensure EIP is actually released
@@ -63,7 +65,6 @@
     state: absent
     device_id: '{{ item.nat_gateway_addresses[0].network_interface_id }}'
     in_vpc: true
-    wait: true
   with_items: '{{ __nat_gateway.result }}'
   ignore_errors: true
 

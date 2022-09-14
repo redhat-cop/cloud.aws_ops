@@ -10,7 +10,14 @@ A role to troubleshoot connectivity issues between the following:
 Requirements
 ------------
 
-N/A
+Authentication against AWS is managed by the `aws_setup_credentials` role.
+
+It also requires the folllowing roles:
+- connectivity_troubleshooter_validate
+- connectivity_troubleshooter_igw
+- connectivity_troubleshooter_local 
+- connectivity_troubleshooter_nat
+- connectivity_troubleshooter_peering
 
 Role Variables
 --------------
@@ -26,6 +33,7 @@ Dependencies
 ------------
 
 - role: aws_setup_credentials
+- role: connectivity_troubleshooter_validate
 
 Example Playbook
 ----------------

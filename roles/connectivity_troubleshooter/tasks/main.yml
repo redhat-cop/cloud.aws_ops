@@ -1,14 +1,6 @@
 ---
 # tasks file for roles/connectivity_troubleshooter
 
-- include_role:
-    name: connectivity_troubleshooter_validate
-  vars:
-    connectivity_troubleshooter_validate_destination_ip: "{{ connectivity_troubleshooter_destination_ip }}"
-    connectivity_troubleshooter_validate_destination_port: "{{ connectivity_troubleshooter_destination_port }}"
-    connectivity_troubleshooter_validate_source_ip: "{{ connectivity_troubleshooter_source_ip }}"
-    connectivity_troubleshooter_validate_source_vpc: "{{ connectivity_troubleshooter_source_vpc }}"
-
 - fail:
     msg: "Next hop type '{{ next_hop }}' is not supported by this role"
   when: "next_hop != 'local' and not next_hop.startswith('nat-') and not next_hop.startswith('igw-') and not next_hop.startswith('pcx-')"

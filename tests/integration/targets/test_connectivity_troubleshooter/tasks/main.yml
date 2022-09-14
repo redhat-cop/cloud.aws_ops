@@ -1,12 +1,12 @@
 ---
 # tasks file for tests/integration/targets/test_connectivity_troubleshooter
 - name: connectivity_troublershooter integration tests
-  module_defaults:
-     group/aws:
-       aws_access_key: "{{ aws_access_key }}"
-       aws_secret_key: "{{ aws_secret_key }}"
-       security_token: "{{ security_token | default(omit) }}"
-       region: "{{ aws_region }}"
+  # module_defaults:
+  #    group/aws:
+  #      aws_access_key: "{{ aws_access_key }}"
+  #      aws_secret_key: "{{ aws_secret_key }}"
+  #      security_token: "{{ security_token | default(omit) }}"
+  #      region: "{{ aws_region }}"
   collections:
     - amazon.aws
     - community.aws

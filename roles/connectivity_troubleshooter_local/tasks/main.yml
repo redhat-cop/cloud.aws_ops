@@ -50,16 +50,6 @@
     - "{{ __src_security_groups_info.results }}"
     - "{{ __dst_security_groups_info.results }}"
 
-- name: Gather information about Destination security group
-  amazon.aws.ec2_security_group_info:
-    filters:
-      group_id: "{{ item }}"
-  register: __security_groups_info
-  with_items: "{{ src_security_groups + dst_security_groups }}"
-
-- set_fact:
-    security_groups_info: "{{ __security_groups_info.results | sum(attribute='security_groups', start=[]) }}"
-
 - name: Evaluate ingress and egress security group rules
   eval_security_groups:
     src_ip: "{{ connectivity_troubleshooter_local_source_ip }}"

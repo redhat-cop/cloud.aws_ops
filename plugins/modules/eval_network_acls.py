@@ -11,9 +11,9 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: eval_network_acls
-short_description: Evaluate ingress and egress netwok ACLs
+short_description: Evaluate ingress and egress network ACLs
 description:
-  - Evaluate ingress and egress netwok ACLs.
+  - Evaluate ingress and egress network ACLs.
 author:
   - Alina Buzachis (@alinabuzachis)
 options:
@@ -63,7 +63,7 @@ options:
 
 
 EXAMPLES = r"""
-- name: Evaluate ingress and egress netwok ACLs
+- name: Evaluate ingress and egress network ACLs
   eval_network_acls:
     src_ip: "172.32.1.31"
     src_subnet_id: "subnet-0d8ddbeaa790da839"
@@ -116,7 +116,7 @@ EXAMPLES = r"""
 RETURN = r"""
 result:
   type: str
-  description: Results from evaluating ingress and egress netwok ACLs.
+  description: Results from evaluating ingress and egress network ACLs.
   returned: success
   sample: 'Network ACLs evaluation successful'
 """
