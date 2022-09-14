@@ -7,4 +7,3 @@ dependencies:
     connectivity_troubleshooter_validate_destination_port: "{{ connectivity_troubleshooter_destination_port }}"
     connectivity_troubleshooter_validate_source_ip: "{{ connectivity_troubleshooter_source_ip }}"
     connectivity_troubleshooter_validate_source_vpc: "{{ connectivity_troubleshooter_source_vpc }}"
-
