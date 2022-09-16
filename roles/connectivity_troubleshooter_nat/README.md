@@ -6,7 +6,7 @@ A role to troubleshoot connectivity issues between AWS resources in an Amazon VP
 Requirements
 ------------
 
-If you would like to use this role independently, you must first run the `connectivity_troubleshooter_validate` role to set the  `next_hop ` variable used by this role. You can follow the Example Playbook bellow or add the `connectivity_troubleshooter_validate` role as a dependency within this role's `meta/main.yml`. Authentications against AWS can also be handled by adding the `aws_setup_credentials` role as a dependency within this role's `meta/main.yml` file.
+If you would like to use this role independently, you must first run the `connectivity_troubleshooter_validate` role to set the  `next_hop ` variable used by this role. You can follow the Example Playbook below or add the `connectivity_troubleshooter_validate` role as a dependency within this role's `meta/main.yml`. Authentications against AWS can also be handled by adding the `aws_setup_credentials` role as a dependency within this role's `meta/main.yml` file.
 
 Role Variables
 --------------
