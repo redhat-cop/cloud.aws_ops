@@ -1,0 +1,11 @@
+---
+- fail:
+    msg: "Custom AMI name should be defined using variable custom_ami_name"
+  when: custom_ami_name is undefined
+
+- block:
+    - include_tasks: "{{ custom_ami_operation }}.yaml"
+
+  module_defaults:
+    group/aws:
+      "{{ aws_role_credentials }}"
