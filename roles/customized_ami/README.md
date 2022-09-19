@@ -19,6 +19,11 @@ Role Variables
 * **source_ami_image_id** - Image id of the AMI to be used as source. When not specified, we will use **source_ami_filters** to determine source AMI image id.
 * **source_ami_user_name** - User name to connect to EC2 instance used to create custom AMI. Default value is **ec2-user**.
 
+Dependencies
+------------
+
+- role: [aws_setup_credentials](../aws_setup_credentials/README.md)
+
 Example Playbook
 ----------------
 
