@@ -2,8 +2,3 @@
 allow_duplicates: true
 dependencies:
   - role: aws_setup_credentials
-  - role: connectivity_troubleshooter_validate
-    connectivity_troubleshooter_validate_destination_ip: "{{ connectivity_troubleshooter_destination_ip }}"
-    connectivity_troubleshooter_validate_destination_port: "{{ connectivity_troubleshooter_destination_port }}"
-    connectivity_troubleshooter_validate_source_ip: "{{ connectivity_troubleshooter_source_ip }}"
-    connectivity_troubleshooter_validate_source_vpc: "{{ connectivity_troubleshooter_source_vpc }}"

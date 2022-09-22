@@ -33,7 +33,6 @@ Dependencies
 ------------
 
 - role: aws_setup_credentials
-- role: connectivity_troubleshooter_validate
 
 Example Playbook
 ----------------

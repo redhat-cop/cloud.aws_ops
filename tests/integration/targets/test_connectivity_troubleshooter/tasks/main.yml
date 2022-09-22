@@ -1,15 +1,6 @@
 ---
 # tasks file for tests/integration/targets/test_connectivity_troubleshooter
 - name: connectivity_troublershooter integration tests
-  # module_defaults:
-  #    group/aws:
-  #      aws_access_key: "{{ aws_access_key }}"
-  #      aws_secret_key: "{{ aws_secret_key }}"
-  #      security_token: "{{ security_token | default(omit) }}"
-  #      region: "{{ aws_region }}"
-  collections:
-    - amazon.aws
-    - community.aws
   block:
   - block:
     - name: Get image ID to for EC2 instance
@@ -41,7 +32,7 @@
         vars:
           connectivity_troubleshooter_destination_ip: 8.8.8.8 
           connectivity_troubleshooter_destination_port: 80
-          connectivity_troubleshooter_source_ip: "{{ ip_instance_2 }}"
+          connectivity_troubleshooter_source_ip: "{{ ip_instance_1 }}"
 
       # IGW
       - include_role:

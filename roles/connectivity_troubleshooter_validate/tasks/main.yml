@@ -1,80 +1,79 @@
 ---
 # tasks file for roles/connectivity_troubleshooter_validate
 
-- fail:
-    msg: "The IPv4 address of the resource you want to connect to must be defined as connectivity_troubleshooter_validate_destination_ip"
-  when: connectivity_troubleshooter_validate_destination_ip is not defined
-
-- fail:
-    msg: "The port number you want to connect to on the destination resource must be defined as connectivity_troubleshooter_validate_destination_port"
-  when: connectivity_troubleshooter_validate_destination_port is not defined
-
-- fail:
-    msg: "The private IPv4 address of the AWS resource in your Amazon VPC you want to test connectivity from must be defined as connectivity_troubleshooter_validate_source_ip"
-  when: connectivity_troubleshooter_validate_source_ip is not defined
-
-- fail:
-    msg: "connectivity_troubleshooter_validate_source_ip and connectivity_troubleshooter_validate_destination_ip are same, kindly provide different values"
-  when: connectivity_troubleshooter_validate_source_ip == connectivity_troubleshooter_validate_destination_ip
-
-- debug:
-    var: connectivity_troubleshooter_validate_source_vpc | default('', true)
-- set_fact:
-    __filter_eni: {'addresses.private-ip-address': "{{ connectivity_troubleshooter_validate_source_ip }}"}
-
-- set_fact:
-    __filter_eni: "{{ __filter_eni | combine( { 'vpc-id': connectivity_troubleshooter_validate_source_vpc } ) }}"
-  when: connectivity_troubleshooter_validate_source_vpc | default('', true) | trim != ''
-
-- name: Gather information about Source ENI
-  amazon.aws.ec2_eni_info:
-    filters: "{{ __filter_eni }}"
-  register: __describe_src_eni
-
-- fail:
-    msg: "Kindly check the connectivity_troubleshooter_validate_source_ip and connectivity_troubleshooter_validate_source_vpc parameters, no network interface found"
-  when: __describe_src_eni['network_interfaces'] | length == 0
-
-- set_fact:
-    src_subnet_id: "{{ __src_network_interface_info.subnet_id }}"
-    src_vpc_id: "{{ __src_network_interface_info.vpc_id }}"
-    src_security_groups: "{{ __src_network_interface_info.groups | map(attribute='group_id')| list }}"
-    src_network_interface: "{{ __src_network_interface_info }}"
-  vars:
-    __src_network_interface_info: "{{ __describe_src_eni.network_interfaces.0 }}"
-
-- name: Gather information about Source VPC route table
-  amazon.aws.ec2_vpc_route_table_info:
-    filters:
-      association.subnet-id: "{{ src_subnet_id }}"
-  register: __src_route_table
-
-- set_fact:
-    routes: "{{ __src_route_table.route_tables.0.routes }}"
-  when: __src_route_table.route_tables | length > 0
-
-# if RouteTable is not returned, this indicates association of subnet with main route table
 - block:
-    - name: Gather information about VPC route table
-      amazon.aws.ec2_vpc_route_table_info:
-        filters:
-          association.main: "true"
-          vpc-id: "{{ src_vpc_id }}"
-      register: __src_route_table_retry
+  - fail:
+      msg: "The IPv4 address of the resource you want to connect to must be defined as connectivity_troubleshooter_validate_destination_ip"
+    when: connectivity_troubleshooter_validate_destination_ip is not defined
 
-    - fail:
-        msg: "Could not find route table for connectivity_troubleshooter_validate_source_ip"
-      when: __src_route_table_retry.route_tables | length == 0
+  - fail:
+      msg: "The port number you want to connect to on the destination resource must be defined as connectivity_troubleshooter_validate_destination_port"
+    when: connectivity_troubleshooter_validate_destination_port is not defined
 
-    - set_fact:
-        routes: "{{ __src_route_table_retry.route_tables.0.routes }}"
-  when: __src_route_table.route_tables | length == 0
+  - fail:
+      msg: "The private IPv4 address of the AWS resource in your Amazon VPC you want to test connectivity from must be defined as connectivity_troubleshooter_validate_source_ip"
+    when: connectivity_troubleshooter_validate_source_ip is not defined
 
-- name: Get connection next hop
-  get_connection_next_hop:
-    dst_ip: "{{ connectivity_troubleshooter_validate_destination_ip }}"
-    routes: "{{ routes }}"
-  register: __result_next_hop
+  - fail:
+      msg: "connectivity_troubleshooter_validate_source_ip and connectivity_troubleshooter_validate_destination_ip are same, kindly provide different values"
+    when: connectivity_troubleshooter_validate_source_ip == connectivity_troubleshooter_validate_destination_ip
 
-- set_fact:
-    next_hop: "{{ __result_next_hop.next_hop }}"
+  - set_fact:
+      __filter_eni: {'addresses.private-ip-address': "{{ connectivity_troubleshooter_validate_source_ip }}"}
+
+  - set_fact:
+      __filter_eni: "{{ __filter_eni | combine( { 'vpc-id': connectivity_troubleshooter_validate_source_vpc } ) }}"
+    when: connectivity_troubleshooter_validate_source_vpc | default('', true) | trim != ''
+
+  - name: Gather information about Source ENI
+    amazon.aws.ec2_eni_info:
+      filters: "{{ __filter_eni }}"
+    register: __describe_src_eni
+
+  - fail:
+      msg: "Kindly check the connectivity_troubleshooter_validate_source_ip and connectivity_troubleshooter_validate_source_vpc parameters, no network interface found"
+    when: __describe_src_eni['network_interfaces'] | length == 0
+
+  - set_fact:
+      src_subnet_id: "{{ __src_network_interface_info.subnet_id }}"
+      src_vpc_id: "{{ __src_network_interface_info.vpc_id }}"
+      src_security_groups: "{{ __src_network_interface_info.groups | map(attribute='group_id')| list }}"
+      src_network_interface: "{{ __src_network_interface_info }}"
+    vars:
+      __src_network_interface_info: "{{ __describe_src_eni.network_interfaces.0 }}"
+
+  - name: Gather information about Source VPC route table
+    amazon.aws.ec2_vpc_route_table_info:
+      filters:
+        association.subnet-id: "{{ src_subnet_id }}"
+    register: __src_route_table
+
+  - set_fact:
+      routes: "{{ __src_route_table.route_tables.0.routes }}"
+    when: __src_route_table.route_tables | length > 0
+
+  # if RouteTable is not returned, this indicates association of subnet with main route table
+  - block:
+      - name: Gather information about VPC route table
+        amazon.aws.ec2_vpc_route_table_info:
+          filters:
+            association.main: "true"
+            vpc-id: "{{ src_vpc_id }}"
+        register: __src_route_table_retry
+
+      - fail:
+          msg: "Could not find route table for connectivity_troubleshooter_validate_source_ip"
+        when: __src_route_table_retry.route_tables | length == 0
+
+      - set_fact:
+          routes: "{{ __src_route_table_retry.route_tables.0.routes }}"
+    when: __src_route_table.route_tables | length == 0
+
+  - name: Get connection next hop
+    get_connection_next_hop:
+      dst_ip: "{{ connectivity_troubleshooter_validate_destination_ip }}"
+      routes: "{{ routes }}"
+    register: __result_next_hop
+
+  - set_fact:
+      next_hop: "{{ __result_next_hop.next_hop }}"
