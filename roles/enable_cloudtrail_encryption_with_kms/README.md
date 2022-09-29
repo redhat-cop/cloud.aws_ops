@@ -1,7 +1,7 @@
 Role Name
 =========
 
-A role to encrypts an AWS CloudTrail (CloudTrail) trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
+A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
 
 Requirements
 ------------
