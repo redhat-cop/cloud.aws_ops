@@ -1,0 +1,70 @@
+---
+# tasks file for tests/integration/targets/test_enable_cloudtrail_encryption_with_kms
+
+- set_fact:
+    test_resource_prefix: "ansible-cloudtrail-{{ 101 | random(1,10) }}"
+
+- name: enable_cloudtrail_encryption_with_kms integration tests
+  block:
+    - set_fact:
+        s3_bucket_name: "s3-{{ test_resource_prefix }}"
+        cloudtrail_name: "trail-{{ test_resource_prefix }}"
+        kms_alias: "kms-{{ test_resource_prefix }}"
+        cloudtrail_prefix: "asible-test-prefix"
+
+    - name: Create S3 bucket
+      s3_bucket:
+        state: present
+        name: "{{ s3_bucket_name }}"
+        policy: '{{ lookup("template", "s3-policy.j2") }}'
+
+    - name: Create KMS Key
+      aws_kms:
+        state: present
+        alias: "{{ kms_alias }}"
+        enabled: yes
+        policy: "{{ lookup('template', 'kms-policy.j2') | to_json }}"
+      register: __create_kms_key
+
+    - set_fact:
+        kms_key_id: __create_kms_key.key_id
+
+    - name: Create a trail
+      cloudtrail:
+        state: present
+        name: "{{ cloudtrail_name }}"
+        s3_bucket_name: "{{ s3_bucket_name }}"
+        s3_key_prefix: '{{ cloudtrail_prefix }}'
+      register: __create_trail
+
+    - assert:
+        that:
+        - __create_trail is changed
+        - __create_trail.exists == True
+        - __create_trail.trail.name == cloudtrail_name
+
+    - include_role:
+        name: enable_cloudtrail_encryption_with_kms
+      vars:
+        enable_cloudtrail_encryption_with_kms_trail_name: "{{ cloudtrail_name }}"
+        enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
+
+  always:
+    - name: Delete trail
+      cloudtrail:
+        state: absent
+        name: "{{ cloudtrail_name }}"
+      ignore_errors: true
+
+    - name: Delete S3 bucket
+      s3_bucket:
+        state: absent
+        name: "{{ s3_bucket_name }}"
+        force: yes
+      ignore_errors: true
+
+    - name: Delete KMS Key
+      aws_kms:
+        state: absent
+        alias: "{{ kms_alias }}"
+      ignore_errors: true

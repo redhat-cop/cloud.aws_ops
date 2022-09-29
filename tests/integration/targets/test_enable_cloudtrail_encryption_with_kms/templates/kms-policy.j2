@@ -1,0 +1,39 @@
+{
+  "Version": "2012-10-17",
+  "Id": "CloudTrailPolicy",
+  "Statement": [
+    {
+        "Sid": "Enable IAM User Permissions",
+        "Effect": "Allow",
+        "Principal": {
+            "AWS": "*"
+        },
+        "Action": "kms:*",
+        "Resource": "*"
+    },
+    {
+      "Sid": "EncryptLogs",
+      "Effect": "Allow",
+      "Principal": { "Service": "cloudtrail.amazonaws.com" },
+      "Action": "kms:GenerateDataKey*",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "kms:EncryptionContext:aws:cloudtrail:arn": [
+            "arn:aws:cloudtrail:::trail/{{ cloudtrail_prefix }}*"
+          ]
+        },
+        "StringEquals": {
+            "aws:SourceArn": "arn:aws:cloudtrail:::trail/{{ cloudtrail_name }}"
+        }
+      }
+    },
+    {
+      "Sid": "DescribeKey",
+      "Effect": "Allow",
+      "Principal": { "Service": "cloudtrail.amazonaws.com" },
+      "Action": "kms:DescribeKey",
+      "Resource": "*"
+    }
+  ]
+}
