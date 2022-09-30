@@ -27,8 +27,7 @@
             msg:
               - "'terminate_protected_instances' is set to True..."
               - "Instances with termination protection enabled will also be terminated..."
-          when: "{{ instance_ids | length }} != 0"
-          verbosity: 3
+          when: instance_ids | length != 0
 
         - name: Disable instance termination protection if terminate_protected_instances is true
           amazon.aws.ec2_instance:
@@ -46,10 +45,12 @@
       with_items:
         - "{{ instance_ids }}"
 
+  always:
+
     - name: Create list of terminated instances
       ansible.builtin.set_fact:
         terminated_instances: "{{ terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
     - debug:
         msg:
           - "Terminated instances successfully -> {{ terminated_instances }}"
-      when: "{{ terminated_instances | length }} != 0"
+      when: terminated_instances | length != 0
