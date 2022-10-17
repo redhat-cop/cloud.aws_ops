@@ -54,3 +54,7 @@
         msg:
           - "Terminated instances successfully -> {{ terminated_instances }}"
       when: terminated_instances | length != 0
+
+  module_defaults:
+    group/aws:
+      "{{ aws_role_credentials }}"

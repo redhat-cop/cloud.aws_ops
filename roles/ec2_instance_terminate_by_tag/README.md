@@ -20,6 +20,11 @@ This role will terminate the instances with the specified tag even if they are a
 The attached EBS volumes to the instances are deleted when instance is terminated if `Delete on Termination` is set to `True`.
 If `Delete on Termination` is set to `False`, the volume will be detached from the instance and will not be deleted.
 
+Dependencies
+------------
+
+- role: [aws_setup_credentials](../aws_setup_credentials/README.md)
+
 ## Example:
 ```
 ---
