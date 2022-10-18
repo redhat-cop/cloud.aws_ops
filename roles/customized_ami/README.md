@@ -29,7 +29,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - role: cloud.aws_roles.customized_ami
+         - role: cloud.aws_ops.customized_ami
            custom_ami_name: my_customized_ami_name
            custom_ami_packages:
             - package1

@@ -28,11 +28,11 @@ Dependencies
 ## Example:
 ```
 ---
-- name: Playbook for terminating instances using cloud.aws_roles.ec2_instance_terminate_by_tag role
+- name: Playbook for terminating instances using cloud.aws_ops.ec2_instance_terminate_by_tag role
   hosts: localhost
   gather_facts: false
   roles:
-    - role: cloud.aws_roles.ec2_instance_terminate_by_tag
+    - role: cloud.aws_ops.ec2_instance_terminate_by_tag
       vars:
           tag_key_to_terminate_instances: instances-to-terminate
           tag_value_to_terminate_instances: "True"
@@ -44,7 +44,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](https://github.com/ansible-collections/cloud.aws_roles/blob/main/LICENSE) to see the full text.
+See [LICENCE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
 
 Author Information
 ------------------
