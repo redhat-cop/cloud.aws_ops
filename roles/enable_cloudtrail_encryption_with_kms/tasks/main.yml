@@ -7,7 +7,7 @@
     when: enable_cloudtrail_encryption_with_kms_trail_name is not defined
 
   - fail:
-      msg: "The ARN, key ID, or the key alias of the of the customer managed key you want to use to encrypt the trail must be defined as enable_cloudtrail_encryption_with_kms_kms_key_id"
+      msg: "The ARN, key ID, or the key alias of the customer managed key you want to use to encrypt the trail must be defined as enable_cloudtrail_encryption_with_kms_kms_key_id"
     when: enable_cloudtrail_encryption_with_kms_kms_key_id is not defined
 
   - name: Gather information about the trail
