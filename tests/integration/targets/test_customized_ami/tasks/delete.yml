@@ -1,5 +1,5 @@
 ---
 - include_role:
-    name: cloud.aws_roles.customized_ami
+    name: cloud.aws_ops.customized_ami
   vars:
     custom_ami_operation: delete

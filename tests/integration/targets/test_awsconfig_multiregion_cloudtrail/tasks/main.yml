@@ -15,7 +15,7 @@
     # Create multiregion cloud trail
     - name: Create Multi-region cloud trail
       include_role:
-        name: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+        name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
         operation: create
         bucket_name: "{{ s3_bucket_name }}"
@@ -27,7 +27,7 @@
     # Delete cloud trail
     - name: Create Multi-region cloud trail
       include_role:
-        name: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+        name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
         operation: delete
         trail_name: "{{ cloud_trail_name }}"
