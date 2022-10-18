@@ -1,6 +1,6 @@
 ---
 - include_role:
-    name: cloud.aws_roles.customized_ami
+    name: cloud.aws_ops.customized_ami
   vars:
     custom_ami_packages: "{{ ami_update_packages }}"
     custom_ami_recreate_if_exists: true

@@ -34,7 +34,7 @@ Example Playbook
 
     - hosts: localhost
       roles:
-        - role: cloud.aws_roles.awsconfig_multiregion_cloudtrail
+        - role: cloud.aws_ops.awsconfig_multiregion_cloudtrail
           aws_profile: xxxxxxxxxxx
           aws_access_key: xxxxxxxxxxx
           aws_secret_key: xxxxxxxxxxx
@@ -48,7 +48,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](https://github.com/ansible-collections/cloud.aws_roles/blob/main/LICENSE) to see the full text.
+See [LICENCE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
 
 Author Information
 ------------------

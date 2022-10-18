@@ -13,7 +13,7 @@ on:
 
 env:
   NAMESPACE: cloud
-  COLLECTION_NAME: aws_roles
+  COLLECTION_NAME: aws_ops
 
 jobs:
 

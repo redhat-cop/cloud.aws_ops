@@ -5,12 +5,12 @@ authors:
 description: Amazon AWS roles and playbooks for Ansible.
 documentation: ''
 homepage: ''
-issues: https://github.com/ansible-collections/cloud.aws_roles/issues
+issues: https://github.com/ansible-collections/cloud.aws_ops/issues
 license_file: LICENSE
 namespace: cloud
-name: aws_roles
+name: aws_ops
 readme: README.md
-repository: https://github.com/ansible-collections/cloud.aws_roles
+repository: https://github.com/ansible-collections/cloud.aws_ops
 tags:
   - amazon
   - aws

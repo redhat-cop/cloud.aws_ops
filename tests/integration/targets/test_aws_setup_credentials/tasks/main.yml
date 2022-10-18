@@ -1,6 +1,6 @@
 ---
 - include_role:
-    name: cloud.aws_roles.aws_setup_credentials
+    name: cloud.aws_ops.aws_setup_credentials
   vars:
     aws_profile: profile-1
 
