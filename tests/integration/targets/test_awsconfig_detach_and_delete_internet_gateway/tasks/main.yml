@@ -7,7 +7,7 @@
 
     # trying to detach and delete the internet gateway should fail
     - include_role:
-        name: cloud.aws_roles.awsconfig_detach_and_delete_internet_gateway
+        name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
         apply:
           ignore_errors: true
       vars:
@@ -39,7 +39,7 @@
 
     # Detach and delete the internet gateway
     - include_role:
-        name: cloud.aws_roles.awsconfig_detach_and_delete_internet_gateway
+        name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
       vars:
         internet_gateway_id: "{{ igw.gateway_id }}"
 
