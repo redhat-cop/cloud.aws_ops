@@ -1,3 +1,4 @@
+---
 - hosts: localhost
   gather_facts: false
 
@@ -16,11 +17,11 @@
 
   tasks:
     - fail:
-        msg: "resource prefix should be defined as resource_prefix"
+        msg: resource prefix should be defined as resource_prefix
       when: resource_prefix is not defined
 
     - fail:
-        msg: "destination region should be defined as dest_region"
+        msg: destination region should be defined as dest_region
       when: dest_region is not defined
 
     - name: Get RDS instance info
@@ -53,7 +54,7 @@
         region: "{{ dest_region }}"
       register: result
 
-    - import_tasks: "tasks/create.yaml"
+    - import_tasks: tasks/create.yaml
       vars:
         rds_snapshot_arn: "{{ result.db_snapshot_arn }}"
         region: "{{ dest_region }}"
@@ -69,7 +70,7 @@
         - "{{ aws_region }}"
 
     - name: Delete instance create in source region
-      import_tasks: "tasks/delete.yaml"
+      import_tasks: tasks/delete.yaml
       when: do_not_delete_source | default('false') | bool
 
 - name: Deploy resource from Bastion

@@ -1,3 +1,4 @@
+---
 - hosts: localhost
   gather_facts: false
 
@@ -10,10 +11,10 @@
 
   tasks:
     - fail:
-        msg: "resource prefix should be defined as resource_prefix"
+        msg: resource prefix should be defined as resource_prefix
       when: resource_prefix is not defined
 
-    - import_tasks: "tasks/{{ operation }}.yaml"
+    - import_tasks: tasks/{{ operation }}.yaml
 
 - name: Deploy resource from Bastion
   hosts: bastion
