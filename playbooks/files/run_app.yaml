@@ -5,19 +5,19 @@
   become: true
 
   vars:
-    container_name: "webapp-container01"
+    container_name: webapp-container01
 
   tasks:
     - name: Update ssh_config
       lineinfile:
-        path: "/etc/ssh/sshd_config"
+        path: /etc/ssh/sshd_config
         regex: "{{ item.regex }}"
         line: "{{ item.line }}"
       loop:
-        - regex: "^(# *)?ClientAliveInterval"
-          line: "ClientAliveInterval  1200"
-        - regex: "^(# *)?ClientAliveCountMax"
-          line: "ClientAliveCountMax 3"
+        - regex: ^(# *)?ClientAliveInterval
+          line: ClientAliveInterval  1200
+        - regex: ^(# *)?ClientAliveCountMax
+          line: ClientAliveCountMax 3
 
     - name: Install Podman
       yum:
