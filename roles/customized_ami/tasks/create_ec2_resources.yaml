@@ -1,14 +1,15 @@
+---
 - name: Create a VPC to work in
   ec2_vpc_net:
     cidr_block: "{{ custom_ami_vpc_cidr }}"
-    name: 'vpc-{{ ec2_resource_prefix }}'
+    name: vpc-{{ ec2_resource_prefix }}
     tags:
       role: customized_ami
   register: vpc
 
 - name: Create a public subnet
   ec2_vpc_subnet:
-    vpc_id: '{{ vpc.vpc.id }}'
+    vpc_id: "{{ vpc.vpc.id }}"
     cidr: "{{ custom_ami_subnet_cidr }}"
     tags:
       role: customized_ami
@@ -16,7 +17,7 @@
 
 - name: Create internet gateway attached to the VPC
   ec2_vpc_igw:
-    vpc_id: '{{ vpc.vpc.id }}'
+    vpc_id: "{{ vpc.vpc.id }}"
     tags:
       role: customized_ami
     state: present
@@ -24,11 +25,11 @@
 
 - name: Create Route table for internet gateway (public subnet)
   ec2_vpc_route_table:
-    vpc_id: '{{ vpc.vpc.id }}'
+    vpc_id: "{{ vpc.vpc.id }}"
     subnets:
       - "{{ subnet.subnet.id }}"
     routes:
-      - dest: "0.0.0.0/0"
+      - dest: 0.0.0.0/0
         gateway_id: "{{ internet_gw.gateway_id }}"
     tags:
       role: customized_ami
@@ -37,15 +38,15 @@
 - name: Create security group allowing SSH connection
   ec2_group:
     name: "{{ ec2_resource_prefix }}-security"
-    vpc_id: '{{ vpc.vpc.id }}'
-    description: "Security group allowing SSH connection to EC2 instance"
+    vpc_id: "{{ vpc.vpc.id }}"
+    description: Security group allowing SSH connection to EC2 instance
     rules:
-      - cidr_ip: "0.0.0.0/0"
+      - cidr_ip: 0.0.0.0/0
         proto: tcp
         from_port: 22
         to_port: 22
     rules_egress:
-      - cidr_ip: "0.0.0.0/0"
+      - cidr_ip: 0.0.0.0/0
         proto: -1
     tags:
       role: customized_ami
@@ -54,7 +55,7 @@
 
 - name: Create key pair to connect to the VM
   ec2_key:
-    name: 'key-{{ ec2_resource_prefix }}'
+    name: key-{{ ec2_resource_prefix }}
     tags:
       role: customized_ami
   register: rsa_key
@@ -68,11 +69,11 @@
 
 - name: Create a virtual machine
   ec2_instance:
-    name: "ec2-default-{{ ec2_resource_prefix }}"
+    name: ec2-default-{{ ec2_resource_prefix }}
     instance_type: "{{ custom_ami_ec2_instance_type }}"
     image_id: "{{ ec2_ami_image_id }}"
-    key_name: 'key-{{ ec2_resource_prefix }}'
-    subnet_id: '{{ subnet.subnet.id }}'
+    key_name: key-{{ ec2_resource_prefix }}
+    subnet_id: "{{ subnet.subnet.id }}"
     network:
       assign_public_ip: true
       groups:
@@ -93,4 +94,4 @@
     hostname: ec2
     ansible_ssh_user: "{{ source_ami_user_name }}"
     ansible_host: "{{ result.instances.0.public_ip_address }}"
-    ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ ec2_keypair_file }}'
+    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ ec2_keypair_file }}

@@ -2,63 +2,62 @@
 # tasks file for roles/enable_cloudtrail_encryption_with_kms
 
 - block:
-  - fail:
-      msg: "The ARN or name of the trail you want to update to be encrypted must be defined as enable_cloudtrail_encryption_with_kms_trail_name"
-    when: enable_cloudtrail_encryption_with_kms_trail_name is not defined
+    - fail:
+        msg: The ARN or name of the trail you want to update to be encrypted must be defined as enable_cloudtrail_encryption_with_kms_trail_name
+      when: enable_cloudtrail_encryption_with_kms_trail_name is not defined
 
-  - fail:
-      msg: "The ARN, key ID, or the key alias of the customer managed key you want to use to encrypt the trail must be defined as enable_cloudtrail_encryption_with_kms_kms_key_id"
-    when: enable_cloudtrail_encryption_with_kms_kms_key_id is not defined
+    - fail:
+        msg: The ARN, key ID, or the key alias of the customer managed key you want to use to encrypt the trail must be defined as enable_cloudtrail_encryption_with_kms_kms_key_id
+      when: enable_cloudtrail_encryption_with_kms_kms_key_id is not defined
 
-  - name: Gather information about the trail
-    amazon.aws.cloudtrail_info:
-      trail_names:
-        - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-    register: __trail_info
+    - name: Gather information about the trail
+      amazon.aws.cloudtrail_info:
+        trail_names:
+          - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
+      register: __trail_info
 
-  - fail:
-      msg: "The trail does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-    when: __trail_info.trail_list | length == 0
+    - fail:
+        msg: "The trail does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
+      when: __trail_info.trail_list | length == 0
 
-  - name: Gather information about the KMS key
-    amazon.aws.kms_key_info:
-      key_id: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
-    register: __kms_key_info
+    - name: Gather information about the KMS key
+      amazon.aws.kms_key_info:
+        key_id: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
+      register: __kms_key_info
 
-  - name: Gather information about the KMS key using alias
-    amazon.aws.kms_key_info:
-      alias: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
-    register: __kms_key_info
-    when: __kms_key_info.kms_keys | length == 0
+    - name: Gather information about the KMS key using alias
+      amazon.aws.kms_key_info:
+        alias: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
+      register: __kms_key_info
+      when: __kms_key_info.kms_keys | length == 0
 
-  - fail:
-      msg: "The KMS key does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-    when: __kms_key_info.kms_keys | length == 0
+    - fail:
+        msg: "The KMS key does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
+      when: __kms_key_info.kms_keys | length == 0
 
-  - set_fact:
-      kms_key_arn: "{{ __kms_key_info.kms_keys.0.key_arn }}"
+    - set_fact:
+        kms_key_arn: "{{ __kms_key_info.kms_keys.0.key_arn }}"
 
-  - name: Enable encryption on the trail
-    amazon.aws.cloudtrail:
-      state: present
-      name: "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-      kms_key_id: "{{ kms_key_arn }}"
-      s3_bucket_name: "{{__trail_info.trail_list.0.s3_bucket_name}}"
-      s3_key_prefix: "{{__trail_info.trail_list.0.s3_key_prefix}}"
-    register: __enable_encyption
+    - name: Enable encryption on the trail
+      amazon.aws.cloudtrail:
+        state: present
+        name: "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
+        kms_key_id: "{{ kms_key_arn }}"
+        s3_bucket_name: "{{__trail_info.trail_list.0.s3_bucket_name}}"
+        s3_key_prefix: "{{__trail_info.trail_list.0.s3_key_prefix}}"
+      register: __enable_encyption
 
-  - name: Verify that encryption has been enabled on the CloudTrail trail
-    amazon.aws.cloudtrail_info:
-      trail_names:
-        - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-    register: __verify_encryption
+    - name: Verify that encryption has been enabled on the CloudTrail trail
+      amazon.aws.cloudtrail_info:
+        trail_names:
+          - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
+      register: __verify_encryption
 
-  - assert:
-      that:
-        - __verify_encryption.trail_list.0.kms_key_id == kms_key_arn
-      success_msg: "AWS CloudTrail trail was successfully encrypted"
-      fail_msg: "AWS CloudTrail trail was not successfully encrypted"
+    - assert:
+        that:
+          - __verify_encryption.trail_list.0.kms_key_id == kms_key_arn
+        success_msg: AWS CloudTrail trail was successfully encrypted
+        fail_msg: AWS CloudTrail trail was not successfully encrypted
 
   module_defaults:
-    group/aws:
-      "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_role_credentials }}"

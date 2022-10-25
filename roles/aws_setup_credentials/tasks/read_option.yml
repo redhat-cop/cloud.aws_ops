@@ -12,7 +12,6 @@
   block:
     - set_fact:
         env_values: []
-
     - set_fact:
         env_values: "{{ env_values + [current_value] }}"
       with_items: "{{ ('env' in item.value) | ternary(item.value.env, []) }}"

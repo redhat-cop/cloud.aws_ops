@@ -2,15 +2,15 @@
 # tasks file for tests/integration/targets/test_enable_cloudtrail_encryption_with_kms
 
 - set_fact:
-    test_resource_prefix: "ansible-cloudtrail-{{ 101 | random(1,10) }}"
+    test_resource_prefix: ansible-cloudtrail-{{ 101 | random(1,10) }}
 
 - name: enable_cloudtrail_encryption_with_kms integration tests
   block:
     - set_fact:
-        s3_bucket_name: "s3-{{ test_resource_prefix }}"
-        cloudtrail_name: "trail-{{ test_resource_prefix }}"
-        kms_alias: "kms-{{ test_resource_prefix }}"
-        cloudtrail_prefix: "asible-test-prefix"
+        s3_bucket_name: s3-{{ test_resource_prefix }}
+        cloudtrail_name: trail-{{ test_resource_prefix }}
+        kms_alias: kms-{{ test_resource_prefix }}
+        cloudtrail_prefix: asible-test-prefix
 
     - name: Create S3 bucket
       s3_bucket:
@@ -22,7 +22,7 @@
       aws_kms:
         state: present
         alias: "{{ kms_alias }}"
-        enabled: yes
+        enabled: true
         policy: "{{ lookup('template', 'kms-policy.j2') | to_json }}"
       register: __create_kms_key
 
@@ -34,14 +34,14 @@
         state: present
         name: "{{ cloudtrail_name }}"
         s3_bucket_name: "{{ s3_bucket_name }}"
-        s3_key_prefix: '{{ cloudtrail_prefix }}'
+        s3_key_prefix: "{{ cloudtrail_prefix }}"
       register: __create_trail
 
     - assert:
         that:
-        - __create_trail is changed
-        - __create_trail.exists == True
-        - __create_trail.trail.name == cloudtrail_name
+          - __create_trail is changed
+          - __create_trail.exists == True
+          - __create_trail.trail.name == cloudtrail_name
 
     - include_role:
         name: enable_cloudtrail_encryption_with_kms
@@ -60,7 +60,7 @@
       s3_bucket:
         state: absent
         name: "{{ s3_bucket_name }}"
-        force: yes
+        force: true
       ignore_errors: true
 
     - name: Delete KMS Key

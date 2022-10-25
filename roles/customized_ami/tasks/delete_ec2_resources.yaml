@@ -2,7 +2,7 @@
 - name: Get vpc information
   ec2_vpc_net_info:
     filters:
-      tag:Name: "vpc-{{ ec2_resource_prefix }}"
+      tag:Name: vpc-{{ ec2_resource_prefix }}
   register: vpc
 
 - block:
@@ -13,7 +13,7 @@
       ec2_instance_info:
         filters:
           instance-type: "{{ custom_ami_ec2_instance_type }}"
-          key-name: "key-{{ ec2_resource_prefix }}"
+          key-name: key-{{ ec2_resource_prefix }}
           vpc-id: "{{ vpc_id }}"
           tag:role: customized_ami
       register: ec2_instance
@@ -28,7 +28,7 @@
 
     - name: Delete key pair to connect to the VM
       ec2_key:
-        name: "key-{{ ec2_resource_prefix }}"
+        name: key-{{ ec2_resource_prefix }}
         state: absent
 
     - name: List Security group from VPC
@@ -61,7 +61,7 @@
 
     - name: Delete internet gateway
       ec2_vpc_igw:
-        vpc_id: '{{ vpc_id }}'
+        vpc_id: "{{ vpc_id }}"
         state: absent
 
     - name: Delete subnets
@@ -72,7 +72,7 @@
 
     - name: Delete VPC
       ec2_vpc_net:
-        name: "vpc-{{ ec2_resource_prefix }}"
+        name: vpc-{{ ec2_resource_prefix }}
         cidr_block: "{{ custom_ami_vpc_cidr }}"
         state: absent
 

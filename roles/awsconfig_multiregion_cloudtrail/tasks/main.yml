@@ -1,14 +1,14 @@
 ---
 - fail:
-    msg: "Unexpected value for operation, should be one of 'create' or 'delete'"
+    msg: Unexpected value for operation, should be one of 'create' or 'delete'
   when: operation not in ['create', 'delete']
 
 - fail:
-    msg: "Cloud trail name must be defined using variable trail_name"
+    msg: Cloud trail name must be defined using variable trail_name
   when: trail_name is undefined
 
 - fail:
-    msg: "Bucket name must be defined using variable bucket_name"
+    msg: Bucket name must be defined using variable bucket_name
   when:
     - operation == 'create'
     - bucket_name is undefined
@@ -26,26 +26,25 @@
 
     - block:
         - debug:
-            msg: "Trail '{{ trail_name }}' successfully created/updated."
+            msg: Trail '{{ trail_name }}' successfully created/updated.
           when: result is changed
 
         - debug:
-            msg: "Trail '{{ trail_name }}' already exists."
+            msg: Trail '{{ trail_name }}' already exists.
           when: result is not changed
 
       when: operation == 'create'
 
     - block:
         - debug:
-            msg: "Trail '{{ trail_name }}' successfully deleted."
+            msg: Trail '{{ trail_name }}' successfully deleted.
           when: result is changed
 
         - debug:
-            msg: "Trail '{{ trail_name }}' does not exist."
+            msg: Trail '{{ trail_name }}' does not exist.
           when: not result.changed
 
       when: operation == 'delete'
 
   module_defaults:
-    group/aws:
-      "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_role_credentials }}"
