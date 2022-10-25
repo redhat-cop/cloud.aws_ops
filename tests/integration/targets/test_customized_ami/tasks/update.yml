@@ -1,5 +1,6 @@
 ---
-- include_role:
+- name: Include 'customized_ami' role
+  ansible.builtin.include_role:
     name: cloud.aws_ops.customized_ami
   vars:
     custom_ami_packages: "{{ ami_update_packages }}"

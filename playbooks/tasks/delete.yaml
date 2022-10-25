@@ -7,7 +7,7 @@
     register: vpc
 
   - block:
-      - set_fact:
+      - ansible.builtin.set_fact:
           vpc_id: "{{ vpc.vpcs.0.vpc_id }}"
 
       - name: Get bastion instance info
@@ -20,7 +20,7 @@
 
       - name: Delete EC2 instances with dependant Resources
         block:
-          - set_fact:
+          - ansible.builtin.set_fact:
               instance_host_name: "{{ bastion.instances.0.public_dns_name | split('.') | first }}"
 
           - name: Delete workers key pair
