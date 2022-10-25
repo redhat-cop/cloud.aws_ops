@@ -1,24 +1,24 @@
 ---
 - name: Create a VPC to work in
-  ec2_vpc_net:
+  amazon.aws.ec2_vpc_net:
     cidr_block: "{{ test_vpc_cidr }}"
     name: "{{ test_vpc_name }}"
   register: vpc
 
 - name: Create Subnet for EC2 instance
-  ec2_vpc_subnet:
+  amazon.aws.ec2_vpc_subnet:
     vpc_id: "{{ vpc.vpc.id }}"
     cidr: "{{ test_subnet_cidr }}"
   register: subnet
 
 - name: Create internet gateway attached to the VPC
-  ec2_vpc_igw:
+  amazon.aws.ec2_vpc_igw:
     vpc_id: "{{ vpc.vpc.id }}"
     state: present
   register: igw
 
 - name: Create Route table for internet gateway (public subnet)
-  ec2_vpc_route_table:
+  amazon.aws.ec2_vpc_route_table:
     vpc_id: "{{ vpc.vpc.id }}"
     subnets:
       - "{{ subnet.subnet.id }}"
@@ -32,12 +32,12 @@
     state: present
 
 - name: Get image ID to create an instance
-  ec2_ami_info:
+  amazon.aws.ec2_ami_info:
     filters: "{{ test_image_filter }}"
   register: images
 
 - name: Create a virtual machine
-  ec2_instance:
+  amazon.aws.ec2_instance:
     name: "{{ test_ec2_instance_name }}"
     instance_type: t2.micro
     image_id: "{{ images.images.0.image_id }}"

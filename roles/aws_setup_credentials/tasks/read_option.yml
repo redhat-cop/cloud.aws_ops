@@ -1,18 +1,22 @@
 ---
-- set_fact:
+- name: Set 'option_key' and 'option_value' from Environment
+  ansible.builtin.set_fact:
     option_key: "{{ ('dest' in item.value) | ternary(item.value.dest, item.key) }}"
     option_value: "{{ lookup('vars', item.key, default='') }}"
 
 - name: Combine user-defined variable
-  set_fact:
+  ansible.builtin.set_fact:
     aws_role_credentials: "{{ aws_role_credentials | combine({option_key: option_value}) }}"
   when: option_value | length > 0
 
 - name: Read value from Environment
+  when: option_value | length == 0
   block:
-    - set_fact:
+    - name: Set 'env_values' variable
+      ansible.builtin.set_fact:
         env_values: []
-    - set_fact:
+    - name: Set 'env_values' from Environment
+      ansible.builtin.set_fact:
         env_values: "{{ env_values + [current_value] }}"
       with_items: "{{ ('env' in item.value) | ternary(item.value.env, []) }}"
       when: current_value | length > 0
@@ -22,8 +26,6 @@
         current_value: "{{ lookup('env', env_var) }}"
 
     - name: Combine with environment-defined variable
-      set_fact:
+      ansible.builtin.set_fact:
         aws_role_credentials: "{{ aws_role_credentials | combine({option_key: env_values[0]}) }}"
       when: env_values | length > 0
-
-  when: option_value | length == 0

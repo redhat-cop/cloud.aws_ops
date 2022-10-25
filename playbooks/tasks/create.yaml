@@ -1,5 +1,5 @@
 ---
-- set_fact:
+- ansible.builtin.set_fact:
     region: "{{ region | default(aws_region) }}"
 
 - block:
@@ -18,7 +18,7 @@
           region-name: "{{ region }}"
       register: zones
 
-    - set_fact:
+    - ansible.builtin.set_fact:
         region_av_zones: "{{ zones.availability_zones | map(attribute='zone_name') }}"
 
     - name: Create a VPC to work in
@@ -29,7 +29,7 @@
 
     # Public and Private subnets should be in the same availability zone
     # So that the load balancer can target workers instances
-    - set_fact:
+    - ansible.builtin.set_fact:
         shared_az: '{{ region_av_zones[0] }}'
 
     - name: Create a public subnet for bastion
