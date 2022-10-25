@@ -43,7 +43,7 @@
 
     - name: Delete internet gateway
       ec2_vpc_igw:
-        vpc_id: '{{ vpc_id }}'
+        vpc_id: "{{ vpc_id }}"
         state: absent
 
     - name: Delete subnets
@@ -54,8 +54,8 @@
 
     - name: Delete VPC
       ec2_vpc_net:
-        name: '{{ test_vpc_name }}'
-        cidr_block: '{{ test_vpc_cidr }}'
+        name: "{{ test_vpc_name }}"
+        cidr_block: "{{ test_vpc_cidr }}"
         state: absent
       ignore_errors: true
 

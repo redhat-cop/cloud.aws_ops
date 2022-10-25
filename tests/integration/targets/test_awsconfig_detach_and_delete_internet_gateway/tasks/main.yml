@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    test_vpc_name: "ansible-vpc-{{ 101 | random(1,10) }}"
+    test_vpc_name: ansible-vpc-{{ 101 | random(1,10) }}
 
 - block:
     - include_tasks: setup.yml

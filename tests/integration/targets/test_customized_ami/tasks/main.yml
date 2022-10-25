@@ -1,7 +1,7 @@
 ---
 - vars:
     # test_resource_prefix: "{{ lookup('password', '/dev/null chars=ascii_letters,digits', length=10) }}"
-    test_resource_prefix: "ab-02"
+    test_resource_prefix: ab-02
 
   module_defaults:
     group/aws:
@@ -20,7 +20,7 @@
         keyfile_path: "{{ tmpfile.path }}"
 
     - set_fact:
-        custom_ami_name: "custom-ami-{{ test_resource_prefix }}"
+        custom_ami_name: custom-ami-{{ test_resource_prefix }}
 
     # Create custom AMI
     - include_tasks: create.yml
@@ -28,11 +28,11 @@
     # Create EC2 instance using custom AMI
     - include_tasks: create_infra.yml
       vars:
-        ec2_instance_name: "ec2_initial"
+        ec2_instance_name: ec2_initial
 
     # Test podman on running instance
     - name: Ensure Podman is installed into EC2 instance
-      shell: "podman pull docker.io/nginx"
+      shell: podman pull docker.io/nginx
       delegate_to: ec2_initial
 
     # Update custom AMI
@@ -41,11 +41,11 @@
     # Create another EC2 instance using updated custom AMI
     - include_tasks: create_infra.yml
       vars:
-        ec2_instance_name: "ec2_updated"
+        ec2_instance_name: ec2_updated
 
     # Test podman on running instance
     - name: Ensure Podman is installed into EC2 instance
-      shell: "podman pull docker.io/nginx"
+      shell: podman pull docker.io/nginx
       ignore_errors: true
       register: podman
       delegate_to: ec2_updated

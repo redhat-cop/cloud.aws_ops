@@ -25,16 +25,14 @@
           no_log: true
 
         - fail:
-            msg: "No AMI found using filters"
+            msg: No AMI found using filters
           when: images.images | length == 0
 
       when: source_ami_image_id is not defined
 
     - name: Define AMI id to create EC2 instance
       set_fact:
-        source_ami_image_id: "{{ source_ami_image_id is defined \
-                            | ternary(source_ami_image_id, \
-                                images.images.0.image_id) }}"
+        source_ami_image_id: "{{ source_ami_image_id is defined | ternary(source_ami_image_id, images.images.0.image_id) }}"
 
     - vars:
         ec2_resource_prefix: "{{ custom_ami_name }}-prefix"
