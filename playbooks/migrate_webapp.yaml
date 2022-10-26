@@ -16,28 +16,31 @@
       security_token: "{{ security_token | default(omit) }}"
 
   tasks:
-    - fail:
+    - name: Fail when 'resource_prefix' is not defined
+      ansible.builtin.fail:
         msg: resource prefix should be defined as resource_prefix
       when: resource_prefix is not defined
 
-    - fail:
+    - name: Fail when 'dest_region' is not defined
+      ansible.builtin.fail:
         msg: destination region should be defined as dest_region
       when: dest_region is not defined
 
     - name: Get RDS instance info
-      rds_instance_info:
+      amazon.aws.rds_instance_info:
         region: "{{ aws_region }}"
         db_instance_identifier: "{{ rds_identifier }}"
       register: rds_info
 
-    - fail:
+    - name: Fail when no RDS Instance is found
+      ansible.builtin.fail:
         msg: >-
           Application not deployed yet into region '{{ aws_region }}',
           No RDS Instance found with identifier '{{ rds_identifier }}'.
       when: rds_info.instances | length == 0
 
     - name: Create snapshot for Database instance
-      rds_instance_snapshot:
+      amazon.aws.rds_instance_snapshot:
         region: "{{ aws_region }}"
         db_snapshot_identifier: "{{ rds_identifier }}-snapshot"
         db_instance_identifier: "{{ rds_identifier }}"
@@ -46,7 +49,7 @@
       register: snapshot
 
     - name: Copy snapshot from source region to destination region
-      rds_instance_snapshot:
+      amazon.aws.rds_instance_snapshot:
         db_snapshot_identifier: "{{ rds_identifier }}-snapshot"
         wait: true
         source_db_snapshot_identifier: "{{ snapshot.db_snapshot_arn }}"
@@ -54,13 +57,14 @@
         region: "{{ dest_region }}"
       register: result
 
-    - import_tasks: tasks/create.yaml
+    - name: Create resources
+      ansible.builtin.import_tasks: tasks/create.yaml
       vars:
         rds_snapshot_arn: "{{ result.db_snapshot_arn }}"
         region: "{{ dest_region }}"
 
     - name: Delete RDS snapshots from different regions
-      rds_instance_snapshot:
+      amazon.aws.rds_instance_snapshot:
         region: "{{ item }}"
         db_snapshot_identifier: "{{ rds_identifier }}-snapshot"
         wait: true
@@ -70,7 +74,7 @@
         - "{{ aws_region }}"
 
     - name: Delete instance create in source region
-      import_tasks: tasks/delete.yaml
+      ansible.builtin.import_tasks: tasks/delete.yaml
       when: do_not_delete_source | default('false') | bool
 
 - name: Deploy resource from Bastion
@@ -85,6 +89,7 @@
     - vars/main.yaml
 
   tasks:
-    - import_tasks: tasks/deploy_app.yaml
+    - name: Deploy app
+      ansible.builtin.import_tasks: tasks/deploy_app.yaml
       vars:
         region: "{{ dest_region }}"
