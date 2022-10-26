@@ -57,7 +57,7 @@ options:
 
 EXAMPLES = r"""
 - name: Evaluate Security group rules from EC2 instance to RDS Instance
-  validate_security_group_rules:
+  cloud.aws_ops.validate_security_group_rules:
     dest_subnet_cidrs:
         - 10.1.0.0/24
         - 10.1.2.0/24
@@ -113,7 +113,7 @@ EXAMPLES = r"""
 RETURN = r"""
 result:
   type: str
-  description: Results from comparing the Source security group rules to the Destination security group rules
+  description: Results from comparing the Source security group rules to the Destination security group rules.
   returned: success
   sample: 'Security Group validation successful'
 """

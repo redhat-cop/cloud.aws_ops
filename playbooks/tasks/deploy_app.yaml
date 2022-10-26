@@ -12,19 +12,19 @@
   become: true
 
 - name: Install required packages
-  yum:
+  ansible.builtin.yum:
     name: "{{ bastion_host_required_packages }}"
     state: present
   become: true
 
 - name: Generate ssh key for existing user
-  user:
+  ansible.builtin.user:
     name: "{{ bastion_host_username }}"
     state: present
     generate_ssh_key: true
 
 - name: Get content of public key
-  slurp:
+  ansible.builtin.slurp:
     src: ~/.ssh/id_rsa.pub
   register: sshkey
 
@@ -44,12 +44,12 @@
         instance_name: "{{ ansible_host_name }}-workers"
       block:
         - name: Create key pair to connect to the VM
-          ec2_key:
+          amazon.aws.ec2_key:
             name: "{{ localhost_key_pair }}"
             key_material: "{{ sshkey.content | b64decode }}"
 
         - name: List running instances
-          ec2_instance_info:
+          amazon.aws.ec2_instance_info:
             filters:
               tag:Name: "{{ instance_name }}"
               instance-state-name: running
@@ -95,7 +95,7 @@
           with_items: "{{ vms.instances }}"
 
     - name: Create inventory file
-      template:
+      ansible.builtin.template:
         src: inventory.j2
         dest: ~/inventory.ini
       vars:
@@ -110,7 +110,7 @@
     - name: Create private registry and store webapp container image
       block:
         - name: Clone git repository for web application
-          git:
+          ansible.builtin.git:
             repo: "{{ app_git_repository }}"
             dest: ~/webapp
 
