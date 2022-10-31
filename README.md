@@ -7,7 +7,7 @@ The collection includes a variety of Ansible roles and playbook to help automate
 <!--start requires_ansible-->
 ## Ansible version compatibility
 
-This collection has been tested against following Ansible versions: **>=2.9.17**.
+This collection has been tested against following Ansible versions: **>=2.11.0**.
 
 ## Included content
 
@@ -18,7 +18,7 @@ Click on the name of a plugin or module to view that content's documentation:
 ### Playbooks
 Name | Description
 --- | ---
-cloud.amazon_roles.webapp|A playbook to create a webapp on AWS.
+cloud.aws_ops.webapp|A playbook to create a webapp on AWS.
 <!--end collection content-->
 
 ## Installation and Usage
@@ -34,7 +34,7 @@ You can also include it in a `requirements.yml` file and install it via `ansible
 ```yaml
 ---
 collections:
-  - name: cloud.amazon_roles
+  - name: cloud.aws_ops
     version: 0.1.0
 ```
 
