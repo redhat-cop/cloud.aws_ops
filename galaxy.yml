@@ -1,7 +1,6 @@
 ---
 authors:
-  - Aubin Bibkouo (https://github.com/abikouo)
-  - Jill Rouleau (https://github.com/jillr)
+  - Ansible (https://github.com/ansible)
 description: Amazon AWS roles and playbooks for Ansible.
 documentation: ''
 homepage: ''
@@ -17,7 +16,7 @@ tags:
   - cloud
   - infrastructure
   - cluster
-version: 0.1.0
+version: 1.0.0
 build_ignore:
   - .DS_Store
   - '*.tar.gz'
