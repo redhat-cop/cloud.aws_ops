@@ -23,7 +23,7 @@
         instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
 
     - name: Disable 'termination_protection'
-      when: terminate_protected_instances == True
+      when: terminate_protected_instances
       block:
         - name: Verify that terminate_protected_instances=True
           ansible.builtin.debug:

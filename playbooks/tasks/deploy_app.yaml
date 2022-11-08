@@ -91,13 +91,14 @@
             instances_list: []
         - name: Update join_instances
           ansible.builtin.set_fact:
-            instances_list: "{{ instances_list + [ item.instance_id + ':' + item.private_ip_address ] }}"
+            instances_list: "{{ instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
           with_items: "{{ vms.instances }}"
 
     - name: Create inventory file
       ansible.builtin.template:
         src: inventory.j2
         dest: ~/inventory.ini
+        mode: 0644
       vars:
         workers_instances: "{{ vms.instances }}"
         workers_join: "{{ instances_list | join(',') }}"
@@ -106,6 +107,7 @@
       ansible.builtin.template:
         src: vars.yaml.j2
         dest: ~/vars.yaml
+        mode: 0644
 
     - name: Create private registry and store webapp container image
       block:
@@ -115,10 +117,11 @@
             dest: ~/webapp
 
         - name: Build webapp container image
-          ansible.builtin.shell:
+          ansible.builtin.command:
             cmd: podman build -t webapp .
           args:
             chdir: ~/webapp
+          changed_when: false
 
         - name: Check running registry
           ansible.builtin.shell:
@@ -129,14 +132,18 @@
               --format=.Names
           register: container
           become: true
+          changed_when: false
 
         - name: Create private registry
           become: true
+          when:
+            - container.stdout == ""
           block:
             - name: Create folders for the registry
               ansible.builtin.file:
                 path: /opt/registry/{{ item }}
                 state: directory
+                mode: 0644
               with_items:
                 - auth
                 - certs
@@ -148,6 +155,7 @@
                   htpasswd -bBc /opt/registry/auth/htpasswd
                   {{ local_registry_user }}
                   {{ local_registry_pwd }}
+              changed_when: false
 
             - name: Start the registry
               ansible.builtin.shell:
@@ -162,8 +170,7 @@
                   -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
                   -d
                   docker.io/library/registry:latest
-          when:
-            - container.stdout == ""
+              changed_when: false
 
         - name: Push image into private registry
           ansible.builtin.shell:
@@ -171,6 +178,7 @@
               podman login 127.0.0.1:{{ local_registry_port }} -u '{{ local_registry_user }}' -p '{{ local_registry_pwd }}' --tls-verify=false &&
               podman tag webapp 127.0.0.1:{{ local_registry_port }}/ansible-webapp &&
               podman push 127.0.0.1:{{ local_registry_port }}/ansible-webapp --tls-verify=false
+          changed_when: false
 
     - name: Initialize database tables
       ansible.builtin.shell:
@@ -188,11 +196,13 @@
           -e WORKERS_HOSTS="bastion"
           webapp flask {{ app_force_init | bool | ternary('force-init-db', 'init-db') }}
       run_once: true
+      changed_when: false
 
     - name: Copy playbook into bastion host
       ansible.builtin.copy:
         src: run_app.yaml
         dest: ~/playbook.yaml
+        mode: 0644
 
     - name: Deploy application into workers
       ansible.builtin.shell:
@@ -202,6 +212,7 @@
           -e registry_host_port='{{ host_config.private_ip }}:{{ local_registry_port }}'
       args:
         chdir: ~/
+      changed_when: false
 
     - name: Create load balancer
       amazon.aws.elb_classic_lb:
