@@ -39,6 +39,7 @@
     - name: Ensure Podman is installed into EC2 instance
       ansible.builtin.command: podman pull docker.io/nginx
       delegate_to: ec2_initial
+      changed_when: false
 
     # Update custom AMI
     - name: Update custom AMI
@@ -56,6 +57,7 @@
       ignore_errors: true
       register: podman
       delegate_to: ec2_updated
+      changed_when: false
 
     - name: Validate that Podman is not installed
       ansible.builtin.assert:

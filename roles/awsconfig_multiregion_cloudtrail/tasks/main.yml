@@ -13,46 +13,46 @@
   ansible.builtin.fail:
     msg: Bucket name must be defined using variable bucket_name
   when:
-  - operation == 'create'
-  - bucket_name is undefined
+    - operation == 'create'
+    - bucket_name is undefined
 
 - name: Run 'awsconfig_multiregion_cloudtrail' role
   module_defaults:
     group/aws: "{{ aws_role_credentials }}"
 
   block:
-  - name: Create Cloud trail and start logging or Delete existing Cloud trail
-    amazon.aws.cloudtrail:
-      state: "{{ (operation == 'create') | ternary('present', 'absent') }}"
-      name: "{{ trail_name }}"
-      enable_logging: true
-      s3_bucket_name: "{{ bucket_name | default(omit) }}"
-      s3_key_prefix: "{{ key_prefix | default(omit) }}"
-      is_multi_region_trail: true
-    register: result
+    - name: Create Cloud trail and start logging or Delete existing Cloud trail
+      amazon.aws.cloudtrail:
+        state: "{{ (operation == 'create') | ternary('present', 'absent') }}"
+        name: "{{ trail_name }}"
+        enable_logging: true
+        s3_bucket_name: "{{ bucket_name | default(omit) }}"
+        s3_key_prefix: "{{ key_prefix | default(omit) }}"
+        is_multi_region_trail: true
+      register: result
 
-  - name: Create/update trail
-    when: operation == 'create'
-    block:
-    - name: Verify that trail has been created/updated
-      ansible.builtin.debug:
-        msg: Trail '{{ trail_name }}' successfully created/updated.
-      when: result is changed
+    - name: Create/update trail
+      when: operation == 'create'
+      block:
+        - name: Verify that trail has been created/updated
+          ansible.builtin.debug:
+            msg: Trail '{{ trail_name }}' successfully created/updated.
+          when: result is changed
 
-    - name: Verify that trail already exists
-      ansible.builtin.debug:
-        msg: Trail '{{ trail_name }}' already exists.
-      when: result is not changed
+        - name: Verify that trail already exists
+          ansible.builtin.debug:
+            msg: Trail '{{ trail_name }}' already exists.
+          when: result is not changed
 
-  - name: Delete trail
-    when: operation == 'delete'
-    block:
-    - name: Verify that trail has been deleted
-      ansible.builtin.debug:
-        msg: Trail '{{ trail_name }}' successfully deleted.
-      when: result is changed
+    - name: Delete trail
+      when: operation == 'delete'
+      block:
+        - name: Verify that trail has been deleted
+          ansible.builtin.debug:
+            msg: Trail '{{ trail_name }}' successfully deleted.
+          when: result is changed
 
-    - name: Verify that trail does not exists anymore
-      ansible.builtin.debug:
-        msg: Trail '{{ trail_name }}' does not exist.
-      when: not result.changed
+        - name: Verify that trail does not exists anymore
+          ansible.builtin.debug:
+            msg: Trail '{{ trail_name }}' does not exist.
+          when: not result.changed

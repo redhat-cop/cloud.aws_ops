@@ -156,6 +156,7 @@
       register: rds_info
 
     - name: Create RDS instance
+      when: rds_info.instances | length == 0
       block:
         - name: Create RDS instance (PostGreSQL Database)
           amazon.aws.rds_instance:
@@ -200,8 +201,6 @@
             db_snapshot_identifier: "{{ rds_snapshot_arn }}"
           when: rds_snapshot_arn is defined
 
-      when: rds_info.instances | length == 0
-
     - name: Get RDS instance info
       amazon.aws.rds_instance_info:
         db_instance_identifier: "{{ rds_identifier }}"
@@ -218,7 +217,7 @@
 
     - name: Save private key into file
       ansible.builtin.copy:
-        content: "{{ rsa_key.key.private_key  }}"
+        content: "{{ rsa_key.key.private_key }}"
         dest: "{{ sshkey_file }}"
         mode: 0400
       when: rsa_key is changed
