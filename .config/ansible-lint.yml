@@ -1,0 +1,5 @@
+skip_list:
+  - ignore-errors  # Use failed_when and specify error conditions instead of using ignore_errors.
+  - meta-no-info  # meta/main.yml should contain relevant info.
+  - latest[git]  # Result of the command may vary on subsequent runs.
+  - no-handler  # Tasks that run when changed should likely be handlers.

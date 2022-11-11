@@ -1,11 +1,13 @@
 ---
-- fail:
-    msg: "Custom AMI name should be defined using variable custom_ami_name"
+- name: Fail when 'custom_ami_name' is not defined
+  ansible.builtin.fail:
+    msg: Custom AMI name should be defined using variable custom_ami_name
   when: custom_ami_name is undefined
 
-- block:
-    - include_tasks: "{{ custom_ami_operation }}.yaml"
-
+- name: Run 'customized_ami' role
   module_defaults:
-    group/aws:
-      "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_role_credentials }}"
+
+  block:
+    - name: Include file
+      ansible.builtin.include_tasks: "{{ custom_ami_operation }}.yaml"

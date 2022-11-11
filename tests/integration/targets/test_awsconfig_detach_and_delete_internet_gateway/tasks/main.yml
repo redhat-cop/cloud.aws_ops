@@ -1,12 +1,23 @@
 ---
-- set_fact:
-    test_vpc_name: "ansible-vpc-{{ 101 | random(1,10) }}"
+- name: Set 'test_vpc_name' variable
+  ansible.builtin.set_fact:
+    test_vpc_name: ansible-vpc-{{ 101 | random(1, 10) }}
 
-- block:
-    - include_tasks: setup.yml
+- name: Test 'awsconfig_detach_and_delete_internet_gateway' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: Include 'setup.yml' file
+      ansible.builtin.include_tasks: setup.yml
 
     # trying to detach and delete the internet gateway should fail
-    - include_role:
+    - name: Include 'awsconfig_detach_and_delete_internet_gateway' role
+      ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
         apply:
           ignore_errors: true
@@ -14,53 +25,50 @@
         internet_gateway_id: "{{ igw.gateway_id }}"
 
     - name: Ensure internet gateway was not deleted (public ip addresses to unmap before)
-      ec2_vpc_igw_info:
+      amazon.aws.ec2_vpc_igw_info:
         internet_gateway_ids:
           - "{{ igw.gateway_id }}"
       register: result
 
-    - assert:
+    - name: Assert that internet gateway was not deleted
+      ansible.builtin.assert:
         that:
           - result.internet_gateways | length == 1
 
     # Delete EC2 instance from VPC
     - name: Get EC2 instance info
-      ec2_instance_info:
+      amazon.aws.ec2_instance_info:
         filters:
           vpc-id: "{{ vpc.vpc.id }}"
       register: result
 
     - name: Delete EC2 instances with dependant Resources
-      ec2_instance:
+      amazon.aws.ec2_instance:
         instance_ids:
           - "{{ result.instances.0.instance_id }}"
         wait: true
         state: terminated
 
     # Detach and delete the internet gateway
-    - include_role:
+    - name: Include 'awsconfig_detach_and_delete_internet_gateway' role
+      ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
       vars:
         internet_gateway_id: "{{ igw.gateway_id }}"
 
     - name: Ensure internet gateway does not exist anymore
-      ec2_vpc_igw_info:
+      amazon.aws.ec2_vpc_igw_info:
         internet_gateway_ids:
           - "{{ igw.gateway_id }}"
       register: result
       ignore_errors: true
 
-    - assert:
+    - name: Assert that internet gateway does not exist anymore
+      ansible.builtin.assert:
         that:
           - result is failed
           - result.msg == "InternetGateway not found"
 
   always:
-    - include_tasks: teardown.yml
-
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ aws_region }}"
+    - name: Include 'teardown.yml' file
+      ansible.builtin.include_tasks: teardown.yml

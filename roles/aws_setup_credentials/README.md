@@ -70,7 +70,7 @@ Example Playbook
     - hosts: localhost
 
       roles:
-        - role: cloud.aws_ops.aws_setup_credentials
+        - role: cloud.aws_troubleshooting.aws_setup_credentials
           aws_profile: us-profile
 
       tasks:
@@ -89,7 +89,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
+See [LICENCE](https://github.com/ansible-collections/cloud.aws_troubleshooting/blob/main/LICENSE) to see the full text.
 
 Author Information
 ------------------

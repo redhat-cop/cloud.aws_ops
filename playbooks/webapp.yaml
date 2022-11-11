@@ -1,4 +1,6 @@
-- hosts: localhost
+---
+- name: Webapp
+  hosts: localhost
   gather_facts: false
 
   collections:
@@ -9,11 +11,13 @@
     - vars/main.yaml
 
   tasks:
-    - fail:
-        msg: "resource prefix should be defined as resource_prefix"
+    - name: Fail when 'resource_prefix' is not defined
+      ansible.builtin.fail:
+        msg: resource prefix should be defined as resource_prefix
       when: resource_prefix is not defined
 
-    - import_tasks: "tasks/{{ operation }}.yaml"
+    - name: Run operation create/delete
+      ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
 
 - name: Deploy resource from Bastion
   hosts: bastion
@@ -34,4 +38,5 @@
     - vars/main.yaml
 
   tasks:
-    - import_tasks: tasks/deploy_app.yaml
+    - name: Deploy app
+      ansible.builtin.import_tasks: tasks/deploy_app.yaml

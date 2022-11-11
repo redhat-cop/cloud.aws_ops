@@ -54,7 +54,7 @@ options:
 
 EXAMPLES = r"""
 - name: Evaluate network ACLS from EC2 instance to RDS Instance
-  validate_network_acls:
+  cloud.aws_ops.validate_network_acls:
     dest_subnet_cidrs:
         - 10.1.0.0/24
         - 10.1.2.0/24
@@ -113,7 +113,19 @@ from ansible.module_utils.basic import AnsibleModule
 #   0,              -> port range from
 #   65535           -> port range to
 # ]
-NACLEntry = namedtuple('NACLEntry', ['rule_number', 'protocol', 'rule_action', 'cidr_block', 'icmp_type', 'icmp_code', 'port_range_from', 'port_range_to'])
+NACLEntry = namedtuple(
+    "NACLEntry",
+    [
+        "rule_number",
+        "protocol",
+        "rule_action",
+        "cidr_block",
+        "icmp_type",
+        "icmp_code",
+        "port_range_from",
+        "port_range_to",
+    ],
+)
 
 
 def is_port_in_range(port, from_port, to_port):
@@ -123,15 +135,14 @@ def is_port_in_range(port, from_port, to_port):
 
 
 class ValidateNetworkACL(AnsibleModule):
-
     def __init__(self):
 
         argument_spec = dict(
-            dest_subnet_cidrs=dict(type='list', elements='str', required=True),
-            dest_network_acl_rules=dict(type='list', elements='dict', required=True),
-            dest_port=dict(type='list', elements='int', required=True),
-            src_network_acl_rules=dict(type='list', elements='dict', required=True),
-            src_private_ip=dict(type='list', elements='str', required=True),
+            dest_subnet_cidrs=dict(type="list", elements="str", required=True),
+            dest_network_acl_rules=dict(type="list", elements="dict", required=True),
+            dest_port=dict(type="list", elements="int", required=True),
+            src_network_acl_rules=dict(type="list", elements="dict", required=True),
+            src_private_ip=dict(type="list", elements="str", required=True),
         )
 
         super(ValidateNetworkACL, self).__init__(argument_spec=argument_spec)
@@ -154,12 +165,27 @@ class ValidateNetworkACL(AnsibleModule):
 
                 if egress:
                     # Evaluate traffic based on CIDR when egress is set to True
-                    eval_traffic = (ip_network(nacl_entry.cidr_block, strict=False).overlaps(ip_network(cidr, strict=False)) for cidr in self.dest_subnet_cidrs)
+                    eval_traffic = (
+                        ip_network(nacl_entry.cidr_block, strict=False).overlaps(
+                            ip_network(cidr, strict=False)
+                        )
+                        for cidr in self.dest_subnet_cidrs
+                    )
                 else:
                     # Evaluate traffic based on IP when egress is set to False
-                    eval_traffic = (ip_address(ip) in ip_network(nacl_entry.cidr_block, strict=False) for ip in self.src_private_ip)
+                    eval_traffic = (
+                        ip_address(ip)
+                        in ip_network(nacl_entry.cidr_block, strict=False)
+                        for ip in self.src_private_ip
+                    )
 
-                if nacl_entry.protocol in ("all", "tcp") and is_port_in_range(port, nacl_entry.port_range_from, nacl_entry.port_range_to) and any(eval_traffic):
+                if (
+                    nacl_entry.protocol in ("all", "tcp")
+                    and is_port_in_range(
+                        port, nacl_entry.port_range_from, nacl_entry.port_range_to
+                    )
+                    and any(eval_traffic)
+                ):
                     if nacl_entry.rule_action == "allow":
                         allowed_ports.append(port)
                     else:
@@ -169,11 +195,11 @@ class ValidateNetworkACL(AnsibleModule):
             acl_type = "egress" if egress else "ingress"
             self.fail_json(
                 msg="Network acl {id} is not allowing traffic for port(s) {ports}."
-                    "Please review network acl for {acl_type} rules allowing port(s) {ports}".format(
-                        id=acl.get("nacl_id"),
-                        ports=denied_ports,
-                        acl_type=acl_type,
-                    )
+                "Please review network acl for {acl_type} rules allowing port(s) {ports}".format(
+                    id=acl.get("nacl_id"),
+                    ports=denied_ports,
+                    acl_type=acl_type,
+                )
             )
 
     def execute_module(self):
@@ -186,14 +212,11 @@ class ValidateNetworkACL(AnsibleModule):
             for acl in self.dest_network_acl_rules:
                 self.evaluate_network_traffic(acl, egress=False)
 
-            self.exit_json(
-                result="Network ACL validation successful"
-            )
+            self.exit_json(result="Network ACL validation successful")
 
         except Exception as e:
             self.fail_json(
-                msg="Network ACL validation failed: {}".format(e),
-                exception=e
+                msg="Network ACL validation failed: {}".format(e), exception=e
             )
 
 

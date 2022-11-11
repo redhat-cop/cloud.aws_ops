@@ -1,10 +1,14 @@
 ---
-- fail:
-    msg: "Internet gateway Id to delete must be defined as internet_gateway_id"
+- name: Fail when 'internet_gateway_id' is not defined
+  ansible.builtin.fail:
+    msg: Internet gateway Id to delete must be defined as internet_gateway_id
   when: internet_gateway_id is not defined
 
-- block:
+- name: Run 'awsconfig_detach_and_delete_internet_gateway' role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
 
+  block:
     # Wait for Internet Gateway Id being available
     - name: Wait for internet gateway being available
       amazon.aws.ec2_vpc_igw_info:
@@ -19,11 +23,13 @@
         - result.internet_gateways.0.attachments | map(attribute='state') | list | unique == ['available']
       ignore_errors: true
 
-    - fail:
+    - name: Fail when internet gateway does not exist
+      ansible.builtin.fail:
         msg: "{{ result.msg }}"
       when: '"internet_gateways" not in result'
 
-    - fail:
+    - name: Fail when internet gateway is not available
+      ansible.builtin.fail:
         msg: "Internet gateway not available: {{ result.internet_gateways.0.attachments }}"
       when: result is failed
 
@@ -35,7 +41,8 @@
       ignore_errors: true
       register: detach
 
-    - fail:
+    - name: Fail when when there are still public address(es) mapped
+      ansible.builtin.fail:
         msg: >-
           Some Amazon EC2 instances in your virtual private cloud ({{ result.internet_gateways.0.attachments.0.vpc_id }})
           have elastic IP addresses or public IPv4 addresses associated with them,
@@ -46,13 +53,11 @@
         - detach.error.code == "DependencyViolation"
         - '"has some mapped public address(es)" in detach.error.message'
 
-    - fail:
+    - name: Fail when detach is failed
+      ansible.builtin.fail:
         msg: "{{ detach.msg }}"
       when: detach is failed
 
-    - debug:
-        msg: "Internet Gateway Id {{ internet_gateway_id }} detached from VPC and successfully deleted."
-
-  module_defaults:
-    group/aws:
-      "{{ aws_role_credentials }}"
+    - name: Internet Gateway has been detached from VPC and successfully deleted
+      ansible.builtin.debug:
+        msg: Internet Gateway Id {{ internet_gateway_id }} detached from VPC and successfully deleted.
