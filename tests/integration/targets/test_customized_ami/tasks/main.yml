@@ -1,7 +1,8 @@
 ---
-- vars:
+- name: Set 'test_resource_prefix' variable
+  vars:
     # test_resource_prefix: "{{ lookup('password', '/dev/null chars=ascii_letters,digits', length=10) }}"
-    test_resource_prefix: "ab-02"
+    test_resource_prefix: ab-02
 
   module_defaults:
     group/aws:
@@ -12,46 +13,54 @@
 
   block:
     - name: Create temporary file to store private key
-      tempfile:
+      ansible.builtin.tempfile:
         suffix: id_rsa
       register: tmpfile
 
-    - set_fact:
+    - name: Set 'keyfile_path' variable
+      ansible.builtin.set_fact:
         keyfile_path: "{{ tmpfile.path }}"
 
-    - set_fact:
-        custom_ami_name: "custom-ami-{{ test_resource_prefix }}"
+    - name: Set 'custom_ami_name' variable
+      ansible.builtin.set_fact:
+        custom_ami_name: custom-ami-{{ test_resource_prefix }}
 
     # Create custom AMI
-    - include_tasks: create.yml
+    - name: Create custom AMI
+      ansible.builtin.include_tasks: create.yml
 
     # Create EC2 instance using custom AMI
-    - include_tasks: create_infra.yml
+    - name: Create EC2 instance using custom AMI
+      ansible.builtin.include_tasks: create_infra.yml
       vars:
-        ec2_instance_name: "ec2_initial"
+        ec2_instance_name: ec2_initial
 
     # Test podman on running instance
     - name: Ensure Podman is installed into EC2 instance
-      shell: "podman pull docker.io/nginx"
+      ansible.builtin.command: podman pull docker.io/nginx
       delegate_to: ec2_initial
+      changed_when: false
 
     # Update custom AMI
-    - include_tasks: update.yml
+    - name: Update custom AMI
+      ansible.builtin.include_tasks: update.yml
 
     # Create another EC2 instance using updated custom AMI
-    - include_tasks: create_infra.yml
+    - name: Create another EC2 instance using updated custom AMI
+      ansible.builtin.include_tasks: create_infra.yml
       vars:
-        ec2_instance_name: "ec2_updated"
+        ec2_instance_name: ec2_updated
 
     # Test podman on running instance
     - name: Ensure Podman is installed into EC2 instance
-      shell: "podman pull docker.io/nginx"
+      ansible.builtin.command: podman pull docker.io/nginx
       ignore_errors: true
       register: podman
       delegate_to: ec2_updated
+      changed_when: false
 
     - name: Validate that Podman is not installed
-      assert:
+      ansible.builtin.assert:
         that:
           - podman is failed
 
@@ -63,7 +72,8 @@
       become: true
 
     # Delete custom AMI
-    - include_tasks: delete.yml
+    - name: Delete custom AMI
+      ansible.builtin.include_tasks: delete.yml
 
     - name: Get custom AMI information
       amazon.aws.ec2_ami_info:
@@ -72,15 +82,16 @@
       register: ami_info
 
     - name: Ensure Custom AMI was deleted
-      assert:
+      ansible.builtin.assert:
         that:
           - ami_info.images | length == 0
 
   always:
-    - include_tasks: delete_infra.yml
+    - name: Include 'delete_infra.yml' file
+      ansible.builtin.include_tasks: delete_infra.yml
 
     - name: Delete temporary file
-      file:
+      ansible.builtin.file:
         path: "{{ keyfile_path }}"
         state: absent
       when: keyfile_path is defined

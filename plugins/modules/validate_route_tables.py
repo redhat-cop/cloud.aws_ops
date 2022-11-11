@@ -66,7 +66,7 @@ options:
 
 EXAMPLES = r"""
 - name: Evaluate routes from EC2 instance to RDS Instance
-  validate_route_tables:
+  cloud.aws_ops.validate_route_tables:
     dest_subnets:
         - assign_ipv6_address_on_creation": false
           availability_zone: "eu-west-2b"
@@ -298,11 +298,13 @@ class ValidateRouteTables(AnsibleModule):
         else:
             self.exit_json(result="Resources located in the same VPC.")
 
-    def validate_route_tables(self,
-                              src_route_tables,
-                              b_check_vpc_rtb_ec2,
-                              dest_route_tables,
-                              b_check_vpc_rtb_rds):
+    def validate_route_tables(
+        self,
+        src_route_tables,
+        b_check_vpc_rtb_ec2,
+        dest_route_tables,
+        b_check_vpc_rtb_rds,
+    ):
         # Check whether resources are using the same route table
         for rtb in dest_route_tables:
             self.rds_rtb_list.append(rtb["route_table_id"])
@@ -321,7 +323,13 @@ class ValidateRouteTables(AnsibleModule):
                 )
             )
 
-    def validate_route_connection(self, src_private_ips, dest_vpc_route_tables, dest_route_tables, b_check_vpc_rtb_rds):
+    def validate_route_connection(
+        self,
+        src_private_ips,
+        dest_vpc_route_tables,
+        dest_route_tables,
+        b_check_vpc_rtb_rds,
+    ):
 
         # Third verification: Check wheter route is through a peering connection
         # Verify whether Destination RTBs contains route to Source network
@@ -357,7 +365,13 @@ class ValidateRouteTables(AnsibleModule):
                 if len(required_ips) == 0:
                     self.rds_rtb_list.remove(rtb["route_table_id"])
 
-    def validate_route_to_dest_on_source(self, src_route_tables, src_vpc_route_tables, dest_subnet_cidrs, b_check_vpc_rtb_ec2):
+    def validate_route_to_dest_on_source(
+        self,
+        src_route_tables,
+        src_vpc_route_tables,
+        dest_subnet_cidrs,
+        b_check_vpc_rtb_ec2,
+    ):
 
         # Verify whether Source RTB contains route to Destination network
         for rtb in src_route_tables:
@@ -437,10 +451,27 @@ class ValidateRouteTables(AnsibleModule):
             if len(ec2_rtb_subnet_list) < len(src_subnet_ids):
                 b_check_vpc_rtb_ec2 = True
 
-            self.validate_vpc(src_vpc_id, src_private_ips, dest_vpc_id, dest_subnet_cidrs)
-            self.validate_route_tables(src_route_tables, b_check_vpc_rtb_ec2, dest_route_tables, b_check_vpc_rtb_rds)
-            self.validate_route_connection(src_private_ips, dest_vpc_route_tables, dest_route_tables, b_check_vpc_rtb_rds)
-            self.validate_route_to_dest_on_source(src_route_tables, src_vpc_route_tables, dest_subnet_cidrs, b_check_vpc_rtb_ec2)
+            self.validate_vpc(
+                src_vpc_id, src_private_ips, dest_vpc_id, dest_subnet_cidrs
+            )
+            self.validate_route_tables(
+                src_route_tables,
+                b_check_vpc_rtb_ec2,
+                dest_route_tables,
+                b_check_vpc_rtb_rds,
+            )
+            self.validate_route_connection(
+                src_private_ips,
+                dest_vpc_route_tables,
+                dest_route_tables,
+                b_check_vpc_rtb_rds,
+            )
+            self.validate_route_to_dest_on_source(
+                src_route_tables,
+                src_vpc_route_tables,
+                dest_subnet_cidrs,
+                b_check_vpc_rtb_ec2,
+            )
 
             if len(self.rds_rtb_list) > 0:
                 self.fail_json(

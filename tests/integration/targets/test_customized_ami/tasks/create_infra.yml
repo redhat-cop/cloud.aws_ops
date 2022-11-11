@@ -1,52 +1,52 @@
 ---
 - name: Create a VPC to work in
-  ec2_vpc_net:
-    cidr_block: '{{ ami_infra_vpc_cidr }}'
-    name: 'vpc-{{ test_resource_prefix }}'
+  amazon.aws.ec2_vpc_net:
+    cidr_block: "{{ ami_infra_vpc_cidr }}"
+    name: vpc-{{ test_resource_prefix }}
     tags:
       test: "{{ test_resource_prefix }}"
   register: vpc
 
 - name: Create a public subnet
-  ec2_vpc_subnet:
-    vpc_id: '{{ vpc.vpc.id }}'
-    cidr: '{{ ami_infra_subnet_cidr }}'
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc.vpc.id }}"
+    cidr: "{{ ami_infra_subnet_cidr }}"
     tags:
       test: "{{ test_resource_prefix }}"
   register: subnet
 
 - name: Create internet gateway attached to the VPC
-  ec2_vpc_igw:
-    vpc_id: '{{ vpc.vpc.id }}'
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc.vpc.id }}"
     tags:
       test: "{{ test_resource_prefix }}"
     state: present
   register: igw
 
 - name: Create Route table for internet gateway (public subnet)
-  ec2_vpc_route_table:
-    vpc_id: '{{ vpc.vpc.id }}'
+  amazon.aws.ec2_vpc_route_table:
+    vpc_id: "{{ vpc.vpc.id }}"
     subnets:
       - "{{ subnet.subnet.id }}"
     routes:
-      - dest: "0.0.0.0/0"
+      - dest: 0.0.0.0/0
         gateway_id: "{{ igw.gateway_id }}"
     tags:
       test: "{{ test_resource_prefix }}"
     state: present
 
 - name: Create security group allowing SSH connection
-  ec2_group:
+  amazon.aws.ec2_security_group:
     name: "{{ test_resource_prefix }}-security"
-    vpc_id: '{{ vpc.vpc.id }}'
-    description: "Security group for EC2 instance SSH"
+    vpc_id: "{{ vpc.vpc.id }}"
+    description: Security group for EC2 instance SSH
     rules:
-      - cidr_ip: "0.0.0.0/0"
+      - cidr_ip: 0.0.0.0/0
         proto: tcp
         from_port: 22
         to_port: 22
     rules_egress:
-      - cidr_ip: "0.0.0.0/0"
+      - cidr_ip: 0.0.0.0/0
         proto: -1
     tags:
       test: "{{ test_resource_prefix }}"
@@ -54,38 +54,40 @@
   register: secgroup
 
 - name: Create key pair to connect to the VM
-  ec2_key:
-    name: 'key-{{ test_resource_prefix }}'
+  amazon.aws.ec2_key:
+    name: key-{{ test_resource_prefix }}
     tags:
       test: "{{ test_resource_prefix }}"
   register: rsa_key
 
 - name: Copy RSA private key content into file
-  copy:
+  ansible.builtin.copy:
     content: "{{ rsa_key.key.private_key }}"
     dest: "{{ keyfile_path }}"
     mode: 0400
   when: rsa_key is changed
 
 - name: Create EC2 and update inventory with
+  when: ec2_instance_name is defined
   block:
     - name: Get custom AMI information
-      ec2_ami_info:
+      amazon.aws.ec2_ami_info:
         filters:
           name: "{{ custom_ami_name }}"
       register: ami_info
 
-    - fail:
+    - name: Fail when AMI with name is not found
+      ansible.builtin.fail:
         msg: "Unable to find AMI with name: {{ custom_ami_name }}"
       when: ami_info.images | length == 0
 
     - name: Create a virtual machine
-      ec2_instance:
+      amazon.aws.ec2_instance:
         name: "{{ ec2_instance_name }}"
-        instance_type: "t2.micro"
+        instance_type: t2.micro
         image_id: "{{ ami_info.images.0.image_id }}"
-        key_name: 'key-{{ test_resource_prefix }}'
-        subnet_id: '{{ subnet.subnet.id }}'
+        key_name: key-{{ test_resource_prefix }}
+        subnet_id: "{{ subnet.subnet.id }}"
         network:
           assign_public_ip: true
           groups:
@@ -101,8 +103,6 @@
     - name: Add host to inventory
       ansible.builtin.add_host:
         name: "{{ ec2_instance_name }}"
-        ansible_ssh_user: "fedora"
+        ansible_ssh_user: fedora
         ansible_host: "{{ result.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ keyfile_path }}'
-
-  when: ec2_instance_name is defined
+        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ keyfile_path }}

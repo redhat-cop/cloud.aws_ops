@@ -4,8 +4,8 @@ test_image_filter:
   architecture: x86_64
   virtualization-type: hvm
   root-device-type: ebs
-  name: "Fedora-Cloud-Base-35-*"
+  name: Fedora-Cloud-Base-35-*
 
-test_vpc_cidr: "172.10.0.0/16"
-test_subnet_cidr: "172.10.0.0/24"
+test_vpc_cidr: 172.10.0.0/16
+test_subnet_cidr: 172.10.0.0/24
 test_ec2_instance_name: ec2fedora

@@ -1,11 +1,12 @@
 ---
-- include_role:
+- name: Include 'aws_setup_credentials' roles
+  ansible.builtin.include_role:
     name: cloud.aws_ops.aws_setup_credentials
   vars:
     aws_profile: profile-1
 
 - name: Ensure credentials contain only aws_profile key
-  assert:
+  ansible.builtin.assert:
     that:
       - aws_role_credentials is defined
       - aws_role_credentials.keys() | length == 1

@@ -1,14 +1,15 @@
 ---
 - name: Check if the AMI already exists
-  ec2_ami_info:
+  amazon.aws.ec2_ami_info:
     filters:
       name: "{{ custom_ami_name }}"
   register: existing
 
 - name: Create custom AMI
+  when: (existing.images | length == 0) or (custom_ami_recreate_if_exists | bool)
   block:
     - name: Delete existing AMI
-      ec2_ami:
+      amazon.aws.ec2_ami:
         name: "{{ existing.images.0.name }}"
         image_id: "{{ existing.images.0.image_id }}"
         wait: true
@@ -16,70 +17,70 @@
       when: existing.images | length > 0
 
     - name: Get source AMI id
+      when: source_ami_image_id is not defined
       block:
         - name: Get source AMI image ID using filters
-          ec2_ami_info:
+          amazon.aws.ec2_ami_info:
             filters: "{{ source_ami_filters }}"
           register: images
           # very spammy
           no_log: true
 
-        - fail:
-            msg: "No AMI found using filters"
+        - name: Fail when no AMI found using filters
+          ansible.builtin.fail:
+            msg: No AMI found using filters
           when: images.images | length == 0
 
-      when: source_ami_image_id is not defined
-
     - name: Define AMI id to create EC2 instance
-      set_fact:
-        source_ami_image_id: "{{ source_ami_image_id is defined \
-                            | ternary(source_ami_image_id, \
-                                images.images.0.image_id) }}"
+      ansible.builtin.set_fact:
+        source_ami_image_id: "{{ source_ami_image_id is defined | ternary(source_ami_image_id, images.images.0.image_id) }}"
 
-    - vars:
+    - name: Set 'ec2_resource_prefix' and 'ec2_ami_image_id' variables
+      vars:
         ec2_resource_prefix: "{{ custom_ami_name }}-prefix"
         ec2_ami_image_id: "{{ source_ami_image_id }}"
 
       block:
         - name: Create temporary file to store ssh private key
-          tempfile:
+          ansible.builtin.tempfile:
             suffix: id_rsa
           register: private_key
 
-        - include_tasks: tasks/create_ec2_resources.yaml
+        - name: Include 'tasks/create_ec2_resources.yaml' file
+          ansible.builtin.include_tasks: tasks/create_ec2_resources.yaml
           vars:
             ec2_keypair_file: "{{ private_key.path }}"
 
         - name: Install required softwares and python modules
-          block:
-            - name: Install packages
-              package:
-                name: "{{ item }}"
-                state: present
-              with_items: "{{ custom_ami_packages }}"
           when: custom_ami_packages is defined
           become: true
           delegate_to: ec2
+          block:
+            - name: Install packages
+              ansible.builtin.package:
+                name: "{{ item }}"
+                state: present
+              with_items: "{{ custom_ami_packages }}"
 
         - name: Create custom AMI from instance id
-          ec2_ami:
+          amazon.aws.ec2_ami:
             instance_id: "{{ ec2_instance_id }}"
             name: "{{ custom_ami_name }}"
             wait: true
             state: present
 
       always:
-        - include_tasks: tasks/delete_ec2_resources.yaml
+        - name: Include 'tasks/delete_ec2_resources.yaml' file
+          ansible.builtin.include_tasks: tasks/delete_ec2_resources.yaml
 
         - name: Delete temporary file
-          file:
+          ansible.builtin.file:
             path: "{{ private_key.path }}"
             state: absent
           ignore_errors: true
 
-  when: (existing.images | length == 0) or (custom_ami_recreate_if_exists | bool)
-
-- debug:
+- name: Check that existing AMI found
+  ansible.builtin.debug:
     msg: "Existing AMI found with name: '{{ custom_ami_name }}'"
   when:
     - existing.images | length > 0

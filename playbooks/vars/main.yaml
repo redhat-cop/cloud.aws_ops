@@ -1,14 +1,14 @@
 ---
 vpc_name: "{{ resource_prefix }}-vpc"
-vpc_cidr: "10.1.0.0/16"
+vpc_cidr: 10.1.0.0/16
 subnet_cidr:
-  - '10.1.0.0/24'
-  - '10.1.1.0/24'
-  - '10.1.2.0/24'
+  - 10.1.0.0/24
+  - 10.1.1.0/24
+  - 10.1.2.0/24
 resource_tags:
   prefix: "{{ resource_prefix }}"
 
-rds_subnet_group_name: '{{ resource_prefix }}-rds-sg'
+rds_subnet_group_name: "{{ resource_prefix }}-rds-sg"
 public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
 rds_identifier: "{{ resource_prefix }}-rds-01"
@@ -16,7 +16,7 @@ sshkey_pair_name: "{{ resource_prefix }}-key"
 
 bastion_host_name: "{{ resource_prefix }}-bastion"
 bastion_host_username: fedora
-bastion_host_type: "t2.xlarge"
+bastion_host_type: t2.xlarge
 bastion_host_required_packages:
   - python3
   - python-virtualenv
@@ -25,33 +25,33 @@ bastion_host_required_packages:
   - podman
   - httpd-tools
   - ansible
-bastion_host_venv_path: "~/env"
+bastion_host_venv_path: ~/env
 
-workers_instance_type: "t2.large"
+workers_instance_type: t2.large
 workers_user_name: fedora
 number_of_workers: 2
 
 app_listening_port: 5000
-app_git_repository: "https://github.com/abikouo/webapp_pyflask_demo.git"
+app_git_repository: https://github.com/abikouo/webapp_pyflask_demo.git
 app_config:
-  env: "development"
-  admin_user: "admin"
-  admin_password: "admin"
-  app_dir: "/app/pyapp"
+  env: development
+  admin_user: admin
+  admin_password: admin
+  app_dir: /app/pyapp
 app_force_init: false
 rds_listening_port: 5432
-local_registry_user: "ansible"
-local_registry_pwd: "testing123"
+local_registry_user: ansible
+local_registry_pwd: testing123
 local_registry_port: "{{ app_listening_port }}"
 
 rds_allocated_storage_gb: 20
-rds_instance_class: "db.m6g.large"
-rds_instance_name: "mysampledb123"
-rds_engine: "postgres"
+rds_instance_class: db.m6g.large
+rds_instance_name: mysampledb123
+rds_engine: postgres
 rds_engine_version: "14.2"
-rds_master_password: "L#5cH2mgy_"
-rds_master_user: "ansible"
+rds_master_password: L#5cH2mgy_
+rds_master_user: ansible
 
-image_filter: "Fedora-Cloud-Base-35-*"
+image_filter: Fedora-Cloud-Base-35-*
 
 operation: create
