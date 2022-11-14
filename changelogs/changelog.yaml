@@ -1,2 +1,9 @@
----
-releases: {}
+ancestor: null
+releases:
+  1.0.1:
+    changes:
+      release_summary: Re-release 1.0.0 with updated README and generated CHNAGELOG,
+        initial release of the collection
+    fragments:
+    - 1_0_1_release.yml
+    release_date: '2022-11-11'
