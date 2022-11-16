@@ -7,3 +7,13 @@ releases:
     fragments:
     - 1_0_1_release.yml
     release_date: '2022-11-11'
+  1.0.2:
+    changes:
+      minor_changes:
+      - various playbooks - minor linting fixes (https://github.com/ansible-collections/cloud.aws_ops/pull/21).
+      - various plugins - formating using black (https://github.com/ansible-collections/cloud.aws_ops/pull/21).
+      - various roles - minor linting fixes (https://github.com/ansible-collections/cloud.aws_ops/pull/21).
+      - various tests - minor linting fixes (https://github.com/ansible-collections/cloud.aws_ops/pull/21).
+    fragments:
+    - linting.yml
+    release_date: '2022-11-16'
