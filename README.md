@@ -44,7 +44,7 @@ Clone the collection repository.
 ```shell
   mkdir -p ~/.ansible/collections/ansible_collections/cloud/aws_ops
   cd ~/.ansible/collections/ansible_collections/cloud/aws_ops
-  git clone https://github.com/redhat-cop/cloud.aws_ops
+  git clone https://github.com/redhat-cop/cloud.aws_ops .
 ```
 
 ### Using this collection
