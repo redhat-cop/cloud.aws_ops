@@ -19,7 +19,7 @@ Role Variables
 * **aws_access_key**:
     - The AWS access key to use.
     - Mutually exclusive with option aws_profile.
-    - Environment variable: 
+    - Environment variable:
         - AWS_ACCESS_KEY_ID
         - AWS_ACCESS_KEY
         - EC2_ACCESS_KEY.
@@ -33,7 +33,7 @@ Role Variables
 * **aws_security_token**:
     - The AWS security token if using temporary access and secret keys.
     - Mutually exclusive with option aws_profile.
-    - Environment variable: 
+    - Environment variable:
         - AWS_SECURITY_TOKEN
         - EC2_SECURITY_TOKEN
 * **aws_ca_bundle**:
@@ -42,7 +42,7 @@ Role Variables
         - AWS_CA_BUNDLE
 * **aws_validate_certs**:
     - When set to "false", SSL certificates will not be validated for communication with the AWS APIs.
-    - Environment variable: 
+    - Environment variable:
         - AWS_VALIDATE_CERTS
 * **aws_profile**:
     - The AWS profile to use.
@@ -54,8 +54,8 @@ Role Variables
     - A dictionary to modify the botocore configuration.
     - Parameters can be found at [botocore config](https://botocore.amazonaws.com/v1/documentation/api/latest/reference/config.html#botocore.config.Config).
 * **aws_region**:
-    - The AWS region to use. 
-    - Environment variable: 
+    - The AWS region to use.
+    - Environment variable:
         - AWS_REGION
         - EC2_REGION.
 
@@ -70,7 +70,7 @@ Example Playbook
     - hosts: localhost
 
       roles:
-        - role: cloud.aws_troubleshooting.aws_setup_credentials
+        - role: cloud.aws_ops.aws_setup_credentials
           aws_profile: us-profile
 
       tasks:
