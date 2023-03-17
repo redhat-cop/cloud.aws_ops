@@ -17,3 +17,5 @@ releases:
     fragments:
     - linting.yml
     release_date: '2022-11-16'
+  1.0.3:
+    release_date: '2023-03-17'
