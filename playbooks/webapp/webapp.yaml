@@ -23,10 +23,6 @@
   hosts: bastion
   gather_facts: false
 
-  collections:
-    - community.aws
-    - amazon.aws
-
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
