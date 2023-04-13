@@ -13,6 +13,7 @@
         kms_key_arn: "{{ __kms_key_info.kms_keys.0.key_arn }}"
 
     - name: Cancel the deletion of the KMS key and re-enable the KMS key
+      when: event.CloudTrailEvent.requestParameters.keyId == kms_key_arn
       block:
         - name: Cancel the deletion of the KMS key and re-enable the KMS key
           amazon.aws.kms_key:
@@ -26,4 +27,3 @@
             that:
               - __kms_key_restore is changed
               - __kms_key_restore.key_state == "Enabled"
-      when: event.CloudTrailEvent.requestParameters.keyId == kms_key_arn
