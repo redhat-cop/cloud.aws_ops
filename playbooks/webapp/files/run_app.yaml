@@ -64,4 +64,4 @@
           -d {{ registry_host_port }}/ansible-webapp
       when:
         - container.stdout == ""
-      changed_when: false
+      changed_when: true
