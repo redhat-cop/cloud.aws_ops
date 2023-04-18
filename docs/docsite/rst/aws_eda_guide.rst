@@ -89,6 +89,6 @@ While, `vars.yml` file looks like:
     cloudtrail_name: "{{ _resource_prefix }}-trail"
     s3_bucket_name: "{{ _resource_prefix }}-bucket"
     kms_key_alias: "{{ _resource_prefix }}-key"
-    key_prefix: "{{ _resource_prefix }}"
+    s3_key_prefix: "{{ _resource_prefix }}"
     region_name: us-east-1
 ```
