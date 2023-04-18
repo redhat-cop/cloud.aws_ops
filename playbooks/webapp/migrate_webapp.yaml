@@ -3,10 +3,6 @@
   hosts: localhost
   gather_facts: false
 
-  collections:
-    - community.aws
-    - amazon.aws
-
   vars_files:
     - vars/main.yaml
 
@@ -81,10 +77,6 @@
 - name: Deploy resource from Bastion
   hosts: bastion
   gather_facts: false
-
-  collections:
-    - community.aws
-    - amazon.aws
 
   vars_files:
     - vars/main.yaml
