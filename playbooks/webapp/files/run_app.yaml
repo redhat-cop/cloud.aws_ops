@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Run app
+  hosts: all
   gather_facts: false
   strategy: free
   become: true
@@ -9,7 +10,7 @@
 
   tasks:
     - name: Update ssh_config
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regex: "{{ item.regex }}"
         line: "{{ item.line }}"
@@ -20,13 +21,13 @@
           line: ClientAliveCountMax 3
 
     - name: Install Podman
-      yum:
+      ansible.builtin.yum:
         name:
           - podman
         state: present
 
     - name: Pull image from private registry
-      shell:
+      ansible.builtin.shell:
         cmd: >
           podman login {{ registry_host_port }}
           -u {{ registry_login.user }}
@@ -34,17 +35,19 @@
           --tls-verify=false &&
           podman pull {{ registry_host_port }}/ansible-webapp
           --tls-verify=false
+      changed_when: false
 
     - name: Check running container
-      shell:
+      ansible.builtin.shell:
         cmd: >
           podman container ps -a
           -f name={{ container_name }}
           --format=.Names
       register: container
+      changed_when: false
 
     - name: Run application instance
-      shell:
+      ansible.builtin.shell:
         cmd: >
           podman run --rm
           -e FLASK_APP="{{ application_dir }}"
@@ -61,3 +64,4 @@
           -d {{ registry_host_port }}/ansible-webapp
       when:
         - container.stdout == ""
+      changed_when: true
