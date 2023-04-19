@@ -1,0 +1,5 @@
+---
+sections:
+  - title: How to integrate Event-driven Ansible with this Ansible Validated Content Collection
+    toctree:
+      - aws_eda_guide
