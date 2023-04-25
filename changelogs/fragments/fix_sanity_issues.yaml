@@ -1,0 +1,3 @@
+---
+trivial:
+- "Add sanity test workflow to GHA and fix sanity issues (https://github.com/redhat-cop/cloud.aws_ops/pull/34)."
