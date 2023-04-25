@@ -69,7 +69,7 @@ EXAMPLES = r"""
           subnets:
             - "subnet-0af56e0d353f88cb8"
             - "subnet-032f1a2598b6318ed"
-          vpc_id: "vpc-0274c44deffd7368a
+          vpc_id: "vpc-0274c44deffd7368a"
     dest_port:
         - 5432
     src_network_acl_rules:
