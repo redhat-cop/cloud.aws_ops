@@ -34,7 +34,7 @@ options:
   dest_port:
     description:
     - Destination Endpoint Port.
-    type: str
+    type: int
     required: true
   protocol:
     description:
@@ -69,13 +69,13 @@ EXAMPLES = r"""
             - from_port: 5432
               to_port: 5432
               ip_protocol: "tcp"
-              ip_ranges":
+              ip_ranges:
                 - cidr_ip: "0.0.0.0/0"
               ipv6_ranges: []
               prefix_list_ids: []
               user_id_group_pairs: []
           ip_permissions_egress:
-            - ip_protocol": -1
+            - ip_protocol: -1
               ip_ranges:
                 - cidr_ip: "0.0.0.0/0"
               ipv6_ranges: []
@@ -92,13 +92,13 @@ EXAMPLES = r"""
             - from_port: 22
               to_port: 22
               ip_protocol: "tcp"
-              ip_ranges":
+              ip_ranges:
                 - cidr_ip: "0.0.0.0/0"
               ipv6_ranges: []
               prefix_list_ids: []
               user_id_group_pairs: []
           ip_permissions_egress:
-            - ip_protocol": -1
+            - ip_protocol: -1
               ip_ranges:
                 - cidr_ip: "0.0.0.0/0"
               ipv6_ranges: []
@@ -130,7 +130,7 @@ class ValidateSecurityGroupRules(AnsibleModule):
         argument_spec = dict(
             dest_subnet_cidrs=dict(type="list", elements="str", required=True),
             dest_security_groups=dict(type="list", elements="dict", required=True),
-            dest_port=dict(type="list", elements="int", required=True),
+            dest_port=dict(type="int", required=True),
             src_security_groups=dict(type="list", elements="dict", required=True),
             src_private_ip=dict(type="str", required=True),
             protocol=dict(type="str", default="tcp"),
@@ -245,7 +245,7 @@ class ValidateSecurityGroupRules(AnsibleModule):
 
         except Exception as e:
             self.fail_json(
-                msg="Security Group validation failed: {}".format(e), exception=e
+                msg="Security Group validation failed: {0}".format(e), exception=e
             )
 
 

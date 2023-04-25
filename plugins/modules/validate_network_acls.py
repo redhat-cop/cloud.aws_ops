@@ -47,7 +47,7 @@ options:
     description:
     - Source Private IP.
     type: list
-    elememts: str
+    elements: str
     required: true
 
 """
@@ -68,8 +68,8 @@ EXAMPLES = r"""
           owner_id: "000000000000"
           subnets:
             - "subnet-0af56e0d353f88cb8"
-            - "subnet-032f1a2598b6318ed"]
-          vpc_id: "vpc-0274c44deffd7368a
+            - "subnet-032f1a2598b6318ed"
+          vpc_id: "vpc-0274c44deffd7368a"
     dest_port:
         - 5432
     src_network_acl_rules:
@@ -216,7 +216,7 @@ class ValidateNetworkACL(AnsibleModule):
 
         except Exception as e:
             self.fail_json(
-                msg="Network ACL validation failed: {}".format(e), exception=e
+                msg="Network ACL validation failed: {0}".format(e), exception=e
             )
 
 
