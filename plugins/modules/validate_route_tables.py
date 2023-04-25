@@ -221,7 +221,7 @@ EXAMPLES = r"""
               origin: "CreateRoute"
               state: "active"
           vpc_id: "vpc-0bee28efef41e1de4"
-    src_vpc_route_tables
+    src_vpc_route_tables:
         - associations:
             - association_state:
                 state: "associated"
@@ -482,7 +482,7 @@ class ValidateRouteTables(AnsibleModule):
 
             if len(self.ec2_rtb_list) > 0:
                 self.fail_json(
-                    msg="Please review route table(s) {} for entries matching {} Cidr".format(
+                    msg="Please review route table(s) {0} for entries matching {1} Cidr".format(
                         self.ec2_rtb_list, dest_subnet_cidrs
                     )
                 )
