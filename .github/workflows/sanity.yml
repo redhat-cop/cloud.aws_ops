@@ -77,7 +77,6 @@ jobs:
               "python-version": "3.8"
             }
           ]
-      collection_pre_install: ''
   all_green:
     if: ${{ always() }}
     needs:
