@@ -1,0 +1,7 @@
+---
+vault_name: Default
+vault_encryption_key_arn:
+vault_tags:
+
+plan_windows_vss_settings:
+plan_tags:

@@ -1,0 +1,6 @@
+---
+plan_name: "{{ test_resource_prefix }}-plan"
+selection_name: "{{ test_resource_prefix }}-selection"
+selection_two: "{{ test_resource_prefix }}-selection-2"
+test_iam_role_name: "{{ test_resource_prefix }}-iam-role"
+test_vault_name: "{{ test_resource_prefix }}-vault"

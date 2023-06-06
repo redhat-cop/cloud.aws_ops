@@ -1,0 +1,54 @@
+---
+- name: Verify required variables
+  block:
+    - name: Fail when plan variables are not defined
+      ansible.builtin.fail:
+        msg: "Required variable {{item}} has not been defined"
+      when: vars[item] is undefined
+      loop:
+        - plan_name
+        - plan_rules
+
+- name: Run backup_create_plan_role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+  block:
+    - name: Create or update backup vault if provided
+      when: vault_name != "Default"
+      block:
+        - name: Create or update backup vault
+          amazon.aws.backup_vault:
+            state: present
+            backup_vault_name: "{{ vault_name }}"
+            encryption_key_arn: "{{ vault_encryption_key_arn }}"
+            tags: "{{ vault_tags }}"
+          register: backup_vault_result
+
+        - name: Verify that vault has been created/updated
+          ansible.builtin.debug:
+            msg: Vault '{{ vault_name }}' successfully created/updated.
+          when: backup_vault_result is changed
+
+        - name: Verify that vault already exists
+          ansible.builtin.debug:
+            msg: Vault '{{ vault_name }}' exists, no updates needed.
+          when: backup_vault_result is not changed
+
+    - name: Create or update backup plan
+      amazon.aws.backup_plan:
+        state: present
+        backup_plan_name: "{{ plan_name }}"
+        rules: "{{ plan_rules }}"
+        advanced_backup_settings: "{{ plan_windows_vss_settings }}"
+        tags: "{{ plan_tags }}"
+      register: backup_plan_result
+
+    - name: Verify that plan has been created/updated
+      ansible.builtin.debug:
+        msg: Plan '{{ plan_name }}' successfully created/updated.
+      when: backup_plan_result is changed
+
+    - name: Verify that plan already exists
+      ansible.builtin.debug:
+        msg: Plan '{{ plan_name }}' exists, no updates needed.
+      when: backup_plan_result is not changed
