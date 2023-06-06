@@ -1,0 +1,106 @@
+---
+- name: Set 'test_resource_prefix' variable
+  ansible.builtin.set_fact:
+    test_resource_prefix: backup-resource-test-{{ 101 | random(1, 10) }}
+
+- name: Integration tests for 'backup_create_vault' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: Include 'setup.yml' file
+      ansible.builtin.include_tasks: setup.yml
+
+    - name: Include 'backup_select_resources' role for all resources using provided role
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_select_resources
+      vars:
+        backup_role_name: "{{ test_iam_role_name }}"
+        selection_resources:
+          - "{{ all_resources }}"
+
+    - name: Get backup selection info
+      amazon.aws.backup_selection_info:
+        backup_plan_name: "{{ plan_name }}"
+      register: result
+
+    - name: Verify result
+      ansible.builtin.assert:
+        that:
+          - result.backup_selections | length == 1
+          - result.backup_selections[0].selection_name == selection_name
+          - result.backup_selections[0].resources == ["*"]
+
+    - name: Include 'backup_select_resources' role for all resources using default role
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_select_resources
+      vars:
+        selection_resources:
+          - "{{ all_resources }}"
+
+    - name: Get backup selection info
+      amazon.aws.backup_selection_info:
+        backup_plan_name: "{{ plan_name }}"
+      register: result
+
+    - name: Verify result
+      ansible.builtin.assert:
+        that:
+          - result.backup_selections | length == 1
+          - result.backup_selections[0].selection_name == selection_name
+          - result.backup_selections[0].resources == ["*"]
+
+    - name: Include 'backup_select_resources' role updating selection to all s3 buckets with specified tags
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_select_resources
+      vars:
+        selection_resources:
+          - "{{ all_s3_buckets }}"
+        selection_tags: "{{ tag_list_backup_or_prod }}"
+
+    - name: Get updated backup selection info
+      amazon.aws.backup_selection_info:
+        backup_plan_name: "{{ plan_name }}"
+      register: result
+
+    - name: Verify result
+      ansible.builtin.assert:
+        that:
+          - result.backup_selections | length == 1
+          - result.backup_selections[0].selection_name == selection_name
+          - result.backup_selections[0].resources == ["arn:aws:s3:::*"]
+          - result.backup_selections[0].list_of_tags | length == 2
+
+    - name: Include 'backup_select_resources' role adding selection of all resources except rds instances with specified conditions
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_select_resources
+      vars:
+        selection_name: "{{ selection_two }}"
+        selection_resources:
+          - "{{ all_resources }}"
+        selection_excluded_resources:
+          - "{{ all_rds_db_instances }}"
+        selection_conditions: "{{ conditions_tagged_backup_and_prod }}"
+
+    - name: Get updated backup selection info
+      amazon.aws.backup_selection_info:
+        backup_plan_name: "{{ plan_name }}"
+      register: result
+
+    - name: Verify result
+      ansible.builtin.assert:
+        that:
+          - result.backup_selections | length == 2
+          - result.backup_selections[1].selection_name == "{{ selection_two }}"
+          - result.backup_selections[1].resources == ["*"]
+          - result.backup_selections[1].not_resources == ["arn:aws:rds:*:*:db:*"]
+          - result.backup_selections[1].list_of_tags | length == 0
+          - result.backup_selections[1].conditions.string_equals | length == 2
+
+  always:
+    - name: Include 'teardown.yml' file
+      ansible.builtin.include_tasks: teardown.yml

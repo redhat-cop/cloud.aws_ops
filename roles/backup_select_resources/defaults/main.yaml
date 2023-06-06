@@ -1,0 +1,6 @@
+---
+backup_role_name: AWSBackupDefaultServiceRole
+
+selection_excluded_resources:
+selection_tags:
+selection_conditions:
