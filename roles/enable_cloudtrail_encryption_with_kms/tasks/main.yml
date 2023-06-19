@@ -3,7 +3,7 @@
 
 - name: Run 'enable_cloudtrail_encryption_with_kms' role
   module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
 
   block:
     - name: Fail when 'enable_cloudtrail_encryption_with_kms_trail_name' is not defined
@@ -20,51 +20,46 @@
       amazon.aws.cloudtrail_info:
         trail_names:
           - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-      register: __trail_info
+      register: enable_cloudtrail_encryption_with_kms__trail_info
 
     - name: Fail when the trail does not exist
       ansible.builtin.fail:
         msg: "The trail does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-      when: __trail_info.trail_list | length == 0
+      when: enable_cloudtrail_encryption_with_kms__trail_info.trail_list | length == 0
 
     - name: Gather information about the KMS key
       amazon.aws.kms_key_info:
         key_id: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
-      register: __kms_key_info
+      register: enable_cloudtrail_encryption_with_kms__kms_key_info
 
     - name: Gather information about the KMS key using alias
       amazon.aws.kms_key_info:
         alias: "{{ enable_cloudtrail_encryption_with_kms_kms_key_id }}"
-      register: __kms_key_info
-      when: __kms_key_info.kms_keys | length == 0
+      register: enable_cloudtrail_encryption_with_kms__kms_key_info
+      when: enable_cloudtrail_encryption_with_kms__kms_key_info.kms_keys | length == 0
 
     - name: Fail when the KMS key does not exist
       ansible.builtin.fail:
         msg: "The KMS key does not exist: {{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-      when: __kms_key_info.kms_keys | length == 0
-
-    - name: Set 'kms_key_arn' variable
-      ansible.builtin.set_fact:
-        kms_key_arn: "{{ __kms_key_info.kms_keys.0.key_arn }}"
+      when: enable_cloudtrail_encryption_with_kms__kms_key_info.kms_keys | length == 0
 
     - name: Enable encryption on the trail
       amazon.aws.cloudtrail:
         state: present
         name: "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-        kms_key_id: "{{ kms_key_arn }}"
+        kms_key_id: "{{ enable_cloudtrail_encryption_with_kms__kms_key_info.kms_keys.0.key_arn }}"
         s3_bucket_name: "{{__trail_info.trail_list.0.s3_bucket_name}}"
         s3_key_prefix: "{{__trail_info.trail_list.0.s3_key_prefix}}"
-      register: __enable_encyption
 
     - name: Verify that encryption has been enabled on the CloudTrail trail
       amazon.aws.cloudtrail_info:
         trail_names:
           - "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
-      register: __verify_encryption
+      register: enable_cloudtrail_encryption_with_kms__verify_encryption
 
     - name: Assert that AWS CloudTrail trail was successfully encrypted
       ansible.builtin.assert:
         that:
-          - __verify_encryption.trail_list.0.kms_key_id == kms_key_arn
+          - enable_cloudtrail_encryption_with_kms__verify_encryption.trail_list.0.kms_key_id == enable_cloudtrail_encryption_with_kms__kms_key_info.kms_keys.0.key_arn
         success_msg: AWS CloudTrail trail was successfully encrypted
         fail_msg: AWS CloudTrail trail was not successfully encrypted

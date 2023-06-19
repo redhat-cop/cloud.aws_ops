@@ -3,12 +3,15 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.aws_setup_credentials
   vars:
-    aws_profile: profile-1
+    aws_security_token: '{{ security_token | default(omit) }}'
 
-- name: Ensure credentials contain only aws_profile key
-  ansible.builtin.assert:
-    that:
-      - aws_role_credentials is defined
-      - aws_role_credentials.keys() | length == 1
-      - '"aws_profile" in aws_role_credentials'
-      - aws_role_credentials.aws_profile == 'profile-1'
+- name: Trying calling module using generating credentials
+  module_defaults:
+    group/aws:
+      "{{ aws_setup_credentials__output }}"
+  block:
+
+    - name: Get instances to be terminated
+      amazon.aws.ec2_instance_info:
+        filters:
+          instance-state-name: 'running'

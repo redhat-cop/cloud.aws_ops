@@ -1,0 +1,4 @@
+#!/bin/sh
+{% for package in custom_ami_packages %}
+sudo dnf install -y {{ package }}
+{% endfor %}

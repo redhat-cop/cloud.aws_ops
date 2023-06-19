@@ -1,1 +1,3 @@
-disabled
+cloud/aws
+role/customized_ami
+time=8m

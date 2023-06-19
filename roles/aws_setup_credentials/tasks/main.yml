@@ -1,7 +1,8 @@
 ---
 - name: Define intial value for credentials
   ansible.builtin.set_fact:
-    aws_role_credentials: {}
+    aws_setup_credentials__output: {}
+
 - name: Create auth credentials
   ansible.builtin.include_tasks: read_option.yml
   with_dict: "{{ aws_connection_env }}"

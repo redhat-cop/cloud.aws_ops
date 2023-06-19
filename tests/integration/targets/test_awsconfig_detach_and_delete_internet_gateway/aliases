@@ -1,0 +1,3 @@
+cloud/aws
+time=5m
+role/awsconfig_detach_and_delete_internet_gateway

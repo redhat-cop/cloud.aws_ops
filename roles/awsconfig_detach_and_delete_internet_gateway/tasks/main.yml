@@ -6,7 +6,7 @@
 
 - name: Run 'awsconfig_detach_and_delete_internet_gateway' role
   module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
 
   block:
     # Wait for Internet Gateway Id being available
@@ -14,49 +14,49 @@
       amazon.aws.ec2_vpc_igw_info:
         internet_gateway_ids:
           - "{{ internet_gateway_id }}"
-      register: result
+      register: awsconfig_detach_and_delete_internet_gateway__info
       retries: 30
       delay: 5
       until:
-        - '"internet_gateways" in result'
-        - result.internet_gateways | length > 0
-        - result.internet_gateways.0.attachments | map(attribute='state') | list | unique == ['available']
+        - '"internet_gateways" in awsconfig_detach_and_delete_internet_gateway__info'
+        - awsconfig_detach_and_delete_internet_gateway__info.internet_gateways | length > 0
+        - awsconfig_detach_and_delete_internet_gateway__info.internet_gateways.0.attachments | map(attribute='state') | list | unique == ['available']
       ignore_errors: true
 
     - name: Fail when internet gateway does not exist
       ansible.builtin.fail:
-        msg: "{{ result.msg }}"
-      when: '"internet_gateways" not in result'
+        msg: "{{ awsconfig_detach_and_delete_internet_gateway__info.msg }}"
+      when: '"internet_gateways" not in awsconfig_detach_and_delete_internet_gateway__info'
 
     - name: Fail when internet gateway is not available
       ansible.builtin.fail:
-        msg: "Internet gateway not available: {{ result.internet_gateways.0.attachments }}"
-      when: result is failed
+        msg: "Internet gateway not available: {{ awsconfig_detach_and_delete_internet_gateway__info.internet_gateways.0.attachments }}"
+      when: awsconfig_detach_and_delete_internet_gateway__info is failed
 
     # Retrieves a specified virtual private gateway configuration.
     - name: Detach and delete Internet Gateway from VPC
       amazon.aws.ec2_vpc_igw:
-        vpc_id: "{{ result.internet_gateways.0.attachments.0.vpc_id }}"
+        vpc_id: "{{ awsconfig_detach_and_delete_internet_gateway__info.internet_gateways.0.attachments.0.vpc_id }}"
         state: absent
       ignore_errors: true
-      register: detach
+      register: awsconfig_detach_and_delete_internet_gateway__detach
 
     - name: Fail when when there are still public address(es) mapped
       ansible.builtin.fail:
         msg: >-
-          Some Amazon EC2 instances in your virtual private cloud ({{ result.internet_gateways.0.attachments.0.vpc_id }})
+          Some Amazon EC2 instances in your virtual private cloud ({{ awsconfig_detach_and_delete_internet_gateway__info.internet_gateways.0.attachments.0.vpc_id }})
           have elastic IP addresses or public IPv4 addresses associated with them,
           Please unmap those public address(es) before detaching the gateway.
       when:
-        - detach is failed
-        - '"error" in detach'
-        - detach.error.code == "DependencyViolation"
-        - '"has some mapped public address(es)" in detach.error.message'
+        - awsconfig_detach_and_delete_internet_gateway__detach is failed
+        - '"error" in awsconfig_detach_and_delete_internet_gateway__detach'
+        - awsconfig_detach_and_delete_internet_gateway__detach.error.code == "DependencyViolation"
+        - '"has some mapped public address(es)" in awsconfig_detach_and_delete_internet_gateway__detach.error.message'
 
-    - name: Fail when detach is failed
+    - name: Fail when module failed to detach internet gateway
       ansible.builtin.fail:
-        msg: "{{ detach.msg }}"
-      when: detach is failed
+        msg: "{{ awsconfig_detach_and_delete_internet_gateway__detach.msg }}"
+      when: awsconfig_detach_and_delete_internet_gateway__detach is failed
 
     - name: Internet Gateway has been detached from VPC and successfully deleted
       ansible.builtin.debug:
