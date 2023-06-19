@@ -1,8 +1,4 @@
 ---
-- name: Set 'test_vpc_name' variable
-  ansible.builtin.set_fact:
-    test_vpc_name: ansible-vpc-{{ 101 | random(1, 10) }}
-
 - name: Test 'awsconfig_detach_and_delete_internet_gateway' role
   module_defaults:
     group/aws:
@@ -21,13 +17,11 @@
         name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
         apply:
           ignore_errors: true
-      vars:
-        internet_gateway_id: "{{ igw.gateway_id }}"
 
     - name: Ensure internet gateway was not deleted (public ip addresses to unmap before)
       amazon.aws.ec2_vpc_igw_info:
         internet_gateway_ids:
-          - "{{ igw.gateway_id }}"
+          - "{{ internet_gateway_id }}"
       register: result
 
     - name: Assert that internet gateway was not deleted
@@ -39,13 +33,13 @@
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:
         filters:
-          vpc-id: "{{ vpc.vpc.id }}"
-      register: result
+          vpc-id: "{{ test_vpc_id }}"
+      register: _instances
 
     - name: Delete EC2 instances with dependant Resources
       amazon.aws.ec2_instance:
         instance_ids:
-          - "{{ result.instances.0.instance_id }}"
+          - "{{ _instances.instances.0.instance_id }}"
         wait: true
         state: terminated
 
@@ -53,13 +47,11 @@
     - name: Include 'awsconfig_detach_and_delete_internet_gateway' role
       ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway
-      vars:
-        internet_gateway_id: "{{ igw.gateway_id }}"
 
     - name: Ensure internet gateway does not exist anymore
       amazon.aws.ec2_vpc_igw_info:
         internet_gateway_ids:
-          - "{{ igw.gateway_id }}"
+          - "{{ internet_gateway_id }}"
       register: result
       ignore_errors: true
 

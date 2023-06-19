@@ -7,9 +7,9 @@ source_ami_filters:
   name: Fedora-Cloud-Base-35-*
 source_ami_user_name: ec2-user
 
-custom_ami_vpc_cidr: 10.1.0.0/16
-custom_ami_subnet_cidr: 10.1.0.0/24
-custom_ami_ec2_instance_name: "{{ custom_ami_name }}-ec2"
+custom_ami_vpc_cidr: '173.12.0.0/16'
+custom_ami_subnet_cidr: '173.12.1.0/24'
+
 custom_ami_ec2_instance_type: t2.large
 
 custom_ami_recreate_if_exists: false

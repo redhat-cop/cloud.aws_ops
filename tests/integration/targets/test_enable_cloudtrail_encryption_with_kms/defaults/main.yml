@@ -1,2 +1,7 @@
 ---
 # defaults file for tests/integration/targets/test_enable_cloudtrail_encryption_with_kms
+aws_security_token: '{{ security_token | default(omit) }}'
+s3_bucket_name: "s3-{{ resource_prefix }}"
+cloudtrail_name: "trail-{{ resource_prefix }}"
+kms_alias: "kms-{{ resource_prefix }}"
+cloudtrail_prefix: "trail-prefix-{{ resource_prefix }}"

@@ -1,49 +1,65 @@
 ---
-- name: Create a VPC to work in
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr }}"
-    name: "{{ test_vpc_name }}"
-  register: vpc
+- name: Setup
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Create a VPC to work in
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ test_vpc_cidr }}"
+        name: "{{ test_vpc_name }}"
+      register: vpc
 
-- name: Create Subnet for EC2 instance
-  amazon.aws.ec2_vpc_subnet:
-    vpc_id: "{{ vpc.vpc.id }}"
-    cidr: "{{ test_subnet_cidr }}"
-  register: subnet
+    - name: Set variable for VPC id
+      ansible.builtin.set_fact:
+        test_vpc_id: "{{ vpc.vpc.id }}"
 
-- name: Create internet gateway attached to the VPC
-  amazon.aws.ec2_vpc_igw:
-    vpc_id: "{{ vpc.vpc.id }}"
-    state: present
-  register: igw
+    - name: Create Subnet for EC2 instance
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ test_vpc_id }}"
+        cidr: "{{ test_subnet_cidr }}"
+      register: subnet
 
-- name: Create Route table for internet gateway (public subnet)
-  amazon.aws.ec2_vpc_route_table:
-    vpc_id: "{{ vpc.vpc.id }}"
-    subnets:
-      - "{{ subnet.subnet.id }}"
-    routes:
-      - dest: 0.0.0.0/0
-        gateway_id: "{{ igw.gateway_id }}"
-    lookup: tag
-    resource_tags:
-      subnet: public
-      route: internet
-    state: present
+    - name: Create internet gateway attached to the VPC
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ test_vpc_id }}"
+        state: present
+      register: igw
 
-- name: Get image ID to create an instance
-  amazon.aws.ec2_ami_info:
-    filters: "{{ test_image_filter }}"
-  register: images
+    - name: Set variable for internet gateway Id
+      ansible.builtin.set_fact:
+        internet_gateway_id: "{{ igw.gateway_id }}"
 
-- name: Create a virtual machine
-  amazon.aws.ec2_instance:
-    name: "{{ test_ec2_instance_name }}"
-    instance_type: t2.micro
-    image_id: "{{ images.images.0.image_id }}"
-    subnet_id: "{{ subnet.subnet.id }}"
-    network:
-      assign_public_ip: true
-    wait: true
-    state: started
-  register: result
+    - name: Create Route table for internet gateway (public subnet)
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ test_vpc_id }}"
+        subnets:
+          - "{{ subnet.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ igw.gateway_id }}"
+        lookup: tag
+        resource_tags:
+          subnet: public
+          route: internet
+        state: present
+
+    - name: Get image ID to create an instance
+      amazon.aws.ec2_ami_info:
+        filters: "{{ test_image_filter }}"
+      register: images
+
+    - name: Create a virtual machine
+      amazon.aws.ec2_instance:
+        name: "{{ test_ec2_instance_name }}"
+        instance_type: t2.micro
+        image_id: "{{ images.images.0.image_id }}"
+        subnet_id: "{{ subnet.subnet.id }}"
+        network:
+          assign_public_ip: true
+        wait: false
+        state: started
+      register: result

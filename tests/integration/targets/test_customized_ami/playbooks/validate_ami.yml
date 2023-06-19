@@ -1,0 +1,33 @@
+- name: Validate customized AMI
+  hosts: localhost
+  gather_facts: false
+
+  module_defaults:
+    group/aws:
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      security_token: '{{ security_token | default(omit) }}'
+      region: '{{ aws_region }}'
+
+  vars_files:
+    - main.yml
+
+  tasks:
+    - name: Retrieve AMI info
+      amazon.aws.ec2_ami_info:
+        filters:
+          name: "{{ custom_ami_name }}"
+      register: amis
+
+    - name: Validate AMI info
+      ansible.builtin.assert:
+        that:
+          - amis.images | length == 1
+          - amis.images.0.architecture == '{{ ami_architecture }}'
+      when: ami_should_exists | default('true') | bool
+
+    - name: Validate that AMI does not exists
+      ansible.builtin.assert:
+        that:
+          - amis.images == []
+      when: not (ami_should_exists | default('true') | bool)

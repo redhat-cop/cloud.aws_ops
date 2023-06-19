@@ -1,0 +1,10 @@
+---
+aws_security_token: '{{ security_token | default(omit) }}'
+custom_ami_name: "{{ resource_prefix }}"
+custom_ami_packages:
+  - podman
+  - libvirt
+source_ami_filters:
+  architecture: "{{ ami_architecture }}"
+  name: Fedora-Cloud-Base-37-*
+custom_ami_recreate_if_exists: "{{ update_when_exists | default('false') | bool }}"
