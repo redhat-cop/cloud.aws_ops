@@ -1,0 +1,20 @@
+---
+- module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Get EC2 instances info
+      amazon.aws.ec2_instance_info:
+        filters:
+          instance-state-name: running
+          vpc-id: "{{ test_vpc_id }}"
+          'tag:Name': "{{ item.name }}"
+      register: instances
+
+    - name: Ensure number of instances
+      ansible.builtin.assert:
+        that:
+          - instances.instances | length == item.instances

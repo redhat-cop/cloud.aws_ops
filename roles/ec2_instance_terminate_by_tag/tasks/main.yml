@@ -52,6 +52,7 @@
     - name: Create list of terminated instances
       ansible.builtin.set_fact:
         terminated_instances: "{{ terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
+      when: terminate_result is defined
 
     - name: Verify that the instances have been successfully terminated
       ansible.builtin.debug:

@@ -35,49 +35,75 @@
       ansible.builtin.set_fact:
         source_ami_image_id: "{{ source_ami_image_id is defined | ternary(source_ami_image_id, images.images.0.image_id) }}"
 
-    - name: Set 'ec2_resource_prefix' and 'ec2_ami_image_id' variables
+    - name: Create customized AMI
       vars:
-        ec2_resource_prefix: "{{ custom_ami_name }}-prefix"
-        ec2_ami_image_id: "{{ source_ami_image_id }}"
-
+        vpc_name: "vpc-{{ custom_ami_name }}"
+        vpc_cidr: '10.{{ 255 | random(seed=custom_ami_name) }}.0.0/16'
+        subnet_cidr: '10.{{ 255 | random(seed=custom_ami_name) }}.1.0/24'
       block:
-        - name: Create temporary file to store ssh private key
-          ansible.builtin.tempfile:
-            suffix: id_rsa
-          register: private_key
+        - name: Create vpc to work in
+          amazon.aws.ec2_vpc_net:
+            cidr_block: "{{ vpc_cidr }}"
+            name: "{{ vpc_name }}"
+            state: present
+          register: custom_ami_vpc
 
-        - name: Include 'tasks/create_ec2_resources.yaml' file
-          ansible.builtin.include_tasks: tasks/create_ec2_resources.yaml
-          vars:
-            ec2_keypair_file: "{{ private_key.path }}"
+        - name: Create EC2 subnet
+          amazon.aws.ec2_vpc_subnet:
+            vpc_id: "{{ custom_ami_vpc.vpc.id }}"
+            cidr: "{{ subnet_cidr }}"
+          register: subnet
 
-        - name: Install required softwares and python modules
-          when: custom_ami_packages is defined
-          become: true
-          delegate_to: ec2
-          block:
-            - name: Install packages
-              ansible.builtin.package:
-                name: "{{ item }}"
-                state: present
-              with_items: "{{ custom_ami_packages }}"
+        - name: Create a virtual machine
+          amazon.aws.ec2_instance:
+            instance_type: "{{ custom_ami_ec2_instance_type }}"
+            image_id: "{{ source_ami_image_id is defined | ternary(source_ami_image_id, images.images.0.image_id) }}"
+            wait: true
+            subnet_id: "{{ subnet.subnet.id }}"
+            state: started
+            network:
+              assign_public_ip: false
+            user_data: "{{ lookup('template', 'fedora-user-data.j2') }}"
+          register: create_instance
 
         - name: Create custom AMI from instance id
           amazon.aws.ec2_ami:
-            instance_id: "{{ ec2_instance_id }}"
+            instance_id: "{{ create_instance.instances.0.instance_id }}"
             name: "{{ custom_ami_name }}"
             wait: true
             state: present
 
       always:
-        - name: Include 'tasks/delete_ec2_resources.yaml' file
-          ansible.builtin.include_tasks: tasks/delete_ec2_resources.yaml
+        - name: Delete EC2 resources used to create customized AMI
+          vars:
+            vpc_id: "{{ custom_ami_vpc.vpc.id }}"
+          when:
+            - custom_ami_vpc is defined
+            - custom_ami_vpc.vpc is defined
+          block:
+            - name: List running instances
+              amazon.aws.ec2_instance_info:
+                filters:
+                  vpc-id: "{{ vpc_id }}"
+              register: _instances
 
-        - name: Delete temporary file
-          ansible.builtin.file:
-            path: "{{ private_key.path }}"
-            state: absent
-          ignore_errors: true
+            - name: Delete virtual machine
+              amazon.aws.ec2_instance:
+                instance_ids: "{{ _instances.instances | map(attribute='instance_id') | list }}"
+                wait: true
+                state: absent
+
+            - name: Delete Subnets
+              amazon.aws.ec2_vpc_subnet:
+                vpc_id: "{{ vpc_id }}"
+                cidr: "{{ subnet_cidr }}"
+                state: absent
+
+            - name: Delete a VPC
+              amazon.aws.ec2_vpc_net:
+                cidr_block: "{{ vpc_cidr }}"
+                vpc_id: "{{ vpc_id }}"
+                state: absent
 
 - name: Check that existing AMI found
   ansible.builtin.debug:

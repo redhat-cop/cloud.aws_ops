@@ -1,58 +1,42 @@
 ---
 # tasks file for tests/integration/targets/test_enable_cloudtrail_encryption_with_kms
-
-- name: Set 'test_resource_prefix' variable
-  ansible.builtin.set_fact:
-    test_resource_prefix: ansible-cloudtrail-{{ 101 | random(1, 10) }}
-
 - name: Integration tests for 'enable_cloudtrail_encryption_with_kms' role
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ aws_region }}"
-
   block:
-    - name: Set 's3_bucket_name', 'cloudtrail_name', 'kms_alias' and 'cloudtrail_prefix' variables
-      ansible.builtin.set_fact:
-        s3_bucket_name: s3-{{ test_resource_prefix }}
-        cloudtrail_name: trail-{{ test_resource_prefix }}
-        kms_alias: kms-{{ test_resource_prefix }}
-        cloudtrail_prefix: asible-test-prefix
+    - name: Setup environment for test
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ aws_region }}"
+      block:
+        - name: Create S3 bucket
+          amazon.aws.s3_bucket:
+            state: present
+            name: "{{ s3_bucket_name }}"
+            policy: '{{ lookup("template", "s3-policy.j2") }}'
 
-    - name: Create S3 bucket
-      amazon.aws.s3_bucket:
-        state: present
-        name: "{{ s3_bucket_name }}"
-        policy: '{{ lookup("template", "s3-policy.j2") }}'
+        - name: Create KMS Key
+          amazon.aws.aws_kms:
+            state: present
+            alias: "{{ kms_alias }}"
+            enabled: true
+            policy: "{{ lookup('template', 'kms-policy.j2') | to_json }}"
 
-    - name: Create KMS Key
-      amazon.aws.aws_kms:
-        state: present
-        alias: "{{ kms_alias }}"
-        enabled: true
-        policy: "{{ lookup('template', 'kms-policy.j2') | to_json }}"
-      register: __create_kms_key
+        - name: Create a trail
+          amazon.aws.cloudtrail:
+            state: present
+            name: "{{ cloudtrail_name }}"
+            s3_bucket_name: "{{ s3_bucket_name }}"
+            s3_key_prefix: "{{ cloudtrail_prefix }}"
+          register: __create_trail
 
-    - name: Set 'kms_key_id' variable
-      ansible.builtin.set_fact:
-        kms_key_id: __create_kms_key.key_id
-
-    - name: Create a trail
-      amazon.aws.cloudtrail:
-        state: present
-        name: "{{ cloudtrail_name }}"
-        s3_bucket_name: "{{ s3_bucket_name }}"
-        s3_key_prefix: "{{ cloudtrail_prefix }}"
-      register: __create_trail
-
-    - name: Assert that trail has been created
-      ansible.builtin.assert:
-        that:
-          - __create_trail is changed
-          - __create_trail.exists == True
-          - __create_trail.trail.name == cloudtrail_name
+        - name: Assert that trail has been created
+          ansible.builtin.assert:
+            that:
+              - __create_trail is changed
+              - __create_trail.exists | bool
+              - __create_trail.trail.name == cloudtrail_name
 
     - name: Include 'enable_cloudtrail_encryption_with_kms' role
       ansible.builtin.include_role:
@@ -62,21 +46,29 @@
         enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
 
   always:
-    - name: Delete trail
-      amazon.aws.cloudtrail:
-        state: absent
-        name: "{{ cloudtrail_name }}"
-      ignore_errors: true
+    - name: Delete resources created for test
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ aws_region }}"
+      block:
+        - name: Delete trail
+          amazon.aws.cloudtrail:
+            state: absent
+            name: "{{ cloudtrail_name }}"
+          ignore_errors: true
 
-    - name: Delete S3 bucket
-      amazon.aws.s3_bucket:
-        state: absent
-        name: "{{ s3_bucket_name }}"
-        force: true
-      ignore_errors: true
+        - name: Delete S3 bucket
+          amazon.aws.s3_bucket:
+            state: absent
+            name: "{{ s3_bucket_name }}"
+            force: true
+          ignore_errors: true
 
-    - name: Delete KMS Key
-      amazon.aws.aws_kms:
-        state: absent
-        alias: "{{ kms_alias }}"
-      ignore_errors: true
+        - name: Delete KMS Key
+          amazon.aws.aws_kms:
+            state: absent
+            alias: "{{ kms_alias }}"
+          ignore_errors: true

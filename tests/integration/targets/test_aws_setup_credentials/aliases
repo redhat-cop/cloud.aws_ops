@@ -1,0 +1,3 @@
+cloud/aws
+role/aws_setup_credentials
+time=10s

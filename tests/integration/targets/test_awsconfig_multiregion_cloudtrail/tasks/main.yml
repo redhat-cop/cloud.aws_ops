@@ -1,17 +1,12 @@
 ---
-- name: Set 'test_resource_prefix' variable
-  ansible.builtin.set_fact:
-    test_resource_prefix: ansible-multiregion-cloudtrail-{{ 101 | random(1, 10) }}
-
 - name: Test 'awsconfig_multiregion_cloudtrail' role
   block:
-    - name: Set 's3_bucket_name' and 'cloud_trail_name' variables
-      ansible.builtin.set_fact:
-        s3_bucket_name: s3-{{ test_resource_prefix }}
-        cloud_trail_name: trail-{{ test_resource_prefix }}
-
     - name: Create S3 Bucket
       amazon.aws.s3_bucket:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        security_token: "{{ security_token | default(omit) }}"
+        region: "{{ aws_region }}"
         name: "{{ s3_bucket_name }}"
         state: present
         policy: "{{ lookup('template', 'policy.json') }}"
@@ -27,6 +22,22 @@
         key_prefix: ansible
 
     # Validate that the cloud trail has been created
+    - name: Validate that cloud trail has been created
+      amazon.aws.cloudtrail_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        security_token: "{{ security_token | default(omit) }}"
+        region: "{{ aws_region }}"
+        trail_names:
+          - "{{ cloud_trail_name }}"
+      register: _trail
+
+    - name: Ensure that cloud trail was created as expected
+      ansible.builtin.assert:
+        that:
+          - _trail.trail_list.0.is_multi_region_trail
+          - _trail.trail_list.0.s3_bucket_name == s3_bucket_name
+          - _trail.trail_list.0.is_logging
 
     # Delete cloud trail
     - name: Create Multi-region cloud trail
@@ -36,11 +47,32 @@
         operation: delete
         trail_name: "{{ cloud_trail_name }}"
 
+    # Validate that the cloud trail has been deleted
+    - name: Validate that cloud trail has been deleted
+      amazon.aws.cloudtrail_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        security_token: "{{ security_token | default(omit) }}"
+        region: "{{ aws_region }}"
+        trail_names:
+          - "{{ cloud_trail_name }}"
+      register: _trail
+
+    - name: Ensure that cloud trail was created as expected
+      ansible.builtin.assert:
+        that:
+          - _trail.trail_list | length == 0
+
   # Validate that the cloud trail has been deleted
 
   always:
     - name: Delete S3 bucket
       amazon.aws.s3_bucket:
-        name: s3-{{ s3_bucket_name }}
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        security_token: "{{ security_token | default(omit) }}"
+        region: "{{ aws_region }}"
+        name: "{{ s3_bucket_name }}"
         state: absent
+        force: true
       ignore_errors: true
