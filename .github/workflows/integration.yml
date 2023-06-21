@@ -1,9 +1,9 @@
-name: CI
+name: Integration
 on:
   pull_request_target:
 
 jobs:
-  integration:
+  test:
     runs-on: ubuntu-latest
     env:
       source: "./source"
