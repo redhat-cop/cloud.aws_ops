@@ -1,0 +1,20 @@
+- name: Create vpc peering
+  block:
+    - name: Create VPC peering Connection
+      community.aws.ec2_vpc_peer:
+        region: "{{ region }}"
+        vpc_id: "{{ requester_vpc }}"
+        peer_vpc_id: "{{ accepter_vpc }}"
+        state: present
+      register: vpc_peering_request
+
+    - name: Accept local VPC peering request
+      community.aws.ec2_vpc_peer:
+        region: "{{ region }}"
+        peering_id: "{{ vpc_peering_request.peering_id }}"
+        state: accept
+      register: accept_peering_request
+
+    - debug:
+        msg:
+          - "Peering connection request ID: {{ vpc_peering_request.peering_id }}"

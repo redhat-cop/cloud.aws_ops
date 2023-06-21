@@ -1,0 +1,6 @@
+---
+requester_vpc:
+accepter_vpc:
+region:
+vpc_peering_operation:
+vpc_peering_conn_id:

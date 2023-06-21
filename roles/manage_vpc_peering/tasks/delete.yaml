@@ -1,0 +1,13 @@
+- name: Create vpc peering
+  block:
+    - name: delete a local VPC peering Connection
+      community.aws.ec2_vpc_peer:
+        region: "{{ region }}"
+        peering_id: "{{ vpc_peering_conn_id }}"
+        state: absent
+      register: vpc_peer
+
+    - debug:
+        msg:
+          - "Delete VPC peering connection {{ vpc_peering_conn_id }} success: {{ vpc_peer.changed }}"
+          - "{{ vpc_peer.msg }}"
