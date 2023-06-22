@@ -9,5 +9,4 @@
 
     - debug:
         msg:
-          - "Delete VPC peering connection {{ vpc_peering_conn_id }} success: {{ vpc_peer.changed }}"
           - "{{ vpc_peer.msg }}"
