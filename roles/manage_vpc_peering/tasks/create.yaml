@@ -1,16 +1,27 @@
-- name: Create vpc peering
+- name: Create VPC peering
   block:
-    - name: Create VPC peering Connection
+    - name: Create VPC peering request
       community.aws.ec2_vpc_peer:
         region: "{{ region }}"
+        peer_region: "{{ accepter_vpc_region | default(region, true) }}"
         vpc_id: "{{ requester_vpc }}"
         peer_vpc_id: "{{ accepter_vpc }}"
         state: present
       register: vpc_peering_request
 
+    - name: Ensure VPC peering connection request exists before moving forward
+      community.aws.ec2_vpc_peering_info:
+        peer_connection_ids:
+          - "{{ vpc_peering_request.peering_id }}"
+        region: "{{ accepter_vpc_region | default(region, true) }}"
+      register: peering_info
+      retries: 3
+      delay: 5
+      until: peering_info.vpc_peering_connections[0].vpc_peering_connection_id is defined
+
     - name: Accept local VPC peering request
       community.aws.ec2_vpc_peer:
-        region: "{{ region }}"
+        region: "{{ accepter_vpc_region | default(region, true) }}"
         peering_id: "{{ vpc_peering_request.peering_id }}"
         state: accept
       register: accept_peering_request

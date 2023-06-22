@@ -2,12 +2,15 @@
 
 A role to create and delete VPC peering connections.
 
+currently works for VPCs under same account and same region.
+
 ## Specify following values in role vars
-- region
-- vpc_peering_operation - choices include 'create' and 'delete'
+- vpc_peering_operation - Choices include 'create' and 'delete'
 - requester_vpc - ID of the VPC requesting the peering connection.
 - accepter_vpc - ID of the VPC accepting the perring connection.
-- vpc_peering_conn_id - ID of the VPC peering connection request.
+- region - Region of the requester VPC (region in which VPC peering connection request resides when performing a delete operation)
+- accepter_vpc_region - Region of the accepter VPC (Required if requester and accepter VPCs are in different regions and performing cross-region peering.)
+- vpc_peering_conn_id - ID of the VPC peering connection request (only provide to delete a VPC peering connection).
 
 Dependencies
 ------------
