@@ -6,16 +6,15 @@ concurrency:
 
 'on':
   push:
-    branches:
-      - main
-      - stable-*
   pull_request:
-    branches:
-      - main
-      - stable-*
 
 jobs:
   linters:
     uses: ansible-network/github_actions/.github/workflows/tox-linters.yml@main
   ansible-lint:
-    uses: ansible-network/github_actions/.github/workflows/ansible-lint.yml@main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint-action@v6.16.2
