@@ -6,6 +6,7 @@
         peer_region: "{{ accepter_vpc_region | default(region, true) }}"
         vpc_id: "{{ requester_vpc }}"
         peer_vpc_id: "{{ accepter_vpc }}"
+        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
         state: present
       register: vpc_peering_request
 
@@ -14,6 +15,7 @@
         peer_connection_ids:
           - "{{ vpc_peering_request.peering_id }}"
         region: "{{ accepter_vpc_region | default(region, true) }}"
+        profile: "{{ accepter_account_profile | default(omit) }}"
       register: peering_info
       retries: 3
       delay: 5
@@ -23,6 +25,8 @@
       community.aws.ec2_vpc_peer:
         region: "{{ accepter_vpc_region | default(region, true) }}"
         peering_id: "{{ vpc_peering_request.peering_id }}"
+        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
+        profile: "{{ accepter_account_profile | default(omit) }}"
         state: accept
       register: accept_peering_request
 
