@@ -1,0 +1,3 @@
+cloud/aws
+role/awsconfig_apigateway_with_lambda_integration
+time=1m
