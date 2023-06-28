@@ -4,11 +4,11 @@
     msg: Please provide required parameters to delete VPC peering (refer documentation for more information)
   when: region is not defined or vpc_peering_conn_id is not defined
 
-- name: Create vpc peering
+- name: Delete vpc peering connection request
   block:
-    - name: delete a local VPC peering Connection
+    - name: Delete a local VPC peering connection
       community.aws.ec2_vpc_peer:
         region: "{{ region }}"
         peering_id: "{{ vpc_peering_conn_id }}"
         state: absent
-      register: vpc_peer
+      register: manage_vpc_peering_vpc_peer
