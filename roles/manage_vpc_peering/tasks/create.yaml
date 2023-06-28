@@ -14,28 +14,29 @@
         peer_vpc_id: "{{ accepter_vpc }}"
         peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
         state: present
-      register: vpc_peering_request
+      register: manage_vpc_peering_vpc_peering_request
 
     - name: Ensure VPC peering connection request exists before moving forward
       community.aws.ec2_vpc_peering_info:
         peer_connection_ids:
-          - "{{ vpc_peering_request.peering_id }}"
+          - "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
         region: "{{ accepter_vpc_region | default(region, true) }}"
         profile: "{{ accepter_account_profile | default(omit) }}"
-      register: peering_info
+      register: manage_vpc_peering_peering_info
       retries: 3
       delay: 5
-      until: peering_info.vpc_peering_connections[0].vpc_peering_connection_id is defined
+      until: manage_vpc_peering_peering_info.vpc_peering_connections[0].vpc_peering_connection_id is defined
 
     - name: Accept local VPC peering request
       community.aws.ec2_vpc_peer:
         region: "{{ accepter_vpc_region | default(region, true) }}"
-        peering_id: "{{ vpc_peering_request.peering_id }}"
+        peering_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
         peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
         profile: "{{ accepter_account_profile | default(omit) }}"
         state: accept
-      register: accept_peering_request
+      register: manage_vpc_peering_accept_peering_request
 
-    - debug:
+    - name: Print peering connection request ID
+      ansible.builtin.debug:
         msg:
-          - "Peering connection request ID: {{ vpc_peering_request.peering_id }}"
+          - "Peering connection request ID: {{ manage_vpc_peering_vpc_peering_request.peering_id }}"
