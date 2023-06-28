@@ -1,3 +1,9 @@
+---
+- name: Fail when required parameters are not provided
+  ansible.builtin.fail:
+    msg: Please provide required parameters to create VPC peering (refer documentation for more information)
+  when: region is not defined or requester_vpc is not defined or accepter_vpc is not defined
+
 - name: Create VPC peering
   block:
     - name: Create VPC peering request

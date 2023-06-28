@@ -1,3 +1,9 @@
+---
+- name: Fail when required parameters are not provided
+  ansible.builtin.fail:
+    msg: Please provide required parameters to delete VPC peering (refer documentation for more information)
+  when: region is not defined or vpc_peering_conn_id is not defined
+
 - name: Create vpc peering
   block:
     - name: delete a local VPC peering Connection
