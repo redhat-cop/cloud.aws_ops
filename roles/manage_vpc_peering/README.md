@@ -18,7 +18,7 @@ currently works for VPCs under same account and same region.
 
 - accepter_account_profile - A Named AWS profile of accepter VPC account for cross account peering.
 
-- vpc_peering_operation - Choices include 'create' and 'delete'
+- vpc_peering_operation - Choices include 'create', 'delete', and 'accept'.
 
 - vpc_peering_conn_id - ID of the VPC peering connection request (only provide to delete a VPC peering connection).
 
@@ -53,7 +53,7 @@ Dependencies
         accepter_vpc_region: ap-northeast-3
         vpc_peering_operation: create
 
-    - name: Peer VPCs in same account and different region  (cross-account)
+    - name: Peer VPCs in same account and different region (cross-account)
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
@@ -65,12 +65,31 @@ Dependencies
         accepter_account_profile: my-account-profile
         vpc_peering_operation: create
 
-    - ansible.builtin.include_role:
+    - name: Delete VPC peering request
+      ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
         region: us-west-1
         vpc_peering_conn_id: pcx-1234567890
         vpc_peering_operation: delete
+
+    - name: Accept VPC peering request (local account)
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_vpc_peering
+      vars:
+        region: us-west-1
+        vpc_peering_conn_id: pcx-1234567890
+        vpc_peering_operation: accept
+
+    - name: Accept VPC peering request (another account)
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_vpc_peering
+      vars:
+        region: us-west-1
+        vpc_peering_conn_id: pcx-1234567890
+        vpc_peering_operation: accept
+        accepter_vpc_account_id: 1234567890
+        accepter_account_profile: my-account-profile
 ```
 
 License

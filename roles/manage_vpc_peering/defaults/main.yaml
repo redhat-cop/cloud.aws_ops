@@ -1,9 +1,1 @@
 ---
-region:
-requester_vpc:
-accepter_vpc:
-accepter_vpc_region:
-accepter_vpc_account_id:
-accepter_account_profile:
-vpc_peering_operation:
-vpc_peering_conn_id:
