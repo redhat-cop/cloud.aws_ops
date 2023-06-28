@@ -73,7 +73,7 @@ Dependencies
         vpc_peering_conn_id: pcx-1234567890
         vpc_peering_operation: delete
 
-    - name: Accept VPC peering request (local account)
+    - name: Accept existing VPC peering request (local account)
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
@@ -81,7 +81,7 @@ Dependencies
         vpc_peering_conn_id: pcx-1234567890
         vpc_peering_operation: accept
 
-    - name: Accept VPC peering request (another account)
+    - name: Accept existing VPC peering request (another account)
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
