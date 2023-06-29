@@ -1,0 +1,16 @@
+---
+- name: Get source AMI image ID using filters
+  amazon.aws.ec2_ami_info:
+    filters: "{{ source_ami_filters }}"
+  register: customized_ami__source_images
+  # very spammy
+  no_log: true
+
+- name: Fail when no AMI found using filters
+  ansible.builtin.fail:
+    msg: No AMI found using filters
+  when: customized_ami__source_images.images | length == 0
+
+- name: Define source AMI as variable
+  ansible.builtin.set_fact:
+    source_ami_image_id: "{{ customized_ami__source_images.images.0.image_id }}"

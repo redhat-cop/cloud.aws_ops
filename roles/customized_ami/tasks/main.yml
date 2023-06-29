@@ -4,11 +4,6 @@
     msg: Custom AMI name should be defined using variable custom_ami_name
   when: custom_ami_name is undefined
 
-- name: Fail when 'custom_ami_packages' is not defined
-  ansible.builtin.fail:
-    msg: Custom AMI packages should be defined as list using variable custom_ami_packages
-  when: custom_ami_packages is undefined
-
 - name: Run 'customized_ami' role
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
