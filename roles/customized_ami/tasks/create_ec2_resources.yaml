@@ -58,7 +58,7 @@
   amazon.aws.ec2_instance:
     name: "{{ custom_ami_ec2_instance_name }}"
     instance_type: "{{ custom_ami_ec2_instance_type }}"
-    image_id: "{{ source_ami_image_id }}"
+    image_id: "{{ customized_ami__source_ami_image_id }}"
     key_name: "{{ custom_ami_key_name }}"
     subnet_id: "{{ customized_ami__subnet.subnet.id }}"
     network:

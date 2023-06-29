@@ -14,4 +14,4 @@
   with_items: "{{ customized_ami__existing_amis.images }}"
   when:
     - customized_ami__existing_amis.images | length > 0
-    - customized_ami__delete_if_exists | default('true') | bool
+    - custom_ami_recreate_if_exists | bool
