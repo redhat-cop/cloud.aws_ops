@@ -17,7 +17,7 @@
             policy: '{{ lookup("template", "s3-policy.j2") }}'
 
         - name: Create KMS Key
-          amazon.aws.aws_kms:
+          amazon.aws.kms_key:
             state: present
             alias: "{{ kms_alias }}"
             enabled: true
@@ -68,7 +68,7 @@
           ignore_errors: true
 
         - name: Delete KMS Key
-          amazon.aws.aws_kms:
+          amazon.aws.kms_key:
             state: absent
             alias: "{{ kms_alias }}"
           ignore_errors: true

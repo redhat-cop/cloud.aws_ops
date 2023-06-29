@@ -12,4 +12,6 @@
     wait: true
     state: absent
   with_items: "{{ customized_ami__existing_amis.images }}"
-  when: customized_ami__existing_amis.images | length > 0
+  when:
+    - customized_ami__existing_amis.images | length > 0
+    - customized_ami__delete_if_exists | default('true') | bool

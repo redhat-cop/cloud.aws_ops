@@ -4,12 +4,23 @@ source_ami_filters:
   architecture: x86_64
   virtualization-type: hvm
   root-device-type: ebs
-  name: Fedora-Cloud-Base-35-*
-source_ami_user_name: ec2-user
+  name: Fedora-Cloud-Base-37-*
+source_ami_user_name: fedora
 
-custom_ami_vpc_cidr: '173.12.0.0/16'
-custom_ami_subnet_cidr: '173.12.1.0/24'
-
+custom_ami_vpc_cidr: 10.1.0.0/16
+custom_ami_subnet_cidr: 10.1.0.0/24
+custom_ami_ec2_instance_name: "{{ custom_ami_name }}-ec2"
 custom_ami_ec2_instance_type: t2.large
+
+custom_ami_resource_tags:
+  role: customized_ami
+  customized_ami_name: "{{ custom_ami_name }}"
+
+custom_ami_vpc_name: "vpc-{{ custom_ami_name }}"
+custom_ami_security_group: "security-{{ custom_ami_name }}"
+custom_ami_key_name: "key-{{ custom_ami_name }}"
+custom_ami_public_key_file: ~/.ssh/id_rsa.pub
+custom_ami_private_key_file: ~/.ssh/id_rsa
+custom_ami_security_group_desc: "Security group allowing SSH connection to EC2 instance"
 
 custom_ami_recreate_if_exists: false

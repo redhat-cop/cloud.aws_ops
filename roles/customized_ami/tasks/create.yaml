@@ -1,109 +1,28 @@
 ---
-- name: Check if the AMI already exists
-  amazon.aws.ec2_ami_info:
-    filters:
-      name: "{{ custom_ami_name }}"
-  register: customized_ami__existing
+- name: Delete existing images
+  ansible.builtin.include_tasks: delete.yaml
+  vars:
+    customized_ami__delete_if_exists: '{{ not (custom_ami_recreate_if_exists | bool) }}'
 
 - name: Create custom AMI
-  when: (customized_ami__existing.images | length == 0) or (custom_ami_recreate_if_exists | bool)
   block:
-    - name: Delete existing AMI
-      amazon.aws.ec2_ami:
-        name: "{{ customized_ami__existing.images.0.name }}"
-        image_id: "{{ customized_ami__existing.images.0.image_id }}"
-        wait: true
-        state: absent
-      when: customized_ami__existing.images | length > 0
-
-    - name: Get source AMI id
+    - name: Get Source AMI identifier
+      ansible.builtin.include_tasks: read_source_ami.yaml
       when: source_ami_image_id is not defined
-      block:
-        - name: Get source AMI image ID using filters
-          amazon.aws.ec2_ami_info:
-            filters: "{{ source_ami_filters }}"
-          register: customized_ami__base_images
-          # very spammy
-          no_log: true
 
-        - name: Fail when no AMI found using filters
-          ansible.builtin.fail:
-            msg: No AMI found using filters
-          when: customized_ami__base_images.images | length == 0
+    - name: Get Source AMI identifier
+      ansible.builtin.include_tasks: create_ec2_resources.yaml
 
-    - name: Define AMI id to create EC2 instance
-      ansible.builtin.set_fact:
-        customized_ami__base_image_id: "{{ customized_ami__base_image_id is defined | ternary(customized_ami__base_image_id, customized_ami__base_images.images.0.image_id) }}"
+    - name: Create custom AMI
+      ansible.builtin.include_tasks: create_ami.yaml
 
-    - name: Create customized AMI
-      block:
-        - name: Create vpc to work in
-          amazon.aws.ec2_vpc_net:
-            cidr_block: "{{ custom_ami_vpc_cidr }}"
-            name: "vpc-{{ custom_ami_name }}"
-            state: present
-          register: customized_ami__vpc_result
-
-        - name: Define VPC id as variable
-          ansible.builtin.set_fact:
-            customized_ami__vpc_id: "{{ customized_ami__vpc_result.vpc.id }}"
-
-        - name: Create EC2 subnet
-          amazon.aws.ec2_vpc_subnet:
-            vpc_id: "{{ customized_ami__vpc_id }}"
-            cidr: "{{ custom_ami_subnet_cidr }}"
-          register: customized_ami__subnet_result
-
-        - name: Create a virtual machine
-          amazon.aws.ec2_instance:
-            instance_type: "{{ custom_ami_ec2_instance_type }}"
-            image_id: "{{ customized_ami__base_image_id }}"
-            wait: true
-            subnet_id: "{{ customized_ami__subnet_result.subnet.id }}"
-            state: started
-            network:
-              assign_public_ip: false
-            user_data: "{{ lookup('template', 'fedora-user-data.j2') }}"
-          register: customized_ami__instances
-
-        - name: Create custom AMI from instance id
-          amazon.aws.ec2_ami:
-            instance_id: "{{ customized_ami__instances.instances.0.instance_id }}"
-            name: "{{ custom_ami_name }}"
-            wait: true
-            state: present
-
-      always:
-        - name: Delete EC2 resources used to create customized AMI
-          when: customized_ami__vpc_id is defined
-          block:
-            - name: List running instances
-              amazon.aws.ec2_instance_info:
-                filters:
-                  vpc-id: "{{ customized_ami__vpc_id }}"
-              register: customized_ami__instances
-
-            - name: Delete virtual machine
-              amazon.aws.ec2_instance:
-                instance_ids: "{{ customized_ami__instances.instances | map(attribute='instance_id') | list }}"
-                wait: true
-                state: absent
-
-            - name: Delete Subnets
-              amazon.aws.ec2_vpc_subnet:
-                vpc_id: "{{ customized_ami__vpc_id }}"
-                cidr: "{{ custom_ami_subnet_cidr }}"
-                state: absent
-
-            - name: Delete a VPC
-              amazon.aws.ec2_vpc_net:
-                cidr_block: "{{ custom_ami_vpc_cidr }}"
-                vpc_id: "{{ customized_ami__vpc_id }}"
-                state: absent
+  always:
+    - name: Include 'tasks/delete_ec2_resources.yaml' file
+      ansible.builtin.include_tasks: tasks/delete_ec2_resources.yaml
 
 - name: Check that existing AMI found
   ansible.builtin.debug:
     msg: "Existing AMI found with name: '{{ custom_ami_name }}'"
   when:
-    - customized_ami__existing.images | length > 0
+    - customized_ami__existing_amis.images | length > 0
     - not (custom_ami_recreate_if_exists | bool)

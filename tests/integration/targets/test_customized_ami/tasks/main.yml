@@ -1,0 +1,105 @@
+---
+- name: Test role 'customized_ami'
+  vars:
+    custom_ami_ec2_instance_type: t3.micro
+  block:
+    # Test: create custom AMI
+    - name: Create AMI with initial settings
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.customized_ami
+      vars:
+        custom_ami_packages:
+          - podman
+
+    - name: Validate settings for initial AMI
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ aws_region }}"
+      vars:
+        ami_ec2_instance_name: "ec2-initial"
+      block:
+        - name: Create EC2 instance using custom AMI
+          ansible.builtin.include_tasks: create_infra.yml
+
+        - name: Ensure Podman is installed into EC2 instance
+          ansible.builtin.command: podman pull docker.io/nginx
+          delegate_to: "{{ ami_ec2_instance_name }}"
+          become: true
+          changed_when: false
+
+    # Test: update custom AMI
+    - name: Update custom AMI
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.customized_ami
+      vars:
+        custom_ami_packages:
+          - libvirt
+        custom_ami_recreate_if_exists: true
+
+    - name: Validate settings for updated AMI
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ aws_region }}"
+      vars:
+        ami_ec2_instance_name: "ec2-updated"
+      block:
+        - name: Create EC2 instance using custom AMI
+          ansible.builtin.include_tasks: create_infra.yml
+
+        - name: Trying to run Podman
+          ansible.builtin.command: podman pull docker.io/nginx
+          ignore_errors: true
+          register: __result
+          delegate_to: "{{ ami_ec2_instance_name }}"
+          become: true
+          changed_when: false
+
+        - name: Validate that Podman is not installed
+          ansible.builtin.assert:
+            that:
+              - __result is failed
+
+        - name: Start libvirt service on EC2 instance
+          ansible.builtin.service:
+            name: libvirtd
+            state: started
+          delegate_to: "{{ ami_ec2_instance_name }}"
+          become: true
+
+    # Test: delete custom AMI
+    - name: Delete customized AMI
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.customized_ami
+      vars:
+        custom_ami_operation: delete
+
+    - name: Get custom AMI information
+      amazon.aws.ec2_ami_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        security_token: "{{ security_token | default(omit) }}"
+        region: "{{ aws_region }}"
+        filters:
+          name: "{{ custom_ami_name }}"
+      register: __amis
+
+    - name: Ensure Custom AMI was deleted
+      ansible.builtin.assert:
+        that:
+          - __amis.images | length == 0
+
+  always:
+    - name: Include 'delete_infra.yml' file
+      ansible.builtin.include_tasks: delete_infra.yml
+
+    - name: Delete customized AMI
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.customized_ami
+      vars:
+        custom_ami_operation: delete

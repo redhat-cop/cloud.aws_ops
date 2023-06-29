@@ -1,0 +1,13 @@
+---
+aws_security_token: '{{ security_token | default(omit) }}'
+custom_ami_name: "ami-{{ resource_prefix }}"
+ami_infra_vpc_cidr: 172.1.0.0/16
+ami_infra_subnet_cidr: 172.1.0.0/24
+ami_vpc_name: "vpc-{{ resource_prefix }}"
+ami_security_group: "security-group-{{ resource_prefix }}"
+ami_security_group_desc: "Allow connection to instance via SSH port"
+ami_key_name: "key-{{ resource_prefix }}"
+ami_public_key_file: ~/.ssh/id_rsa.pub
+ami_private_key_file: ~/.ssh/id_rsa.pub
+ami_user_name: fedora
+ami_ec2_instance_type: t2.micro
