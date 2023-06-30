@@ -28,6 +28,7 @@
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ customized_ami__internet_gateway.gateway_id }}"
+    lookup: tag
     tags: "{{ custom_ami_resource_tags }}"
     state: present
 
@@ -82,3 +83,9 @@
     ansible_ssh_user: "{{ source_ami_user_name }}"
     ansible_host: "{{ customized_ami__ec2.instances.0.public_ip_address }}"
     ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ custom_ami_private_key_file }}
+    ansible_python_interpreter: auto
+
+- name: Gather facts from ec2 instance
+  ansible.builtin.setup:
+  delegate_to: "ec2"
+  delegate_facts: true
