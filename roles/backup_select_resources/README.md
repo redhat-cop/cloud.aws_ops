@@ -9,7 +9,11 @@ Requirements
 AWS User Account with the following permission:
 
 * backup:CreateBackupSelection
+* backup:DeleteBackupSelection
+* backup:GetBackupPlan
+* backup:GetBackupSelection
 * backup:ListBackupSelections
+* iam:GetRole
 
 Role Variables
 --------------
