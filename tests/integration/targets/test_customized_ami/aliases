@@ -1,4 +1,3 @@
 cloud/aws
 role/customized_ami
 time=40m
-disabled

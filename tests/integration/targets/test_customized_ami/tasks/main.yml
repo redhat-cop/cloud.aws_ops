@@ -1,7 +1,7 @@
 ---
 - name: Test role 'customized_ami'
   vars:
-    custom_ami_ec2_instance_type: t3.micro
+    custom_ami_ec2_instance_type: t2.micro
   block:
     # Test: create custom AMI
     - name: Create AMI with initial settings
@@ -12,12 +12,6 @@
           - podman
 
     - name: Validate settings for initial AMI
-      module_defaults:
-        group/aws:
-          aws_access_key: "{{ aws_access_key }}"
-          aws_secret_key: "{{ aws_secret_key }}"
-          security_token: "{{ security_token | default(omit) }}"
-          region: "{{ aws_region }}"
       vars:
         ami_ec2_instance_name: "ec2-initial"
       block:
@@ -40,12 +34,6 @@
         custom_ami_recreate_if_exists: true
 
     - name: Validate settings for updated AMI
-      module_defaults:
-        group/aws:
-          aws_access_key: "{{ aws_access_key }}"
-          aws_secret_key: "{{ aws_secret_key }}"
-          security_token: "{{ security_token | default(omit) }}"
-          region: "{{ aws_region }}"
       vars:
         ami_ec2_instance_name: "ec2-updated"
       block:
