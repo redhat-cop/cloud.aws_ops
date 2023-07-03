@@ -1,0 +1,59 @@
+name: Integration
+on:
+  pull_request_target:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      source: "./source"
+      aws_dir: "./amazon_aws"
+      ansible_version: "stable-2.14"
+      python_version: "3.9"
+    steps:
+      - name: Checkout collection
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.source }}
+
+      - name: Build and install collection
+        id: install-collection
+        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
+        with:
+          install_python_dependencies: false
+          source_path: ${{ env.source }}
+
+      - name: checkout ansible-collections/amazon.aws
+        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
+        with:
+          repository: ansible-collections/amazon.aws
+          path: ${{ env.amazon_aws }}
+          ref: main
+
+      - name: install amazon.aws collection
+        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
+        with:
+          install_python_dependencies: true
+          source_path: ${{ env.amazon_aws }}
+
+      - name: Create AWS/sts session credentials
+        uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
+        with:
+          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
+
+      # we use raw git to create a repository in the tests
+      # this fails if the committer doesn't have a name and an email set
+      - name: Set up git
+        run: |
+          git config --global user.email gha@localhost
+          git config --global user.name "Github Actions"
+        shell: bash
+
+      - name: Run integration tests
+        uses: ansible-network/github_actions/.github/actions/ansible_test_integration@main
+        with:
+          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          python_version: ${{ env.python_version }}
+          ansible_version: ${{ env.ansible_version }}
+          ansible_test_requirement_files: ''

@@ -1,0 +1,32 @@
+---
+- name: Teardown
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: List existing instances
+      amazon.aws.ec2_instance_info:
+        filters:
+          vpc-id: "{{ test_vpc_id }}"
+      register: instances
+
+    - name: Delete EC2 instances
+      amazon.aws.ec2_instance:
+        instance_ids: "{{ instances.instances | map(attribute='instance_id') | list }}"
+        wait: true
+        state: absent
+
+    - name: Delete Subnets
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ test_vpc_id }}"
+        cidr: "{{ test_subnet_cidr }}"
+        state: absent
+
+    - name: Delete a VPC
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ test_vpc_cidr }}"
+        vpc_id: "{{ test_vpc_id }}"
+        state: absent

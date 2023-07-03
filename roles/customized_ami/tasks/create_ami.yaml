@@ -1,0 +1,16 @@
+---
+- name: Install required packages
+  when: custom_ami_packages is defined
+  become: true
+  delegate_to: ec2
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ custom_ami_packages }}"
+
+- name: Create custom AMI from instance id
+  amazon.aws.ec2_ami:
+    instance_id: "{{ customized_ami__instance_id }}"
+    name: "{{ custom_ami_name }}"
+    wait: true
+    state: present

@@ -1,0 +1,59 @@
+---
+- name: Setup
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Get source AMI image ID using filters
+      amazon.aws.ec2_ami_info:
+        filters:
+          architecture: x86_64
+          virtualization-type: hvm
+          root-device-type: ebs
+          name: Fedora-Cloud-Base-37-*
+      register: images
+      # very spammy
+      no_log: true
+
+    - name: Create vpc to work in
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ test_vpc_cidr }}"
+        name: "{{ test_vpc_name }}"
+        state: present
+      register: vpc
+
+    - name: Define VPC id
+      ansible.builtin.set_fact:
+        test_vpc_id: "{{ vpc.vpc.id }}"
+
+    - name: Create EC2 subnet
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ test_vpc_id }}"
+        cidr: "{{ test_subnet_cidr }}"
+      register: subnet
+
+    - name: Create a virtual machine
+      amazon.aws.ec2_instance:
+        name: "{{ item.name }}"
+        instance_type: "t2.micro"
+        image_id: "{{ images.images.0.image_id }}"
+        wait: false
+        subnet_id: "{{ subnet.subnet.id }}"
+        state: started
+        network:
+          assign_public_ip: false
+        tags: "{{ item.tags | combine({'Name': item.name}) }}"
+      with_items: "{{ ec2_instances }}"
+
+    - name: Wait until instances are running
+      amazon.aws.ec2_instance_info:
+        filters:
+          vpc-id: "{{ test_vpc_id }}"
+          instance-state-name: running
+      register: instances
+      retries: 30
+      delay: 10
+      until: instances.instances | length == 2

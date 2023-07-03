@@ -1,0 +1,50 @@
+---
+- name: Test Role 'ec2_instance_terminate_by_tag'
+  block:
+    - name: Create EC2 instances
+      ansible.builtin.include_tasks: setup.yml
+
+    - name: Delete first instance by tag
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_terminate_by_tag
+      vars:
+        tag_key_to_terminate_instances: "{{ ec2_instances.0.tags.keys() | first }}"
+        tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
+
+    - name: Validate that first instance was deleted and second still exists
+      ansible.builtin.include_tasks: ensure_instance.yml
+      with_items:
+        - name: "{{ ec2_instances.0.name }}"
+          instances: 0
+        - name: "{{ ec2_instances.1.name }}"
+          instances: 1
+
+    - name: Try to delete instance with a valid tag key but wrong tag value
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_terminate_by_tag
+      vars:
+        tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
+        tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
+
+    - name: Ensure second instance was not deleted
+      ansible.builtin.include_tasks: ensure_instance.yml
+      with_items:
+        - name: "{{ ec2_instances.1.name }}"
+          instances: 1
+
+    - name: Delete second instance using the right key/value tag
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_terminate_by_tag
+      vars:
+        tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
+        tag_value_to_terminate_instances: "{{ ec2_instances.1.tags.values() | first }}"
+
+    - name: Ensure second instance was not deleted
+      ansible.builtin.include_tasks: ensure_instance.yml
+      with_items:
+        - name: "{{ ec2_instances.1.name }}"
+          instances: 0
+
+  always:
+    - name: Delete EC2 instances
+      ansible.builtin.include_tasks: teardown.yml
