@@ -10,7 +10,7 @@ currently works for VPCs under same account and same region.
 
 - requester_vpc - ID of the VPC requesting the peering connection.
 
-- accepter_vpc - ID of the VPC accepting the perring connection.
+- accepter_vpc - ID of the VPC accepting the peering connection.
 
 - accepter_vpc_region - Region of the accepter VPC (Required if requester and accepter VPCs are in different regions and performing cross-region peering.)
 
@@ -53,7 +53,7 @@ Dependencies
         accepter_vpc_region: ap-northeast-3
         vpc_peering_operation: create
 
-    - name: Peer VPCs in same account and different region (cross-account)
+    - name: Peer VPCs in different accounts and different region (cross-account)
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
