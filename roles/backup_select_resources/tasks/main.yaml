@@ -1,17 +1,17 @@
 ---
+- name: Fail when name and resource variables are not defined
+  ansible.builtin.fail:
+    msg: "Required variable {{item}} has not been defined"
+  when: vars[item] is undefined
+  loop:
+    - plan_name
+    - selection_name
+    - selection_resources
+
 - name: Run backup_select_resources role
   module_defaults:
     group/aws: "{{ aws_role_credentials }}"
   block:
-    - name: Fail when name and resource variables are not defined
-      ansible.builtin.fail:
-        msg: "Required variable {{item}} has not been defined"
-      when: vars[item] is undefined
-      loop:
-        - plan_name
-        - selection_name
-        - selection_resources
-
     - name: Get plan info
       amazon.aws.backup_plan_info:
         backup_plan_names:
@@ -44,9 +44,9 @@
         selection_name: "{{ selection_name }}"
         iam_role_arn: "{{ backup_role_arn }}"
         resources: "{{ selection_resources }}"
-        list_of_tags: "{{ selection_tags }}"
-        not_resources: "{{ selection_excluded_resources }}"
-        conditions: "{{ selection_conditions }}"
+        list_of_tags: "{{ selection_tags | default(omit) }}"
+        not_resources: "{{ selection_excluded_resources | default(omit) }}"
+        conditions: "{{ selection_conditions | default(omit) }}"
       register: selection_result
 
     - name: Verify that selection has been created/updated
