@@ -1,31 +1,30 @@
 ---
-- name: Set 'option_key' and 'option_value' from Environment
+- name: Define key and value variables to search into environment
   ansible.builtin.set_fact:
-    option_key: "{{ ('dest' in item.value) | ternary(item.value.dest, item.key) }}"
-    option_value: "{{ lookup('vars', item.key, default='') }}"
+    aws_setup_credentials__item_key: "{{ ('dest' in item.value) | ternary(item.value.dest, item.key) }}"
+    aws_setup_credentials__item_value: "{{ lookup('vars', item.key, default='') }}"
 
 - name: Combine user-defined variable
   ansible.builtin.set_fact:
-    aws_role_credentials: "{{ aws_role_credentials | combine({option_key: option_value}) }}"
-  when: option_value | length > 0
+    aws_setup_credentials__output: "{{ aws_setup_credentials__output | combine({aws_setup_credentials__item_key: aws_setup_credentials__item_value}) }}"
+  when: aws_setup_credentials__item_value | length > 0
 
 - name: Read value from Environment
-  when: option_value | length == 0
+  when: aws_setup_credentials__item_value | length == 0
   block:
-    - name: Set 'env_values' variable
+    - name: Initialize environment variable list
       ansible.builtin.set_fact:
-        env_values: []
-    - name: Set 'env_values' from Environment
+        aws_setup_credentials__env_values: []
+
+    - name: Append single environment variable into variables list
       ansible.builtin.set_fact:
-        env_values: "{{ env_values + [current_value] }}"
+        aws_setup_credentials__env_values: "{{ aws_setup_credentials__env_values + [lookup('env', aws_setup_credentials__env_key)] }}"
       with_items: "{{ ('env' in item.value) | ternary(item.value.env, []) }}"
-      when: current_value | length > 0
+      when: lookup('env', aws_setup_credentials__env_key) | length > 0
       loop_control:
-        loop_var: env_var
-      vars:
-        current_value: "{{ lookup('env', env_var) }}"
+        loop_var: aws_setup_credentials__env_key
 
     - name: Combine with environment-defined variable
       ansible.builtin.set_fact:
-        aws_role_credentials: "{{ aws_role_credentials | combine({option_key: env_values[0]}) }}"
-      when: env_values | length > 0
+        aws_setup_credentials__output: "{{ aws_setup_credentials__output | combine({aws_setup_credentials__item_key: aws_setup_credentials__env_values[0]}) }}"
+      when: aws_setup_credentials__env_values | length > 0

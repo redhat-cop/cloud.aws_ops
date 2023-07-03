@@ -1,0 +1,24 @@
+---
+- name: Set source AMI
+  ansible.builtin.set_fact:
+    customized_ami__source_ami_image_id: "{{ source_ami_image_id }}"
+  when: source_ami_image_id is defined
+
+- name: Define source AMI image id when not supplied as input
+  when: source_ami_image_id is undefined
+  block:
+    - name: Get source AMI image ID using filters
+      amazon.aws.ec2_ami_info:
+        filters: "{{ source_ami_filters }}"
+      register: customized_ami__source_images
+      # very spammy
+      no_log: true
+
+    - name: Fail when no AMI found using filters
+      ansible.builtin.fail:
+        msg: No AMI found using filters
+      when: customized_ami__source_images.images | length == 0
+
+    - name: Define source AMI as variable
+      ansible.builtin.set_fact:
+        customized_ami__source_ami_image_id: "{{ customized_ami__source_images.images.0.image_id }}"

@@ -1,7 +1,7 @@
 ---
 - name: Run 'ec2_instance_terminate_by_tag' role
   module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
 
   block:
     - name: Verify that tag to terminate instances with was provided
@@ -11,16 +11,16 @@
 
     - name: Prepare filters dict to filter running instances with specified tag
       ansible.builtin.set_fact:
-        instance_filters: "{{ {'instance-state-name': 'running', 'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances} }}"
+        ec2_instance_terminate_by_tag__filters: "{{ {'instance-state-name': 'running', 'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances} }}"
 
     - name: Get instances to be terminated
       amazon.aws.ec2_instance_info:
-        filters: "{{ instance_filters }}"
-      register: tagged_instances
+        filters: "{{ ec2_instance_terminate_by_tag__filters }}"
+      register: ec2_instance_terminate_by_tag__tagged_instances
 
     - name: Create a list of instance ids to be terminated
       ansible.builtin.set_fact:
-        instance_ids: "{{ tagged_instances.instances | map(attribute='instance_id') | list }}"
+        ec2_instance_terminate_by_tag__instance_ids: "{{ ec2_instance_terminate_by_tag__tagged_instances.instances | map(attribute='instance_id') | list }}"
 
     - name: Disable 'termination_protection'
       when: terminate_protected_instances
@@ -30,31 +30,32 @@
             msg:
               - "'terminate_protected_instances' is set to True..."
               - Instances with termination protection enabled will also be terminated...
-          when: instance_ids | length != 0
+          when: ec2_instance_terminate_by_tag__instance_ids | length != 0
 
         - name: Disable instance termination protection if terminate_protected_instances is true
           amazon.aws.ec2_instance:
             instance_ids:
               - "{{ item }}"
             termination_protection: false
-          with_items: "{{ instance_ids }}"
+          with_items: "{{ ec2_instance_terminate_by_tag__instance_ids }}"
 
     - name: Terminate instances
       amazon.aws.ec2_instance:
         instance_ids:
           - "{{ item }}"
         state: absent
-      register: terminate_result
+      register: ec2_instance_terminate_by_tag__terminate_result
       with_items:
-        - "{{ instance_ids }}"
+        - "{{ ec2_instance_terminate_by_tag__instance_ids }}"
 
   always:
     - name: Create list of terminated instances
       ansible.builtin.set_fact:
-        terminated_instances: "{{ terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
+        ec2_instance_terminate_by_tag__terminated_instances: "{{ ec2_instance_terminate_by_tag__terminate_result.results | map(attribute='terminate_success') | list | flatten }}"
+      when: ec2_instance_terminate_by_tag__terminate_result is defined
 
     - name: Verify that the instances have been successfully terminated
       ansible.builtin.debug:
         msg:
-          - Terminated instances successfully -> {{ terminated_instances }}
-      when: terminated_instances | length != 0
+          - Terminated instances successfully -> {{ ec2_instance_terminate_by_tag__terminated_instances }}
+      when: ec2_instance_terminate_by_tag__terminated_instances | length != 0

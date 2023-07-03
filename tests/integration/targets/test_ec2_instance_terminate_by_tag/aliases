@@ -1,0 +1,3 @@
+cloud/aws
+role/ec2_instance_terminate_by_tag
+time=3m
