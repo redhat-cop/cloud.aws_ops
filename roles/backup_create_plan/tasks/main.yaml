@@ -20,8 +20,8 @@
           amazon.aws.backup_vault:
             state: present
             backup_vault_name: "{{ vault_name }}"
-            encryption_key_arn: "{{ vault_encryption_key_arn }}"
-            tags: "{{ vault_tags }}"
+            encryption_key_arn: "{{ vault_encryption_key_arn | default(omit) }}"
+            tags: "{{ vault_tags | default(omit) }}"
           register: backup_vault_result
 
         - name: Verify that vault has been created/updated
@@ -39,8 +39,8 @@
         state: present
         backup_plan_name: "{{ plan_name }}"
         rules: "{{ plan_rules }}"
-        advanced_backup_settings: "{{ plan_windows_vss_settings }}"
-        tags: "{{ plan_tags }}"
+        advanced_backup_settings: "{{ plan_windows_vss_settings | default(omit) }}"
+        tags: "{{ plan_tags | default(omit) }}"
       register: backup_plan_result
 
     - name: Verify that plan has been created/updated
