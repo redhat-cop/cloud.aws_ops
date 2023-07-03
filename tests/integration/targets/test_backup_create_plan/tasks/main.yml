@@ -1,8 +1,4 @@
 ---
-- name: Set 'test_resource_prefix' variable
-  ansible.builtin.set_fact:
-    test_resource_prefix: backup-resource-test-{{ 101 | random(1, 10) }}
-
 - name: Integration tests for 'backup_create_plan' role
   module_defaults:
     group/aws:
@@ -14,7 +10,7 @@
   block:
     - name: Set plan name variable
       ansible.builtin.set_fact:
-        plan_name: "{{ test_resource_prefix }}-plan"
+        plan_name: "{{ resource_prefix }}-plan"
 
     - name: Include 'backup_create_plan' role to create plan with default vault
       ansible.builtin.include_role:
@@ -39,7 +35,7 @@
 
     - name: Set vault name variable
       ansible.builtin.set_fact:
-        vault_name: "{{ test_resource_prefix }}-vault"
+        vault_name: "{{ resource_prefix }}-vault"
 
     - name: Include 'backup_create_plan' role to create vault and plan
       ansible.builtin.include_role:

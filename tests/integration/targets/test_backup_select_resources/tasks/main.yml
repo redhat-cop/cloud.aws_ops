@@ -1,8 +1,4 @@
 ---
-- name: Set 'test_resource_prefix' variable
-  ansible.builtin.set_fact:
-    test_resource_prefix: backup-resource-test-{{ 101 | random(1, 10) }}
-
 - name: Integration tests for 'backup_create_vault' role
   module_defaults:
     group/aws:

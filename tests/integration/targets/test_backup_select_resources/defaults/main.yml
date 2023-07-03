@@ -1,6 +1,8 @@
 ---
-plan_name: "{{ test_resource_prefix }}-plan"
-selection_name: "{{ test_resource_prefix }}-selection"
-selection_two: "{{ test_resource_prefix }}-selection-2"
-test_iam_role_name: "{{ test_resource_prefix }}-iam-role"
-test_vault_name: "{{ test_resource_prefix }}-vault"
+aws_security_token: '{{ security_token | default(omit) }}'
+plan_name: "{{ resource_prefix }}-plan"
+selection_name: "{{ resource_prefix }}-selection"
+selection_two: "{{ resource_prefix }}-selection-2"
+test_iam_role_name: "{{ resource_prefix }}-iam-role"
+test_iam_role_name: "{{ resource_prefix }}-iam-role-2"
+test_vault_name: "{{ resource_prefix }}-vault"
