@@ -24,7 +24,7 @@ Role Variables
 * **selection_excluded_resources**: List of resources to exclude from backup
 * **selection_tags**: List of resource tags selected for backup
 * **selection_conditions**: Conditions for resources to back up
-* **backup_role_name**: The name of an IAM role with permissions to perform all needed backup actions for the selected resources. If not provided, the role will use the AWSBackupDefaultServiceRole for the account (note: the AWSBackupDefaultServiceRole role must be created in the AWS console when initially enabling the AWS Backup Service.)
+* **backup_role_name**: (Required) The name of an IAM role with permissions to perform all needed backup actions for the selected resources. Alternatively, provide a new for a new IAM role which will be created with the same permissions as the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources).
 
 ### Included sample resource selection variables
 These are included in vars/main.yaml for use as-is or as examples for modification.
