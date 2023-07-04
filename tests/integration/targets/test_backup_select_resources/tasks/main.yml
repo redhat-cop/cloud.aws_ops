@@ -11,7 +11,27 @@
     - name: Include 'setup.yml' file
       ansible.builtin.include_tasks: setup.yml
 
-    - name: Include 'backup_select_resources' role for all resources using provided role
+    - name: Include 'backup_select_resources' role for all resources using new IAM role
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_select_resources
+      vars:
+        backup_role_name: "{{ test_iam_role_name_new }}"
+        selection_resources:
+          - "{{ all_resources }}"
+
+    - name: Get backup selection info
+      amazon.aws.backup_selection_info:
+        backup_plan_name: "{{ plan_name }}"
+      register: result
+
+    - name: Verify result
+      ansible.builtin.assert:
+        that:
+          - result.backup_selections | length == 1
+          - result.backup_selections[0].selection_name == selection_name
+          - result.backup_selections[0].resources == ["*"]
+
+    - name: Include 'backup_select_resources' role for all resources using existing IAM role
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
@@ -31,29 +51,11 @@
           - result.backup_selections[0].selection_name == selection_name
           - result.backup_selections[0].resources == ["*"]
 
-    - name: Include 'backup_select_resources' role for all resources using default role
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.backup_select_resources
-      vars:
-        selection_resources:
-          - "{{ all_resources }}"
-
-    - name: Get backup selection info
-      amazon.aws.backup_selection_info:
-        backup_plan_name: "{{ plan_name }}"
-      register: result
-
-    - name: Verify result
-      ansible.builtin.assert:
-        that:
-          - result.backup_selections | length == 1
-          - result.backup_selections[0].selection_name == selection_name
-          - result.backup_selections[0].resources == ["*"]
-
     - name: Include 'backup_select_resources' role updating selection to all s3 buckets with specified tags
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
+        backup_role_name: "{{ test_iam_role_name }}"
         selection_resources:
           - "{{ all_s3_buckets }}"
         selection_tags: "{{ tag_list_backup_or_prod }}"
@@ -75,6 +77,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
+        backup_role_name: "{{ test_iam_role_name }}"
         selection_name: "{{ selection_two }}"
         selection_resources:
           - "{{ all_resources }}"

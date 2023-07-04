@@ -27,7 +27,7 @@ Role Variables
 * **plan_rules**: (Required) A set of rules for the backup, as a list of dicts
 * **plan_windows_vss_settings**: Optional settings for Windows VSS backup, see [AdvancedBackupSetting object in the AWS Backup API documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/API_AdvancedBackupSetting.html) for details
 * **plan_tags**: Optional tags to apply to all backups created with the plan
-* **vault_name**: The name of the vault you want to use or create. If not provided, will use the default backup vault for the account (note: the Default vault must be created in the AWS console when initially enabling the AWS Backup Service.)
+* **vault_name**: The name of the vault you want to use or create. If not provided, the role will use (and create if needed) the AWS default vault for the account, named Default.
 * **vault_encryption_key_arn**: Optional ARN of key to use for vault encryption
 * **vault_tags**: Optional tags to apply to the vault
 

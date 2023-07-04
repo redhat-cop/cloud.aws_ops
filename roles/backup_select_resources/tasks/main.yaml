@@ -1,16 +1,17 @@
 ---
-- name: Fail when name and resource variables are not defined
+- name: Fail when name, role, and resource variables are not defined
   ansible.builtin.fail:
-    msg: "Required variable {{item}} has not been defined"
+    msg: "Required variable {{ item }} has not been defined"
   when: vars[item] is undefined
   loop:
+    - backup_role_name
     - plan_name
     - selection_name
     - selection_resources
 
 - name: Run backup_select_resources role
   module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
   block:
     - name: Get plan info
       amazon.aws.backup_plan_info:
@@ -28,14 +29,28 @@
         name: "{{ backup_role_name }}"
       register: role_info
 
-    - name: Fail when IAM role does not exist
-      ansible.builtin.fail:
-        msg: IAM role {{ backup_role_name }} does not exist, please create or confirm role name is correct.
-      when: role_info.iam_roles | length == 0
+    - name: Create new role when IAM role does not exist
+      block:
+        - name: Create role
+          when: role_info.iam_roles | length == 0
+          community.aws.iam_role:
+            name: "{{ backup_role_name }}"
+            state: present
+            assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'
+            create_instance_profile: false
+            description: "AWS Backup Role"
+            managed_policy:
+              - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup
+            wait: true
+          register: new_role_info
+
+        - name: Wait for role to be created
+          ansible.builtin.pause:
+            seconds: 8
 
     - name: Set backup role ARN
       ansible.builtin.set_fact:
-        backup_role_arn: "{{ role_info.iam_roles[0].arn }}"
+        backup_role_arn: "{{ role_info.iam_roles[0].arn if new_role_info is skipped else new_role_info.arn }}"
 
     - name: Create or update backup selection
       amazon.aws.backup_selection:
