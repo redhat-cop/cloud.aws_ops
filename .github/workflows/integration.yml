@@ -49,7 +49,7 @@ jobs:
       - name: install community.crypto collection
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
         with:
-          install_python_dependencies: true
+          install_python_dependencies: false
           source_path: ${{ env.crypto_dir }}
 
       - name: Create AWS/sts session credentials
