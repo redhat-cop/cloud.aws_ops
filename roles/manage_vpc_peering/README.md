@@ -1,22 +1,20 @@
 # manage_vpc_peering
 
-A role to create and delete VPC peering connections.
-
-currently works for VPCs under same account and same region.
+A role to create, delete and accept existing VPC peering connections.
 
 ## Specify following values in role vars
 
-- region - Region of the requester VPC (region in which VPC peering connection request resides when performing a delete operation)
+- region - Region of the requester VPC.
 
 - requester_vpc - ID of the VPC requesting the peering connection.
 
 - accepter_vpc - ID of the VPC accepting the peering connection.
 
-- accepter_vpc_region - Region of the accepter VPC (Required if requester and accepter VPCs are in different regions and performing cross-region peering.)
+- accepter_vpc_region - Region of the accepter VPC (Required if requester and accepter VPCs are in different regions or performing cross-account peering.)
 
-- accepter_vpc_account_id - The AWS account number of accepter VPC account for cross account peering.
+- accepter_vpc_account_id - The AWS account ID of accepter VPC account for cross-account peering.
 
-- accepter_account_profile - A Named AWS profile of accepter VPC account for cross account peering.
+- accepter_account_profile - A Named AWS profile of accepter VPC account for cross-account peering.
 
 - vpc_peering_operation - Choices include 'create', 'delete', and 'accept'.
 
