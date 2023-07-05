@@ -8,6 +8,7 @@ jobs:
     env:
       source: "./source"
       aws_dir: "./amazon_aws"
+      crypto_dir: "./community.crypto"
       ansible_version: "stable-2.14"
       python_version: "3.9"
     steps:
@@ -23,6 +24,7 @@ jobs:
           install_python_dependencies: false
           source_path: ${{ env.source }}
 
+      # checkout and install 'amazon.aws'
       - name: checkout ansible-collections/amazon.aws
         uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
         with:
@@ -36,15 +38,25 @@ jobs:
           install_python_dependencies: true
           source_path: ${{ env.amazon_aws }}
 
+      # checkout and install 'community.crypto'
+      - name: checkout ansible-collections/community.crypto
+        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
+        with:
+          repository: ansible-collections/community.crypto
+          path: ${{ env.crypto_dir }}
+          ref: main
+
+      - name: install community.crypto collection
+        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
+        with:
+          install_python_dependencies: true
+          source_path: ${{ env.crypto_dir }}
+
       - name: Create AWS/sts session credentials
         uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
         with:
           collection_path: ${{ steps.install-collection.outputs.collection_path }}
           ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
-
-      - name: Generate RSA keys (need to run integration test target test_customized_ami)
-        run: ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
-        shell: bash
 
       # we use raw git to create a repository in the tests
       # this fails if the committer doesn't have a name and an email set
@@ -60,4 +72,4 @@ jobs:
           collection_path: ${{ steps.install-collection.outputs.collection_path }}
           python_version: ${{ env.python_version }}
           ansible_version: ${{ env.ansible_version }}
-          ansible_test_requirement_files: ''
+          ansible_test_requirement_files: 'test-requirements.txt'
