@@ -20,6 +20,8 @@ Name | Description
 [cloud.aws_ops.aws_setup_credentials](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/aws_setup_credentials/README.md)|A role to define credentials for aws modules.
 [cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from virtual private cloud.
 [cloud.aws_ops.awsconfig_multiregion_cloudtrail](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a Trail for multiple regions.
+[cloud.backup_create_plan](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/backup_create_plan/README.md)|A role to create an AWS backup plan.
+[cloud.backup_select_resources](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/backup_create_plan/README.md)|A role to select resources to back up with an existing backup plan.
 [cloud.aws_ops.customized_ami](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
 [cloud.aws_ops.ec2_instance_terminate_by_tag](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate the EC2 instances based on a specific tag you specify.
 [cloud.aws_ops.enable_cloudtrail_encryption_with_kms](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
