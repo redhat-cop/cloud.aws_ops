@@ -1,7 +1,7 @@
 backup_select_resources
 ==================
 
-A role to configure backups for selected resources. The role requires an existing backup vault and plan, and adds selected resources to the provided plan. A set of variables for resource selections is included for use as-is or as examples for modification. This role can be combined with the backup_plan_create role to create or update a backup plan if one does not already exist.
+A role to configure backups for selected resources. The role requires an existing backup vault and plan, and adds selected resources to the provided plan. A set of variables for resource selections is included for use as-is or as examples for modification. This role can be combined with the `backup_create_plan` role to create or update a backup plan if one does not already exist. (see [example playbook](#create-backup-plan-and-select-resources)).
 
 Requirements
 ------------
@@ -40,14 +40,32 @@ Dependencies
 
 * role: [aws_setup_credentials](../aws_setup_credentials/README.md)
 
-Example Playbook
+Example Playbooks
 ----------------
+
+### Select resources
+    - hosts: localhost
+      roles:
+        - role: cloud.aws_ops.backup_select_resources
+          vars:
+            plan_name: my-backup-plan
+            selection_name: s3_buckets
+            selection_resources:
+              - "{{ all_s3_buckets }}"
+
+### Create backup plan and select resources
+
+    - hosts: localhost
+      roles:
+        - role: cloud.aws_ops.backup_create_plan
+          plan_name: my-backup-plan
+          plan_rules: "{{ daily_backup }}"
 
     - hosts: localhost
       roles:
         - role: cloud.aws_ops.backup_select_resources
           vars:
-            plan_name: daily-backup
+            plan_name: my-backup-plan
             selection_name: s3_buckets
             selection_resources:
               - "{{ all_s3_buckets }}"
