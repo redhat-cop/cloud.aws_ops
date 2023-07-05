@@ -1,0 +1,6 @@
+---
+- name: Delete temporary RSA key directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ setup_rsa_keys__tmpdir }}"
+  ignore_errors: true
