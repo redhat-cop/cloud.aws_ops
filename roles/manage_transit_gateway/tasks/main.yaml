@@ -1,0 +1,8 @@
+---
+- name: Run manage transit gateway role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+
+  block:
+    - name: Include file
+      ansible.builtin.include_tasks: "{{ action }}.yaml"
