@@ -57,7 +57,7 @@
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
         name: "{{ ami_key_name }}"
-        key_material: "{{ lookup('file', ami_public_key_file) }}"
+        key_material: "{{ lookup('file', setup_rsa_keys__public_key_file) }}"
 
     - name: Get custom AMI information
       amazon.aws.ec2_ami_info:
@@ -92,5 +92,5 @@
         hostname: "{{ ami_ec2_instance_name }}"
         ansible_ssh_user: "{{ ami_user_name }}"
         ansible_host: "{{ test__ec2_instance.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ ami_private_key_file }}
+        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ setup_rsa_keys__private_key_file }}
         ansible_python_interpreter: auto

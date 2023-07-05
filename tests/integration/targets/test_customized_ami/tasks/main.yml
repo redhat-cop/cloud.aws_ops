@@ -2,6 +2,8 @@
 - name: Test role 'customized_ami'
   vars:
     custom_ami_ec2_instance_type: t2.micro
+    custom_ami_public_key_file: "{{ setup_rsa_keys__public_key_file }}"
+    custom_ami_private_key_file: "{{ setup_rsa_keys__private_key_file }}"
   block:
     # Test: create custom AMI
     - name: Create AMI with initial settings
