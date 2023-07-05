@@ -42,6 +42,10 @@ jobs:
           collection_path: ${{ steps.install-collection.outputs.collection_path }}
           ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
 
+      - name: Generate RSA keys (need to run integration test target test_customized_ami)
+        run: ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+        shell: bash
+
       # we use raw git to create a repository in the tests
       # this fails if the committer doesn't have a name and an email set
       - name: Set up git
