@@ -1,0 +1,63 @@
+---
+- name: Verify variables
+  block:
+    - name: Fail when the transit gateway with vpc attachment variables are not defined
+      ansible.builtin.fail:
+        msg: "Required variable {{item}} has not been defined"
+      when: vars[item] is undefined
+      loop:
+        - transit_gateway
+        - vpc_attachment
+
+- name: Run delete_tgw_attach_vpc role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+  block:
+    - name: Delete  transit gateway
+      block:
+        - name: List all the transit gateway attachments
+          community.aws.ec2_transit_gateway_info:
+          register: info
+
+        - name: Get the transit gateway with the given description
+          set_fact:
+              gw: "{{ item }}"
+          when:
+              - item.description == "{{ transit_gateway.description }}"
+              - item.state == "available"
+          loop: "{{ info.transit_gateways }}"
+
+        - name: Describe attachments on a specific VPC
+          community.aws.ec2_transit_gateway_vpc_attachment_info:
+            filters:
+              transit-gateway-id: '{{ gw.transit_gateway_id }}'
+          register: info
+
+        - name: Start deletion of all attachments
+          community.aws.ec2_transit_gateway_vpc_attachment:
+            state: absent
+            id: '{{ item.transit_gateway_attachment_id }}'
+            wait: False
+          loop: '{{ info.attachments }}'
+
+        - name: Wait for the deletion of all attachments
+          community.aws.ec2_transit_gateway_vpc_attachment:
+            state: absent
+            id: '{{ item.transit_gateway_attachment_id }}'
+            wait: True
+          loop: '{{ info.attachments }}'
+
+        - name: Check if all the transit gateway attachments have been deleted
+          community.aws.ec2_transit_gateway_vpc_attachment_info:
+            filters:
+              transit-gateway-id: '{{ gw.transit_gateway_id }}'
+          register: info
+
+        - assert:
+            that:
+              - info.attachments | length == 0
+
+        - name: Delete Transit Gateways
+          community.aws.ec2_transit_gateway:
+            state: absent
+            transit_gateway_id: '{{ gw.transit_gateway_id }}'

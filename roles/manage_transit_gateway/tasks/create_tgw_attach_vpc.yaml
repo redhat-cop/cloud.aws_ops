@@ -1,0 +1,55 @@
+---
+- name: Verify variables
+  block:
+    - name: Fail when the transit gateway with vpc attachment variables are not defined
+      ansible.builtin.fail:
+        msg: "Required variable {{item}} has not been defined"
+      when: vars[item] is undefined
+      loop:
+        - transit_gateway
+        - vpc_attachment
+
+- name: Run create_tgw_attach_vpc role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+  block:
+    - name: Create  transit gateway
+      block:
+        - name: Create or update transit gateway
+          community.aws.ec2_transit_gateway:
+            state: present
+            description: "{{ transit_gateway.description }}"
+            tags: "{{ transit_gateway.tags }}"
+          register: tgw_result
+
+        - name: Verify that transit gateway has been created/updated
+          ansible.builtin.debug:
+            msg: Transit Gateway successfully created/updated.
+          when: tgw_result.changed
+
+        - ansible.builtin.debug:
+            msg: Transit Gateway '{{ tgw_result.transit_gateway.transit_gateway_id }}' exists, no updates needed.
+          when: not tgw_result.changed
+
+
+    - name: Create VPC attachment 
+      community.aws.ec2_transit_gateway_vpc_attachment:
+        state: present
+        name: "{{ vpc_attachment.name }}"
+        transit_gateway: "{{ tgw_result.transit_gateway.transit_gateway_id }}"
+        subnets:
+           - "{{ item }}"
+        tags: "{{ vpc_attachment.tags }}"
+        purge_subnets: False
+      loop: "{{ vpc_attachment.subnets }}"
+      register: tgw_vpc_attachment_result
+
+    - name: Verify that the transit gateway vpc attachment has been successfully created.
+      ansible.builtin.debug:
+        msg: Transit gateway VPC attachment {{ vpc_attachment.name }} has been successfully created.
+      when: tgw_vpc_attachment_result is changed
+
+    
+    - ansible.builtin.debug:
+        msg: Transit gateway VPC attachment {{ vpc_attachment.name }} already exists with the given subnets.
+      when: tgw_vpc_attachment_result is not changed
