@@ -1,0 +1,3 @@
+---
+dependencies:
+  - role: setup_rsa_keys
