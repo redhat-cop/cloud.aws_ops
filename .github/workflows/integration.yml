@@ -50,7 +50,7 @@ jobs:
           workflow_test_prefix = "cloud.aws_ops-{0}:".format(os.environ.get('TEST_WORKFLOW_ID'))
           for item in os.environ.get('TEST_TARGETS').split(';'):
               if item.startswith(workflow_test_prefix):
-                  targets=' '.join(item.split(':', maxsplit=1)[1].split(',')))
+                  targets=' '.join(item.split(':', maxsplit=1)[1].split(','))
                   output_path = os.environ.get('GITHUB_OUTPUT')
                   with open(output_path, "a", encoding="utf-8") as fw:
                       fw.write(f"ansible_test_targets={targets}\n")
