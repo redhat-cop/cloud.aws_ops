@@ -1,61 +1,121 @@
 name: Integration
 on:
   pull_request_target:
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
 
 jobs:
-  test:
+  safe-to-test:
+    if: ${{ github.event.label.name == 'safe to test' }} || ${{ github.event.action != 'labeled' }}
+    uses: abikouo/github_actions/.github/workflows/safe-to-test.yml@safe_to_test_v2
+  splitter:
     runs-on: ubuntu-latest
+    needs:
+      - safe-to-test
     env:
-      source: "./source"
-      aws_dir: "./amazon_aws"
-      crypto_dir: "./community.crypto"
-      ansible_version: "stable-2.14"
-      python_version: "3.9"
+      source_dir: "cloud_awsops"
+    outputs:
+      test_targets: ${{ steps.display.outputs.test_targets }}
     steps:
       - name: Checkout collection
         uses: actions/checkout@v3
         with:
+          path: ${{ env.source_dir }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: "0"
+
+      - name: List changes for pull request
+        id: splitter
+        uses: abikouo/github_actions/.github/actions/ansible_test_splitter@splitter_for_roles
+        with:
+          collections_to_test: ${{ env.source_dir }}
+          total_jobs: 4
+
+      - name: display targets
+        id: display
+        run: echo "test_targets=${{ steps.splitter.outputs.test_targets }}" >> $GITHUB_OUTPUT
+        shell: bash
+  build_matrix:
+    runs-on: ubuntu-latest
+    if: ${{ needs.splitter.outputs.test_targets != '' }}
+    needs:
+      - splitter
+    outputs:
+      test_matrix: ${{ steps.generate-workflow.outputs.targets }}
+      test_targets: ${{ needs.splitter.outputs.test_targets }}
+    steps:
+      - name: Generate workflow id
+        id: generate-workflow
+        run: |
+          import os, json
+          targets=[d.split(':', maxsplit=1)[0] for d in os.environ.get('TEST_TARGETS').split(";")]
+          output_path = os.environ.get('GITHUB_OUTPUT')
+          with open(output_path, "a", encoding="utf-8") as fw:
+              fw.write(f'targets={json.dumps(targets)}\n')
+        shell: python
+        env:
+          TEST_TARGETS: ${{ needs.splitter.outputs.test_targets }}
+
+      - name: Display matrix elements
+        run: echo "Workflow list => ${{ steps.generate-workflow.outputs.targets }}"
+        shell: bash
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - build_matrix
+    env:
+      source: "./source"
+      ansible_version: "stable-2.14"
+      python_version: "3.9"
+      SPLITTER_TARGETS: ${{ needs.build_matrix.outputs.test_targets }}
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow-id: ${{ fromJson(needs.build_matrix.outputs.test_matrix) }}
+    name: "integration-${{ matrix.workflow-id }}"
+    steps:
+      - name: Read ansible-test targets
+        id: read-targets
+        run: |
+          import os
+          workflow_id = os.environ.get('TEST_WORKFLOW_ID')
+          all_targets = os.environ.get('SPLITTER_TARGETS')
+          workflow_targets={d.split(':', maxsplit=1)[0]: d.split(':', maxsplit=1)[1] for d in all_targets.split(";")}[workflow_id]
+          targets = " ".join(workflow_targets.split(","))
+          output_path = os.environ.get('GITHUB_OUTPUT')
+          with open(output_path, "a", encoding="utf-8") as fw:
+              fw.write(f"ansible_test_targets={targets}\n")
+        shell: python
+        env:
+          TEST_WORKFLOW_ID: "${{ matrix.workflow-id }}"
+
+      - name: Checkout collection
+        uses: actions/checkout@v3
+        with:
           path: ${{ env.source }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Pre install collections dependencies first so the collection install does not
+        run: >-
+          ansible-galaxy collection install
+          --pre "-r${{ env.source }}/tests/integration/requirements.yml"
+          -p /home/runner/collections/
+        shell: bash
 
       - name: Build and install collection
-        id: install-collection
+        id: install
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
         with:
           install_python_dependencies: false
           source_path: ${{ env.source }}
 
-      # checkout and install 'amazon.aws'
-      - name: checkout ansible-collections/amazon.aws
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/amazon.aws
-          path: ${{ env.amazon_aws }}
-          ref: main
-
-      - name: install amazon.aws collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: true
-          source_path: ${{ env.amazon_aws }}
-
-      # checkout and install 'community.crypto'
-      - name: checkout ansible-collections/community.crypto
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/community.crypto
-          path: ${{ env.crypto_dir }}
-          ref: main
-
-      - name: install community.crypto collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: false
-          source_path: ${{ env.crypto_dir }}
-
       - name: Create AWS/sts session credentials
         uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
         with:
-          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          collection_path: ${{ steps.install.outputs.collection_path }}
           ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
 
       # we use raw git to create a repository in the tests
@@ -69,7 +129,8 @@ jobs:
       - name: Run integration tests
         uses: ansible-network/github_actions/.github/actions/ansible_test_integration@main
         with:
-          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          collection_path: ${{ steps.install.outputs.collection_path }}
           python_version: ${{ env.python_version }}
           ansible_version: ${{ env.ansible_version }}
           ansible_test_requirement_files: 'test-requirements.txt'
+          ansible_test_targets: ${{ steps.read-targets.outputs.ansible_test_targets }}
