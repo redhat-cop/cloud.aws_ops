@@ -26,12 +26,33 @@ jobs:
         id: display
         run: echo "test_targets=${{ steps.splitter.outputs.test_targets }}" >> $GITHUB_OUTPUT
         shell: bash
-  test:
+  build_matrix:
     runs-on: ubuntu-latest
     needs:
       - splitter
-    env:
+    outputs:
+      test_matrix: ${{ steps.compute-matrix.outputs.test_matrix }}
       test_targets: ${{ needs.splitter.outputs.test_targets }}
+    steps:
+      - name: Compute matrix
+        id: compute-matrix
+        run: |
+          import os, json
+          test_matrix=[
+            item.split(":", maxsplit=1)[0].split('-', maxsplit=1)[1]
+            for item in os.environ.get('TEST_TARGETS').split(';') if item.split(':', maxsplit=1)[1]
+          ]
+          output_path = os.environ.get('GITHUB_OUTPUT')
+          with open(output_path, "a", encoding="utf-8") as fw:
+              fw.write(f'test_matrix={json.dumps(test_matrix)}\n')
+        shell: python
+        env:
+          TEST_TARGETS: ${{ needs.splitter.outputs.test_targets }}
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - build_matrix
+    env:
       source: "./source"
       aws_dir: "./amazon_aws"
       crypto_dir: "./community.crypto"
@@ -40,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workflow-id: ['1', '2']
+        workflow-id: ${{ fromJson(needs.build_matrix.outputs.test_matrix) }}
     name: "Integration-cloud.aws_ops-py${{ env.python_version }}-${{ env.ansible_version }}-${{ matrix.workflow-id }}"
     steps:
       - name: Read ansible-test targets
@@ -57,13 +78,12 @@ jobs:
         shell: python
         env:
           TEST_WORKFLOW_ID: "${{ matrix.workflow-id }}"
-          TEST_TARGETS: "${{ env.test_targets }}"
+          TEST_TARGETS: ${{ needs.build_matrix.outputs.test_targets }}
 
       - name: Checkout collection
         uses: actions/checkout@v3
         with:
           path: ${{ env.source }}
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       - name: Build and install collection
         id: install-collection
@@ -71,7 +91,6 @@ jobs:
         with:
           install_python_dependencies: false
           source_path: ${{ env.source }}
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       # checkout and install 'amazon.aws'
       - name: checkout ansible-collections/amazon.aws
@@ -80,14 +99,12 @@ jobs:
           repository: ansible-collections/amazon.aws
           path: ${{ env.amazon_aws }}
           ref: main
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       - name: install amazon.aws collection
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
         with:
           install_python_dependencies: true
           source_path: ${{ env.amazon_aws }}
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       # checkout and install 'community.crypto'
       - name: checkout ansible-collections/community.crypto
@@ -96,21 +113,18 @@ jobs:
           repository: ansible-collections/community.crypto
           path: ${{ env.crypto_dir }}
           ref: main
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       - name: install community.crypto collection
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
         with:
           install_python_dependencies: false
           source_path: ${{ env.crypto_dir }}
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       - name: Create AWS/sts session credentials
         uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
         with:
           collection_path: ${{ steps.install-collection.outputs.collection_path }}
           ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       # we use raw git to create a repository in the tests
       # this fails if the committer doesn't have a name and an email set
@@ -119,7 +133,6 @@ jobs:
           git config --global user.email gha@localhost
           git config --global user.name "Github Actions"
         shell: bash
-        if: steps.read-targets.outputs.ansible_test_targets != ''
 
       - name: Run integration tests
         uses: ansible-network/github_actions/.github/actions/ansible_test_integration@main
@@ -128,4 +141,3 @@ jobs:
           python_version: ${{ env.python_version }}
           ansible_version: ${{ env.ansible_version }}
           ansible_test_requirement_files: 'test-requirements.txt'
-        if: steps.read-targets.outputs.ansible_test_targets != ''
