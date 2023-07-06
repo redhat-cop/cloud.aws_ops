@@ -13,63 +13,92 @@ on:
 
 jobs:
   safe-to-test:
+    if: ${{ github.event.label.name == 'safe to test' }} || ${{ github.event.action != 'labeled' }}
     uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@main
-  test:
-    needs:
-      - safe-to-test
+  splitter:
     runs-on: ubuntu-latest
     env:
+      source_dir: "cloud_awsops"
+    outputs:
+      test_targets: ${{ steps.splitter.outputs.test_targets }}
+      test_targets_json: ${{ steps.splitter.outputs.test_targets_json }}
+      test_jobs: ${{ steps.splitter.outputs.test_jobs }}
+    steps:
+      - name: Checkout collection
+        uses: actions/checkout@v3
+        with:
+          path: ${{ env.source_dir }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: "0"
+
+      - name: List changes for pull request
+        id: splitter
+        uses: ansible-network/github_actions/.github/actions/ansible_test_splitter@main
+        with:
+          collections_to_test: ${{ env.source_dir }}
+          total_jobs: 2
+
+      - name: Display splitter output
+        run: |
+          echo "test_targets=${{ steps.splitter.outputs.test_targets }}"
+          echo "test_targets_json=${{ steps.splitter.outputs.test_targets_json }}"
+          echo "test_jobs=${{ steps.splitter.outputs.test_jobs }}"
+        shell: bash
+  test:
+    runs-on: ubuntu-latest
+    needs:
+      - splitter
+    if: ${{ needs.splitter.outputs.test_targets != '' }}
+    env:
       source: "./source"
-      aws_dir: "./amazon_aws"
-      crypto_dir: "./community.crypto"
       ansible_version: "stable-2.14"
       python_version: "3.9"
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow-id: ${{ fromJson(needs.splitter.outputs.test_jobs) }}
+    name: "integration-${{ matrix.workflow-id }}"
     steps:
+      - name: Read target
+        id: read-targets
+        run: |
+          import json, os
+          with open(os.environ.get('GITHUB_OUTPUT'), "a", encoding="utf-8") as fh:
+              fh.write(f'ansible_test_targets={json.loads(os.environ.get("ALL_TEST_TARGETS")).get(os.environ.get("WORKFLOW_ID"))}\n')
+        shell: python
+        env:
+          ALL_TEST_TARGETS: ${{ needs.splitter.outputs.test_targets_json }}
+          WORKFLOW_ID: ${{ matrix.workflow-id }}
+
+      - name: Display ansible test targets
+        run: |
+          echo "ansible_test_targets -> ${{ steps.read-targets.outputs.ansible_test_targets }}"
+        shell: bash
+
       - name: Checkout collection
         uses: actions/checkout@v3
         with:
           path: ${{ env.source }}
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Pre install collections dependencies first so the collection install does not
+        run: >-
+          ansible-galaxy collection install
+          --pre "-r${{ env.source }}/tests/integration/requirements.yml"
+          -p /home/runner/collections/
+        shell: bash
+
       - name: Build and install collection
-        id: install-collection
+        id: install
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
         with:
           install_python_dependencies: false
           source_path: ${{ env.source }}
 
-      # checkout and install 'amazon.aws'
-      - name: checkout ansible-collections/amazon.aws
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/amazon.aws
-          path: ${{ env.amazon_aws }}
-          ref: main
-
-      - name: install amazon.aws collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: true
-          source_path: ${{ env.amazon_aws }}
-
-      # checkout and install 'community.crypto'
-      - name: checkout ansible-collections/community.crypto
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/community.crypto
-          path: ${{ env.crypto_dir }}
-          ref: main
-
-      - name: install community.crypto collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: false
-          source_path: ${{ env.crypto_dir }}
-
       - name: Create AWS/sts session credentials
         uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
         with:
-          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          collection_path: ${{ steps.install.outputs.collection_path }}
           ansible_core_ci_key: ${{ secrets.ANSIBLE_CORE_CI_KEY }}
 
       # we use raw git to create a repository in the tests
@@ -83,7 +112,8 @@ jobs:
       - name: Run integration tests
         uses: ansible-network/github_actions/.github/actions/ansible_test_integration@main
         with:
-          collection_path: ${{ steps.install-collection.outputs.collection_path }}
+          collection_path: ${{ steps.install.outputs.collection_path }}
           python_version: ${{ env.python_version }}
           ansible_version: ${{ env.ansible_version }}
           ansible_test_requirement_files: 'test-requirements.txt'
+          ansible_test_targets: ${{ steps.read-targets.outputs.ansible_test_targets }}
