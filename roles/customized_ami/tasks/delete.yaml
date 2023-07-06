@@ -12,6 +12,3 @@
     wait: true
     state: absent
   with_items: "{{ customized_ami__existing_amis.images }}"
-  when:
-    - customized_ami__existing_amis.images | length > 0
-    - (custom_ami_operation == 'create') | ternary(custom_ami_recreate_if_exists, 'true') | bool

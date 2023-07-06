@@ -1,8 +1,27 @@
 ---
+- name: List existing AMI by name
+  amazon.aws.ec2_ami_info:
+    filters:
+      name: "{{ custom_ami_name }}"
+  register: customized_ami__existing_amis
+
 - name: Delete existing images
-  ansible.builtin.include_tasks: delete.yaml
+  amazon.aws.ec2_ami:
+    name: "{{ item.name }}"
+    image_id: "{{ item.image_id }}"
+    wait: true
+    state: absent
+  with_items: "{{ customized_ami__existing_amis.images }}"
+  when: custom_ami_recreate_if_exists | bool
+
+- name: List existing AMI by name
+  amazon.aws.ec2_ami_info:
+    filters:
+      name: "{{ custom_ami_name }}"
+  register: customized_ami__existing_amis
 
 - name: Create custom AMI
+  when: customized_ami__existing_amis.images | length == 0
   block:
     - name: Get Source AMI identifier
       ansible.builtin.include_tasks: read_source_ami.yaml
@@ -22,4 +41,3 @@
     msg: "Existing AMI found with name: '{{ custom_ami_name }}'"
   when:
     - customized_ami__existing_amis.images | length > 0
-    - not (custom_ami_recreate_if_exists | bool)
