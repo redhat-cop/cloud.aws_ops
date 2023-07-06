@@ -1,0 +1,16 @@
+---
+- name: Test 'manage_vpc_peering' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: Include 'setup.yml' file
+      ansible.builtin.include_tasks: setup.yml
+
+  always:
+    - name: Include 'teardown.yml' file
+      ansible.builtin.include_tasks: teardown.yml
