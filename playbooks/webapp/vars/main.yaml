@@ -53,5 +53,3 @@ rds_master_password: L#5cH2mgy_
 rds_master_user: ansible
 
 image_filter: Fedora-Cloud-Base-35-*
-
-operation: create

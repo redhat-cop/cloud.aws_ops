@@ -12,8 +12,13 @@
         msg: resource prefix should be defined as resource_prefix
       when: resource_prefix is not defined
 
+    - name: Fall to 'create' when operation is not defined
+      ansible.builtin.set_fact:
+        operation: create
+      when: operation is not defined
+
     - name: Run operation create/delete
-      ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
+      ansible.builtin.import_tasks: "tasks/{{ operation }}.yaml"
 
 - name: Deploy resource from Bastion
   hosts: bastion
