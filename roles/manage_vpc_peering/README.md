@@ -20,6 +20,10 @@ A role to create, delete and accept existing VPC peering connections.
 
 - vpc_peering_conn_id - ID of the VPC peering connection request (only provide to delete a VPC peering connection).
 
+Return Value
+------------
+On successful creation of peering connection request, the peering connection ID can be accessed using the variable `peering_request_id` set during the role execution.
+
 Dependencies
 ------------
 
@@ -40,6 +44,10 @@ Dependencies
         requester_vpc: vpc-12345
         accepter_vpc: vpc-98765
         vpc_peering_operation: create
+
+    - name: Set variable for peering connection ID for above task
+      ansible.builtin.set_fact:
+        peering_id_1: "{{ peering_request_id }}"
 
     - name: Peer VPCs in same account and different region (local cross-region)
       ansible.builtin.include_role:
