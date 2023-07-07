@@ -1,0 +1,2 @@
+bugfixes:
+  - webapp - defaults to create when the user does not explicitly specify the operation (https://github.com/redhat-cop/cloud.aws_ops/pull/53).
