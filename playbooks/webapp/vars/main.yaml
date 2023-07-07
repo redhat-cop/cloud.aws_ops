@@ -48,7 +48,7 @@ rds_allocated_storage_gb: 20
 rds_instance_class: db.m6g.large
 rds_instance_name: mysampledb123
 rds_engine: postgres
-rds_engine_version: "14.2"
+rds_engine_version: "15"
 rds_master_password: L#5cH2mgy_
 rds_master_user: ansible
 
