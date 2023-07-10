@@ -6,6 +6,7 @@
     state: absent
     region: eu-central-1
   register: eu_central_1_vpc_1
+  ignore_errors: true
 
 - name: Delete second VPC in eu-central-1
   amazon.aws.ec2_vpc_net:
@@ -14,6 +15,7 @@
     state: absent
     region: eu-central-1
   register: eu_central_1_vpc_2
+  ignore_errors: true
 
 - name: Delete VPC in us-west-1
   amazon.aws.ec2_vpc_net:
@@ -22,3 +24,4 @@
     state: absent
     region: us-west-1
   register: us_west_1_vpc_1
+  ignore_errors: true
