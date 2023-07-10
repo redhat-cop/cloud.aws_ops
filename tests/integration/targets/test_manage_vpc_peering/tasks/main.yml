@@ -17,16 +17,16 @@
         name: cloud.aws_ops.manage_vpc_peering
       vars:
         requester_vpc: "{{ eu_central_1_vpc_1.vpc.id }}"
-        accepter_vpc: "{{ eu_central_1_vpc_2.vpc.id}}"
+        accepter_vpc: "{{ eu_central_1_vpc_2.vpc.id }}"
         region: eu-central-1
         vpc_peering_operation: create
 
-    - name: delete VPC peering connection req
+    - name: Delete VPC peering connection req
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
         region: eu-central-1
-        vpc_peering_conn_id: "{{ peering_request_id }}"
+        vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
         vpc_peering_operation: delete
 
     #  VPC Peering (cross region)
@@ -37,15 +37,15 @@
         region: eu-central-1
         accepter_vpc_region: us-west-1
         requester_vpc: "{{ eu_central_1_vpc_1.vpc.id }}"
-        accepter_vpc: "{{ us_west_1_vpc_1.vpc.id}}"
+        accepter_vpc: "{{ us_west_1_vpc_1.vpc.id }}"
         vpc_peering_operation: create
 
-    - name: delete VPC peering connection req
+    - name: Delete VPC peering connection req
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_vpc_peering
       vars:
         region: eu-central-1
-        vpc_peering_conn_id: "{{ peering_request_id }}"
+        vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
         vpc_peering_operation: delete
 
   always:

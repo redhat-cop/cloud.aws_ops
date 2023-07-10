@@ -42,9 +42,9 @@
 
     - name: Set fact for peering connection ID to use in playbook
       ansible.builtin.set_fact:
-        peering_request_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
+        manage_vpc_peering_req_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
 
     - name: Print peering connection request ID
       ansible.builtin.debug:
         msg:
-          - "Peering connection request ID: {{ peering_request_id }}"
+          - "Peering connection request ID: {{ manage_vpc_peering_req_id }}"
