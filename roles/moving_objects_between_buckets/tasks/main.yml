@@ -1,0 +1,42 @@
+---
+# Creating moving buckets
+- name: define bucket name used for tests
+  set_fact:
+    moving_buckets:
+      src: "{{ bucket_name }}-moving-src"
+      dst: "{{ bucket_name }}-moving-dst"
+    
+- name: Create first s3 bucket
+  amazon.aws.s3_bucket:
+    name: "{{ moving_buckets.src }}"
+    state: present
+
+- name: Create second s3 bucket
+  amazon.aws.s3_bucket:
+    name: "{{ moving_buckets.dst }}"
+    state: present
+
+# Obtaining all the source bucket objects
+- name: List keys simple
+  amazon.aws.s3_object:
+    bucket: "{{ moving_buckets.src }}"
+    mode: list
+  register: bucket_src_info
+
+# Moving objects between buckets
+- name: Copy an object already stored in another bucket
+  amazon.aws.s3_object:
+    bucket: "{{ moving_bucket.dst }}"
+    object: "{{ item }}"
+    mode: copy
+    copy_src:
+        bucket: "{{ bucket_src.src }}"
+        object: "{{ item }}"
+  loop: "{{ bucket_src_info.s3_keys }}"
+
+- name: Delete the object
+  amazon.aws.s3_object:
+    bucket: mytaeho-123
+    object: "{{ item }}"
+    mode: delobj 
+  loop: "{{ bucket_src_info.s3_keys }}"
