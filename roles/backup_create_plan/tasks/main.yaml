@@ -3,7 +3,7 @@
   block:
     - name: Fail when plan variables are not defined
       ansible.builtin.fail:
-        msg: "Required variable {{item}} has not been defined"
+        msg: "Required variable {{ item }} has not been defined"
       when: vars[item] is undefined
       loop:
         - plan_name
@@ -21,17 +21,17 @@
             backup_vault_name: "{{ vault_name }}"
             encryption_key_arn: "{{ vault_encryption_key_arn | default(omit) }}"
             tags: "{{ vault_tags | default(omit) }}"
-          register: backup_vault_result
+          register: backup_create_plan_backup_vault_result
 
         - name: Verify that vault has been created/updated
           ansible.builtin.debug:
             msg: Vault '{{ vault_name }}' successfully created/updated.
-          when: backup_vault_result is changed
+          when: backup_create_plan_backup_vault_result is changed
 
         - name: Verify that vault already exists
           ansible.builtin.debug:
             msg: Vault '{{ vault_name }}' exists, no updates needed.
-          when: backup_vault_result is not changed
+          when: backup_create_plan_backup_vault_result is not changed
 
     - name: Create or update backup plan
       amazon.aws.backup_plan:
@@ -40,14 +40,14 @@
         rules: "{{ plan_rules }}"
         advanced_backup_settings: "{{ plan_windows_vss_settings | default(omit) }}"
         tags: "{{ plan_tags | default(omit) }}"
-      register: backup_plan_result
+      register: backup_create_plan_backup_plan_result
 
     - name: Verify that plan has been created/updated
       ansible.builtin.debug:
         msg: Plan '{{ plan_name }}' successfully created/updated.
-      when: backup_plan_result is changed
+      when: backup_create_plan_backup_plan_result is changed
 
     - name: Verify that plan already exists
       ansible.builtin.debug:
         msg: Plan '{{ plan_name }}' exists, no updates needed.
-      when: backup_plan_result is not changed
+      when: backup_create_plan_backup_plan_result is not changed
