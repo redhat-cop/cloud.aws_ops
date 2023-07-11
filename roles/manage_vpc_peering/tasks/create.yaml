@@ -1,0 +1,50 @@
+---
+- name: Fail when required parameters are not provided
+  ansible.builtin.fail:
+    msg: Please provide required parameters to create VPC peering (refer documentation for more information)
+  when: region is not defined or requester_vpc is not defined or accepter_vpc is not defined
+
+- name: Create VPC peering
+  block:
+    - name: Create VPC peering request
+      community.aws.ec2_vpc_peer:
+        region: "{{ region }}"
+        peer_region: "{{ accepter_vpc_region | default(region, true) }}"
+        vpc_id: "{{ requester_vpc }}"
+        peer_vpc_id: "{{ accepter_vpc }}"
+        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
+        state: present
+      register: manage_vpc_peering_vpc_peering_request
+
+    - name: Ensure VPC peering connection request exists before moving forward
+      community.aws.ec2_vpc_peering_info:
+        peer_connection_ids:
+          - "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
+        region: "{{ accepter_vpc_region | default(region, true) }}"
+        profile: "{{ accepter_account_profile | default(omit) }}"
+      register: manage_vpc_peering_peering_info
+      retries: 3
+      delay: 5
+      until: manage_vpc_peering_peering_info.vpc_peering_connections[0].vpc_peering_connection_id is defined
+
+    - name: Wait for peering request to be created
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Accept VPC peering request
+      community.aws.ec2_vpc_peer:
+        region: "{{ accepter_vpc_region | default(region, true) }}"
+        peering_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
+        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
+        profile: "{{ accepter_account_profile | default(omit) }}"
+        state: accept
+      register: manage_vpc_peering_accept_peering_request
+
+    - name: Set fact for peering connection ID to use in playbook
+      ansible.builtin.set_fact:
+        manage_vpc_peering_req_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
+
+    - name: Print peering connection request ID
+      ansible.builtin.debug:
+        msg:
+          - "Peering connection request ID: {{ manage_vpc_peering_req_id }}"
