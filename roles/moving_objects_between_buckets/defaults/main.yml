@@ -1,1 +1,1 @@
-bucket_name: '{{ resource_prefix | hash("md5") }}'
+---

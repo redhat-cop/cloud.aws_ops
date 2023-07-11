@@ -1,0 +1,66 @@
+---
+# Integration tests for s3_object
+- module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    # Defining bucket name =================================================================
+    - name: define bucket name used for tests
+      set_fact:
+        moving_buckets:
+          src: "{{ bucket_name }}-src"
+          dest: "{{ bucket_name }}-dest"
+    
+    # Create s3 buckets ====================================================================
+    - name: Create source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.src }}"
+        state: present
+
+    - name: Create destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.dest }}"
+        state: present
+
+    # Put objects into s3 source buckets ===================================================
+    - name: Put object in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ moving_buckets.src }}"
+        object: /test.txt
+        content: "{{ lookup('file', 'test.txt') }}"
+        mode: put
+      
+    - slurp:
+        src: "test.png"
+      register: put_binary
+    
+    - name: Put object in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ moving_buckets.src }}"
+        object: put-binary.bin
+        content_base64: "{{ put_binary.content }}"
+        mode: put
+    
+    # Moving objects between buckets =======================================================
+    - name: 
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.moving_objects_between_buckets
+      vars:
+        moving_buckets_src: "{{ moving_buckets.src }}"
+        moving_bucket_dest: "{{ moving_buckets.dest }}"
+
+  always:
+    # Clean up starts here =================================================================
+    - name: Delete source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.src }}"
+        state: absent
+
+    - name: Delete destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.dest }}"
+        state: absent

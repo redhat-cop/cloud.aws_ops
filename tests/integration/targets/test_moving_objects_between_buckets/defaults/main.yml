@@ -1,0 +1,3 @@
+---
+# defaults file for tests/integration/targets/test_moving_objects_between_buckets
+bucket_name: '{{ resource_prefix | hash("md5") }}'
