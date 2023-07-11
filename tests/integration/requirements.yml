@@ -6,6 +6,5 @@ collections:
   - name: https://github.com/ansible-collections/community.aws.git
     type: git
     version: main
-  - name: https://github.com/ansible-collections/community.crypto.git
-    type: git
-    version: main
+  - community.crypto
+  - community.general
