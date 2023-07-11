@@ -40,11 +40,11 @@
         statement_id: "AllowExecutionFromAPIGateway"
         action: "lambda:InvokeFunction"
         principal: "apigateway.amazonaws.com"
-        source_arn: "arn:aws:execute-api:{{ awsconfig_apigateway_with_lambda_integration_aws__region }}:{{ awsconfig_apigateway_with_lambda_integration__caller_info.account }}:{{ awsconfig_apigateway_with_lambda_integration_id }}/*/*"
+        source_arn: "arn:aws:execute-api:{{ awsconfig_apigateway_with_lambda_integration__awsregion }}:{{ awsconfig_apigateway_with_lambda_integration__caller_info.account }}:{{ awsconfig_apigateway_with_lambda_integration_id }}/*/*"
 
     - name: Define API gateway invoke url
       ansible.builtin.set_fact:
-        awsconfig_apigateway_with_lambda_integration__invoke_url: "https://{{ awsconfig_apigateway_with_lambda_integration_id }}.execute-api.{{ awsconfig_apigateway_with_lambda_integration_aws__region }}.amazonaws.com/{{ awsconfig_apigateway_with_lambda_integration_stage_name }}"
+        awsconfig_apigateway_with_lambda_integration__invoke_url: "https://{{ awsconfig_apigateway_with_lambda_integration_id }}.execute-api.{{ awsconfig_apigateway_with_lambda_integration__awsregion }}.amazonaws.com/{{ awsconfig_apigateway_with_lambda_integration_stage_name }}"
 
   always:
     - name: Delete temporary file
