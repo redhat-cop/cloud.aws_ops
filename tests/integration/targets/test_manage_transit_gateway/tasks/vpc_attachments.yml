@@ -7,21 +7,21 @@
         name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
         transit_gateway:
-            asn: 5200000000
-            description: "TGW for Cloud team"
-            tags:
-              "Name": "{{ tgw_name }}"
+          asn: 5200000000
+          description: "TGW for Cloud team"
+          tags:
+            "Name": "{{ tgw_name }}"
         vpc_attachment:
-            - name: "vpc-attachment-001"
-              tags:
-                "team": "cloud"
-              subnets:
-                - "{{ subnet_id_a_1 }}"
-            - name: "vpc-attachment-002"
-              tags:
-                "team": "cloud"
-              subnets:
-                - "{{ subnet_id_a_1 }}"
+          - name: "vpc-attachment-001"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_a_1 }}"
+          - name: "vpc-attachment-002"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_a_1 }}"
 
     - name: List all the transit gateway attachments
       community.aws.ec2_transit_gateway_info:
@@ -29,10 +29,10 @@
 
     - name: Get the transit gateway with the given description
       set_fact:
-          gw: "{{ item }}"
+        gw: "{{ item }}"
       when:
-          - item.description == "{{ transit_gateway.description }}"
-          - item.state == "available"
+        - item.description == "{{ transit_gateway.description }}"
+        - item.state == "available"
       loop: "{{ gw_info.transit_gateways }}"
 
     - name: Describe attachments on a specific VPC
@@ -41,34 +41,34 @@
           transit-gateway-id: '{{ gw.transit_gateway_id }}'
       register: attachment_info
 
-   - name: Ensure that the transit gateway attachments are created as expected
-     ansible.builtin.assert:
-       that:
-         - attachment_info.attachments | length == 2
-         - subnet_id_a_1 in attachment_info.attachments
-         - subnet_id_b_1 in attachment_info.attachments
-         - tgw_name in attachment_info.attachments
+    - name: Ensure that the transit gateway attachments are created as expected
+      ansible.builtin.assert:
+        that:
+          - attachment_info.attachments | length == 2
+          - subnet_id_a_1 in attachment_info.attachments
+          - subnet_id_b_1 in attachment_info.attachments
+          - tgw_name in attachment_info.attachments
 
   always:
-  # Deletion
+    # Deletion
     - name: Create Transit Gateway with VPC attachemnt
       ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
         action: "delete"
         transit_gateway:
-            asn: 5200000000
-            description: "TGW for Cloud team"
-            tags:
-              "Name": "{{ tgw_name }}"
+          asn: 5200000000
+          description: "TGW for Cloud team"
+          tags:
+            "Name": "{{ tgw_name }}"
         vpc_attachment:
-            - name: "vpc-attachment-001"
-              tags:
-                "team": "cloud"
-              subnets:
-                - "{{ subnet_id_a_1 }}"
-            - name: "vpc-attachment-002"
-              tags:
-                "team": "cloud"
-              subnets:
-                - "{{ subnet_id_a_1 }}"
+          - name: "vpc-attachment-001"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_a_1 }}"
+          - name: "vpc-attachment-002"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_a_1 }}"

@@ -28,5 +28,3 @@ argument_specs:
             type: list
             elements: str
             required: True
-
-      

@@ -9,10 +9,10 @@
 
     - name: Get the transit gateway with the given description
       set_fact:
-          gw: "{{ item }}"
+        gw: "{{ item }}"
       when:
-          - item.description == "{{ transit_gateway.description }}"
-          - item.state == "available"
+        - item.description == "{{ transit_gateway.description }}"
+        - item.state == "available"
       loop: "{{ info.transit_gateways }}"
     - name: Delete the attachment and transit gw
 
