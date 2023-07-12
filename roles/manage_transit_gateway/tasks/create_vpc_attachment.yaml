@@ -1,0 +1,19 @@
+---
+- name: Create VPC attachment
+  community.aws.ec2_transit_gateway_vpc_attachment:
+    state: present
+    name: "{{ item.name }}"
+    transit_gateway: "{{ tgw_info.transit_gateway.transit_gateway_id }}"
+    subnets: "{{ item.subnets }}"
+    tags: "{{ item.tags }}"
+    purge_subnets: False
+  register: tgw_vpc_attachment_result
+
+- name: Verify that the transit gateway vpc attachment has been successfully created.
+  ansible.builtin.debug:
+    msg: Transit gateway VPC attachment {{ item.name }} has been successfully created.
+  when: tgw_vpc_attachment_result is changed
+
+- ansible.builtin.debug:
+    msg: Transit gateway VPC attachment {{ item.name }} already exists with the given subnets.
+  when: tgw_vpc_attachment_result is not changed

@@ -1,0 +1,32 @@
+---
+argument_specs:
+  main:
+    short_description: Creation/Deletion of transit gateway with vpc/vpn attachment
+    options:
+      action:
+        description: Action to be done
+        type: "str"
+        default: "create"
+        choices: ["create", "delete"]
+      transit_gateway:
+        description: Transit Gateway to be created
+        type: dict
+        required: True
+      vpc_attachment:
+        descrption: VPC to be attached
+        type: list
+        element: dict
+        suboptions:
+          name:
+            description: Name of the VPC attachemnt.
+            type: str
+          tags:
+            description: Tags for the attachment
+            type: dict
+          subnets:
+            description: Subnets to be attached.
+            type: list
+            elements: str
+            required: True
+
+      

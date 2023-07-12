@@ -1,0 +1,28 @@
+---
+- name: Run create_tgw_attach_vpc role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+  block:
+    - name: Create  transit gateway
+      community.aws.ec2_transit_gateway:
+        state: present
+        description: "{{ transit_gateway.description }}"
+        asn: "{{ transit_gateway.asn }}"
+        tags: "{{ transit_gateway.tags }}"
+      register: tgw_result
+
+    - name: Verify that transit gateway has been created/updated
+      ansible.builtin.debug:
+        msg: Transit Gateway successfully created/updated.
+      when: tgw_result.changed
+
+    - ansible.builtin.debug:
+        msg: Transit Gateway '{{ tgw_result.transit_gateway.transit_gateway_id }}' exists, no updates needed.
+      when: not tgw_result.changed
+
+    - name: Create VPC attachment
+      include_tasks: create_vpc_attachment.yaml
+      loop: "{{ vpc_attachment }}"
+      vars:
+        tgw_info: "{{ tgw_result }}"
+      when: vars["vpc_attachment"] is defined
