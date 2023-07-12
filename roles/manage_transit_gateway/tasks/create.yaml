@@ -20,8 +20,8 @@
       when: not manage_transit_gateway_tgw_result.changed
 
     - name: Create VPC attachment
+      when: vars["vpc_attachment"] is defined
       ansible.builtin.include_tasks: create_vpc_attachment.yaml
       loop: "{{ vpc_attachment }}"
       vars:
         manage_transit_gateway_tgw_info: "{{ manage_transit_gateway_tgw_result }}"
-      when: vars["vpc_attachment"] is defined
