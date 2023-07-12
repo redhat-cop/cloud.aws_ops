@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       source: "./source"
-      aws_dir: "./amazon_aws"
-      crypto_dir: "./community.crypto"
       ansible_version: "stable-2.14"
       python_version: "3.9"
     steps:
@@ -16,6 +14,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: ${{ env.source }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Pre install collections dependencies first so the collection install does not
+        run: >-
+          ansible-galaxy collection install
+          --pre "-r${{ env.source }}/tests/integration/requirements.yml"
+          -p /home/runner/collections/
+        shell: bash
 
       - name: Build and install collection
         id: install-collection
@@ -24,34 +30,7 @@ jobs:
           install_python_dependencies: false
           source_path: ${{ env.source }}
 
-      # checkout and install 'amazon.aws'
-      - name: checkout ansible-collections/amazon.aws
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/amazon.aws
-          path: ${{ env.amazon_aws }}
-          ref: main
-
-      - name: install amazon.aws collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: true
-          source_path: ${{ env.amazon_aws }}
-
-      # checkout and install 'community.crypto'
-      - name: checkout ansible-collections/community.crypto
-        uses: ansible-network/github_actions/.github/actions/checkout_dependency@main
-        with:
-          repository: ansible-collections/community.crypto
-          path: ${{ env.crypto_dir }}
-          ref: main
-
-      - name: install community.crypto collection
-        uses: ansible-network/github_actions/.github/actions/build_install_collection@main
-        with:
-          install_python_dependencies: false
-          source_path: ${{ env.crypto_dir }}
-
+      # Create AWS/sts session credentials
       - name: Create AWS/sts session credentials
         uses: ansible-network/github_actions/.github/actions/ansible_aws_test_provider@main
         with:
