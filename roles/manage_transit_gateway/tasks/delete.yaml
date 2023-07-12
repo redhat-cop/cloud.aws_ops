@@ -1,32 +1,22 @@
 ---
-- name: Verify variables
-  block:
-    - name: Fail when the transit gateway with vpc attachment variables are not defined
-      ansible.builtin.fail:
-        msg: "Required variable {{item}} has not been defined"
-      when: vars[item] is undefined
-      loop:
-        - transit_gateway
-        - vpc_attachment
-
 - name: Run delete_tgw_attach_vpc role
   module_defaults:
     group/aws: "{{ aws_role_credentials }}"
   block:
-    - name: Delete  transit gateway
+    - name: List all the transit gateway attachments
+      community.aws.ec2_transit_gateway_info:
+      register: info
+
+    - name: Get the transit gateway with the given description
+      set_fact:
+          gw: "{{ item }}"
+      when:
+          - item.description == "{{ transit_gateway.description }}"
+          - item.state == "available"
+      loop: "{{ info.transit_gateways }}"
+    - name: Delete the attachment and transit gw
+
       block:
-        - name: List all the transit gateway attachments
-          community.aws.ec2_transit_gateway_info:
-          register: info
-
-        - name: Get the transit gateway with the given description
-          set_fact:
-              gw: "{{ item }}"
-          when:
-              - item.description == "{{ transit_gateway.description }}"
-              - item.state == "available"
-          loop: "{{ info.transit_gateways }}"
-
         - name: Describe attachments on a specific VPC
           community.aws.ec2_transit_gateway_vpc_attachment_info:
             filters:
@@ -61,3 +51,4 @@
           community.aws.ec2_transit_gateway:
             state: absent
             transit_gateway_id: '{{ gw.transit_gateway_id }}'
+      when: gw is defined
