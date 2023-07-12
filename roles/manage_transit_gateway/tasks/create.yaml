@@ -1,7 +1,5 @@
 ---
 - name: Run create_tgw_attach_vpc role
-  module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
   block:
     - name: Create  transit gateway
       community.aws.ec2_transit_gateway:

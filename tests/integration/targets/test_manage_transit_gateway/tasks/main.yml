@@ -1,5 +1,5 @@
 ---
-- name: 'ec2_transit_gateway_vpc_attachment integration tests'
+- name: 'Run ec2_transit_gateway_vpc_attachment integration tests'
   collections:
     - amazon.aws
   module_defaults:
@@ -16,7 +16,7 @@
 
     # Tests create / update on parameters simulatniously
     - name: Test role with attach vpc option
-      ansible.builtin.include_tasks: 'create_vpc_attachments.yml'
+      ansible.builtin.include_tasks: 'vpc_attachments.yml'
 
   always:
     # Cleanup after ourselves

@@ -1,7 +1,5 @@
 ---
 - name: Run delete_tmanage_transit_gateway_gw_attach_vpc role
-  module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
   block:
     - name: List all the transit gateway attachments
       community.aws.ec2_transit_gateway_manage_transit_gateway_info:
@@ -11,11 +9,11 @@
       ansible.builtin.set_fact:
         manage_transit_gateway_gw: "{{ item }}"
       when:
-        - item.description == "{{ transit_gateway.description }}"
+        - item.description == "transit_gateway.description"
         - item.state == "available"
       loop: "{{ manage_transit_gateway_info.transit_gateways }}"
-    - name: Delete the attachment and transit manage_transit_gateway_gw
 
+    - name: Delete the attachment and transit manage_transit_gateway_gw
       block:
         - name: Describe attachments on a specific VPC
           community.aws.ec2_transit_gateway_vpc_attachment_manage_transit_gateway_info:
@@ -43,7 +41,8 @@
               transit-gateway-id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
           register: manage_transit_gateway_info
 
-        - assert:
+        - name: Check for attachments
+          ansible.builtin.assert:
             that:
               - manage_transit_gateway_info.attachments | length == 0
 
