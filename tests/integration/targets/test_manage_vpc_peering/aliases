@@ -1,0 +1,3 @@
+cloud/aws
+role/manage_vpc_peering
+time=10s

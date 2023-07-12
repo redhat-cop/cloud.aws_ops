@@ -1,27 +1,27 @@
 ---
-- name: Delete first VPC in eu-central-1
+- name: Delete first VPC in us-east-1
   amazon.aws.ec2_vpc_net:
     cidr_block: "{{ test_vpc_cidr_1_1 }}"
     name: "{{ test_vpc_name_1_1 }}"
     state: absent
-    region: eu-central-1
-  register: eu_central_1_vpc_1
+    region: us-east-1
+  register: us_east_1_vpc_1
   ignore_errors: true
 
-- name: Delete second VPC in eu-central-1
+- name: Delete second VPC in us-east-1
   amazon.aws.ec2_vpc_net:
     cidr_block: "{{ test_vpc_cidr_1_2 }}"
     name: "{{ test_vpc_name_1_2 }}"
     state: absent
-    region: eu-central-1
-  register: eu_central_1_vpc_2
+    region: us-east-1
+  register: us_east_1_vpc_2
   ignore_errors: true
 
-- name: Delete VPC in us-west-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_2_1 }}"
-    name: "{{ test_vpc_name_2 }}"
-    state: absent
-    region: us-west-1
-  register: us_west_1_vpc_1
-  ignore_errors: true
+# - name: Delete VPC in us-west-1
+#   amazon.aws.ec2_vpc_net:
+#     cidr_block: "{{ test_vpc_cidr_2_1 }}"
+#     name: "{{ test_vpc_name_2 }}"
+#     state: absent
+#     region: us-west-1
+#   register: us_west_1_vpc_1
+#   ignore_errors: true
