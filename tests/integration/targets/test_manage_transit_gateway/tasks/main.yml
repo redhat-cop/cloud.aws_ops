@@ -11,11 +11,14 @@
 
   block:
     # Prepares various resources
-    - include_tasks: 'setup.yml'
+    - name: Setup
+      ansible.builtin.include_tasks: 'setup.yml'
 
     # Tests create / update on parameters simulatniously
-    - include_tasks: 'create_vpc_attachments.yml'
+    - name: Test role with attach vpc option
+      ansible.builtin.include_tasks: 'create_vpc_attachments.yml'
 
   always:
     # Cleanup after ourselves
-    - include_tasks: 'cleanup.yml'
+    - name: Cleanup
+      ansible.builtin.include_tasks: 'cleanup.yml'

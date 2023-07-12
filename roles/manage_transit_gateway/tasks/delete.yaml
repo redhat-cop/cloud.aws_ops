@@ -1,54 +1,54 @@
 ---
-- name: Run delete_tgw_attach_vpc role
+- name: Run delete_tmanage_transit_gateway_gw_attach_vpc role
   module_defaults:
     group/aws: "{{ aws_role_credentials }}"
   block:
     - name: List all the transit gateway attachments
-      community.aws.ec2_transit_gateway_info:
-      register: info
+      community.aws.ec2_transit_gateway_manage_transit_gateway_info:
+      register: manage_transit_gateway_info
 
     - name: Get the transit gateway with the given description
-      set_fact:
-        gw: "{{ item }}"
+      ansible.builtin.set_fact:
+        manage_transit_gateway_gw: "{{ item }}"
       when:
         - item.description == "{{ transit_gateway.description }}"
         - item.state == "available"
-      loop: "{{ info.transit_gateways }}"
-    - name: Delete the attachment and transit gw
+      loop: "{{ manage_transit_gateway_info.transit_gateways }}"
+    - name: Delete the attachment and transit manage_transit_gateway_gw
 
       block:
         - name: Describe attachments on a specific VPC
-          community.aws.ec2_transit_gateway_vpc_attachment_info:
+          community.aws.ec2_transit_gateway_vpc_attachment_manage_transit_gateway_info:
             filters:
-              transit-gateway-id: '{{ gw.transit_gateway_id }}'
-          register: info
+              transit-gateway-id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
+          register: manage_transit_gateway_info
 
         - name: Start deletion of all attachments
           community.aws.ec2_transit_gateway_vpc_attachment:
             state: absent
             id: '{{ item.transit_gateway_attachment_id }}'
             wait: False
-          loop: '{{ info.attachments }}'
+          loop: '{{ manage_transit_gateway_info.attachments }}'
 
         - name: Wait for the deletion of all attachments
           community.aws.ec2_transit_gateway_vpc_attachment:
             state: absent
             id: '{{ item.transit_gateway_attachment_id }}'
             wait: True
-          loop: '{{ info.attachments }}'
+          loop: '{{ manage_transit_gateway_info.attachments }}'
 
         - name: Check if all the transit gateway attachments have been deleted
-          community.aws.ec2_transit_gateway_vpc_attachment_info:
+          community.aws.ec2_transit_gateway_vpc_attachment_manage_transit_gateway_info:
             filters:
-              transit-gateway-id: '{{ gw.transit_gateway_id }}'
-          register: info
+              transit-gateway-id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
+          register: manage_transit_gateway_info
 
         - assert:
             that:
-              - info.attachments | length == 0
+              - manage_transit_gateway_info.attachments | length == 0
 
         - name: Delete Transit Gateways
           community.aws.ec2_transit_gateway:
             state: absent
-            transit_gateway_id: '{{ gw.transit_gateway_id }}'
-      when: gw is defined
+            transit_gateway_id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
+      when: manage_transit_gateway_gw is defined

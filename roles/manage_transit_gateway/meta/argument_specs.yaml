@@ -13,18 +13,5 @@ argument_specs:
         type: dict
         required: True
       vpc_attachment:
-        descrption: VPC to be attached
+        description: VPC to be attached
         type: list
-        element: dict
-        suboptions:
-          name:
-            description: Name of the VPC attachemnt.
-            type: str
-          tags:
-            description: Tags for the attachment
-            type: dict
-          subnets:
-            description: Subnets to be attached.
-            type: list
-            elements: str
-            required: True
