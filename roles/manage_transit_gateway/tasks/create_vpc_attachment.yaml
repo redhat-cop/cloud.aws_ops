@@ -14,6 +14,7 @@
     msg: Transit gateway VPC attachment {{ item.name }} has been successfully created.
   when: manage_transit_gateway_tgw_vpc_attachment_result is changed
 
-- ansible.builtin.debug:
+- name: Print debug message
+  ansible.builtin.debug:
     msg: Transit gateway VPC attachment {{ item.name }} already exists with the given subnets.
   when: manage_transit_gateway_tgw_vpc_attachment_result is not changed
