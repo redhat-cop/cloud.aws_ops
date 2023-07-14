@@ -1,0 +1,88 @@
+---
+# Integration tests for s3_object
+- name: Test 'awsconfig_detach_and_delete_internet_gateway' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: get ARN of calling user
+      aws_caller_info:
+      register: aws_caller_info
+
+    - debug:
+        var: aws_caller_info
+
+    - name: register account id
+      set_fact:
+        aws_arn: "{{ aws_caller_info.arn }}"
+    
+    # Defining bucket name =================================================================
+    - name: define bucket name used for tests
+      set_fact:
+        moving_buckets:
+          src: "{{ bucket_name_src }}"
+          dest: "{{ bucket_name_dest }}"
+    
+  #   # Create s3 buckets ====================================================================
+    - name: Create source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket_name_src }}"
+        state: present
+        policy: "{{ lookup('template', 'policy.json.j2') }}"
+        public_access:
+          block_public_acls: true
+          ignore_public_acls: true
+
+    - name: Create destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket_name_dest }}"
+        state: present
+        policy: "{{ lookup('template', 'policy2.json.j2') }}"
+        public_access:
+          block_public_acls: true
+          ignore_public_acls: true
+
+    # Put objects into s3 source buckets ===================================================
+    - name: Put object in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ moving_buckets.src }}"
+        object: /test.txt
+        src: "test.txt"
+        mode: put
+      
+    - slurp:
+        src: "{{ role_path }}/files/test.png"
+      register: put_binary
+    
+    - name: Put object in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ moving_buckets.src }}"
+        object: put-binary.bin
+        content_base64: "{{ put_binary.content }}"
+        # permission: public-read
+        mode: put
+    
+    # Moving objects between buckets =======================================================
+    - name: 
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.moving_objects_between_buckets
+      vars:
+        moving_buckets_src: "{{ moving_buckets.src }}"
+        moving_bucket_dest: "{{ moving_buckets.dest }}"
+
+  always:
+    # Clean up starts here =================================================================
+    - name: Delete source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.src }}"
+        state: absent
+        force: true
+
+    - name: Delete destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ moving_buckets.dest }}"
+        state: absent
