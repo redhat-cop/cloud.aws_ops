@@ -27,7 +27,7 @@
   #   # Create s3 buckets ====================================================================
     - name: Create source s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ bucket_name_src }}"
+        name: "{{ bucket_name.src }}"
         state: present
         policy: "{{ lookup('template', 'policy.json.j2') }}"
         public_access:
@@ -38,7 +38,7 @@
 
     - name: Create destination s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ bucket_name_dest }}"
+        name: "{{ bucket_name.dest }}"
         state: present
         policy: "{{ lookup('template', 'policy2.json.j2') }}"
         public_access:
