@@ -13,12 +13,9 @@
       aws_caller_info:
       register: aws_caller_info
 
-    - debug:
-        var: aws_caller_info
-
     - name: register account id
       set_fact:
-        aws_arn: "{{ aws_caller_info.arn }}"
+        aws_account: "{{ aws_caller_info.account }}"
     
     # Defining bucket name =================================================================
     - name: define bucket name used for tests
@@ -34,8 +31,10 @@
         state: present
         policy: "{{ lookup('template', 'policy.json.j2') }}"
         public_access:
-          block_public_acls: true
-          ignore_public_acls: true
+          block_public_acls: false
+          ignore_public_acls: false
+          block_public_policy: false
+          restrict_public_buckets: false
 
     - name: Create destination s3 bucket
       amazon.aws.s3_bucket:
@@ -43,8 +42,10 @@
         state: present
         policy: "{{ lookup('template', 'policy2.json.j2') }}"
         public_access:
-          block_public_acls: true
-          ignore_public_acls: true
+          block_public_acls: false
+          ignore_public_acls: false
+          block_public_policy: false
+          restrict_public_buckets: false
 
     # Put objects into s3 source buckets ===================================================
     - name: Put object in source s3 bucket
@@ -63,7 +64,6 @@
         bucket: "{{ moving_buckets.src }}"
         object: put-binary.bin
         content_base64: "{{ put_binary.content }}"
-        # permission: public-read
         mode: put
     
     # Moving objects between buckets =======================================================
