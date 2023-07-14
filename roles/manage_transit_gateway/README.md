@@ -21,10 +21,17 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **action**: Whether to create or delete the transit gateway. Choices: 'create', 'delete'. Default: 'create'.
+* **action**: Whether to create or delete the transit gateway. Choices: 'create', 'delete'.
 * **transit_gateway**: A dict of parameters needed to create transit gateway.
+    **asn**: A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
+    **tags**: A dict of tags for the transit gateway.
+    **description**: Description for the transit gateway.
 * **vpc_attachment**: A list of dict of parameters to create vpc attachments.
+    **name**: Name for the VPC attachment.
+    **tags**: A dic of tags for the attachment.
+    **subnets**: A list of subnets to be added to the attachment.
 * **vpn_attachment**: A list of dict of parameters to create vpn attachments.
+    **customer_gateway_id**: Id of the customer gateway.
 
 Dependencies
 ------------
@@ -59,6 +66,26 @@ Example Playbook
                 "team": "cloud"
               subnets:
                 - "subnet-xxxx002"
+
+
+**Create a transit gateway with  VPN attachment**
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create transit gateway
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_transit_gateway
+      vars:
+        action: "create"
+        transit_gateway:
+          asn: 4200000000
+          description: "TGW for Cloud team"
+          tags:
+            "team": "cloud"
+        vpn_attachment:
+          - customer_gateway_id: "cgw-01b56884848a25446"
+
 License
 -------
 

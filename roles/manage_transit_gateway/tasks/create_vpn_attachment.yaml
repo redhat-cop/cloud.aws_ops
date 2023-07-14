@@ -1,0 +1,17 @@
+---
+- name: Create vpn connection, with customer gateway and transit_gateway
+  community.aws.ec2_vpc_vpn:
+    customer_gateway_id: '{{ item.customer_gateway_id }}'
+    transit_gateway_id: '{{ manage_transit_gateway_tgw_result.transit_gateway.transit_gateway_id }}'
+    state: present
+  register: manage_transit_gateway_tgw_vpn_attachment_result
+
+- name: Verify that the transit gateway vpc attachment has been successfully created.
+  ansible.builtin.debug:
+    msg: Transit gateway VPN attachment has been successfully created.
+  when: manage_transit_gateway_tgw_vpn_attachment_result is changed
+
+- name: Print debug message
+  ansible.builtin.debug:
+    msg: Transit gateway VPN attachment {{ item.name }} already exists.
+  when: manage_transit_gateway_tgw_vpn_attachment_result is not changed

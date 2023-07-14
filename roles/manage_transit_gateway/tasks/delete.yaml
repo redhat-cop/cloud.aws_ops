@@ -2,21 +2,22 @@
 - name: Run delete_tmanage_transit_gateway_gw_attach_vpc role
   block:
     - name: List all the transit gateway attachments
-      community.aws.ec2_transit_gateway_manage_transit_gateway_info:
+      community.aws.ec2_transit_gateway_info:
       register: manage_transit_gateway_info
 
     - name: Get the transit gateway with the given description
       ansible.builtin.set_fact:
         manage_transit_gateway_gw: "{{ item }}"
       when:
-        - item.description == "transit_gateway.description"
+        - item.description == transit_gateway.description
         - item.state == "available"
       loop: "{{ manage_transit_gateway_info.transit_gateways }}"
 
     - name: Delete the attachment and transit manage_transit_gateway_gw
+      when: manage_transit_gateway_gw is defined
       block:
         - name: Describe attachments on a specific VPC
-          community.aws.ec2_transit_gateway_vpc_attachment_manage_transit_gateway_info:
+          community.aws.ec2_transit_gateway_vpc_attachment_info:
             filters:
               transit-gateway-id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
           register: manage_transit_gateway_info
@@ -36,7 +37,7 @@
           loop: '{{ manage_transit_gateway_info.attachments }}'
 
         - name: Check if all the transit gateway attachments have been deleted
-          community.aws.ec2_transit_gateway_vpc_attachment_manage_transit_gateway_info:
+          community.aws.ec2_transit_gateway_vpc_attachment_info:
             filters:
               transit-gateway-id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
           register: manage_transit_gateway_info
@@ -46,8 +47,41 @@
             that:
               - manage_transit_gateway_info.attachments | length == 0
 
+        - name: Check for vpn attachments
+          community.aws.ec2_vpc_vpn_info:
+          register: manage_transit_gateway_vpn_info
+
+        - name: Set fact
+          ansible.builtin.set_fact:
+            manage_transit_gateway_cgw: "{{ item.customer_gateway_id }}"
+          when:
+            - item.transit_gateway_id == manage_transit_gateway_gw.transit_gateway_id
+            - item.state == "available"
+          loop: "{{ manage_transit_gateway_vpn_info.vpn_connections }}"
+
+        - name: Delete vpn connection, with customer gateway and transit_gateway
+          community.aws.ec2_vpc_vpn:
+            customer_gateway_id: '{{ manage_transit_gateway_cgw }}'
+            transit_gateway_id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
+            state: absent
+            wait_timeout: 600
+          when:
+            - manage_transit_gateway_vpn_info.vpn_connections != []
+            - manage_transit_gateway_cgw is defined
+
+        - name: Check for vpn attachments after deletion
+          community.aws.ec2_vpc_vpn_info:
+          register: manage_transit_gateway_vpn_att_info
+
+        - name: Check for vpn attachments
+          ansible.builtin.assert:
+            that:
+              - item.state == "deleted"
+          when:
+            - item.transit_gateway_id == manage_transit_gateway_gw.transit_gateway_id
+          loop: "{{ manage_transit_gateway_vpn_att_info.vpn_connections }}"
+
         - name: Delete Transit Gateways
           community.aws.ec2_transit_gateway:
             state: absent
             transit_gateway_id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
-      when: manage_transit_gateway_gw is defined

@@ -14,9 +14,11 @@
     - name: Setup
       ansible.builtin.include_tasks: 'setup.yml'
 
-    # Tests create / update on parameters simulatniously
     - name: Test role with attach vpc option
       ansible.builtin.include_tasks: 'vpc_attachments.yml'
+
+    - name: Test role with attach vpn option
+      ansible.builtin.include_tasks: 'vpn_attachments.yml'
 
   always:
     # Cleanup after ourselves
