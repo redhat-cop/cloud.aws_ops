@@ -29,7 +29,7 @@
         vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
         vpc_peering_operation: delete
 
-    # NOTE: Tests for cross-region vpc peering skipped as CI permissions are restricted to us-east-1 only
+  # NOTE: Tests for cross-region vpc peering skipped as CI permissions are restricted to us-east-1 only
     #  VPC Peering (cross region)
     # - name: Create VPC peering (cross region)
     #   ansible.builtin.include_role:
