@@ -16,8 +16,9 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **moving_buckets_src**: source bucket
-* **moving_bucket_dest**: destination (receiving) bucket
+* **source_bucket**: source bucket
+* **dest_bucket**: destination (receiving) bucket
+* **source_bucket_object_prefix**: limits objects that begin with the specified prefix
 
 Dependencies
 ------------
