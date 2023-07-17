@@ -46,5 +46,5 @@ argument_specs:
         elements: dict
         options:
           customer_gateway_id:
-            desription: id of the customer gateway for the vpn attachment.
+            description: id of the customer gateway for the vpn attachment.
             type: str

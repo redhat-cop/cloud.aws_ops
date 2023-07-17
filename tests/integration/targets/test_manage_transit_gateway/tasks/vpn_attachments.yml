@@ -19,7 +19,7 @@
       community.aws.ec2_vpc_vpn_info:
         register: manage_transit_gateway_result
 
-    - name: assert that vpn connections are created
+    - name: Assert that vpn connections are created
       ansible.builtin.assert:
         that:
           - 'manage_transit_gateway_result.vpn_connections != []'
