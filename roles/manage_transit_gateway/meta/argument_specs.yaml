@@ -4,14 +4,47 @@ argument_specs:
     short_description: Creation/Deletion of transit gateway with vpc/vpn attachment
     options:
       action:
-        description: Action to be done
+        description: Action to be done.
         type: "str"
         default: "create"
         choices: ["create", "delete"]
       transit_gateway:
-        description: Transit Gateway to be created
+        description: Transit Gateway to be created.
         type: dict
         required: True
+        options:
+          asn:
+            description:
+              - A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
+              - The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+            type: int
+          description:
+            description:
+              - The description of the transit gateway.
+            type: str
+          tags:
+            description: A dict of tags for the transit gateway.
+            type: dict
       vpc_attachment:
-        description: VPC to be attached
+        description: VPC to be attached.
         type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the attachment.
+            type: str
+          subnets:
+            description: Subnets for the attachment.
+            type: list
+            elements: str
+          tags:
+            description: A dict of tags for the attachment.
+            type: dict
+      vpn_attachment:
+        description: VPC to be attached.
+        type: list
+        elements: dict
+        options:
+          customer_gateway_id:
+            desription: id of the customer gateway for the vpn attachment.
+            type: str

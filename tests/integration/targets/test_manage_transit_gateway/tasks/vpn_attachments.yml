@@ -15,11 +15,11 @@
         vpn_attachment:
           - customer_gateway_id: "{{ customer_gw_id }}"
 
-    - name: test success with no parameters
+    - name: Get vpn connections info
       community.aws.ec2_vpc_vpn_info:
         register: manage_transit_gateway_result
 
     - name: assert that vpn connections are created
-      assert:
+      ansible.builtin.assert:
         that:
           - 'manage_transit_gateway_result.vpn_connections != []'

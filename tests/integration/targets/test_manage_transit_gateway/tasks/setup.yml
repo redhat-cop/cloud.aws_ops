@@ -51,7 +51,7 @@
     subnet_id_a_1: '{{ create_subnets.results[0].subnet.id }}'
     subnet_id_b_1: '{{ create_subnets.results[3].subnet.id }}'
 
-- name: create customer gateway
+- name: Create customer gateway
   community.aws.ec2_customer_gateway:
     bgp_asn: 12345
     ip_address: 1.2.3.4

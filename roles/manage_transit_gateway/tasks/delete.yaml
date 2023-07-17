@@ -1,5 +1,5 @@
 ---
-- name: Run delete_tmanage_transit_gateway_gw_attach_vpc role
+- name: Run manage_transit_gateway role
   block:
     - name: List all the transit gateway attachments
       community.aws.ec2_transit_gateway_info:
@@ -23,13 +23,6 @@
           register: manage_transit_gateway_info
 
         - name: Start deletion of all attachments
-          community.aws.ec2_transit_gateway_vpc_attachment:
-            state: absent
-            id: '{{ item.transit_gateway_attachment_id }}'
-            wait: False
-          loop: '{{ manage_transit_gateway_info.attachments }}'
-
-        - name: Wait for the deletion of all attachments
           community.aws.ec2_transit_gateway_vpc_attachment:
             state: absent
             id: '{{ item.transit_gateway_attachment_id }}'
