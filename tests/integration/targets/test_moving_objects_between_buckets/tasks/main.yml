@@ -28,6 +28,13 @@
         content: "{{ lookup('file', 'test.txt') }}"
         mode: put
 
+    - name: Put object (python) in source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name_src }}"
+        object: test.py
+        content: "{{ lookup('file', 'test.py') }}"
+        mode: put
+
     - slurp:
         src: "{{ role_path }}/files/test.png"
       register: put_binary
@@ -39,7 +46,39 @@
         content_base64: "{{ put_binary.content }}"
         mode: put
 
-    # Moving objects between buckets =======================================================
+    # Moving one object between buckets =======================================================
+    - name: 
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.moving_objects_between_buckets
+      vars:
+        moving_bucket_src: "{{ bucket_name_src }}"
+        moving_bucket_dest: "{{ bucket_name_dest }}"
+        moving_bucket_src_objects_prefix: "template"
+
+    - name: Obtaining source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name_src }}"
+        mode: list
+      register: bucket_src_info
+
+    - name: Check the source s3 bucket remaining objects
+      ansible.builtin.assert:
+        that:
+        - "bucket_src_info.s3_keys[0] == 'put-binary.bin'"
+        - "bucket_src_info.s3_keys[1] == 'test.py'"
+        
+    - name: Obtaining destination bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name_dest }}"
+        mode: list
+      register: bucket_dest_info
+
+    - name: Check the destination s3 bucket obtained one object
+      ansible.builtin.assert:
+        that:
+        - "bucket_dest_info.s3_keys[0] == 'template/test.txt'"
+    
+    # Moving all objects between buckets =======================================================
     - name: 
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
@@ -64,11 +103,12 @@
         mode: list
       register: bucket_dest_info
 
-    - name: Check the destination s3 bucket is not empty
+    - name: Check the destination s3 bucket received all objects
       ansible.builtin.assert:
         that:
-        - "bucket_dest_info.s3_keys[0] in ['put-binary.bin','template/test.txt']"
-        - "bucket_dest_info.s3_keys[1] in ['put-binary.bin','template/test.txt']"
+        - "bucket_dest_info.s3_keys[0] in ['put-binary.bin','template/test.txt', 'test.py']"
+        - "bucket_dest_info.s3_keys[1] in ['put-binary.bin','template/test.txt', 'test.py']"
+        - "bucket_dest_info.s3_keys[2] in ['put-binary.bin','template/test.txt', 'test.py']"
 
   always:
     # Clean up starts here =================================================================
