@@ -1,7 +1,7 @@
 awsconfig_multiregion_cloudtrail
 ==================
 
-A role to create/delete a Trail for multiple regions.
+A role to moving objects between buckets.
 
 Requirements
 ------------
@@ -34,8 +34,8 @@ Dependencies
     - name: Define bucket name used for tests
       set_fact:
         moving_buckets:
-          src: "mytaeho-src"
-          dest: "mytaeho-dst"
+          src: "mybucket-src"
+          dest: "mybucket-dst"
     
     - name: Create source s3 bucket
       amazon.aws.s3_bucket:

@@ -10,8 +10,7 @@
         mode: list
       register: bucket_src_info
 
-    # Moving objects between buckets
-    - name: Copy an object already stored in another bucket
+    - name: Moving objects between source bucket to destination bucket
       amazon.aws.s3_object:
         bucket: "{{ moving_bucket_dest }}"
         object: "{{ item }}"

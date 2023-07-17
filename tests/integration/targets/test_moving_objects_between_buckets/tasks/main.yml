@@ -1,6 +1,6 @@
 ---
 # Integration tests for s3_object
-- name: Test 'awsconfig_detach_and_delete_internet_gateway' role
+- name: Test 'moving_objects_between_buckets' role
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
