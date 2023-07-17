@@ -5,84 +5,80 @@
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ security_token | default(omit) }}"
+      security_token: '{{ security_token | default(omit) }}'
       region: "{{ aws_region }}"
 
   block:
-    - name: get ARN of calling user
-      aws_caller_info:
-      register: aws_caller_info
-
-    - name: register account id
-      set_fact:
-        aws_account: "{{ aws_caller_info.account }}"
-    
-    # Defining bucket name =================================================================
-    - name: define bucket name used for tests
-      set_fact:
-        moving_buckets:
-          src: "{{ bucket_name_src }}"
-          dest: "{{ bucket_name_dest }}"
-    
   #   # Create s3 buckets ====================================================================
     - name: Create source s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ bucket_name.src }}"
+        name: "{{ bucket_name_src }}"
         state: present
-        policy: "{{ lookup('template', 'policy.json.j2') }}"
-        public_access:
-          block_public_acls: false
-          ignore_public_acls: false
-          block_public_policy: false
-          restrict_public_buckets: false
 
     - name: Create destination s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ bucket_name.dest }}"
+        name: "{{ bucket_name_dest }}"
         state: present
-        policy: "{{ lookup('template', 'policy2.json.j2') }}"
-        public_access:
-          block_public_acls: false
-          ignore_public_acls: false
-          block_public_policy: false
-          restrict_public_buckets: false
 
     # Put objects into s3 source buckets ===================================================
-    - name: Put object in source s3 bucket
+    - name: Put object (text) in source bucket
       amazon.aws.s3_object:
-        bucket: "{{ moving_buckets.src }}"
-        object: /test.txt
-        src: "test.txt"
+        bucket: "{{ bucket_name_src }}"
+        object: /template/test.txt
+        content: "{{ lookup('file', 'test.txt') }}"
         mode: put
-      
+
     - slurp:
         src: "{{ role_path }}/files/test.png"
       register: put_binary
-    
-    - name: Put object in source s3 bucket
+
+    - name: Put object (image) in source s3 bucket
       amazon.aws.s3_object:
-        bucket: "{{ moving_buckets.src }}"
+        bucket: "{{ bucket_name_src }}"
         object: put-binary.bin
         content_base64: "{{ put_binary.content }}"
         mode: put
-    
+
     # Moving objects between buckets =======================================================
     - name: 
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
-        moving_buckets_src: "{{ moving_buckets.src }}"
-        moving_bucket_dest: "{{ moving_buckets.dest }}"
+        moving_bucket_src: "{{ bucket_name_src }}"
+        moving_bucket_dest: "{{ bucket_name_dest }}"
+
+    - name: Obtaining source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name_src }}"
+        mode: list
+      register: bucket_src_info
+
+    - name: Check the source s3 bucket is empty
+      ansible.builtin.assert:
+        that:
+        - "bucket_src_info.s3_keys == []"
+        
+    - name: Obtaining destination bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket_name_dest }}"
+        mode: list
+      register: bucket_dest_info
+
+    - name: Check the destination s3 bucket is not empty
+      ansible.builtin.assert:
+        that:
+        - "bucket_dest_info.s3_keys[0] in ['put-binary.bin','template/test.txt']"
+        - "bucket_dest_info.s3_keys[1] in ['put-binary.bin','template/test.txt']"
 
   always:
     # Clean up starts here =================================================================
     - name: Delete source s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ moving_buckets.src }}"
+        name: "{{ bucket_name_src }}"
         state: absent
-        force: true
 
     - name: Delete destination s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ moving_buckets.dest }}"
+        name: "{{ bucket_name_dest }}"
         state: absent
+        force: true
