@@ -1,12 +1,4 @@
 ---
-- name: Create Cloud Resources (workers, load balancer, etc)
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ region | default(aws_region) }}"
-      
 - name: Update ssh_config
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
