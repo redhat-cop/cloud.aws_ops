@@ -1,7 +1,7 @@
 moving_objects_between_buckets
 ==================
 
-A role to moving objects between buckets.
+A role to move objects from one S3 Bucket to another.
 
 Requirements
 ------------
