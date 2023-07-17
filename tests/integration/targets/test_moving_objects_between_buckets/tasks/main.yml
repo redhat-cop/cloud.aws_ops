@@ -51,9 +51,9 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
-        moving_bucket_src: "{{ bucket_name_src }}"
-        moving_bucket_dest: "{{ bucket_name_dest }}"
-        moving_bucket_src_objects_prefix: "template"
+        source_bucket: "{{ bucket_name_src }}"
+        dest_bucket: "{{ bucket_name_dest }}"
+        source_bucket_object_prefix: "template"
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
@@ -83,8 +83,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
-        moving_bucket_src: "{{ bucket_name_src }}"
-        moving_bucket_dest: "{{ bucket_name_dest }}"
+        source_bucket: "{{ bucket_name_src }}"
+        dest_bucket: "{{ bucket_name_dest }}"
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
