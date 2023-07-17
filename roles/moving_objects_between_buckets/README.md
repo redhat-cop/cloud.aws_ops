@@ -1,4 +1,4 @@
-awsconfig_multiregion_cloudtrail
+moving_objects_between_buckets
 ==================
 
 A role to moving objects between buckets.
