@@ -4,6 +4,17 @@
     group/aws: "{{ aws_setup_credentials__output }}"
 
   block:
+    # Checking required variables
+    - name: Fail when 'source_bucket' is undefined
+      ansible.builtin.fail:
+        msg: source bucket should be defined as source_bucket
+      when: source_bucket is undefined
+
+    - name: Fail when 'dest_bucket' is undefined
+      ansible.builtin.fail:
+        msg: destination bucket should be defined as dest_bucket
+      when: dest_bucket is undefined
+
     # Obtaining specifc or all the source bucket objects
     - name: Obtaining all the source bucket objects
       amazon.aws.s3_object:

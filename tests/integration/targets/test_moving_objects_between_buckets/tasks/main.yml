@@ -1,5 +1,5 @@
 ---
-# Integration tests for s3_object
+# Integration tests for moving_objects_between_buckets
 - name: Test 'moving_objects_between_buckets' role
   module_defaults:
     group/aws:
