@@ -28,7 +28,7 @@ Role Variables
     **description**: Description for the transit gateway.
 * **vpc_attachment**: A list of dict of parameters to create vpc attachments.
     **name**: Name for the VPC attachment.
-    **tags**: A dic of tags for the attachment.
+    **tags**: A dict of tags for the attachment.
     **subnets**: A list of subnets to be added to the attachment.
 * **vpn_attachment**: A list of dict of parameters to create vpn attachments.
     **customer_gateway_id**: Id of the customer gateway.

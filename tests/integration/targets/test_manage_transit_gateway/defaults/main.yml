@@ -1,4 +1,5 @@
 cidr_prefix: '10.{{ 255 | random(seed=resource_prefix) }}'
+aws_security_token: '{{ security_token | default(omit) }}'
 tgw_name: '{{ resource_prefix }}'
 vpc_name_a: '{{ resource_prefix }}-1'
 vpc_name_b: '{{ resource_prefix }}-2'
