@@ -2,6 +2,7 @@ moving_objects_between_buckets
 ==================
 
 A role to move objects from one S3 Bucket to another.
+Objects have two options: all objects can be transferred or specific objects are transferred through key prefix.
 
 Requirements
 ------------
@@ -12,13 +13,18 @@ AWS User Account with the following permission:
 * s3:GetBucketOwnershipControls
 * s3:ListObjectsV2
 * s3:ListBucket
+* s3:DeleteObject
+* s3:HeadObject
+* s3:PutObjectAcl
+* s3:CopyObject
+* s3:GetObjectTagging
 
 Role Variables
 --------------
 
-* **source_bucket**: source bucket
-* **dest_bucket**: destination (receiving) bucket
-* **source_bucket_object_prefix**: limits objects that begin with the specified prefix
+* **source_bucket**: The name of the Amazon S3 bucket that will have its objects retrieved and then emptied. **Required**
+* **dest_bucket**: The name of the Amazon S3 bucket that will receive the objects. **Required**
+* **key_prefix**: limits objects that begin with the specified prefix. Default value is **""**.
 
 Dependencies
 ------------

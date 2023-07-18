@@ -9,7 +9,7 @@
       amazon.aws.s3_object:
         bucket: "{{ source_bucket }}"
         mode: list
-        prefix: "{{ source_bucket_object_prefix | default('') }}"
+        prefix: "{{ key_prefix | default('') }}"
       register: source_bucket_info
 
     # Transferring objects from source bucket to destination bucket
