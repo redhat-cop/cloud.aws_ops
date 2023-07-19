@@ -40,3 +40,10 @@
         object: "{{ item }}"
         mode: delobj 
       loop: "{{ source_bucket_info.s3_keys }}"
+    
+    # Delete source s3 bucket when empty
+    - name: Delete source s3 bucket when empty
+      amazon.aws.s3_bucket:
+        name: "{{ source_bucket }}"
+        state: absent
+      when: "{{ delete_empty_source_bucket | default(false) }}"

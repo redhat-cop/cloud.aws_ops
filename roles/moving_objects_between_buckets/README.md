@@ -18,6 +18,7 @@ AWS User Account with the following permission:
 * s3:PutObjectAcl
 * s3:CopyObject
 * s3:GetObjectTagging
+* s3:DeleteBucket
 
 Role Variables
 --------------
@@ -25,6 +26,7 @@ Role Variables
 * **source_bucket**: The name of the Amazon S3 bucket that will have its objects retrieved and then emptied. **Required**
 * **dest_bucket**: The name of the Amazon S3 bucket that will receive the objects. **Required**
 * **key_prefix**: limits objects that begin with the specified prefix. Default value is **""**.
+* **delete_empty_source_bucket**: deletes source bucket after all objects have been transferred to destination bucket. Default value is **false**.
 
 Dependencies
 ------------
@@ -71,8 +73,8 @@ Dependencies
       amazon.aws.s3_bucket:
         name: "{{ moving_buckets.dest }}"
         state: present
-    
-    - name: Transferring source bucket's objects to destination bucket
+
+    - name: Transferring all source bucket's objects to destination bucket
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
