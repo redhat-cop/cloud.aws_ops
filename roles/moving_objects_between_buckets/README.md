@@ -3,6 +3,7 @@ moving_objects_between_buckets
 
 A role to move objects from one S3 Bucket to another.
 Objects have two options: all objects can be transferred or specific objects are transferred through key prefix.
+If the source bucket is empty, the user has two options: source bucket is deleted or source bucket is kept as an empty bucket.
 
 Requirements
 ------------
