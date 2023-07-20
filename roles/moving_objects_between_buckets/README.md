@@ -44,8 +44,8 @@ Dependencies
     - name: Define bucket name
       set_fact:
         bucket:
-          src: "{{ bucket_name }}-src"
-          dest: "{{ bucket_name }}-dest"
+          src: "mybucket-src"
+          dest: "mybucket-dest"
     
     - name: Create source s3 bucket
       amazon.aws.s3_bucket:
