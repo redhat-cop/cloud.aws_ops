@@ -53,24 +53,21 @@ jobs:
         workflow-id: ${{ fromJson(needs.splitter.outputs.test_jobs) }}
     name: "integration-${{ matrix.workflow-id }}"
     steps:
-      - name: setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-
-      - name: install required python libraries
-        run: pip install -U jq
-        shell: bash
-
       - name: Read target
         id: read-targets
         run: |
-          TARGETS=$(echo '$ALL_TEST_TARGETS' | jq '."$WORKFLOW_ID"')
-          echo "ansible_test_targets=${TARGETS}" >> $GITHUB_OUTPUT
-        shell: bash
+          import json, os
+          with open(os.environ.get('GITHUB_OUTPUT'), "a", encoding="utf-8") as fh:
+              fh.write(f'ansible_test_targets={json.loads(os.environ.get("ALL_TEST_TARGETS")).get(os.environ.get("WORKFLOW_ID"))}\n')
+        shell: python
         env:
           ALL_TEST_TARGETS: ${{ needs.splitter.outputs.test_targets_json }}
           WORKFLOW_ID: ${{ matrix.workflow-id }}
+
+      - name: Display ansible test targets
+        run: |
+          echo "ansible_test_targets -> ${{ steps.read-targets.outputs.ansible_test_targets }}"
+        shell: bash
 
       - name: Checkout collection
         uses: actions/checkout@v3
