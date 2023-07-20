@@ -58,15 +58,19 @@ jobs:
         with:
           python-version: "3.9"
 
+      - name: install required python libraries
+        run: pip install -U jq
+        shell: bash
+
       - name: Read target
         id: read-targets
         run: |
-          pip install -U jq
-          TARGETS=$(echo '$ALL_TEST_TARGETS' | jq '."${{ matrix.workflow-id }}"')
+          TARGETS=$(echo '$ALL_TEST_TARGETS' | jq '."$WORKFLOW_ID"')
           echo "ansible_test_targets=${TARGETS}" >> $GITHUB_OUTPUT
         shell: bash
         env:
           ALL_TEST_TARGETS: ${{ needs.test_splitter.outputs.test_targets_json }}
+          WORKFLOW_ID: ${{ matrix.workflow-id }}
 
       - name: Checkout collection
         uses: actions/checkout@v3
