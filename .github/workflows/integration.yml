@@ -102,12 +102,36 @@ jobs:
           git config --global user.email gha@localhost
           git config --global user.name "Github Actions"
         shell: bash
+      
+      # ansible test integration action added here
+      - name: Set up Python ${{ inputs.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python_version }}
+
+      - name: Install wheel now for faster builds
+        run: python3 -m pip install wheel --upgrade
+        shell: bash
+
+      - name: Install ansible-core (${{ inputs.ansible_version }})
+        run: python3 -m pip install https://github.com/ansible/ansible/archive/${{ env.ansible_version }}.tar.gz --disable-pip-version-check
+        shell: bash
+
+      - name: Disable selinux with selinux_please_lie_to_me
+        run: |
+          python3 -m pip uninstall -y selinux
+          python3 -m pip install selinux_please_lie_to_me
+        shell: bash
+
+      - name: Install collection python requirements
+        run: python3 -m pip install test-requirements.txt
+        shell: bash
+        working-directory: ${{ steps.install.outputs.collection_path }}
 
       - name: Run integration tests
-        uses: ansible-network/github_actions/.github/actions/ansible_test_integration@main
-        with:
-          collection_path: ${{ steps.install.outputs.collection_path }}
-          python_version: ${{ env.python_version }}
-          ansible_version: ${{ env.ansible_version }}
-          ansible_test_requirement_files: 'test-requirements.txt'
-          ansible_test_targets: ${{ steps.read-targets.outputs.ansible_test_targets }}
+        run: |
+          ansible-test integration $ANSIBLE_TEST_ARGS --python ${{ env.python_version }} -v ${{ steps.read-targets.outputs.ansible_test_targets }}
+        shell: bash
+        working-directory: ${{ steps.install.outputs.collection_path }}
+        env:
+          ANSIBLE_TEST_ARGS: "--diff --no-temp-workdir --color --skip-tags False --retry-on-error --continue-on-error"
