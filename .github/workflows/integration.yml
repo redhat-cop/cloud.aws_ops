@@ -69,7 +69,7 @@ jobs:
           echo "ansible_test_targets=${TARGETS}" >> $GITHUB_OUTPUT
         shell: bash
         env:
-          ALL_TEST_TARGETS: ${{ needs.test_splitter.outputs.test_targets_json }}
+          ALL_TEST_TARGETS: ${{ needs.splitter.outputs.test_targets_json }}
           WORKFLOW_ID: ${{ matrix.workflow-id }}
 
       - name: Checkout collection
