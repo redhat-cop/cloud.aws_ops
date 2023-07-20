@@ -1,4 +1,3 @@
 cloud/aws
 role/awsconfig_multiregion_cloudtrail
 time=20s
-disabled # reason: need update terminator first with permission 'cloudtrail:DescribeTrails'

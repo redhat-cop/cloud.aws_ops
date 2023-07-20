@@ -1,4 +1,3 @@
 cloud/aws
 role/enable_cloudtrail_encryption_with_kms
 time=30s
-disabled # reason: missing policies 'cloudtrail:DescribeTrails' and 'cloudtrail:CreateTrail'
