@@ -124,7 +124,7 @@ jobs:
         shell: bash
 
       - name: Install collection python requirements
-        run: python3 -m pip install test-requirements.txt
+        run: python3 -m pip install -r test-requirements.txt
         shell: bash
         working-directory: ${{ steps.install.outputs.collection_path }}
 
