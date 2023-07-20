@@ -41,46 +41,62 @@ Dependencies
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Define bucket name used for tests
+    - name: Define bucket name
       set_fact:
-        moving_buckets:
-          src: "mybucket-src"
-          dest: "mybucket-dst"
+        bucket:
+          src: "{{ bucket_name }}-src"
+          dest: "{{ bucket_name }}-dest"
     
     - name: Create source s3 bucket
       amazon.aws.s3_bucket:
-        name: "{{ moving_buckets.src }}"
+        name: "{{ bucket.src }}"
         state: present
-      
-    - slurp:
-        src: "test.png"
-      register: put_binary
+
+    - name: Create destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket.dest }}"
+        state: present
     
-    - name: Put object in source s3 bucket
+    - name: Put object (text) in source bucket
       amazon.aws.s3_object:
-        bucket: "{{ moving_buckets.src }}"
+        bucket: "{{ bucket.src }}"
+        object: /template/test.txt
+        content: "{{ lookup('file', 'test.txt') }}"
+        mode: put
+
+    - name: Put object (python) in source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        object: test.py
+        content: "{{ lookup('file', 'test.py') }}"
+        mode: put
+
+    - slurp:
+        src: "{{ role_path }}/files/test.png"
+      register: put_binary
+
+    - name: Put object (image) in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
         object: put-binary.bin
         content_base64: "{{ put_binary.content }}"
         mode: put
     
-    - name: Put object in source s3 bucket
-      amazon.aws.s3_object:
-        bucket: "{{ moving_buckets.src }}"
-        object: /template/test.txt
-        content: "{{ lookup('png', 'test.png') }}"
-        mode: put
-    
-    - name: Create destination s3 bucket
-      amazon.aws.s3_bucket:
-        name: "{{ moving_buckets.dest }}"
-        state: present
-
-    - name: Transferring all source bucket's objects to destination bucket
+    - name: Moving one object between buckets
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
-        moving_buckets_src: "{{ moving_buckets.src }}"
-        moving_bucket_dest: "{{ moving_buckets.dest }}"
+        source_bucket: "{{ bucket.src }}"
+        dest_bucket: "{{ bucket.dest }}"
+        key_prefix: "template"
+    
+    - name: Moving all objects between buckets and deleting the empty source bucket
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.moving_objects_between_buckets
+      vars:
+        source_bucket: "{{ bucket.src }}"
+        dest_bucket: "{{ bucket.dest }}"'
+        delete_empty_source_bucket: true
 ```
 
 License

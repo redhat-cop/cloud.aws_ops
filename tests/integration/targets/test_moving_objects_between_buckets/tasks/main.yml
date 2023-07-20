@@ -54,7 +54,7 @@
         mode: put
 
     # Moving one object between buckets =======================================================
-    - name: 
+    - name: Moving one object between buckets
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
@@ -86,7 +86,7 @@
         - "bucket_dest_info.s3_keys[0] == 'template/test.txt'"
     
     # Moving all objects between buckets =======================================================
-    - name: 
+    - name: Moving all objects between buckets
       ansible.builtin.include_role:
         name: cloud.aws_ops.moving_objects_between_buckets
       vars:
@@ -124,7 +124,7 @@
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"
-        delete_empty_source_bucket: True
+        delete_empty_source_bucket: true
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
