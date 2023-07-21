@@ -28,3 +28,8 @@
       when: vars["vpn_attachment"] is defined
       ansible.builtin.include_tasks: create_vpn_attachment.yaml
       loop: "{{ vpn_attachment }}"
+
+    - name: Create route table entries
+      when: vars["vpc_route_table"] is defined
+      ansible.builtin.include_tasks: add_vpc_route_entries.yaml
+      loop: "{{ vpc_route_table }}"

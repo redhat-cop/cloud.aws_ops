@@ -48,3 +48,17 @@ argument_specs:
           customer_gateway_id:
             description: id of the customer gateway for the vpn attachment.
             type: str
+      vpc_route_table:
+        description: Route table entries for the VPC
+        type: list
+        elements: dict
+        options:
+          vpc_id:
+            description: Te VPC id for which the route should be added.
+            type: str
+          cidr_block:
+            description: Destination CIDR block.
+            type: str
+          tags:
+            description: A dict of tags for the route table.
+            type: dict

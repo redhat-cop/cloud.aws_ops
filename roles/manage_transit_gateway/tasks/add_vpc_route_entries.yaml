@@ -1,0 +1,9 @@
+- name: Add route entries.
+  amazon.aws.ec2_vpc_route_table:
+    vpc_id: "{{ item.vpc_id }}"
+    tags: "{{ item.tags }}"
+    purge_routes: False
+    routes:
+      - dest: "{{ item.cidr_block }}"
+        gateway_id: "{{ manage_transit_gateway_tgw_result.transit_gateway.transit_gateway_id }}"
+  register: manage_transit_gateway_route_table
