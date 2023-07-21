@@ -1,6 +1,6 @@
 ---
-# Integration tests for moving_objects_between_buckets
-- name: Test 'moving_objects_between_buckets' role
+# Integration tests for move_objects_between_buckets
+- name: Test 'move_objects_between_buckets' role
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
@@ -53,10 +53,10 @@
         content_base64: "{{ put_binary.content }}"
         mode: put
 
-    # Moving one object between buckets =======================================================
-    - name: Moving one object between buckets
+    # Move one object between buckets =======================================================
+    - name: Move one object between buckets
       ansible.builtin.include_role:
-        name: cloud.aws_ops.moving_objects_between_buckets
+        name: cloud.aws_ops.move_objects_between_buckets
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"
@@ -85,10 +85,10 @@
         that:
         - "bucket_dest_info.s3_keys[0] == 'template/test.txt'"
     
-    # Moving all objects between buckets =======================================================
-    - name: Moving all objects between buckets
+    # Move all objects between buckets =======================================================
+    - name: Move all objects between buckets
       ansible.builtin.include_role:
-        name: cloud.aws_ops.moving_objects_between_buckets
+        name: cloud.aws_ops.move_objects_between_buckets
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"
@@ -120,7 +120,7 @@
     # Delete source s3 bucket when empty ===================================================
     - name: Delete source s3 bucket when empty
       ansible.builtin.include_role:
-        name: cloud.aws_ops.moving_objects_between_buckets
+        name: cloud.aws_ops.move_objects_between_buckets
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"

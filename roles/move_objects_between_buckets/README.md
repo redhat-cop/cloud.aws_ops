@@ -1,4 +1,4 @@
-moving_objects_between_buckets
+move_objects_between_buckets
 ==================
 
 A role to move objects from one S3 Bucket to another.
@@ -37,7 +37,7 @@ Dependencies
 ## Example:
 ```
 ---
-- name: Playbook for moving objects between buckets using cloud.aws_ops.moving_objects_between_buckets role
+- name: Playbook for move objects between buckets using cloud.aws_ops.move_objects_between_buckets role
   hosts: localhost
   gather_facts: false
   tasks:
@@ -82,17 +82,17 @@ Dependencies
         content_base64: "{{ put_binary.content }}"
         mode: put
     
-    - name: Moving one object between buckets
+    - name: Move one object between buckets
       ansible.builtin.include_role:
-        name: cloud.aws_ops.moving_objects_between_buckets
+        name: cloud.aws_ops.move_objects_between_buckets
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"
         key_prefix: "template"
     
-    - name: Moving all objects between buckets and deleting the empty source bucket
+    - name: Move all objects between buckets and deleting the empty source bucket
       ansible.builtin.include_role:
-        name: cloud.aws_ops.moving_objects_between_buckets
+        name: cloud.aws_ops.move_objects_between_buckets
       vars:
         source_bucket: "{{ bucket.src }}"
         dest_bucket: "{{ bucket.dest }}"'
