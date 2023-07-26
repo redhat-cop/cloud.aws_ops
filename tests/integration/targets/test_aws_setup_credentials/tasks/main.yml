@@ -5,7 +5,7 @@
   vars:
     aws_security_token: '{{ security_token | default(omit) }}'
 
-- name: Trying calling module using generating credentials
+- name: Call module using generated credentials
   module_defaults:
     group/aws:
       "{{ aws_setup_credentials__output }}"
