@@ -13,12 +13,13 @@
         vpc_peering_accepter_region: "{{ test_vpc_region_1.region }}"
 
     # VPC Peering (different region)
-    - name: Test VPC Peering in the same region
+    - name: Test VPC Peering in different region
       ansible.builtin.include_tasks: vpc_peering.yml
       vars:
         vpc_peering_accepter_vpc_id: "{{ __vpcs_region2.results.0.vpc.id }}"
         vpc_peering_requester_vpc_id: "{{ __vpcs_region1.results.0.vpc.id }}"
         vpc_peering_accepter_region: "{{ test_vpc_region_2.region }}"
+      when: test_vpc_region_2 is defined
 
   always:
     - name: Include 'teardown.yml' file
