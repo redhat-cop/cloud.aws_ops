@@ -1,27 +1,29 @@
 ---
-- name: Delete first VPC in eu-central-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_1 }}"
-    name: "{{ test_vpc_name_1_1 }}"
-    state: absent
-    region: eu-central-1
-  register: eu_central_1_vpc_1
-  ignore_errors: true
+- name: Delete VPCs
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      aws_security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Delete VPC from region 1
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ item.cidr_block }}"
+        name: "{{ item.name }}"
+        region: "{{ test_vpc_region }}"
+        state: absent
+      with_items: "{{ test_vpc_region_1.vpcs }}"
+      vars:
+        test_vpc_region: "{{ test_vpc_region_1.region }}"
 
-- name: Delete second VPC in eu-central-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_2 }}"
-    name: "{{ test_vpc_name_1_2 }}"
-    state: absent
-    region: eu-central-1
-  register: eu_central_1_vpc_2
-  ignore_errors: true
-
-- name: Delete VPC in us-west-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_2_1 }}"
-    name: "{{ test_vpc_name_2 }}"
-    state: absent
-    region: us-west-1
-  register: us_west_1_vpc_1
-  ignore_errors: true
+    - name: Delete VPC from region 2
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ item.cidr_block }}"
+        name: "{{ item.name }}"
+        region: "{{ test_vpc_region }}"
+        state: absent
+      with_items: "{{ test_vpc_region_2.vpcs }}"
+      when: test_vpc_region_2 is defined
+      vars:
+        test_vpc_region: "{{ test_vpc_region_2.region }}"

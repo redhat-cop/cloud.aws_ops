@@ -1,21 +1,29 @@
 ---
-- name: Create first VPC in eu-central-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_1 }}"
-    name: "{{ test_vpc_name_1_1 }}"
-    region: eu-central-1
-  register: eu_central_1_vpc_1
+- name: Create VPCs in different region
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      aws_security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Create VPCs from first region
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ item.cidr_block }}"
+        name: "{{ item.name }}"
+        region: "{{ test_vpc_region }}"
+      with_items: "{{ test_vpc_region_1.vpcs }}"
+      register: __vpcs_region1
+      vars:
+        test_vpc_region: "{{ test_vpc_region_1.region }}"
 
-- name: Create second VPC in eu-central-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_2 }}"
-    name: "{{ test_vpc_name_1_2 }}"
-    region: eu-central-1
-  register: eu_central_1_vpc_2
-
-- name: Create VPC in us-west-1
-  amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_2_1 }}"
-    name: "{{ test_vpc_name_2 }}"
-    region: us-west-1
-  register: us_west_1_vpc_1
+    - name: Create VPCs from second region
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ item.cidr_block }}"
+        name: "{{ item.name }}"
+        region: "{{ test_vpc_region }}"
+      with_items: "{{ test_vpc_region_2.vpcs }}"
+      when: test_vpc_region_2 is defined
+      register: __vpcs_region2
+      vars:
+        test_vpc_region: "{{ test_vpc_region_2.region }}"

@@ -1,0 +1,21 @@
+---
+- name: Validate that VPC peering exist with status accepted
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      aws_security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Check VPC peering
+      community.aws.ec2_vpc_peering_info:
+        filters:
+          accepter-vpc-info.vpc-id: "{{ vpc_peering_accepter_vpc_id }}"
+          requester-vpc-info.vpc-id: "{{ vpc_peering_requester_vpc_id }}"
+          status-code: "{{ vpc_peering_status | default('active') }}"
+      register: __vpc_peering
+
+    - name: Validate that VPC peering was found as expected
+      ansible.builtin.assert:
+        that:
+          - __vpc_peering.result | length == 1

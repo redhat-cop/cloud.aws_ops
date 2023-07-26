@@ -1,0 +1,63 @@
+---
+# Test: create and accept VPC peering
+- name: Create and accept VPC peering
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.manage_vpc_peering
+  vars:
+    requester_vpc: "{{ vpc_peering_requester_vpc_id }}"
+    accepter_vpc: "{{ vpc_peering_accepter_vpc_id }}"
+    region: "{{ vpc_peering_accepter_region }}"
+    vpc_peering_operation: create
+
+- name: Validate that VPC Peering was created and is active
+  ansible.builtin.include_tasks: validate.yml
+
+# Test: delete existing VPC peering
+- name: Delete VPC peering connection request
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.manage_vpc_peering
+  vars:
+    region: "{{ vpc_peering_accepter_region }}"
+    vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
+    vpc_peering_operation: delete
+
+- name: Validate that VPC Peering was deleted
+  ansible.builtin.include_tasks: validate.yml
+  vars:
+    vpc_peering_status: "deleted"
+
+# Test: accept existing VPC peering request
+- name: Create VPC peering request
+  community.aws.ec2_vpc_peer:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    aws_security_token: "{{ security_token | default(omit) }}"
+    region: "{{ aws_region }}"
+    peer_region: "{{ vpc_peering_accepter_region }}"
+    vpc_id: "{{ vpc_peering_requester_vpc_id }}"
+    peer_vpc_id: "{{ vpc_peering_accepter_vpc_id }}"
+    state: present
+  register: __vpc_peering
+
+- name: Set Peering id into variable
+  ansible.builtin.set_fact:
+    vpc_peering_id: "{{ __vpc_peering.peering_id }}"
+
+- name: Create and accept VPC peering
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.manage_vpc_peering
+  vars:
+    region: "{{ vpc_peering_accepter_region }}"
+    vpc_peering_conn_id: "{{ vpc_peering_id }}"
+    vpc_peering_operation: accept
+
+- name: Validate that VPC Peering has been accepted
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Delete VPC peering connection
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.manage_vpc_peering
+  vars:
+    region: "{{ vpc_peering_accepter_region }}"
+    vpc_peering_conn_id: "{{ vpc_peering_id }}"
+    vpc_peering_operation: delete
