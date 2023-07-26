@@ -5,4 +5,4 @@
 
   block:
     - name: Include file
-      ansible.builtin.include_tasks: "{{ vpc_peering_operation }}.yaml"
+      ansible.builtin.include_tasks: "{{ manage_vpc_peering_operation }}.yaml"

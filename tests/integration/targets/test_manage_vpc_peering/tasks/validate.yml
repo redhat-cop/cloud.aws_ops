@@ -1,13 +1,13 @@
 ---
 - name: Validate that VPC peering exist with status accepted
   module_defaults:
-      group/aws: "{{ aws_setup_credentials__output }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
   block:
     - name: Check VPC peering
       community.aws.ec2_vpc_peering_info:
         filters:
-          requester-vpc-info.vpc-id: "{{ vpc_peering_requester_vpc_id }}"
-          accepter-vpc-info.vpc-id: "{{ vpc_peering_accepter_vpc_id }}"
+          requester-vpc-info.vpc-id: "{{ vpc_peering_manage_vpc_peering_requeter_vpc_id }}"
+          accepter-vpc-info.vpc-id: "{{ vpc_peering_manage_vpc_peering_accepter_vpc_id }}"
           status-code: "{{ vpc_peering_status | default('active') }}"
       register: __vpc_peering
 

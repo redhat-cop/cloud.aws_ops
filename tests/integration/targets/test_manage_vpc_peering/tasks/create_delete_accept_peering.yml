@@ -4,10 +4,10 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.manage_vpc_peering
   vars:
-    requester_vpc: "{{ vpc_peering_requester_vpc_id }}"
-    accepter_vpc: "{{ vpc_peering_accepter_vpc_id }}"
-    region: "{{ vpc_peering_accepter_region }}"
-    vpc_peering_operation: create
+    manage_vpc_peering_requeter_vpc: "{{ vpc_peering_manage_vpc_peering_requeter_vpc_id }}"
+    manage_vpc_peering_accepter_vpc: "{{ vpc_peering_manage_vpc_peering_accepter_vpc_id }}"
+    manage_vpc_peering_region: "{{ vpc_peering_accepter_region }}"
+    manage_vpc_peering_operation: create
 
 - name: Validate that VPC Peering was created and is active
   ansible.builtin.include_tasks: validate.yml
@@ -17,9 +17,9 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.manage_vpc_peering
   vars:
-    region: "{{ vpc_peering_accepter_region }}"
-    vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
-    vpc_peering_operation: delete
+    manage_vpc_peering_region: "{{ vpc_peering_accepter_region }}"
+    manage_vpc_peering_vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
+    manage_vpc_peering_operation: delete
 
 - name: Validate that VPC Peering was deleted
   ansible.builtin.include_tasks: validate.yml
@@ -34,8 +34,8 @@
     aws_security_token: "{{ security_token | default(omit) }}"
     region: "{{ aws_region }}"
     peer_region: "{{ vpc_peering_accepter_region }}"
-    vpc_id: "{{ vpc_peering_requester_vpc_id }}"
-    peer_vpc_id: "{{ vpc_peering_accepter_vpc_id }}"
+    vpc_id: "{{ vpc_peering_manage_vpc_peering_requeter_vpc_id }}"
+    peer_vpc_id: "{{ vpc_peering_manage_vpc_peering_accepter_vpc_id }}"
     state: present
   register: __vpc_peering
 
@@ -47,9 +47,9 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.manage_vpc_peering
   vars:
-    region: "{{ vpc_peering_accepter_region }}"
-    vpc_peering_conn_id: "{{ vpc_peering_id }}"
-    vpc_peering_operation: accept
+    manage_vpc_peering_region: "{{ vpc_peering_accepter_region }}"
+    manage_vpc_peering_vpc_peering_conn_id: "{{ vpc_peering_id }}"
+    manage_vpc_peering_operation: accept
 
 - name: Validate that VPC Peering has been accepted
   ansible.builtin.include_tasks: validate.yml
@@ -58,6 +58,6 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.manage_vpc_peering
   vars:
-    region: "{{ vpc_peering_accepter_region }}"
-    vpc_peering_conn_id: "{{ vpc_peering_id }}"
-    vpc_peering_operation: delete
+    manage_vpc_peering_region: "{{ vpc_peering_accepter_region }}"
+    manage_vpc_peering_vpc_peering_conn_id: "{{ vpc_peering_id }}"
+    manage_vpc_peering_operation: delete
