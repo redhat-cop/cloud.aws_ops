@@ -1,0 +1,13 @@
+---
+# defaults file for tests/integration/targets/test_moving_objects_between_buckets
+instance_id: test-rds_instance
+state: present
+engine: aurora-postgresql
+username: testrdsusername
+password: test-rds_password
+db_instance_class: db.t2.micro
+source_region_1: us-east-1
+source_region_2: us-east-2
+allocated_storage: 20
+max_allocated_storage: 22
+aws_security_token: '{{ security_token | default(omit) }}'

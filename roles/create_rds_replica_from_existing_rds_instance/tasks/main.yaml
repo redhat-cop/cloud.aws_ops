@@ -1,0 +1,11 @@
+---
+- name: Run 'create_rds_replica_from_existing_rds_instance' role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+
+  block:
+    - name: Create a read replica
+      amazon.aws.rds_instance:
+        db_instance_identifier: '{{ rds_instance_replica }}'
+        source_db_instance_identifier: '{{ rds_instance_orig }}'
+        read_replica: true

@@ -1,0 +1,53 @@
+---
+# Integration tests for move_objects_between_buckets
+- name: Test 'test_create_rds_replica_from_existing_rds_instance' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: '{{ security_token | default(omit) }}'
+      region: "{{ aws_region }}"
+
+  block:
+    # Define rds original instance and replica instance ====================================
+    - name: Define rds instance name used for tests
+      set_fact:
+        rds_instance:
+          orig: "{{ instance_id }}-orig"
+          repli: "{{ instance_id }}-repli"
+
+    # Create s3 buckets ====================================================================
+    - name: Create a original DB instance
+      amazon.aws.rds_instance:
+        db_instance_identifier: test-cluster
+        id: "{{ rds_instance.orig }}"
+        state: present
+        engine: "{{ engine }}"
+        db_instance_class: "{{ db_instance_class }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        allocated_storage: "{{ allocated_storage }}"
+        max_allocated_storage: "{{ max_allocated_storage }}"
+    
+    - name: Create a DB instance replica
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.move_objects_between_buckets
+      vars:
+        rds_instance_repli:  "{{ rds_instances.repli }}"
+        rds_instance_orig: "{{ rds_instance.orig }}"
+
+  always:
+    # Clean up starts here =================================================================
+    - name: Delete original DB instance
+      amazon.aws.rds_instance:
+        name: "{{ rds_instance.orig }}"
+        state: absent
+        force: true
+      ignore_errors: true
+
+    - name: Delete a replica DB instance
+      amazon.aws.rds_instance:
+        name: "{{ rds_instance.repli }}"
+        state: absent
+        force: true
+      ignore_errors: true
