@@ -1,9 +1,22 @@
 name: Integration
 on:
   pull_request_target:
+    types:
+      - opened
+      - reopened
+      - labeled
+      - unlabeled
+      - synchronize
+    branches:
+      - main
+      - stable-*
 
 jobs:
+  safe-to-test:
+    uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@main
   test:
+    needs:
+      - safe-to-test
     runs-on: ubuntu-latest
     env:
       source: "./source"
@@ -16,6 +29,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: ${{ env.source }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Build and install collection
         id: install-collection
