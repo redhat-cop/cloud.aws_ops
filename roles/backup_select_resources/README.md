@@ -24,7 +24,7 @@ Role Variables
 * **selection_excluded_resources**: List of resources to exclude from backup
 * **selection_tags**: List of resource tags selected for backup
 * **selection_conditions**: Conditions for resources to back up
-* **backup_role_name**: (Required) The name of an IAM role with permissions to perform all needed backup actions for the selected resources. Alternatively, provide a new for a new IAM role which will be created with the same permissions as the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources).
+* **backup_role_name**: (Required) The name of an IAM role with permissions to perform all needed backup actions for the selected resources. Alternatively, provide a name for a new IAM role which will be created with the same permissions as the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources).
 
 ### Included sample resource selection variables
 These are included in vars/main.yaml for use as-is or as examples for modification.
@@ -52,14 +52,17 @@ Example Playbooks
             selection_name: s3_buckets
             selection_resources:
               - "{{ all_s3_buckets }}"
+            backup_role_name: my-iam-role
 
 ### Create backup plan and select resources
 
     - hosts: localhost
       roles:
         - role: cloud.aws_ops.backup_create_plan
-          plan_name: my-backup-plan
-          plan_rules: "{{ daily_backup }}"
+          vars:
+            plan_name: my-backup-plan
+            plan_rules:
+              - "{{ daily_backup }}"
 
     - hosts: localhost
       roles:
@@ -69,6 +72,7 @@ Example Playbooks
             selection_name: s3_buckets
             selection_resources:
               - "{{ all_s3_buckets }}"
+            backup_role_name: my-iam-role
 
 License
 -------
