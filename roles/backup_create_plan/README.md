@@ -51,8 +51,10 @@ Example Playbook
     - hosts: localhost
       roles:
         - role: cloud.aws_ops.backup_create_plan
-          plan_name: my-backup-plan
-          plan_rules: "{{ daily_backup }}"
+          vars:
+            plan_name: my-backup-plan
+            plan_rules:
+              - "{{ daily_backup }}"
 
 License
 -------
