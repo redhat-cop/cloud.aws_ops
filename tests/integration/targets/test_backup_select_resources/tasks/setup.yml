@@ -1,0 +1,24 @@
+---
+- name: Create an IAM Role for backup
+  community.aws.iam_role:
+    name: "{{ test_iam_role_name }}"
+    state: present
+    assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'
+    create_instance_profile: false
+    description: "Test Ansible AWS Backup Role"
+    managed_policy:
+      - "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+    wait: true
+  register: iam_role
+
+- name: Wait for role to be created
+  ansible.builtin.pause:
+    seconds: 8
+
+- name: Create a backup vault and plan for test
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.backup_create_plan
+  vars:
+    vault_name: "{{ test_vault_name }}"
+    plan_rules:
+      - "{{ daily_backup }}"

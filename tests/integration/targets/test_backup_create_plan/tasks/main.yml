@@ -1,0 +1,121 @@
+---
+- name: Integration tests for 'backup_create_plan' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: Set plan name variable
+      ansible.builtin.set_fact:
+        plan_name: "{{ resource_prefix }}-plan"
+
+    - name: Include 'backup_create_plan' role to create plan with default vault
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_create_plan
+      vars:
+        plan_rules:
+          - "{{ daily_backup }}"
+
+    - name: Get backup plan info
+      amazon.aws.backup_plan_info:
+        backup_plan_names: ["{{ plan_name }}"]
+      register: plan_create_result
+
+    - name: Verify plan create result
+      ansible.builtin.assert:
+        that:
+          - plan_create_result.backup_plans | length == 1
+          - plan_create_result.backup_plans[0].backup_plan_name == plan_name
+          - plan_create_result.backup_plans[0].backup_plan.rules | length == 1
+          - plan_create_result.backup_plans[0].backup_plan.rules[0].rule_name == "daily"
+          - not plan_create_result.backup_plans[0].tags
+
+    - name: Set vault name variable
+      ansible.builtin.set_fact:
+        vault_name: "{{ resource_prefix }}-vault"
+
+    - name: Include 'backup_create_plan' role to create vault and plan
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_create_plan
+      vars:
+        plan_rules:
+          - "{{ weekly_backup }}"
+
+    - name: Get backup vault info
+      amazon.aws.backup_vault_info:
+        backup_vault_names: ["{{ vault_name }}"]
+      register: vault_create_result
+
+    - name: Verify vault create result
+      ansible.builtin.assert:
+        that:
+          - vault_create_result.backup_vaults | length == 1
+          - vault_create_result.backup_vaults[0].backup_vault_name == vault_name
+          - not vault_create_result.backup_vaults[0].tags
+
+    - name: Get backup plan info
+      amazon.aws.backup_plan_info:
+        backup_plan_names: ["{{ plan_name }}"]
+      register: plan_create_result
+
+    - name: Verify plan create result
+      ansible.builtin.assert:
+        that:
+          - plan_create_result.backup_plans | length == 1
+          - plan_create_result.backup_plans[0].backup_plan_name == plan_name
+          - plan_create_result.backup_plans[0].backup_plan.rules | length == 1
+          - plan_create_result.backup_plans[0].backup_plan.rules[0].rule_name == "weekly"
+          - not plan_create_result.backup_plans[0].tags
+
+    - name: Include 'backup_create_plan' role to update vault and plan
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.backup_create_plan
+      vars:
+        vault_tags:
+          environment: test
+        plan_rules:
+          - "{{ hourly_backup }}"
+        plan_tags:
+          environment: test
+
+    - name: Get backup vault info
+      amazon.aws.backup_vault_info:
+        backup_vault_names: ["{{ vault_name }}"]
+      register: vault_update_result
+
+    - name: Verify vault update result
+      ansible.builtin.assert:
+        that:
+          - vault_update_result.backup_vaults | length == 1
+          - vault_update_result.backup_vaults[0].backup_vault_name == vault_name
+          - vault_update_result.backup_vaults[0].tags.environment == "test"
+
+    - name: Get backup plan info
+      amazon.aws.backup_plan_info:
+        backup_plan_names: ["{{ plan_name }}"]
+      register: plan_update_result
+
+    - name: Verify plan update result
+      ansible.builtin.assert:
+        that:
+          - plan_update_result.backup_plans | length == 1
+          - plan_update_result.backup_plans[0].backup_plan_name == plan_name
+          - plan_update_result.backup_plans[0].backup_plan.rules | length == 1
+          - plan_update_result.backup_plans[0].backup_plan.rules[0].rule_name == "hourly"
+          - plan_update_result.backup_plans[0].tags.environment == "test"
+
+  always:
+    - name: Delete backup plan created for test
+      amazon.aws.backup_plan:
+        backup_plan_name: "{{ plan_name }}"
+        state: absent
+      ignore_errors: true
+
+    - name: Delete backup vault created for test
+      amazon.aws.backup_vault:
+        backup_vault_name: "{{ vault_name }}"
+        state: absent
+      ignore_errors: true
