@@ -1,21 +1,22 @@
 ---
-- name: Create first VPC in us-east-1
+- name: Create first VPC
   amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_1 }}"
-    name: "{{ test_vpc_name_1_1 }}"
-    region: us-east-1
-  register: us_east_1_vpc_1
+    cidr_block: "{{ test_vpc_cidr_1 }}"
+    name: "{{ test_vpc_name_1 }}"
+    region: "{{ aws_region }}"
+  register: test_vpc_1
 
-- name: Create second VPC in us-east-1
+- name: Create second VPC
   amazon.aws.ec2_vpc_net:
-    cidr_block: "{{ test_vpc_cidr_1_2 }}"
-    name: "{{ test_vpc_name_1_2 }}"
-    region: us-east-1
-  register: us_east_1_vpc_2
+    cidr_block: "{{ test_vpc_cidr_2 }}"
+    name: "{{ test_vpc_name_2 }}"
+    region: "{{ aws_region }}"
+  register: test_vpc_2
 
+# Disable: Tests for cross-region vpc peering skipped as CI permissions are restricted to us-east-1 only
 # - name: Create VPC in us-west-1
 #   amazon.aws.ec2_vpc_net:
-#     cidr_block: "{{ test_vpc_cidr_2_1 }}"
-#     name: "{{ test_vpc_name_2 }}"
+#     cidr_block: "{{ test_vpc_cidr_3 }}"
+#     name: "{{ test_vpc_name_3 }}"
 #     region: us-west-1
 #   register: us_west_1_vpc_1
