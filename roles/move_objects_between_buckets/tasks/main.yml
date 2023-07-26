@@ -30,17 +30,17 @@
         object: "{{ item }}"
         mode: copy
         copy_src:
-            bucket: "{{ source_bucket }}"
-            object: "{{ item }}"
+          bucket: "{{ source_bucket }}"
+          object: "{{ item }}"
       loop: "{{ source_bucket_info.s3_keys }}"
 
     - name: Delete the source bucket objects
       amazon.aws.s3_object:
         bucket: "{{ source_bucket }}"
         object: "{{ item }}"
-        mode: delobj 
+        mode: delobj
       loop: "{{ source_bucket_info.s3_keys }}"
-    
+
     # Delete source s3 bucket when empty
     - name: Obtaining all the source bucket objects
       amazon.aws.s3_object:
