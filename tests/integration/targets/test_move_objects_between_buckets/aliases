@@ -1,0 +1,3 @@
+cloud/aws
+role/moving_objects_between_buckets
+time=20s

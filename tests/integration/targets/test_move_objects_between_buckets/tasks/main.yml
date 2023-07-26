@@ -1,0 +1,154 @@
+---
+# Integration tests for move_objects_between_buckets
+- name: Test 'move_objects_between_buckets' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: '{{ security_token | default(omit) }}'
+      region: "{{ aws_region }}"
+
+  block:
+    # Define source bucket and destination bucket ==========================================
+    - name: Define bucket name used for tests
+      set_fact:
+        bucket:
+          src: "{{ bucket_name }}-src"
+          dest: "{{ bucket_name }}-dest"
+
+    # Create s3 buckets ====================================================================
+    - name: Create source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket.src }}"
+        state: present
+
+    - name: Create destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket.dest }}"
+        state: present
+
+    # Put objects into s3 source buckets ===================================================
+    - name: Put object (text) in source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        object: /template/test.txt
+        content: "{{ lookup('file', 'test.txt') }}"
+        mode: put
+
+    - name: Put object (python) in source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        object: test.py
+        content: "{{ lookup('file', 'test.py') }}"
+        mode: put
+
+    - slurp:
+        src: "{{ role_path }}/files/test.png"
+      register: put_binary
+
+    - name: Put object (image) in source s3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        object: put-binary.bin
+        content_base64: "{{ put_binary.content }}"
+        mode: put
+
+    # Move one object between buckets =======================================================
+    - name: Move one object between buckets
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.move_objects_between_buckets
+      vars:
+        source_bucket: "{{ bucket.src }}"
+        dest_bucket: "{{ bucket.dest }}"
+        key_prefix: "template"
+
+    - name: Obtaining source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        mode: list
+      register: bucket_src_info
+
+    - name: Check the source s3 bucket remaining objects
+      ansible.builtin.assert:
+        that:
+        - "bucket_src_info.s3_keys[0] == 'put-binary.bin'"
+        - "bucket_src_info.s3_keys[1] == 'test.py'"
+        
+    - name: Obtaining destination bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.dest }}"
+        mode: list
+      register: bucket_dest_info
+
+    - name: Check the destination s3 bucket obtained one object
+      ansible.builtin.assert:
+        that:
+        - "bucket_dest_info.s3_keys[0] == 'template/test.txt'"
+    
+    # Move all objects between buckets =======================================================
+    - name: Move all objects between buckets
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.move_objects_between_buckets
+      vars:
+        source_bucket: "{{ bucket.src }}"
+        dest_bucket: "{{ bucket.dest }}"
+
+    - name: Obtaining source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        mode: list
+      register: bucket_src_info
+
+    - name: Check the source s3 bucket is empty
+      ansible.builtin.assert:
+        that:
+        - "bucket_src_info.s3_keys == []"
+        
+    - name: Obtaining destination bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.dest }}"
+        mode: list
+      register: bucket_dest_info
+
+    - name: Check the destination s3 bucket received all objects
+      ansible.builtin.assert:
+        that:
+        - "bucket_dest_info.s3_keys[0] in ['put-binary.bin','template/test.txt', 'test.py']"
+        - "bucket_dest_info.s3_keys[1] in ['put-binary.bin','template/test.txt', 'test.py']"
+        - "bucket_dest_info.s3_keys[2] in ['put-binary.bin','template/test.txt', 'test.py']"
+
+    # Delete source s3 bucket when empty ===================================================
+    - name: Delete source s3 bucket when empty
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.move_objects_between_buckets
+      vars:
+        source_bucket: "{{ bucket.src }}"
+        dest_bucket: "{{ bucket.dest }}"
+        delete_empty_source_bucket: true
+
+    - name: Obtaining source bucket
+      amazon.aws.s3_object:
+        bucket: "{{ bucket.src }}"
+        mode: list
+      register: bucket_src_info
+      ignore_errors: true
+    
+    - name: Check the destination s3 bucket received all objects
+      ansible.builtin.assert:
+        that: bucket_src_info is failed
+
+  always:
+    # Clean up starts here =================================================================
+    - name: Delete source s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket.src }}"
+        state: absent
+        force: true
+      ignore_errors: true
+
+    - name: Delete destination s3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ bucket.dest }}"
+        state: absent
+        force: true
+      ignore_errors: true
