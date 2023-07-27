@@ -11,42 +11,33 @@
     - name: Include 'setup.yml' file
       ansible.builtin.include_tasks: setup.yml
 
-    # VPC Peering (same region)
-    - name: Create VPC peering (same region)
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.manage_vpc_peering
-      vars:
-        requester_vpc: "{{ eu_central_1_vpc_1.vpc.id }}"
-        accepter_vpc: "{{ eu_central_1_vpc_2.vpc.id }}"
-        region: eu-central-1
-        vpc_peering_operation: create
 
-    - name: Delete VPC peering connection req
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.manage_vpc_peering
+    - name: Test VPC Peering in the same region
+      ansible.builtin.include_tasks: create_delete_accept_peering.yml
       vars:
-        region: eu-central-1
-        vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
-        vpc_peering_operation: delete
+        vpc_peering_manage_vpc_peering_accepter_vpc_id: "{{ test_vpc_1.vpc.id }}"
+        vpc_peering_manage_vpc_peering_requeter_vpc_id: "{{ test_vpc_2.vpc.id }}"
+        vpc_peering_accepter_region: "{{ aws_region }}"
 
-    #  VPC Peering (cross region)
-    - name: Create VPC peering (cross region)
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.manage_vpc_peering
-      vars:
-        region: eu-central-1
-        accepter_vpc_region: us-west-1
-        requester_vpc: "{{ eu_central_1_vpc_1.vpc.id }}"
-        accepter_vpc: "{{ us_west_1_vpc_1.vpc.id }}"
-        vpc_peering_operation: create
+  # Disable: Tests for cross-region vpc peering skipped as CI permissions are restricted to us-east-1 only
+  #  VPC Peering (cross region)
+  # - name: Create VPC peering (cross region)
+  #   ansible.builtin.include_role:
+  #     name: cloud.aws_ops.manage_vpc_peering
+  #   vars:
+  #     manage_vpc_peering_region: "{{ aws_region }}"
+  #     manage_vpc_peering_accepter_vpc_region: us-west-1
+  #     manage_vpc_peering_requeter_vpc: "{{ test_vpc_1.vpc.id }}"
+  #     manage_vpc_peering_accepter_vpc: "{{ us_west_1_vpc_1.vpc.id }}"
+  #     manage_vpc_peering_operation: create
 
-    - name: Delete VPC peering connection req
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.manage_vpc_peering
-      vars:
-        region: eu-central-1
-        vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
-        vpc_peering_operation: delete
+  # - name: Delete VPC peering connection req
+  #   ansible.builtin.include_role:
+  #     name: cloud.aws_ops.manage_vpc_peering
+  #   vars:
+  #     manage_vpc_peering_region: "{{ aws_region }}"
+  #     manage_vpc_peering_vpc_peering_conn_id: "{{ manage_vpc_peering_req_id }}"
+  #     manage_vpc_peering_operation: delete
 
   always:
     - name: Include 'teardown.yml' file

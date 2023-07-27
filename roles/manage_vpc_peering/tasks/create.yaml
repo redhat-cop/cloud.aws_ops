@@ -2,17 +2,17 @@
 - name: Fail when required parameters are not provided
   ansible.builtin.fail:
     msg: Please provide required parameters to create VPC peering (refer documentation for more information)
-  when: region is not defined or requester_vpc is not defined or accepter_vpc is not defined
+  when: manage_vpc_peering_region is not defined or manage_vpc_peering_requeter_vpc is not defined or manage_vpc_peering_accepter_vpc is not defined
 
 - name: Create VPC peering
   block:
     - name: Create VPC peering request
       community.aws.ec2_vpc_peer:
-        region: "{{ region }}"
-        peer_region: "{{ accepter_vpc_region | default(region, true) }}"
-        vpc_id: "{{ requester_vpc }}"
-        peer_vpc_id: "{{ accepter_vpc }}"
-        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
+        region: "{{ manage_vpc_peering_region }}"
+        peer_region: "{{ manage_vpc_peering_accepter_vpc_region | default(manage_vpc_peering_region, true) }}"
+        vpc_id: "{{ manage_vpc_peering_requeter_vpc }}"
+        peer_vpc_id: "{{ manage_vpc_peering_accepter_vpc }}"
+        peer_owner_id: "{{ manage_vpc_peering_accepter_vpc_account_id | default(omit) }}"
         state: present
       register: manage_vpc_peering_vpc_peering_request
 
@@ -20,8 +20,8 @@
       community.aws.ec2_vpc_peering_info:
         peer_connection_ids:
           - "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
-        region: "{{ accepter_vpc_region | default(region, true) }}"
-        profile: "{{ accepter_account_profile | default(omit) }}"
+        region: "{{ manage_vpc_peering_accepter_vpc_region | default(manage_vpc_peering_region, true) }}"
+        profile: "{{ manage_vpc_peering_accepter_account_profile | default(omit) }}"
       register: manage_vpc_peering_peering_info
       retries: 3
       delay: 5
@@ -33,10 +33,10 @@
 
     - name: Accept VPC peering request
       community.aws.ec2_vpc_peer:
-        region: "{{ accepter_vpc_region | default(region, true) }}"
+        region: "{{ manage_vpc_peering_accepter_vpc_region | default(manage_vpc_peering_region, true) }}"
         peering_id: "{{ manage_vpc_peering_vpc_peering_request.peering_id }}"
-        peer_owner_id: "{{ accepter_vpc_account_id | default(omit) }}"
-        profile: "{{ accepter_account_profile | default(omit) }}"
+        peer_owner_id: "{{ manage_vpc_peering_accepter_vpc_account_id | default(omit) }}"
+        profile: "{{ manage_vpc_peering_accepter_account_profile | default(omit) }}"
         state: accept
       register: manage_vpc_peering_accept_peering_request
 
