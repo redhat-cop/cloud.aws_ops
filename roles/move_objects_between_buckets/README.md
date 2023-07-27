@@ -24,10 +24,10 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **source_bucket**: The name of the Amazon S3 bucket that will have its objects retrieved and then emptied. **Required**
-* **dest_bucket**: The name of the Amazon S3 bucket that will receive the objects. **Required**
-* **key_prefix**: limits objects that begin with the specified prefix. Default value is **""**.
-* **delete_empty_source_bucket**: deletes source bucket after all objects have been transferred to destination bucket. Default value is **false**.
+* **move_objects_between_buckets_source_bucket**: The name of the Amazon S3 bucket that will have its objects retrieved and then emptied. **Required**
+* **move_objects_between_buckets_dest_bucket**: The name of the Amazon S3 bucket that will receive the objects. **Required**
+* **move_objects_between_buckets_key_prefix**: limits objects that begin with the specified prefix. Default value is **""**.
+* **move_objects_between_buckets_delete_empty_source_bucket**: deletes source bucket after all objects have been transferred to destination bucket. Default value is **false**.
 
 Dependencies
 ------------
@@ -41,62 +41,28 @@ Dependencies
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Define bucket name
-      set_fact:
-        bucket:
-          src: "mybucket-src"
-          dest: "mybucket-dest"
-    
-    - name: Create source s3 bucket
-      amazon.aws.s3_bucket:
-        name: "{{ bucket.src }}"
-        state: present
-
-    - name: Create destination s3 bucket
-      amazon.aws.s3_bucket:
-        name: "{{ bucket.dest }}"
-        state: present
-    
-    - name: Put object (text) in source bucket
-      amazon.aws.s3_object:
-        bucket: "{{ bucket.src }}"
-        object: /template/test.txt
-        content: "{{ lookup('file', 'test.txt') }}"
-        mode: put
-
-    - name: Put object (python) in source bucket
-      amazon.aws.s3_object:
-        bucket: "{{ bucket.src }}"
-        object: test.py
-        content: "{{ lookup('file', 'test.py') }}"
-        mode: put
-
-    - slurp:
-        src: "{{ role_path }}/files/test.png"
-      register: put_binary
-
-    - name: Put object (image) in source s3 bucket
-      amazon.aws.s3_object:
-        bucket: "{{ bucket.src }}"
-        object: put-binary.bin
-        content_base64: "{{ put_binary.content }}"
-        mode: put
-    
     - name: Move one object between buckets
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
-        source_bucket: "{{ bucket.src }}"
-        dest_bucket: "{{ bucket.dest }}"
-        key_prefix: "template"
+        move_objects_between_buckets_source_bucket: mybucket_name-src
+        move_objects_between_buckets_dest_bucket: mybucket_name-dest
+        move_objects_between_buckets_key_prefix: "template"
+    
+    - name: Move all objects between buckets
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.move_objects_between_buckets
+      vars:
+        move_objects_between_buckets_source_bucket: mybucket_name-src
+        move_objects_between_buckets_dest_bucket: mybucket_name-dest
     
     - name: Move all objects between buckets and deleting the empty source bucket
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
-        source_bucket: "{{ bucket.src }}"
-        dest_bucket: "{{ bucket.dest }}"'
-        delete_empty_source_bucket: true
+        move_objects_between_buckets_source_bucket: mybucket_name-src
+        move_objects_between_buckets_dest_bucket: mybucket_name-dest
+        move_objects_between_buckets_delete_empty_source_bucket: true
 ```
 
 License

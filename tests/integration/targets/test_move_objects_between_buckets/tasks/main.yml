@@ -42,7 +42,8 @@
         content: "{{ lookup('file', 'test.py') }}"
         mode: put
 
-    - slurp:
+    - name: Obtaining image
+      slurp:
         src: "{{ role_path }}/files/test.png"
       register: put_binary
 
@@ -58,9 +59,9 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
-        source_bucket: "{{ bucket.src }}"
-        dest_bucket: "{{ bucket.dest }}"
-        key_prefix: "template"
+        move_objects_between_buckets_source_bucket: "{{ bucket.src }}"
+        move_objects_between_buckets_dest_bucket: "{{ bucket.dest }}"
+        move_objects_between_buckets_key_prefix: "template"
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
@@ -90,8 +91,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
-        source_bucket: "{{ bucket.src }}"
-        dest_bucket: "{{ bucket.dest }}"
+        move_objects_between_buckets_source_bucket: "{{ bucket.src }}"
+        move_objects_between_buckets_dest_bucket: "{{ bucket.dest }}"
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
@@ -122,9 +123,9 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
-        source_bucket: "{{ bucket.src }}"
-        dest_bucket: "{{ bucket.dest }}"
-        delete_empty_source_bucket: true
+        move_objects_between_buckets_source_bucket: "{{ bucket.src }}"
+        move_objects_between_buckets_dest_bucket: "{{ bucket.dest }}"
+        move_objects_between_buckets_delete_empty_source_bucket: true
 
     - name: Obtaining source bucket
       amazon.aws.s3_object:
