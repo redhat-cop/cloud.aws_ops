@@ -58,4 +58,4 @@
       amazon.aws.s3_bucket:
         name: "{{ move_objects_between_buckets_source_bucket }}"
         state: absent
-      when: "{{ move_objects_between_buckets_delete_empty_source_bucket | default(false) }}"
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false)

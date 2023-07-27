@@ -11,7 +11,7 @@
   block:
     # Define source bucket and destination bucket ==========================================
     - name: Define bucket name used for tests
-      set_fact:
+      ansible.builtin.set_fact:
         bucket:
           src: "{{ bucket_name }}-src"
           dest: "{{ bucket_name }}-dest"
@@ -43,7 +43,7 @@
         mode: put
 
     - name: Obtaining image
-      slurp:
+      ansible.builtin.slurp:
         src: "{{ role_path }}/files/test.png"
       register: put_binary
 
