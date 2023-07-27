@@ -31,7 +31,7 @@
 
     - name: Define API gateway id as variable
       ansible.builtin.set_fact:
-        awsconfig_apigateway_with_lambda_integration_id: "{{ awsconfig_apigateway_with_lambda_integration__create_apigateway.api_id }}"
+        awsconfig_apigateway_with_lambda_integration__id: "{{ awsconfig_apigateway_with_lambda_integration__create_apigateway.api_id }}"
 
     - name: Give API gateway permission to invoke lambda function
       amazon.aws.lambda_policy:
@@ -40,11 +40,11 @@
         statement_id: "AllowExecutionFromAPIGateway"
         action: "lambda:InvokeFunction"
         principal: "apigateway.amazonaws.com"
-        source_arn: "arn:aws:execute-api:{{ awsconfig_apigateway_with_lambda_integration__awsregion }}:{{ awsconfig_apigateway_with_lambda_integration__caller_info.account }}:{{ awsconfig_apigateway_with_lambda_integration_id }}/*/*"
+        source_arn: "arn:aws:execute-api:{{ awsconfig_apigateway_with_lambda_integration__awsregion }}:{{ awsconfig_apigateway_with_lambda_integration__caller_info.account }}:{{ awsconfig_apigateway_with_lambda_integration__id }}/*/*"
 
-    - name: Define API gateway invoke url
+    - name: Define API gateway invoke url and API gateway identifier
       ansible.builtin.set_fact:
-        awsconfig_apigateway_with_lambda_integration__invoke_url: "https://{{ awsconfig_apigateway_with_lambda_integration_id }}.execute-api.{{ awsconfig_apigateway_with_lambda_integration__awsregion }}.amazonaws.com/{{ awsconfig_apigateway_with_lambda_integration_stage_name }}"
+        awsconfig_apigateway_with_lambda_integration__invoke_url: "https://{{ awsconfig_apigateway_with_lambda_integration__id }}.execute-api.{{ awsconfig_apigateway_with_lambda_integration__awsregion }}.amazonaws.com/{{ awsconfig_apigateway_with_lambda_integration_stage_name }}"
 
   always:
     - name: Delete temporary file
@@ -64,11 +64,22 @@
         - awsconfig_apigateway_with_lambda_integration_id is not defined
         - awsconfig_apigateway_with_lambda_integration_tags is not defined
 
-    - name: Delete API gateway
+    - name: Delete API Gateway using identifier
+      when: awsconfig_apigateway_with_lambda_integration_id is defined
+      block:
+        - name: Get API gateway info
+          community.aws.api_gateway_info:
+          register: awsconfig_apigateway_with_lambda_integration__rest_apis
+
+        - name: Delete API gateway using identifier
+          community.aws.api_gateway:
+            state: absent
+            api_id: "{{ awsconfig_apigateway_with_lambda_integration_id }}"
+          when: awsconfig_apigateway_with_lambda_integration__rest_apis.rest_apis | selectattr('id', 'equalto', awsconfig_apigateway_with_lambda_integration_id) | list | length > 0
+
+    - name: Delete API gateway using tags
       community.aws.api_gateway:
         state: absent
-        api_id: "{{ awsconfig_apigateway_with_lambda_integration_id | default(omit) }}"
         name: "{{ awsconfig_apigateway_with_lambda_integration_api_name | default(awsconfig_apigateway_with_lambda_integration_default_api_name) }}"
-        tags: "{{ awsconfig_apigateway_with_lambda_integration_tags | default(omit) }}"
-        lookup: "{{ awsconfig_apigateway_with_lambda_integration_id is defined | ternary('id', 'tag') }}"
-      ignore_errors: true
+        tags: "{{ awsconfig_apigateway_with_lambda_integration_tags }}"
+        lookup: "tag"

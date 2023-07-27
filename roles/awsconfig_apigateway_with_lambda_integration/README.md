@@ -1,7 +1,7 @@
 # awsconfig_apigateway_with_lambda_integration
 
 A role to create/delete an API gateway with lambda function integration.
-the role produces a variable **awsconfig_apigateway_with_lambda_integration\_\_invoke_url** that contains the URL to invoke API gateway.
+the role produces variables **awsconfig_apigateway_with_lambda_integration\_\_invoke_url** that contains the URL to invoke API gateway and **awsconfig_apigateway_with_lambda_integration\_\_id** that contains the id of the API gateway created.
 
 ## Requirements
 

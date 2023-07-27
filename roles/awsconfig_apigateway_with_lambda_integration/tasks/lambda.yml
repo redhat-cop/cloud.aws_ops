@@ -49,21 +49,6 @@
           ansible.builtin.set_fact:
             awsconfig_apigateway_with_lambda_integration__lambda_arn: "{{ awsconfig_apigateway_with_lambda_integration__updload_lambda.configuration.function_arn }}"
 
-      rescue:
-        - name: Delete Lambda function
-          amazon.aws.lambda:
-            name: "{{ awsconfig_apigateway_with_lambda_integration__lambda_name }}"
-            state: absent
-
-        - name: Delete IAM role name
-          community.aws.iam_role:
-            name: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
-            state: absent
-
-        - name: Exist as an error has occurred
-          ansible.builtin.fail:
-            msg: "Something went wrong while trying to create lambda function"
-
       always:
         - name: Delete temporary file
           ansible.builtin.file:

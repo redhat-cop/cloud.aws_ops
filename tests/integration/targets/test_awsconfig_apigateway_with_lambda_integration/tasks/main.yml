@@ -61,14 +61,15 @@
       register: __uri_result
       failed_when: __uri_result is successful
 
-  rescue:
+  always:
     - name: Delete API Gateway
       ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_apigateway_with_lambda_integration
       vars:
         awsconfig_apigateway_with_lambda_integration_operation: delete
+        awsconfig_apigateway_with_lambda_integration_id: "{{ awsconfig_apigateway_with_lambda_integration__id }}"
+      when: awsconfig_apigateway_with_lambda_integration__id is defined
 
-  always:
     - name: Delete temporary directory
       ansible.builtin.file:
         path: "{{ __tempdir.path }}"
