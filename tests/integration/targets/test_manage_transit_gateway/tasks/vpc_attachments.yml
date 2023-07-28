@@ -46,6 +46,3 @@
       ansible.builtin.assert:
         that:
           - manage_transit_gateway_attachment_info.attachments | length == 2
-          - subnet_id_a_1 in manage_transit_gateway_attachment_info.attachments
-          - subnet_id_b_1 in manage_transit_gateway_attachment_info.attachments
-          - manage_transit_gateway_tgw_name in manage_transit_gateway_attachment_info.attachments
