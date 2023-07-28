@@ -17,7 +17,7 @@
 
     - name: Get vpn connections info
       community.aws.ec2_vpc_vpn_info:
-        register: manage_transit_gateway_result
+      register: manage_transit_gateway_result
 
     - name: Assert that vpn connections are created
       ansible.builtin.assert:
