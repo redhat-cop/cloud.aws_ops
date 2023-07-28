@@ -32,7 +32,7 @@
       ansible.builtin.set_fact:
         gw: "{{ item }}"
       when:
-        - item.description == transit_gateway.description
+        - item.description == "TGW for Cloud team"
         - item.state == "available"
       loop: "{{ manage_transit_gateway_gw_info.transit_gateways }}"
 
