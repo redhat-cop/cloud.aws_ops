@@ -11,7 +11,7 @@
           asn: 4200000000
           description: "TGW for Cloud team"
           tags:
-            "Name": "{{ manage_transit_gateway_tgw_name }}"
+           "team": "cloud"
         vpn_attachment:
           - customer_gateway_id: "{{ customer_gw_id }}"
 
