@@ -1,0 +1,52 @@
+---
+- name: Run 'create_global_cluster_with_rds_cluster' role
+  module_defaults:
+    group/aws: "{{ aws_role_credentials }}"
+
+  block:
+    - name: Create global db
+      amazon.cloud.rds_global_cluster:
+        global_cluster_identifier: "{{ global_cluster_identifier }}"
+        engine: "{{ engine }}"
+
+    # Create first rds cluster
+    - name: Create primary rds cluster that connects with global db
+      amazon.aws.rds_cluster:
+        cluster_id: "{{ cluster_id }}"
+        engine: "{{ engine }}"
+        engine_mode: provisioned
+        username: "{{ username }}"
+        password: "{{ password }}"
+        region: "{{ region_primary }}"
+        db_subnet_group_name: "{{ db_subnet_group_name | default(omit) }}"
+        global_cluster_identifier: "{{ global_cluster_identifier }}"
+    
+    - name: Create a rds instance that connects with primary rds cluster
+      amazon.aws.rds_instance:
+        cluster_id: "{{ cluster_id }}"
+        db_instance_identifier: "{{ instance_id }}"
+        engine: "{{ engine }}"
+        db_instance_class: "{{ db_instance_class }}"
+
+    # Obtain information about primary cluster
+    - name: Get info on primary cluster
+      amazon.aws.rds_cluster_info:
+        db_cluster_identifier: '{{ cluster_id }}'
+      register: _result_cluster_info
+
+    - name: Set the ARN of the primary DB cluster
+      set_fact:
+        src_db_cluster_arn: '{{ _result_cluster_info.clusters[0].db_cluster_arn }}'
+
+    # Error: doesn't have binlogs enabled
+    - name: Create secondary rds cluster that connects with global db
+      amazon.aws.rds_cluster:
+        id: '{{ cluster_id }}-replica'
+        state: present
+        replication_source_identifier: '{{ src_db_cluster_arn }}'
+        engine: '{{ engine }}'
+        region: '{{ region_secondary }}'
+        tags:
+          Name: '{{ cluster_id }}'
+          Created_by: Ansible rds_cluster tests
+        wait: yes
