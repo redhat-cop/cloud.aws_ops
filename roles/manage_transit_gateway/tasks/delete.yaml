@@ -57,6 +57,7 @@
             customer_gateway_id: '{{ manage_transit_gateway_cgw }}'
             transit_gateway_id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
             state: absent
+            wait: True
             wait_timeout: 600
           when:
             - manage_transit_gateway_vpn_info.vpn_connections != []
@@ -78,3 +79,4 @@
           community.aws.ec2_transit_gateway:
             state: absent
             transit_gateway_id: '{{ manage_transit_gateway_gw.transit_gateway_id }}'
+          ignore_errors: true
