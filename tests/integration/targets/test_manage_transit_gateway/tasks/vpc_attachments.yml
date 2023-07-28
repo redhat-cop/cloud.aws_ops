@@ -22,7 +22,7 @@
             tags:
               "team": "cloud"
             subnets:
-              - "{{ subnet_id_a_1 }}"
+              - "{{ subnet_id_b_1 }}"
 
     - name: List all the transit gateway attachments
       community.aws.ec2_transit_gateway_info:
