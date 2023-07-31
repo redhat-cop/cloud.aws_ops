@@ -18,6 +18,7 @@ Role Variables
 * **db_instance_class** - A DB instance class type and size. **Required**
 * **region_src** - The primary cluster region. **Required**
 * **region_dest** - The secondary cluster region. **Required**
+* **db_subnet_group_name** - The name of subnet group.
 
 Dependencies
 ------------

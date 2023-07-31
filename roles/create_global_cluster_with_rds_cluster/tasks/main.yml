@@ -1,16 +1,18 @@
 ---
 - name: Run 'create_global_cluster_with_rds_cluster' role
   module_defaults:
-    group/aws: "{{ aws_role_credentials }}"
+    group/aws: "{{ aws_setup_credentials__output }}"
 
-  block:
-    - name: Create global db
+  block: 
+    # Error: unable to locate credentials
+    - name: Create global DB cluster
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ global_cluster_identifier }}"
         engine: "{{ engine }}"
+        region: "{{ region_primary }}"
 
-    # Create first rds cluster
-    - name: Create primary rds cluster that connects with global db
+    # Create first RDS cluster
+    - name: Create primary RDS cluster that connects with global db
       amazon.aws.rds_cluster:
         cluster_id: "{{ cluster_id }}"
         engine: "{{ engine }}"
@@ -21,7 +23,7 @@
         db_subnet_group_name: "{{ db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ global_cluster_identifier }}"
     
-    - name: Create a rds instance that connects with primary rds cluster
+    - name: Create a RDS instance that connects with primary RDS cluster
       amazon.aws.rds_instance:
         cluster_id: "{{ cluster_id }}"
         db_instance_identifier: "{{ instance_id }}"
@@ -34,12 +36,12 @@
         db_cluster_identifier: '{{ cluster_id }}'
       register: _result_cluster_info
 
-    - name: Set the ARN of the primary DB cluster
+    - name: Set the ARN of the primary RDS cluster
       set_fact:
         src_db_cluster_arn: '{{ _result_cluster_info.clusters[0].db_cluster_arn }}'
 
-    # Error: doesn't have binlogs enabled
-    - name: Create secondary rds cluster that connects with global db
+    # Replicating primary cluster
+    - name: Create secondary RDS cluster that connects with global DB cluster
       amazon.aws.rds_cluster:
         id: '{{ cluster_id }}-replica'
         state: present

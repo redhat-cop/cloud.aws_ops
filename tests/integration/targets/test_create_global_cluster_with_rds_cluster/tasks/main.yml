@@ -1,0 +1,53 @@
+---
+- name: Integration tests for 'create_global_cluster_with_rds_cluster' role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: create global db
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_global_cluster_with_rds_cluster
+      vars:
+        global_cluster_identifier: "{{ test_global_cluster_identifier }}"
+        cluster_id: "{{ test_cluster_id }}"
+        username: "{{ test_username }}"
+        password: "{{ test_password }}"
+        engine: "{{ test_engine }}"
+        db_instance_class: "{{ test_db_instance_class }}"
+        region_primary: "{{ test_region_src }}"
+        region_secondary: "{{ test_region_dest }}"
+        instance_id: "{{ test_instance_id }}"
+
+  always:
+    - name: Delete secondary rds cluster (replica)
+      amazon.aws.rds_cluster:
+        name: "{{ test_cluster_id }}-replica"
+        state: absent
+        force: true
+      ignore_errors: true
+
+    - name: Delete primary rds instance
+      amazon.aws.rds_instance:
+        name: "{{ test_instance_id }}"
+        state: absent
+        force: true
+      ignore_errors: true
+    
+    - name: Delete primary rds cluster
+      amazon.aws.s3_bucket:
+        name: "{{ test_cluster_id }}"
+        state: absent
+        force: true
+      ignore_errors: true
+    
+    - name: Delete Aurora global cluster
+      amazon.aws.s3_bucket:
+        name: "{{ test_global_cluster_identifier }}"
+        state: absent
+        force: true
+      ignore_errors: true
+

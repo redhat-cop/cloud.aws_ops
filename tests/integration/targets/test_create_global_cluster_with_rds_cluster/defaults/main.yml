@@ -1,0 +1,13 @@
+---
+test_cluster_id: ansible-test-cluster-{{ tiny_prefix }}
+test_username: testrdsusername
+test_password: test-rds_password
+test_engine: aurora-mysql
+test_instance_id: ansible-test-instance-{{ tiny_prefix }}
+test_global_cluster_identifier: ansible-test-global-{{ tiny_prefix }}
+test_allocated_storage: 20
+test_max_allocated_storage: 22
+test_db_instance_class: db.r5.large
+test_region_src: us-east-1
+test_region_dest: us-east-1
+aws_security_token: '{{ security_token | default(omit) }}'

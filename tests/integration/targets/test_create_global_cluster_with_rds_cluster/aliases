@@ -1,0 +1,3 @@
+cloud/aws
+role/create_global_cluster_with_rds_cluster
+time=3m
