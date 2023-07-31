@@ -1,10 +1,13 @@
 ---
 # defaults file for manage_vpc_peering role
+aws_security_token: '{{ security_token | default(omit) }}'
 
-test_vpc_name_1_1: role_test_vpc_1_1
-test_vpc_name_1_2: role_test_vpc_1_2
-test_vpc_name_2: role_test_vpc_2
+test_vpc_name_1: "{{ resource_prefix }}-vpc-1"
+test_vpc_cidr_1: '172.{{ 255 | random(seed=resource_prefix) }}.0.0/28'
 
-test_vpc_cidr_1_1: 172.10.0.0/16
-test_vpc_cidr_1_2: 192.168.0.0/28
-test_vpc_cidr_2_1: 192.168.64.0/26
+test_vpc_name_2: "{{ resource_prefix }}-vpc-2"
+test_vpc_cidr_2: '192.{{ 255 | random(seed=resource_prefix) }}.0.0/28'
+
+# Disable: IAM permission does not allow to create VPC into a region different than the one
+# test_vpc_name_3: "{{ resource_prefix }}-vpc-3"
+# test_vpc_cidr_3: '192.{{ 255 | random(seed=resource_prefix) }}.64.0/28'
