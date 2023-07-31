@@ -1,4 +1,4 @@
-move_objects_between_buckets
+replicate_existing_rds_instance
 ==================
 
 A role to set up an RDS read replica from an existing RDS instance.
@@ -8,24 +8,15 @@ Requirements
 
 AWS User Account with the following permission:
 
-* s3:HeadBucket
-* s3:GetBucketOwnershipControls
-* s3:ListObjectsV2
-* s3:ListBucket
-* s3:DeleteObject
-* s3:HeadObject
-* s3:PutObjectAcl
-* s3:CopyObject
-* s3:GetObjectTagging
-* s3:DeleteBucket
+* rds:CreateDBInstanceReadReplica
+* rds:ListTagsForResource
+* rds:DescribeDBInstances
 
 Role Variables
 --------------
 
-* **source_bucket**: The name of the Amazon S3 bucket that will have its objects retrieved and then emptied. **Required**
-* **dest_bucket**: The name of the Amazon S3 bucket that will receive the objects. **Required**
-* **key_prefix**: limits objects that begin with the specified prefix. Default value is **""**.
-* **delete_empty_source_bucket**: deletes source bucket after all objects have been transferred to destination bucket. Default value is **false**.
+* **replicate_existing_rds_instance_rds_instance_repli**: The name of the rds instance that will be replicated. **Required**
+* **replicate_existing_rds_instance_rds_instance_src**: The name of the replica rd instance.  **Required**
 
 Dependencies
 ------------
@@ -35,10 +26,17 @@ Dependencies
 ## Example:
 ```
 ---
-- name: Playbook for move objects between buckets using cloud.aws_ops.move_objects_between_buckets role
+- name: Playbook for creating rds replica using cloud.aws_ops.create_rds_replica_from_existing_rds_instance role
   hosts: localhost
   gather_facts: false
   tasks:
+    # Replicating source RDS instance ========================================================
+    - name: Move one object between buckets
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_rds_replica_from_existing_rds_instance
+      vars:
+        create_rds_replica_instance_from_existing_rds_instance_rds_instance_repli: rds_instance_repli_name
+        create_rds_replica_instance_from_existing_rds_instance_rds_instance_src: rds_instance_src_name
 ```
 
 License

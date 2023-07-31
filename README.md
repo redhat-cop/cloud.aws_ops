@@ -26,6 +26,7 @@ Name | Description
 [cloud.aws_ops.ec2_instance_terminate_by_tag](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate the EC2 instances based on a specific tag you specify.
 [cloud.aws_ops.enable_cloudtrail_encryption_with_kms](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
 [cloud.aws_ops.manage_vpc_peering](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/manage_vpc_peering/README.md)|A role to create, delete and accept existing VPC peering connections.
+[cloud.aws_ops.create_rds_replica_from_existing_rds_instance](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/create_rds_replica_from_existing_rds_instance/README.md)| A role to set up an RDS read replica from an existing RDS instance.
 
 
 ### Playbooks

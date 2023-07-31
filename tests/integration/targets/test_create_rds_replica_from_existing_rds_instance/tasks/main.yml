@@ -1,6 +1,6 @@
 ---
-# Integration tests for move_objects_between_buckets
-- name: Test 'test_create_rds_replica_from_existing_rds_instance' role
+# Integration tests for replicate_existing_rds_instance
+- name: Test 'test_replicate_existing_rds_instance' role
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
@@ -9,18 +9,17 @@
       region: "{{ aws_region }}"
 
   block:
-    # Define rds original instance and replica instance ====================================
+    # Define rds source instance and replica instance ====================================
     - name: Define rds instance name used for tests
-      set_fact:
+      ansible.builtin.set_fact:
         rds_instance:
-          orig: "{{ instance_id }}-orig"
-          repli: "{{ instance_id }}-repli"
+          src: "{{ instance_id }}-source"
+          repli: "{{ instance_id }}-replica"
 
-    # Create s3 buckets ====================================================================
-    - name: Create a original DB instance
+    # Create a source DB instance and replica instance ===================================
+    - name: Create source DB instance
       amazon.aws.rds_instance:
-        db_instance_identifier: test-cluster
-        id: "{{ rds_instance.orig }}"
+        id: "{{ rds_instance.src }}"
         state: present
         engine: "{{ engine }}"
         db_instance_class: "{{ db_instance_class }}"
@@ -28,26 +27,53 @@
         password: "{{ password }}"
         allocated_storage: "{{ allocated_storage }}"
         max_allocated_storage: "{{ max_allocated_storage }}"
-    
+        skip_final_snapshot: true
+      register: rds_instance_src
+
+    - name: Check if source and replica DB instances are created
+      ansible.builtin.assert:
+        that:
+        - rds_instance_src.changed
+        - rds_instance_src.db_instance_identifier == "testrdsinstance-source"
+
     - name: Create a DB instance replica
       ansible.builtin.include_role:
-        name: cloud.aws_ops.move_objects_between_buckets
+        name: cloud.aws_ops.create_rds_replica_from_existing_rds_instance
       vars:
-        rds_instance_repli:  "{{ rds_instances.repli }}"
-        rds_instance_orig: "{{ rds_instance.orig }}"
+        replicate_existing_rds_instance_rds_instance_repli: "{{ rds_instance.repli }}"
+        replicate_existing_rds_instance_rds_instance_src: "{{ rds_instance.src }}"
+
+    - name: Get information about DB instance source
+      amazon.aws.rds_instance_info:
+        id: "{{ rds_instance.src }}"
+      register: rds_instance_src
+
+    - name: Get information about DB instance replica
+      amazon.aws.rds_instance_info:
+        id: "{{ rds_instance.repli }}"
+      register: rds_instance_repli
+
+    - name: Check if source and replica DB instances are created
+      ansible.builtin.assert:
+        that:
+          - rds_instance_repli.instances[0].db_instance_identifier == "testrdsinstance-replica"
+          - rds_instance_repli.instances[0].read_replica_source_db_instance_identifier == "testrdsinstance-source"
+          - rds_instance_repli.instances[0].read_replica_db_instance_identifiers == []
+          - rds_instance_src.instances[0].read_replica_db_instance_identifiers == ["testrdsinstance-replica"]
+
 
   always:
     # Clean up starts here =================================================================
-    - name: Delete original DB instance
+    - name: Delete source DB instance
       amazon.aws.rds_instance:
-        name: "{{ rds_instance.orig }}"
+        id: "{{ rds_instance.src }}"
         state: absent
-        force: true
+        skip_final_snapshot: true
       ignore_errors: true
 
     - name: Delete a replica DB instance
       amazon.aws.rds_instance:
-        name: "{{ rds_instance.repli }}"
+        id: "{{ rds_instance.repli }}"
         state: absent
-        force: true
+        skip_final_snapshot: true
       ignore_errors: true
