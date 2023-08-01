@@ -69,11 +69,12 @@
         mode: list
       register: bucket_src_info
 
-    - name: Check the source s3 bucket remaining objects
+    - name: Check the source s3 bucket has two remaining objects
       ansible.builtin.assert:
         that:
           - "bucket_src_info.s3_keys[0] == 'put-binary.bin'"
           - "bucket_src_info.s3_keys[1] == 'test.py'"
+          - "bucket_src_info.s3_keys | length == 2"
 
     - name: Obtaining destination bucket
       amazon.aws.s3_object:
@@ -85,6 +86,7 @@
       ansible.builtin.assert:
         that:
           - "bucket_dest_info.s3_keys[0] == 'template/test.txt'"
+          - "bucket_dest_info.s3_keys | length == 1"
 
     # Move all objects between buckets =======================================================
     - name: Move all objects between buckets
@@ -117,6 +119,7 @@
           - "bucket_dest_info.s3_keys[0] in ['put-binary.bin','template/test.txt', 'test.py']"
           - "bucket_dest_info.s3_keys[1] in ['put-binary.bin','template/test.txt', 'test.py']"
           - "bucket_dest_info.s3_keys[2] in ['put-binary.bin','template/test.txt', 'test.py']"
+          - "bucket_dest_info.s3_keys | length == 3"
 
     # Delete source s3 bucket when empty ===================================================
     - name: Delete source s3 bucket when empty
@@ -134,7 +137,7 @@
       register: bucket_src_info
       ignore_errors: true
 
-    - name: Check the destination s3 bucket received all objects
+    - name: Verify the source bucket does not exist
       ansible.builtin.assert:
         that:
           - bucket_src_info is failed

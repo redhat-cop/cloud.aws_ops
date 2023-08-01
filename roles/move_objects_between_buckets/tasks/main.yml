@@ -42,7 +42,7 @@
       loop: "{{ move_objects_between_buckets_source_bucket_info.s3_keys }}"
 
     # Delete source s3 bucket when empty
-    - name: Obtaining all the source bucket objects
+    - name: Obtaining the remaining source bucket objects
       amazon.aws.s3_object:
         bucket: "{{ move_objects_between_buckets_source_bucket }}"
         mode: list

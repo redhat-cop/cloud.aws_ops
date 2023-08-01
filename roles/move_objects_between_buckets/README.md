@@ -41,7 +41,7 @@ Dependencies
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Move one object between buckets
+    - name: Move objects that have prefix "template" between buckets
       ansible.builtin.include_role:
         name: cloud.aws_ops.move_objects_between_buckets
       vars:
