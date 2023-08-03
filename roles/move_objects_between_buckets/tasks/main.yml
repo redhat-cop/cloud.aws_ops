@@ -46,7 +46,7 @@
       amazon.aws.s3_object:
         bucket: "{{ move_objects_between_buckets_source_bucket }}"
         mode: list
-      when: move_objects_between_buckets_delete_empty_source_bucket is defined and move_objects_between_buckets_delete_empty_source_bucket
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false)
       register: move_objects_between_buckets_source_bucket_info
 
     - name: Fail when the source s3 bucket is not empty and move_objects_between_buckets_delete_empty_source_bucket is true
