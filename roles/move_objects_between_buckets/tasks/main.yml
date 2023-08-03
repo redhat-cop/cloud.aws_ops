@@ -1,0 +1,61 @@
+---
+- name: Run 'moving_object_between_buckets' role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+
+  block:
+    # Checking required variables
+    - name: Fail when 'move_objects_between_buckets_source_bucket' is undefined
+      ansible.builtin.fail:
+        msg: source bucket should be defined as move_objects_between_buckets_source_bucket
+      when: move_objects_between_buckets_source_bucket is undefined
+
+    - name: Fail when 'move_objects_between_buckets_dest_bucket' is undefined
+      ansible.builtin.fail:
+        msg: destination bucket should be defined as move_objects_between_buckets_dest_bucket
+      when: move_objects_between_buckets_dest_bucket is undefined
+
+    # Obtaining specifc or all the source bucket objects
+    - name: Obtaining specifc or all the source bucket objects
+      amazon.aws.s3_object:
+        bucket: "{{ move_objects_between_buckets_source_bucket }}"
+        mode: list
+        prefix: "{{ move_objects_between_buckets_key_prefix | default('') }}"
+      register: move_objects_between_buckets_source_bucket_info
+
+    # Transferring objects from source bucket to destination bucket
+    - name: Moving objects between source bucket to destination bucket
+      amazon.aws.s3_object:
+        bucket: "{{ move_objects_between_buckets_dest_bucket }}"
+        object: "{{ item }}"
+        mode: copy
+        copy_src:
+          bucket: "{{ move_objects_between_buckets_source_bucket }}"
+          object: "{{ item }}"
+      loop: "{{ move_objects_between_buckets_source_bucket_info.s3_keys }}"
+
+    - name: Delete the source bucket objects
+      amazon.aws.s3_object:
+        bucket: "{{ move_objects_between_buckets_source_bucket }}"
+        object: "{{ item }}"
+        mode: delobj
+      loop: "{{ move_objects_between_buckets_source_bucket_info.s3_keys }}"
+
+    # Delete source s3 bucket when empty
+    - name: Obtaining the remaining source bucket objects
+      amazon.aws.s3_object:
+        bucket: "{{ move_objects_between_buckets_source_bucket }}"
+        mode: list
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false)
+      register: move_objects_between_buckets_source_bucket_info
+
+    - name: Fail when the source s3 bucket is not empty and move_objects_between_buckets_delete_empty_source_bucket is true
+      ansible.builtin.fail:
+        msg: The source must be emptied before it can be deleted.
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false) and move_objects_between_buckets_source_bucket_info.s3_keys
+
+    - name: Delete source s3 bucket when empty
+      amazon.aws.s3_bucket:
+        name: "{{ move_objects_between_buckets_source_bucket }}"
+        state: absent
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false)
