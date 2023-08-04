@@ -1,6 +1,11 @@
 ---
 - name: Integration tests for 'create_global_cluster_with_rds_cluster' role
   module_defaults:
+    group/amazon.cloud.aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
@@ -21,6 +26,24 @@
         region_primary: "{{ test_region_src }}"
         region_secondary: "{{ test_region_dest }}"
         instance_id: "{{ test_instance_id }}"
+    
+    - name: Get primary DB cluster information
+      amazon.aws.rds_cluster_info:
+        cluster_id: "{{ test_cluster_id }}"
+      register: test_cluster_info
+
+    - name: Get secondary DB cluster information
+      amazon.aws.rds_cluster_info:
+        cluster_id: "{{ test_cluster_id }}-replica"
+        region: "{{ test_region_dest }}"
+      register: test_cluster_repli_info
+    
+    - name: Check primary cluster is replicated
+      assert:
+        that:
+        - test_cluster_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}"
+        - test_cluster_repli_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}-replica"
+        - test_cluster_info.clusters[0].read_replica_identifiers[0] == test_cluster_repli_info.clusters[0].db_cluster_arn
 
   always:
     - name: Delete secondary rds cluster (replica)

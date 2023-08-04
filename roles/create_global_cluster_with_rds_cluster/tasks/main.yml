@@ -4,14 +4,14 @@
     group/aws: "{{ aws_setup_credentials__output }}"
 
   block: 
-    # Error: unable to locate credentials
-    - name: Create global DB cluster
+    # Create Aurora glboal DB cluster
+    - name: Create Aurora global DB cluster
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ global_cluster_identifier }}"
         engine: "{{ engine }}"
         region: "{{ region_primary }}"
 
-    # Create first RDS cluster
+    # Create primary RDS cluster and instance
     - name: Create primary RDS cluster that connects with global db
       amazon.aws.rds_cluster:
         cluster_id: "{{ cluster_id }}"
@@ -22,6 +22,7 @@
         region: "{{ region_primary }}"
         db_subnet_group_name: "{{ db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ global_cluster_identifier }}"
+      register: primary_cluster
     
     - name: Create a RDS instance that connects with primary RDS cluster
       amazon.aws.rds_instance:
@@ -29,26 +30,23 @@
         db_instance_identifier: "{{ instance_id }}"
         engine: "{{ engine }}"
         db_instance_class: "{{ db_instance_class }}"
+      
+    
+    - name: Create a RDS instance that connects with primary RDS cluster
+      amazon.aws.rds_instance:
+        cluster_id: "{{ cluster_id }}"
+        db_instance_identifier: "{{ instance_id }}-two"
+        engine: "{{ engine }}"
+        db_instance_class: "{{ db_instance_class }}"
 
-    # Obtain information about primary cluster
-    - name: Get info on primary cluster
-      amazon.aws.rds_cluster_info:
-        db_cluster_identifier: '{{ cluster_id }}'
-      register: _result_cluster_info
-
-    - name: Set the ARN of the primary RDS cluster
-      set_fact:
-        src_db_cluster_arn: '{{ _result_cluster_info.clusters[0].db_cluster_arn }}'
-
-    # Replicating primary cluster
-    - name: Create secondary RDS cluster that connects with global DB cluster
+    # Replicating primary cluster and instance
+    - name: Create primary RDS cluster that connects with global db
       amazon.aws.rds_cluster:
-        id: '{{ cluster_id }}-replica'
-        state: present
-        replication_source_identifier: '{{ src_db_cluster_arn }}'
-        engine: '{{ engine }}'
-        region: '{{ region_secondary }}'
-        tags:
-          Name: '{{ cluster_id }}'
-          Created_by: Ansible rds_cluster tests
-        wait: yes
+        cluster_id: "{{ cluster_id }}-replica"
+        engine: "{{ engine }}"
+        engine_mode: provisioned
+        username: "{{ username }}"
+        password: "{{ password }}"
+        region: "{{ region_secondary }}"
+        global_cluster_identifier: "{{ global_cluster_identifier }}"
+
