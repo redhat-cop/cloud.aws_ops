@@ -13,6 +13,8 @@ AWS User Account with the following permission:
 * backup:GetBackupPlan
 * backup:GetBackupSelection
 * backup:ListBackupSelections
+* iam:AttachRolePolicy
+* iam:CreateRole
 * iam:GetRole
 
 Role Variables
