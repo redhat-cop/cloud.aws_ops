@@ -1,0 +1,26 @@
+---
+- name: 'Run ec2_transit_gateway_vpc_attachment integration tests'
+  collections:
+    - amazon.aws
+  module_defaults:
+    group/aws:
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      security_token: '{{ aws_security_token }}'
+      region: '{{ aws_region }}'
+
+  block:
+    # Prepares various resources
+    - name: Setup
+      ansible.builtin.include_tasks: 'setup.yml'
+
+    - name: Test role with attach vpc option
+      ansible.builtin.include_tasks: 'vpc_attachments.yml'
+
+    - name: Test role with attach vpn option
+      ansible.builtin.include_tasks: 'vpn_attachments.yml'
+
+  always:
+    # Cleanup after ourselves
+    - name: Cleanup
+      ansible.builtin.include_tasks: 'cleanup.yml'

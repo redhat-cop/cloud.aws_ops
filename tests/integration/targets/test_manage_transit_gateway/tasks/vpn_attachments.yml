@@ -1,0 +1,25 @@
+---
+- name: Test 'manage_transit_gateway' role
+  block:
+    # Creation
+    - name: Create Transit Gateway with VPC attachemnt
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_transit_gateway
+      vars:
+        action: "create"
+        transit_gateway:
+          asn: 4200000000
+          description: "TGW for Cloud team"
+          tags:
+            "team": "cloud"
+        vpn_attachment:
+          - customer_gateway_id: "{{ customer_gw_id }}"
+
+    - name: Get vpn connections info
+      community.aws.ec2_vpc_vpn_info:
+      register: manage_transit_gateway_result
+
+    - name: Assert that vpn connections are created
+      ansible.builtin.assert:
+        that:
+          - 'manage_transit_gateway_result.vpn_connections != []'

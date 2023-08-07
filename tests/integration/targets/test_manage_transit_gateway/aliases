@@ -1,0 +1,3 @@
+cloud/aws
+role/manage_transit_gateway
+time=35m

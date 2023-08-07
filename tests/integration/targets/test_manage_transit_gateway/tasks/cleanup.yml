@@ -1,0 +1,47 @@
+---
+- name: Delete Transit Gateway with VPC/VPN attachemnts
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.manage_transit_gateway
+  vars:
+    action: "delete"
+    transit_gateway:
+      asn: 4200000000
+      description: "TGW for Cloud team"
+      tags:
+        "team": "cloud"
+
+- name: 'Delete Custome GW'
+  community.aws.ec2_customer_gateway:
+    state: absent
+    ip_address: 1.2.3.4
+    name: testcgw
+    bgp_asn: 12345
+  register: manage_transit_gateway_del_result
+  retries: 10
+  delay: 3
+  until: manage_transit_gateway_del_result is not failed
+  ignore_errors: true
+
+- name: 'Delete subnets'
+  amazon.aws.ec2_vpc_subnet:
+    state: absent
+    cidr: '{{ item.cidr }}'
+    vpc_id: '{{ item.vpc_id }}'
+  loop:
+  - cidr: '{{ subnet_cidr_a_1 }}'
+    vpc_id: '{{ vpc_id_a }}'
+  - cidr: '{{ subnet_cidr_b_1 }}'
+    vpc_id: '{{ vpc_id_b }}'
+  ignore_errors: True
+
+- name: 'Delete VPC'
+  amazon.aws.ec2_vpc_net:
+    state: absent
+    cidr_block: '{{ item.cidr }}'
+    name: '{{ item.name }}'
+  loop:
+  - cidr: '{{ vpc_cidr_a }}'
+    name: '{{ vpc_name_a }}'
+  - cidr: '{{ vpc_cidr_b }}'
+    name: '{{ vpc_name_b }}'
+  ignore_errors: True

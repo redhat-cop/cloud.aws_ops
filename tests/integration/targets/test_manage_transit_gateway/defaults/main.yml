@@ -1,0 +1,13 @@
+cidr_prefix: '10.{{ 255 | random(seed=resource_prefix) }}'
+aws_security_token: '{{ security_token | default(omit) }}'
+tgw_name: '{{ resource_prefix }}'
+vpc_name_a: '{{ resource_prefix }}-1'
+vpc_name_b: '{{ resource_prefix }}-2'
+vpc_cidr_a: '{{ cidr_prefix }}.1.0/24'
+vpc_cidr_b: '{{ cidr_prefix }}.2.0/24'
+
+subnet_cidr_a_1: '{{ cidr_prefix }}.1.0/26'
+subnet_cidr_b_1: '{{ cidr_prefix }}.2.0/26'
+
+subnet_name_a_1: '{{ resource_prefix }}-a-1'
+subnet_name_b_1: '{{ resource_prefix }}-b-1'

@@ -1,0 +1,48 @@
+---
+- name: Test 'manage_transit_gateway' role
+  block:
+    # Creation
+    - name: Create Transit Gateway with VPC attachemnt
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_transit_gateway
+      vars:
+        action: "create"
+        transit_gateway:
+          asn: 4200000000
+          description: "TGW for Cloud team"
+          tags:
+            "team": "cloud"
+        vpc_attachment:
+          - name: "vpc-attachment-001"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_a_1 }}"
+          - name: "vpc-attachment-002"
+            tags:
+              "team": "cloud"
+            subnets:
+              - "{{ subnet_id_b_1 }}"
+
+    - name: List all the transit gateway attachments
+      community.aws.ec2_transit_gateway_info:
+      register: manage_transit_gateway_gw_info
+
+    - name: Get the transit gateway with the given description
+      ansible.builtin.set_fact:
+        gw: "{{ item }}"
+      when:
+        - item.description == "TGW for Cloud team"
+        - item.state == "available"
+      loop: "{{ manage_transit_gateway_gw_info.transit_gateways }}"
+
+    - name: Describe attachments on a specific VPC
+      community.aws.ec2_transit_gateway_vpc_attachment_info:
+        filters:
+          transit-gateway-id: '{{ gw.transit_gateway_id }}'
+      register: manage_transit_gateway_attachment_info
+
+    - name: Ensure that the transit gateway attachments are created as expected
+      ansible.builtin.assert:
+        that:
+          - manage_transit_gateway_attachment_info.attachments | length == 2
