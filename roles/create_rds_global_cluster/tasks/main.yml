@@ -1,5 +1,5 @@
 ---
-- name: Run 'create_global_cluster_with_rds_cluster' role
+- name: Run 'create_rds_global_cluster' role
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
 

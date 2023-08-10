@@ -1,7 +1,7 @@
-create_global_cluster_with_rds_cluster
+create_rds_global_cluster
 =========
 
-A role to create aurora global cluster with two different region rds clusters.
+A role to create aurora-postgresql global cluster with two different region rds clusters.
 
 Requirements
 ------------
@@ -49,6 +49,4 @@ Example Playbook
 
 License
 -------
-
 GNU General Public License v3.0 or later
-

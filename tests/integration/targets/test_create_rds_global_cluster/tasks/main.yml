@@ -1,5 +1,5 @@
 ---
-- name: Integration tests for 'create_global_cluster_with_rds_cluster' role
+- name: Integration tests for 'create_rds_global_cluster' role
   module_defaults:
     group/amazon.cloud.aws:
       aws_access_key: "{{ aws_access_key }}"
@@ -15,7 +15,7 @@
   block:
     - name: create global db
       ansible.builtin.include_role:
-        name: cloud.aws_ops.create_global_cluster_with_rds_cluster
+        name: cloud.aws_ops.create_rds_global_cluster
       vars:
         global_cluster_identifier: "{{ test_global_cluster_identifier }}"
         cluster_id: "{{ test_cluster_id }}"
@@ -26,7 +26,7 @@
         region_primary: "{{ test_region_src }}"
         region_secondary: "{{ test_region_dest }}"
         instance_id: "{{ test_instance_id }}"
-    
+
     - name: Get primary DB cluster information
       amazon.aws.rds_cluster_info:
         cluster_id: "{{ test_cluster_id }}"
@@ -37,7 +37,7 @@
         cluster_id: "{{ test_cluster_id }}-replica"
         region: "{{ test_region_dest }}"
       register: test_cluster_repli_info
-    
+
     - name: Check primary cluster is replicated
       assert:
         that:
@@ -59,18 +59,17 @@
         state: absent
         force: true
       ignore_errors: true
-    
+
     - name: Delete primary rds cluster
       amazon.aws.s3_bucket:
         name: "{{ test_cluster_id }}"
         state: absent
         force: true
       ignore_errors: true
-    
+
     - name: Delete Aurora global cluster
       amazon.aws.s3_bucket:
         name: "{{ test_global_cluster_identifier }}"
         state: absent
         force: true
       ignore_errors: true
-
