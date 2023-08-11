@@ -2,7 +2,13 @@ create_rds_global_cluster
 =========
 
 A role to create Amazon Aurora global cluster with two different region rds clusters.
-Creates a Aurora Postgresql global cluster by default.
+
+Creates following resources
+1. Global Cluster - Amazon Aurora Postgresql.
+2. Primary Cluster - Primary cluster in specified region (create_rds_global_cluster_primary_cluster_region).
+3. Primary Cluster Instance - Instance in the primary cluster.
+4. Replica (secondary) Cluster - Secondary cluster in specified region (create_rds_global_cluster_replica_cluster_region).
+5. Replica Cluster Instance - Instance in the replica cluster.
 
 Requirements
 ------------
