@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "v1.0",
+    "title": "{{ awsconfig_apigateway_with_lambda_integration_api_name | default(awsconfig_apigateway_with_lambda_integration_default_api_name) }}"
+  },
+  "paths": {
+    "/{proxy+}": {
+      "x-amazon-apigateway-any-method": {
+        "parameters": [
+            {
+              "name": "proxy",
+              "in": "path",
+              "required": false,
+              "schema": {
+                  "type": "string"
+              }
+            }
+        ],
+        "responses": {},
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{}"
+          },
+          "uri": "arn:aws:apigateway:{{ awsconfig_apigateway_with_lambda_integration__awsregion }}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{ awsconfig_apigateway_with_lambda_integration__awsregion }}:{{ awsconfig_apigateway_with_lambda_integration__caller_info.account }}:function:{{ awsconfig_apigateway_with_lambda_integration__lambda_name }}/invocations",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
+          "type": "aws_proxy"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Empty": {
+      "type": "object"
+    }
+  }
+}

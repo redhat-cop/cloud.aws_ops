@@ -1,0 +1,77 @@
+---
+- name: Test Role 'awsconfig_apigateway_with_lambda_integration'
+  vars:
+    awsconfig_apigateway_with_lambda_integration_lambda_function_file: "{{ role_path }}/files/server.py"
+  block:
+    - name: Create temporary directory for test
+      ansible.builtin.tempfile:
+        suffix: .py
+        state: directory
+      register: __tempdir
+
+    - name: Copy temporary file
+      ansible.builtin.copy:
+        src: server.py
+        dest: "{{ __tempdir.path }}"
+        mode: 0755
+
+    # Test create API gateway
+    - name: Create API Gateway
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.awsconfig_apigateway_with_lambda_integration
+      vars:
+        awsconfig_apigateway_with_lambda_integration_lambda_function_file: "{{ __tempdir.path }}/server.py"
+
+    - name: Ensure the role has defined the invoke url as output
+      ansible.builtin.assert:
+        that:
+          - awsconfig_apigateway_with_lambda_integration__invoke_url is defined
+
+    - name: Calling URL using random path
+      ansible.builtin.uri:
+        url: "{{ awsconfig_apigateway_with_lambda_integration__invoke_url }}/main?resource_prefix={{ resource_prefix }}"
+      register: __uri_result
+
+    - name: Ensure server returns empty result
+      ansible.builtin.assert:
+        that:
+          - __uri_result.json == ""
+
+    - name: Calling URL using ansible-test path
+      ansible.builtin.uri:
+        url: "{{ awsconfig_apigateway_with_lambda_integration__invoke_url }}/ansible-test?resource_prefix={{ resource_prefix }}"
+      register: __uri_result
+
+    - name: Ensure result is as expected
+      ansible.builtin.assert:
+        that:
+          - __uri_result.json == "Running ansible-test with Resource prefix {{ resource_prefix }}"
+
+    # Test: Delete API gateway
+    - name: Delete API Gateway
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.awsconfig_apigateway_with_lambda_integration
+      vars:
+        awsconfig_apigateway_with_lambda_integration_operation: delete
+
+    - name: Validate that URL is not valid after the API Gateway has been deleted
+      ansible.builtin.uri:
+        url: "{{ awsconfig_apigateway_with_lambda_integration__invoke_url }}/ansible-test?resource_prefix={{ resource_prefix }}"
+      ignore_errors: true
+      register: __uri_result
+      failed_when: __uri_result is successful
+
+  always:
+    - name: Delete API Gateway
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.awsconfig_apigateway_with_lambda_integration
+      vars:
+        awsconfig_apigateway_with_lambda_integration_operation: delete
+        awsconfig_apigateway_with_lambda_integration_id: "{{ awsconfig_apigateway_with_lambda_integration__id }}"
+      when: awsconfig_apigateway_with_lambda_integration__id is defined
+
+    - name: Delete temporary directory
+      ansible.builtin.file:
+        path: "{{ __tempdir.path }}"
+        state: absent
+      ignore_errors: true

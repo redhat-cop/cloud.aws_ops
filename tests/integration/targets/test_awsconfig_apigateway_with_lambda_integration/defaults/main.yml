@@ -1,0 +1,8 @@
+---
+aws_security_token: '{{ security_token | default(omit) }}'
+awsconfig_apigateway_with_lambda_integration_api_name: "ansible-test-{{ resource_prefix }}"
+awsconfig_apigateway_with_lambda_integration_tags:
+  resource_prefix: "{{ resource_prefix }}"
+awsconfig_apigateway_with_lambda_integration_lambda_runtime: "python3.8"
+awsconfig_apigateway_with_lambda_integration_lambda_handler: 'server.lambda_handler'
+awsconfig_apigateway_with_lambda_integration_stage_name: test

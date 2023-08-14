@@ -1,0 +1,70 @@
+---
+- name: Create Lambda resources
+  when: awsconfig_apigateway_with_lambda_integration_operation == 'create'
+  block:
+    - name: Create role for lambda function
+      community.aws.iam_role:
+        name: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
+        assume_role_policy_document: '{{ lookup("file", "lambda_trust_policy.json") }}'
+        create_instance_profile: false
+        managed_policies:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      register: awsconfig_apigateway_with_lambda_integration__iam_role
+
+    - name: Wait for IAM role to be available
+      ansible.builtin.pause:
+        seconds: 10
+      when: awsconfig_apigateway_with_lambda_integration__iam_role is changed
+
+    - name: Create Lambda function
+      block:
+        - name: Create temporary zip file
+          ansible.builtin.tempfile:
+            suffix: .zip
+          register: awsconfig_apigateway_with_lambda_integration__tmp_file
+
+        - name: Create lambda function archive
+          community.general.archive:
+            format: zip
+            path: '{{ awsconfig_apigateway_with_lambda_integration_lambda_function_file }}'
+            dest: '{{ awsconfig_apigateway_with_lambda_integration__tmp_file.path }}'
+            mode: 0755
+
+        - name: Upload lambda function
+          amazon.aws.lambda:
+            name: "{{ awsconfig_apigateway_with_lambda_integration__lambda_name }}"
+            runtime: "{{ awsconfig_apigateway_with_lambda_integration_lambda_runtime | default(omit) }}"
+            handler: '{{ awsconfig_apigateway_with_lambda_integration_lambda_handler | default(omit) }}'
+            role: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
+            zip_file: "{{ awsconfig_apigateway_with_lambda_integration__tmp_file.path }}"
+          register: awsconfig_apigateway_with_lambda_integration__updload_lambda
+
+        - name: Ensure lambda function works
+          amazon.aws.lambda_execute:
+            name: "{{ awsconfig_apigateway_with_lambda_integration__lambda_name }}"
+            payload:
+              name: simple content to my lambda function
+
+        - name: Save lambda function ARN
+          ansible.builtin.set_fact:
+            awsconfig_apigateway_with_lambda_integration__lambda_arn: "{{ awsconfig_apigateway_with_lambda_integration__updload_lambda.configuration.function_arn }}"
+
+      always:
+        - name: Delete temporary file
+          ansible.builtin.file:
+            state: absent
+            path: "{{ awsconfig_apigateway_with_lambda_integration__tmp_file.path }}"
+          ignore_errors: true
+
+- name: Delete Lambda resources
+  when: awsconfig_apigateway_with_lambda_integration_operation == 'delete'
+  block:
+    - name: Delete Lambda function
+      amazon.aws.lambda:
+        name: "{{ awsconfig_apigateway_with_lambda_integration__lambda_name }}"
+        state: absent
+
+    - name: Delete IAM role name
+      community.aws.iam_role:
+        name: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
+        state: absent

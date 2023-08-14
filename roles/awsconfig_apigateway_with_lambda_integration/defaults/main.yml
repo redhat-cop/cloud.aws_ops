@@ -1,0 +1,6 @@
+---
+awsconfig_apigateway_with_lambda_integration_operation: create
+awsconfig_apigateway_with_lambda_integration_default_api_name: "ansible-api"
+awsconfig_apigateway_with_lambda_integration__iam_role_name: "{{ awsconfig_apigateway_with_lambda_integration_api_name | default(awsconfig_apigateway_with_lambda_integration_default_api_name) }}-role"
+awsconfig_apigateway_with_lambda_integration__lambda_name: "{{ awsconfig_apigateway_with_lambda_integration_api_name | default(awsconfig_apigateway_with_lambda_integration_default_api_name) }}-lambda"
+awsconfig_apigateway_with_lambda_integration__awsregion: "{{ aws_setup_credentials__output.aws_region }}"

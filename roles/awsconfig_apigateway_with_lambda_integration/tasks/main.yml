@@ -1,0 +1,10 @@
+---
+- name: Create/Delete API gateway with lambda integration
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+  block:
+    - name: "Include file {{ item }}"
+      ansible.builtin.include_tasks: '{{ item }}'
+      with_items:
+        - lambda.yml
+        - apigateway.yml
