@@ -83,6 +83,6 @@
 
   tasks:
     - name: Deploy app
-      ansible.builtin.import_tasks: tasks/deploy_app.yaml
+      ansible.builtin.import_role: cloud.aws_ops.deploy_flask_app
       vars:
         region: "{{ dest_region }}"

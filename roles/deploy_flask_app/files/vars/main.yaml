@@ -1,0 +1,30 @@
+---
+bastion_host_name: "{{ resource_prefix }}-bastion"
+bastion_host_username: fedora
+bastion_host_type: t2.xlarge
+bastion_host_required_packages:
+  - python3
+  - python-virtualenv
+  - sshpass
+  - git
+  - podman
+  - httpd-tools
+  - ansible
+bastion_host_venv_path: ~/env
+
+workers_instance_type: t2.large
+workers_user_name: fedora
+number_of_workers: 2
+
+app_listening_port: 5000
+app_git_repository: https://github.com/abikouo/webapp_pyflask_demo.git
+app_config:
+  env: development
+  admin_user: admin
+  admin_password: admin
+  app_dir: /app/pyapp
+app_force_init: false
+rds_listening_port: 5432
+local_registry_user: ansible
+local_registry_pwd: testing123
+local_registry_port: "{{ app_listening_port }}"

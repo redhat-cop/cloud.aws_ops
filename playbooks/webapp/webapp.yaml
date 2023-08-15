@@ -31,4 +31,5 @@
 
   tasks:
     - name: Deploy app
-      ansible.builtin.import_tasks: tasks/deploy_app.yaml
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.deploy_flask_app
