@@ -12,64 +12,86 @@
       security_token: "{{ security_token | default(omit) }}"
       region: "{{ aws_region }}"
 
-  block:
-    - name: create global db
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.create_rds_global_cluster
-      vars:
-        global_cluster_identifier: "{{ test_global_cluster_identifier }}"
-        cluster_id: "{{ test_cluster_id }}"
-        username: "{{ test_username }}"
-        password: "{{ test_password }}"
-        engine: "{{ test_engine }}"
-        db_instance_class: "{{ test_db_instance_class }}"
-        region_primary: "{{ test_region_src }}"
-        region_secondary: "{{ test_region_dest }}"
-        instance_id: "{{ test_instance_id }}"
+  # Due to CI limitations, it is not possible to create a replica in another region
+  # and with AWS limitations we cannot create a replica cluster in same region as primary cluster i.e. us-east-1
 
-    - name: Get primary DB cluster information
-      amazon.aws.rds_cluster_info:
-        cluster_id: "{{ test_cluster_id }}"
-      register: test_cluster_info
+  # block:
+  #   - name: create global db
+  #     ansible.builtin.include_role:
+  #       name: cloud.aws_ops.create_rds_global_cluster
+  #     vars:
+  #       create_rds_global_cluster_operation: create
+  #       create_rds_global_cluster_enigne: "{{ test_enigne }}"
+  #       create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
+  #       create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+  #       create_rds_global_cluster_username: "{{ test_username }}"
+  #       create_rds_global_cluster_password: "{{ test_password }}"
+  #       create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+  #       create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+  #       create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+  #       create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+  #       create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+  #       create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+  #       create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+  #       create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
 
-    - name: Get secondary DB cluster information
-      amazon.aws.rds_cluster_info:
-        cluster_id: "{{ test_cluster_id }}-replica"
-        region: "{{ test_region_dest }}"
-      register: test_cluster_repli_info
+  #   - name: Get Global DB information
+  #     amazon.aws.rds_cluster_info:
+  #       cluster_id: "{{ test_global_cluster_name }}"
+  #     register: global_cluster_info
 
-    - name: Check primary cluster is replicated
-      assert:
-        that:
-        - test_cluster_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}"
-        - test_cluster_repli_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}-replica"
-        - test_cluster_info.clusters[0].read_replica_identifiers[0] == test_cluster_repli_info.clusters[0].db_cluster_arn
+  #   - name: Get primary DB cluster information
+  #     amazon.aws.rds_cluster_info:
+  #       cluster_id: "{{ test_primary_cluster_name }}"
+  #     register: primary_cluster_info
 
-  always:
-    - name: Delete secondary rds cluster (replica)
-      amazon.aws.rds_cluster:
-        name: "{{ test_cluster_id }}-replica"
-        state: absent
-        force: true
-      ignore_errors: true
+    # - name: Get secondary DB cluster information
+    #   amazon.aws.rds_cluster_info:
+    #     cluster_id: "{{ test_replica_cluster_name }}"
+    #     region: "{{ test_replica_cluster_region }}"
+    #   register: replica_cluster_info
 
-    - name: Delete primary rds instance
-      amazon.aws.rds_instance:
-        name: "{{ test_instance_id }}"
-        state: absent
-        force: true
-      ignore_errors: true
+    # - name: Check primary cluster is replicated
+    #   assert:
+    #     that:
+    #     - test_cluster_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}"
+    #     - test_cluster_repli_info.clusters[0].db_cluster_identifier == "{{ test_cluster_id }}-replica"
+    #     - test_cluster_info.clusters[0].read_replica_identifiers[0] == test_cluster_repli_info.clusters[0].db_cluster_arn
 
-    - name: Delete primary rds cluster
-      amazon.aws.s3_bucket:
-        name: "{{ test_cluster_id }}"
-        state: absent
-        force: true
-      ignore_errors: true
+  # always:
 
-    - name: Delete Aurora global cluster
-      amazon.aws.s3_bucket:
-        name: "{{ test_global_cluster_identifier }}"
-        state: absent
-        force: true
-      ignore_errors: true
+  #   - name: Delete secondary rds cluster instance (replica)
+  #     amazon.aws.rds_instance:
+  #       name: "{{ test_replica_cluster_instance_name }}"
+  #       state: absent
+  #       force: true
+  #     ignore_errors: true
+
+  #   - name: Delete secondary rds cluster (replica)
+  #     amazon.aws.rds_cluster:
+  #       name: "{{ test_replica_cluster_name }}"
+  #       region: "{{ test_replica_cluster_region }}"
+  #       state: absent
+  #       force: true
+  #     ignore_errors: true
+
+  #   - name: Delete primary rds cluster instance
+  #     amazon.aws.rds_instance:
+  #       name: "{{ test_primary_cluster_instance_name }}"
+  #       state: absent
+  #       force: true
+  #     ignore_errors: true
+
+  #   - name: Delete primary rds cluster
+  #     amazon.aws.rds_cluster:
+  #       name: "{{ test_primary_cluster_name }}"
+  #       state: absent
+  #       force: true
+  #     ignore_errors: true
+
+  #   - name: Delete Aurora global cluster
+  #     amazon.aws.rds_cluster:
+  #       name: "{{ test_global_cluster_identifier }}"
+  #       state: absent
+  #       force: true
+  #     ignore_errors: true

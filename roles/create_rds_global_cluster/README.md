@@ -34,7 +34,8 @@ Role Variables
 - **create_rds_global_cluster_replica_cluster_name** - Name of the replica (secondary) cluster. Default is create_rds_global_cluster_global_cluster_name.
 - **create_rds_global_cluster_replica_cluster_region** - Region of the replica (secondary) cluster. **required**
 - **create_rds_global_cluster_replica_cluster_instance_name** - Name of the instance in secondary cluster. **required**
-- **create_rds_global_cluster_replica_enable_global_write_forwarding** - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database. Default is False.
+- **create_rds_global_cluster_replica_enable_global_write_forwarding** - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database. Default is False. Supported only while creating new cluster. Choices include 'true', 'false, 'yes', 'no'.
+- **create_rds_global_cluster_operation** - Choices include 'create' and 'delete' to create or delete the resources.
 
 Dependencies
 ------------

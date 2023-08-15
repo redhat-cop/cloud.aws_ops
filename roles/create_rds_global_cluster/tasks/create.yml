@@ -1,0 +1,50 @@
+---
+- name: Run 'create_rds_global_cluster' role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+
+  block:
+    - name: Create rds global database
+      amazon.cloud.rds_global_cluster:
+        global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
+        engine: "{{ create_rds_global_cluster_enigne  | default('aurora-postgresql')}}"
+        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        state: present
+
+    - name: Create a primary cluster for global database "{{ create_rds_global_cluster_global_cluster_name }}" in "{{ create_rds_global_cluster_primary_cluster_region }}"
+      amazon.aws.rds_cluster:
+        db_cluster_identifier: "{{ create_rds_global_cluster_primary_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}" #aka cluster_name
+        region: "{{ create_rds_global_cluster_primary_cluster_region }}"
+        engine: "{{ create_rds_global_cluster_enigne }}"
+        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        username: "{{ create_rds_global_cluster_username }}"
+        password: "{{ create_rds_global_cluster_password }}"
+        db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
+        global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"  # what global db cluster should be associated to
+      ignore_errors: true
+
+    - name: Create an instance connected to primary cluster
+      amazon.aws.rds_instance:
+        db_cluster_identifier: "{{ create_rds_global_cluster_primary_cluster_name }}" # what cluster instance should be in
+        db_instance_identifier: "{{ create_rds_global_cluster_primary_cluster_instance_name }}"
+        region: "{{ create_rds_global_cluster_primary_cluster_region }}"
+        engine: "{{ create_rds_global_cluster_enigne }}"
+        db_instance_class: "{{ create_rds_global_cluster_instance_class }}"
+
+    - name: Create a read replica cluster for global database "{{ create_rds_global_cluster_global_cluster_name }}" in "{{ create_rds_global_cluster_replica_cluster_region }}"
+      amazon.aws.rds_cluster:
+        db_cluster_identifier: "{{ create_rds_global_cluster_replica_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}" #aka cluster_name
+        region: "{{ create_rds_global_cluster_replica_cluster_region }}"
+        engine: "{{ create_rds_global_cluster_enigne }}"
+        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
+        enable_global_write_forwarding: "{{ create_rds_global_cluster_replica_enable_global_write_forwarding | default(False) }}"
+        global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}" # what global db cluster should be associated to
+
+    - name: Create an instance connected to secondary cluster
+      amazon.aws.rds_instance:
+        db_cluster_identifier: "{{ create_rds_global_cluster_replica_cluster_name }}" # what cluster instance should be in
+        db_instance_identifier: "{{ create_rds_global_cluster_replica_cluster_instance_name }}"
+        region: "{{ create_rds_global_cluster_replica_cluster_region }}"
+        engine: "{{ create_rds_global_cluster_enigne }}"
+        db_instance_class: "{{ create_rds_global_cluster_instance_class }}"
