@@ -30,9 +30,9 @@
       register: backup_select_resources_role_info
 
     - name: Create new role when IAM role does not exist
+      when: backup_select_resources_role_info.iam_roles | length == 0
       block:
         - name: Create role
-          when: backup_select_resources_role_info.iam_roles | length == 0
           community.aws.iam_role:
             name: "{{ backup_role_name }}"
             state: present
@@ -41,6 +41,9 @@
             description: "AWS Backup Role"
             managed_policy:
               - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup
+              - arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores
+              - arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Backup
+              - arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Restore
             wait: true
           register: backup_select_resources_new_role_info
 
