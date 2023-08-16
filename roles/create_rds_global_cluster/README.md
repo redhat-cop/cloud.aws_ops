@@ -19,7 +19,7 @@ Role Variables
 --------------
 **Global cluster variables**
 - **create_rds_global_cluster_global_cluster_name** - Name of the Amazon Aurora global cluster. **required**
-- **create_rds_global_cluster_enigne** - Engine of the Amazon Aurora global and rds clusters. Default is aurora-postgresql.
+- **create_rds_global_cluster_engine** - Engine of the Amazon Aurora global and rds clusters. Default is aurora-postgresql.
 - **create_rds_global_cluster_engine_version** - Engine version of the Amazon Aurora global and rds clusters.
 - **create_rds_global_cluster_instance_class** - Instance class of instance in primary and replica cluster. **required**
 - **create_rds_global_cluster_username** - Username of the rds clusters. **required**
