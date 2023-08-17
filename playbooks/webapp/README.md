@@ -1,6 +1,6 @@
-# cloud.amazon_roles.webapp
+# cloud.aws_ops.webapp playbooks
 
-A playbook to create, delete, or migrate a webapp on AWS.
+Playbooks to create or delete, or migrate a webapp on AWS.
 
 ## Requirements
 

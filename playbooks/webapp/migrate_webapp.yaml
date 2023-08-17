@@ -70,9 +70,9 @@
         - "{{ dest_region }}"
         - "{{ aws_region }}"
 
-    - name: Delete instance create in source region
+    - name: Delete instance from source region
       ansible.builtin.import_tasks: tasks/delete.yaml
-      when: do_not_delete_source | default('false') | bool
+      when: delete_source | default(false) | bool
 
 - name: Deploy resource from Bastion
   hosts: bastion

@@ -242,7 +242,7 @@
     - name: Add host to inventory
       ansible.builtin.add_host:
         hostname: bastion
-        ansible_ssh_user: fedora
+        ansible_ssh_user: "{{ bastion_host_username }}"
         ansible_host: "{{ result.instances.0.public_ip_address }}"
         ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ sshkey_file }}
         ansible_host_name: "{{ result.instances.0.public_dns_name | split('.') | first }}"
@@ -255,6 +255,6 @@
           vpc_id: "{{ vpc.vpc.id }}"
           rds_info:
             host: "{{ rds_info.instances.0.endpoint.address }}"
-            name: "{{ aws_postgresql_dbname | default('mysampledb123') }}"
-            master_user_password: "{{ aws_postgresql_master_password | default('L#5cH2mgy_') }}"
-            master_username: "{{ aws_postgresql_master_user | default('ansible') }}"
+            name: "{{ rds_instance_name }}"
+            master_user_password: "{{ rds_master_password }}"
+            master_username: "{{ rds_master_user }}"
