@@ -29,11 +29,10 @@ Name | Description
 [cloud.aws_ops.moving_objects_between_buckets](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/moving_objects_between_buckets/README.md)|A role to move objects from one bucket to another bucket.
 [cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API gateway with lambda function integration.
 
-
 ### Playbooks
 Name | Description
 --- | ---
-cloud.aws_ops.webapp|A playbook to create a webapp on AWS.
+[cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A playbook to create a webapp on AWS.
 <!--end collection content-->
 
 ## Installation and Usage
