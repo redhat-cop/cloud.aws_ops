@@ -1,0 +1,11 @@
+---
+- name: Debug Debug msg
+  ansible.builtin.debug:
+    msg: "Enter deploy app"
+
+- name: Create new host in inventory for use in later plays.
+  ansible.builtin.include_tasks: setup.yaml
+  register: deploy_flask_app_setup
+
+- name: Deploy resource from Bastion
+  ansible.builtin.include_tasks: deploy_app.yaml

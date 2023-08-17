@@ -31,5 +31,6 @@
 
   tasks:
     - name: Deploy app
+      when: operation == "create"
       ansible.builtin.include_role:
         name: cloud.aws_ops.deploy_flask_app

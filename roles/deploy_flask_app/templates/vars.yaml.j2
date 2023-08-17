@@ -1,14 +1,14 @@
 ---
-registry_host_port: "{{ host_config.private_ip }}:{{ local_registry_port }}"
+registry_host_port: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_ip }}:{{ local_registry_port }}"
 registry_login:
     user: "{{ local_registry_user }}"
     password: "{{ local_registry_pwd }}"
 application_dir: "{{ app_config.app_dir }}"
 application_env: "{{ app_config.env }}"
 application_db:
-    host: "{{ host_config.rds_info.host }}"
-    instance: "{{ host_config.rds_info.name }}"
-    dbuser_name: "{{ host_config.rds_info.master_username }}"
-    dbuser_password: "{{ host_config.rds_info.master_user_password }}"
+    host: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.host }}"
+    instance: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.name }}"
+    dbuser_name: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_username }}"
+    dbuser_password: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_user_password }}"
     admin_user: "{{ app_config.admin_user }}"
     admin_password: "{{ app_config.admin_password }}"
