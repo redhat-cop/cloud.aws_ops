@@ -42,31 +42,31 @@
         - name: Create Cloud Resources (workers, load balancer, etc)
           delegate_to: localhost
           vars:
-            localhost_key_pair: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-key"
-            instance_name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-workers"
+            deploy_flask_app_localhost_key_pair: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-key"
+            deploy_flask_app_instance_name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-workers"
           block:
             - name: Create key pair to connect to the VM
               amazon.aws.ec2_key:
-                name: "{{ localhost_key_pair }}"
+                name: "{{ deploy_flask_app_localhost_key_pair }}"
                 key_material: "{{ deploy_flask_app_sshkey.content | b64decode }}"
 
             - name: List running instances
               amazon.aws.ec2_instance_info:
                 filters:
-                  tag:Name: "{{ instance_name }}"
+                  tag:Name: "{{ deploy_flask_app_instance_name }}"
                   instance-state-name: running
               register: deploy_flask_app_vms
 
             - name: Compute number of instances to create/delete
               ansible.builtin.set_fact:
-                expected_instances: "{{ number_of_workers | int - deploy_flask_app_vms.instances | length }}"
+                deploy_flask_app_expected_instances: "{{ number_of_workers | int - deploy_flask_app_vms.instances | length }}"
 
             - name: Create list of targets hosts
               amazon.aws.ec2_instance:
-                name: "{{ instance_name }}"
+                name: "{{ deploy_flask_app_instance_name }}"
                 instance_type: "{{ workers_instance_type }}"
                 image_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.image_id }}"
-                key_name: "{{ localhost_key_pair }}"
+                key_name: "{{ deploy_flask_app_localhost_key_pair }}"
                 subnet_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_subnet_id }}"
                 network:
                   assign_public_ip: false
@@ -76,24 +76,24 @@
                 security_groups:
                   - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
                 wait: true
-                count: "{{ expected_instances }}"
+                count: "{{ deploy_flask_app_expected_instances }}"
                 state: started
               register: deploy_flask_app_workers
-              when: expected_instances | int > 0
+              when: deploy_flask_app_expected_instances | int > 0
 
             - name: List running instances (once again)
               amazon.aws.ec2_instance_info:
                 filters:
-                  tag:Name: "{{ instance_name }}"
+                  tag:Name: "{{ deploy_flask_app_instance_name }}"
                   instance-state-name: running
               register: deploy_flask_app_vms
 
             - name: Create list of instances (join)
               ansible.builtin.set_fact:
-                instances_list: []
+                deploy_flask_app_instances_list: []
             - name: Update join_instances
               ansible.builtin.set_fact:
-                instances_list: "{{ instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
+                deploy_flask_app_instances_list: "{{ deploy_flask_app_instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
               with_items: "{{ deploy_flask_app_vms.instances }}"
 
         - name: Create inventory file
@@ -102,8 +102,8 @@
             dest: ~/inventory.ini
             mode: 0644
           vars:
-            workers_instances: "{{ deploy_flask_app_vms.instances }}"
-            workers_join: "{{ instances_list | join(',') }}"
+            deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
+            deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
 
         - name: Create vars file
           ansible.builtin.template:
@@ -132,14 +132,14 @@
                   ps -a
                   -f name=registry500x
                   --format=.Names
-              register: container
+              register: deploy_flask_app_container
               become: true
               changed_when: false
 
             - name: Create private registry
               become: true
               when:
-                - container.stdout == ""
+                - deploy_flask_app_container.stdout == ""
               block:
                 - name: Create folders for the registry
                   ansible.builtin.file:

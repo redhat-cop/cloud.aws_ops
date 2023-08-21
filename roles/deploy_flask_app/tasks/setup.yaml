@@ -5,7 +5,7 @@
 
 - name: Set 'region' variable
   ansible.builtin.set_fact:
-    region: "{{ region | default(aws_region) }}"
+    deploy_flask_app_region: "{{ region | default(aws_region) }}"
 
 - name: Create resources playbook
   module_defaults:
@@ -16,34 +16,34 @@
       amazon.aws.ec2_instance_info:
         filters:
           "tag:Name": "{{ bastion_host_name }}"
-      register: result
+      register: deploy_flask_app_result
 
     - name: Get RDS instance info
       amazon.aws.rds_instance_info:
         db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_info
+      register: deploy_flask_app_rds_info
 
     - name: Set 'sshkey_file' variable
       ansible.builtin.set_fact:
-        sshkey_file: ~/private-key-{{ sshkey_pair_name }}-{{ region | default(aws_region) }}
+        deploy_flask_app_sshkey_file: ~/private-key-{{ sshkey_pair_name }}-{{ deploy_flask_app_region | default(aws_region) }}
 
     - name: Add host to inventory
       ansible.builtin.add_host:
         hostname: bastion
-        ansible_ssh_user: fedora
-        ansible_host: "{{ result.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ sshkey_file }}
-        ansible_host_name: "{{ result.instances.0.public_dns_name | split('.') | first }}"
+        ansible_ssh_user: "{{ bastion_host_username }}"
+        ansible_host: "{{ deploy_flask_app_result.instances.0.public_ip_address }}"
+        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_sshkey_file }}
+        ansible_host_name: "{{ deploy_flask_app_result.instances.0.public_dns_name | split('.') | first }}"
         host_config:
-          public_subnet_id: "{{ result.instances.0.subnet_id }}"
+          public_subnet_id: "{{ deploy_flask_app_result.instances.0.subnet_id }}"
           private_subnet_id: "{{ private_subnet_id }}"
-          image_id: "{{ result.instances.0.image_id }}"
-          group_id: "{{ result.instances.0.security_groups[0].group_id }}"
-          private_ip: "{{ result.instances.0.private_ip_address }}"
+          image_id: "{{ deploy_flask_app_result.instances.0.image_id }}"
+          group_id: "{{ deploy_flask_app_result.instances.0.security_groups[0].group_id }}"
+          private_ip: "{{ deploy_flask_app_result.instances.0.private_ip_address }}"
           vpc_id: "{{ vpc_id }}"
           rds_info:
-            host: "{{ rds_info.instances.0.endpoint.address }}"
-            name: "{{ aws_postgresql_dbname | default('mysampledb123') }}"
-            master_user_password: "{{ aws_postgresql_master_password | default('L#5cH2mgy_') }}"
-            master_username: "{{ aws_postgresql_master_user | default('ansible') }}"
+            host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
+            name: "{{ rds_instance_name | default('mysampledb123') }}"
+            master_user_password: "{{ rds_master_password | default('L#5cH2mgy_') }}"
+            master_username: "{{ rds_master_user | default('ansible') }}"
       register: deploy_flask_app_setup
