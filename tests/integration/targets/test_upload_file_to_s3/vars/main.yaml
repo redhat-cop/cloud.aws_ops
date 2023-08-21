@@ -1,0 +1,3 @@
+---
+s3_bucket_name: "bucket-{{ resource_prefix }}"
+s3_object_name: "key-{{ resource_prefix }}"

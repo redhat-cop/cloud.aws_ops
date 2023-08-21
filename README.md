@@ -34,6 +34,7 @@ Name | Description
 --- | ---
 [cloud.aws_ops.eda](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
 [cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
+[cloud.aws_ops.upload_file_to_s3](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
 
 ### Rulebooks
 Name | Description

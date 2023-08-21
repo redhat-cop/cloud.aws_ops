@@ -1,0 +1,3 @@
+cloud/aws
+time=50s
+playbook/upload_file_to_s3

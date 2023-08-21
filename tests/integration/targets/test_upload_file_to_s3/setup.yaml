@@ -1,0 +1,25 @@
+---
+- name: Initialize resources for tests
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars/main.yaml
+
+  module_defaults:
+    group/aws:
+      region: '{{ aws_region }}'
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      security_token: '{{ security_token | default(omit) }}'
+
+  tasks:
+    - name: Create AWS session credentials file
+      ansible.builtin.template:
+        src: upload_file_vars.yaml.j2
+        dest: upload_file_vars.yaml
+        mode: '0755'
+
+    - name: Create S3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ s3_bucket_name }}"

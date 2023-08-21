@@ -1,0 +1,41 @@
+---
+- name: Upload a local file to S3
+  hosts: localhost
+  gather_facts: false
+
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      session_token: "{{ aws_security_token | default(omit) }}"
+      profile: "{{ aws_profile | default(omit) }}"
+
+  tasks:
+    - name: Fail when 'upload_file_to_s3_bucket_name' is undefined
+      ansible.builtin.fail:
+        msg: 'S3 bucket should be defined as upload_file_to_s3_bucket_name'
+      when: upload_file_to_s3_bucket_name is undefined
+
+    - name: Fail when 'upload_file_to_s3_file_path' is undefined
+      ansible.builtin.fail:
+        msg: 'Path to a local file should be defined as upload_file_to_s3_file_path'
+      when: upload_file_to_s3_file_path is undefined
+
+    - name: Validate that file exists
+      ansible.builtin.stat:
+        path: "{{ upload_file_to_s3_file_path }}"
+      register: _stat
+
+    - name: Fail when file does not exist
+      ansible.builtin.fail:
+        msg: 'File {{ upload_file_to_s3_file_path }} does not exist.'
+      when: not _stat.stat.exists
+
+    - name: Upload object into S3
+      amazon.aws.s3_object:
+        mode: put
+        bucket: "{{ upload_file_to_s3_bucket_name }}"
+        object: "{{ upload_file_to_s3_object_name | default(upload_file_to_s3_file_path | basename) }}"
+        src: "{{ upload_file_to_s3_file_path }}"
+        permission: "{{ upload_file_to_s3_object_permission | default(omit) }}"
+        overwrite: "{{ upload_file_to_s3_object_overwrite | default(omit) }}"
