@@ -13,7 +13,7 @@
         kms_key_arn: "{{ __kms_key_info.kms_keys.0.key_arn }}"
 
     - name: Cancel the deletion of the KMS key and re-enable the KMS key
-      when: event.CloudTrailEvent.requestParameters.keyId == kms_key_arn
+      when: ansible_eda.event.CloudTrailEvent.responseElements.keyId == kms_key_arn
       block:
         - name: Cancel the deletion of the KMS key and re-enable the KMS key
           amazon.aws.kms_key:
@@ -22,7 +22,7 @@
             enabled: true
           register: __kms_key_restore
 
-        - name: Assert that trail has been re-enabled
+        - name: Assert that key has been re-enabled
           ansible.builtin.assert:
             that:
               - __kms_key_restore is changed
