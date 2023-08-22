@@ -1,4 +1,4 @@
-- name: Rules for cloud.aws_ops to ensure the cloudtrail is encrypted
+- name: Rules for cloud.aws_ops to ensure a CloudTrail trail remains active and encrypted
   hosts: all
 
   sources:
@@ -28,13 +28,22 @@
             s3_bucket_name: "{{ s3_bucket_name }}"
             s3_key_prefix: "{{ s3_key_prefix | default('') }}"
 
-    - name: Enable CreateTrail encryption
-      condition: event.CloudTrailEvent.eventName=="UpdateTrail" and event.CloudTrailEvent.name == vars.cloudtrail_name and event.CloudTrailEvent.requestParameters.kmsKeyId==""
+    - name: Re-enable trail encryption
+      condition: >
+        event.CloudTrailEvent.eventName == "UpdateTrail"
+        and event.CloudTrailEvent.responseElements.name == vars.cloudtrail_name
+        and event.CloudTrailEvent.requestParameters.kmsKeyId == ""
       action:
         run_playbook:
-          name: playbooks/eda/aws_restore_cloudtrail_encryption.yml
+            name: cloud.aws_ops.aws_restore_cloudtrail_encryption
+            extra_vars:
+              cloudtrail_name: "{{ cloudtrail_name }}"
+              kms_key_alias: "{{ kms_key_alias }}"
 
-    - name: Debug when S3 bucket is deleted and event.CloudTrailEvent.bucketName == vars.s3_bucket_name
-      condition: event.CloudTrailEvent.eventName=="DeleteBucket"
+    - name: Print when Cloudtrail log S3 bucket is deleted
+      condition: >
+        event.CloudTrailEvent.eventName == "DeleteBucket"
+        and event.CloudTrailEvent.bucketName == vars.s3_bucket_name
       action:
-        debug:
+        print_event:
+          pretty: true
