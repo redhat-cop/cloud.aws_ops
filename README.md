@@ -1,8 +1,8 @@
-# cloud.aws_ops roles/playbooks to demo Ansible on AWS
+# cloud.aws_ops roles/playbooks/rulebooks to demo Ansible on AWS
 
 This repository hosts the `cloud.aws_ops` Ansible Collection.
 
-The collection includes a variety of Ansible roles and playbooks to help automate the management of resources on AWS.
+The collection includes a variety of Ansible roles, playbooks, and rulebooks to help automate the management of resources on AWS.
 
 <!--start requires_ansible-->
 ## Ansible version compatibility
@@ -11,7 +11,7 @@ This collection has been tested against following Ansible versions: **>=2.12.0**
 
 ## Included content
 
-Click on the name of a role to view that content's documentation:
+Click on the name of a role, playbook, or rulebook to view that content's documentation:
 
 <!--start collection content-->
 ### Roles
@@ -32,7 +32,13 @@ Name | Description
 ### Playbooks
 Name | Description
 --- | ---
-[cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A playbook to create a webapp on AWS.
+[cloud.aws_ops.eda](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
+[cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
+
+### Rulebooks
+Name | Description
+--- | ---
+[cloud.aws_ops.aws_manage_cloudtrail_encryption](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
 <!--end collection content-->
 
 ## Installation and Usage
@@ -41,6 +47,7 @@ Name | Description
 
 The [amazon.aws](https://github.com/ansible-collections/amazon.aws) and [community.aws](https://github.com/ansible-collections/amazon.aws) collections MUST be installed in order for this collection to work.
 
+To run rulebooks, [ansible-rulebook](https://ansible.readthedocs.io/projects/rulebook/en/latest/) must be installed.
 
 ### Installation
 Clone the collection repository.
@@ -69,7 +76,7 @@ Once installed, you can reference the cloud.aws_ops collection content by its fu
 ### See Also
 
 * [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
-
+* [Ansible Rulebook documentation](https://ansible.readthedocs.io/projects/rulebook/en/stable/index.html) for information on using rulebooks.
 
 ## Contributing to this collection
 
