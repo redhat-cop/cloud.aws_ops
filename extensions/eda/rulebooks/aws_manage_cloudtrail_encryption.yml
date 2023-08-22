@@ -35,10 +35,10 @@
         and event.CloudTrailEvent.requestParameters.kmsKeyId == ""
       action:
         run_playbook:
-            name: cloud.aws_ops.aws_restore_cloudtrail_encryption
-            extra_vars:
-              cloudtrail_name: "{{ cloudtrail_name }}"
-              kms_key_alias: "{{ kms_key_alias }}"
+          name: cloud.aws_ops.aws_restore_cloudtrail_encryption
+          extra_vars:
+            cloudtrail_name: "{{ cloudtrail_name }}"
+            kms_key_alias: "{{ kms_key_alias }}"
 
     - name: Print when Cloudtrail log S3 bucket is deleted
       condition: >
