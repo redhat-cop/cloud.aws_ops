@@ -16,9 +16,6 @@ rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
 rds_identifier: "{{ resource_prefix }}-rds-01"
 sshkey_pair_name: "{{ resource_prefix }}-key"
 
-# ids for add_host
-private_subnet_id: "subnet-0b174890d6e380456"
-vpc_id: "vpc-061f758b1e21a200b"
 
 bastion_host_name: "{{ resource_prefix }}-bastion"
 bastion_host_username: fedora

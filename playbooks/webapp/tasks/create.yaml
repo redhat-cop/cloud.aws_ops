@@ -153,10 +153,10 @@
     - name: Get RDS instance info
       amazon.aws.rds_instance_info:
         db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_info
+      register: rds_result
 
     - name: Create RDS instance
-      when: rds_info.instances | length == 0
+      when: rds_result.instances | length == 0
       block:
         - name: Create RDS instance (PostGreSQL Database)
           amazon.aws.rds_instance:
@@ -204,7 +204,7 @@
     - name: Get RDS instance info
       amazon.aws.rds_instance_info:
         db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_info
+      register: rds_result
 
     - name: Set 'sshkey_file' variable
       ansible.builtin.set_fact:
@@ -237,24 +237,4 @@
           - "{{ secgroup.group_id }}"
         wait: true
         state: started
-      register: result
-
-    - name: Add host to inventory
-      ansible.builtin.add_host:
-        hostname: bastion
-        ansible_ssh_user: "{{ bastion_host_username }}"
-        ansible_host: "{{ result.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ sshkey_file }}
-        ansible_host_name: "{{ result.instances.0.public_dns_name | split('.') | first }}"
-        host_config:
-          public_subnet_id: "{{ subnet.subnet.id }}"
-          private_subnet_id: "{{ private_subnet.subnet.id }}"
-          image_id: "{{ images.images.0.image_id }}"
-          group_id: "{{ secgroup.group_id }}"
-          private_ip: "{{ result.instances.0.private_ip_address }}"
-          vpc_id: "{{ vpc.vpc.id }}"
-          rds_info:
-            host: "{{ rds_info.instances.0.endpoint.address }}"
-            name: "{{ rds_instance_name }}"
-            master_user_password: "{{ rds_master_password }}"
-            master_username: "{{ rds_master_user }}"
+      register: vm_result

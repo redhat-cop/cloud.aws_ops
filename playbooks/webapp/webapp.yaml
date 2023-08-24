@@ -34,3 +34,8 @@
       when: operation == "create"
       ansible.builtin.include_role:
         name: cloud.aws_ops.deploy_flask_app
+      vars:
+        private_subnet_id: "{{ private_subnet.subnet.id }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        vm_info: "{{ vm_result }}"
+        rds_info: "{{ rds_result }}"
