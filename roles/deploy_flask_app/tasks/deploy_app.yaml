@@ -1,5 +1,6 @@
 ---
-- name: Deploy resource from Bastion
+- name: Create Cloud Resources (workers, load balancer, etc)
+  # delegate_to: localhost
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key | default(omit) }}"
@@ -7,238 +8,217 @@
       security_token: "{{ security_token | default(omit) }}"
       region: "{{ region | default(aws_region) }}"
 
+  vars:
+    deploy_flask_app_localhost_key_pair: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-key"
+    deploy_flask_app_instance_name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-workers"
   block:
-    - name: Update ssh_config
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regex: "{{ item.regex }}"
-        line: "{{ item.line }}"
-      loop:
-        - regex: ^(# *)?ClientAliveInterval
-          line: ClientAliveInterval  1200
-        - regex: ^(# *)?ClientAliveCountMax
-          line: ClientAliveCountMax 3
+    - name: Create key pair to connect to the VM
+      amazon.aws.ec2_key:
+        name: "{{ deploy_flask_app_localhost_key_pair }}"
+        key_material: "{{ deploy_flask_app_sshkey.content | b64decode }}"
+
+    - name: List running instances
+      amazon.aws.ec2_instance_info:
+        filters:
+          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Compute number of instances to create/delete
+      ansible.builtin.set_fact:
+        deploy_flask_app_expected_instances: "{{ number_of_workers | int - deploy_flask_app_vms.instances | length }}"
+
+    - name: Create list of targets hosts
+      amazon.aws.ec2_instance:
+        name: "{{ deploy_flask_app_instance_name }}"
+        instance_type: "{{ workers_instance_type }}"
+        image_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.image_id }}"
+        key_name: "{{ deploy_flask_app_localhost_key_pair }}"
+        subnet_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_subnet_id }}"
+        network:
+          assign_public_ip: false
+          delete_on_termination: true
+          groups:
+            - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
+        security_groups:
+          - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
+        wait: true
+        count: "{{ deploy_flask_app_expected_instances }}"
+        state: started
+      register: deploy_flask_app_workers
+      when: deploy_flask_app_expected_instances | int > 0
+
+    - name: List running instances (once again)
+      amazon.aws.ec2_instance_info:
+        filters:
+          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Create list of instances (join)
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances_list: []
+    - name: Update join_instances
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances_list: "{{ deploy_flask_app_instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
+      with_items: "{{ deploy_flask_app_vms.instances }}"
+
+- name: Create inventory file
+  ansible.builtin.template:
+    src: inventory.j2
+    dest: ~/inventory.ini
+    mode: 0644
+  vars:
+    deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
+    deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
+  delegate_to: bastion
+
+- name: Create vars file
+  ansible.builtin.template:
+    src: vars.yaml.j2
+    dest: ~/vars.yaml
+    mode: 0644
+  delegate_to: bastion
+
+- name: Create private registry and store webapp container image
+  delegate_to: bastion
+>>>>>>> de42729 (Add integration testcases)
+  block:
+    - name: Clone git repository for web application
+      ansible.builtin.git:
+        repo: "{{ app_git_repository }}"
+        dest: ~/webapp
+
+    - name: Build webapp container image
+      ansible.builtin.command:
+        cmd: podman build -t webapp .
+      args:
+        chdir: ~/webapp
+      changed_when: false
+
+    - name: Check running registry
+      ansible.builtin.shell:
+        cmd: >
+          podman container
+          ps -a
+          -f name=registry500x
+          --format=.Names
+      register: deploy_flask_app_container
       become: true
+      changed_when: false
 
-    - name: Install required packages
-      ansible.builtin.yum:
-        name: "{{ bastion_host_required_packages }}"
-        state: present
+    - name: Create private registry
       become: true
-
-    - name: Generate ssh key for existing user
-      ansible.builtin.user:
-        name: "{{ bastion_host_username }}"
-        state: present
-        generate_ssh_key: true
-
-    - name: Get content of public key
-      ansible.builtin.slurp:
-        src: ~/.ssh/id_rsa.pub
-      register: deploy_flask_app_sshkey
-
-    - name: Create Cloud Resources (workers, load balancer, etc)
+      when:
+        - deploy_flask_app_container.stdout == ""
       block:
-        - name: Create Cloud Resources (workers, load balancer, etc)
-          delegate_to: localhost
-          vars:
-            deploy_flask_app_localhost_key_pair: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-key"
-            deploy_flask_app_instance_name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-workers"
-          block:
-            - name: Create key pair to connect to the VM
-              amazon.aws.ec2_key:
-                name: "{{ deploy_flask_app_localhost_key_pair }}"
-                key_material: "{{ deploy_flask_app_sshkey.content | b64decode }}"
-
-            - name: List running instances
-              amazon.aws.ec2_instance_info:
-                filters:
-                  tag:Name: "{{ deploy_flask_app_instance_name }}"
-                  instance-state-name: running
-              register: deploy_flask_app_vms
-
-            - name: Compute number of instances to create/delete
-              ansible.builtin.set_fact:
-                deploy_flask_app_expected_instances: "{{ number_of_workers | int - deploy_flask_app_vms.instances | length }}"
-
-            - name: Create list of targets hosts
-              amazon.aws.ec2_instance:
-                name: "{{ deploy_flask_app_instance_name }}"
-                instance_type: "{{ workers_instance_type }}"
-                image_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.image_id }}"
-                key_name: "{{ deploy_flask_app_localhost_key_pair }}"
-                subnet_id: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_subnet_id }}"
-                network:
-                  assign_public_ip: false
-                  delete_on_termination: true
-                  groups:
-                    - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
-                security_groups:
-                  - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
-                wait: true
-                count: "{{ deploy_flask_app_expected_instances }}"
-                state: started
-              register: deploy_flask_app_workers
-              when: deploy_flask_app_expected_instances | int > 0
-
-            - name: List running instances (once again)
-              amazon.aws.ec2_instance_info:
-                filters:
-                  tag:Name: "{{ deploy_flask_app_instance_name }}"
-                  instance-state-name: running
-              register: deploy_flask_app_vms
-
-            - name: Create list of instances (join)
-              ansible.builtin.set_fact:
-                deploy_flask_app_instances_list: []
-            - name: Update join_instances
-              ansible.builtin.set_fact:
-                deploy_flask_app_instances_list: "{{ deploy_flask_app_instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
-              with_items: "{{ deploy_flask_app_vms.instances }}"
-
-        - name: Create inventory file
-          ansible.builtin.template:
-            src: inventory.j2
-            dest: ~/inventory.ini
+        - name: Create folders for the registry
+          ansible.builtin.file:
+            path: /opt/registry/{{ item }}
+            state: directory
             mode: 0644
-          vars:
-            deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
-            deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
+          with_items:
+            - auth
+            - certs
+            - data
 
-        - name: Create vars file
-          ansible.builtin.template:
-            src: vars.yaml.j2
-            dest: ~/vars.yaml
-            mode: 0644
-
-        - name: Create private registry and store webapp container image
-          block:
-            - name: Clone git repository for web application
-              ansible.builtin.git:
-                repo: "{{ app_git_repository }}"
-                dest: ~/webapp
-
-            - name: Build webapp container image
-              ansible.builtin.command:
-                cmd: podman build -t webapp .
-              args:
-                chdir: ~/webapp
-              changed_when: false
-
-            - name: Check running registry
-              ansible.builtin.shell:
-                cmd: >
-                  podman container
-                  ps -a
-                  -f name=registry500x
-                  --format=.Names
-              register: deploy_flask_app_container
-              become: true
-              changed_when: false
-
-            - name: Create private registry
-              become: true
-              when:
-                - deploy_flask_app_container.stdout == ""
-              block:
-                - name: Create folders for the registry
-                  ansible.builtin.file:
-                    path: /opt/registry/{{ item }}
-                    state: directory
-                    mode: 0644
-                  with_items:
-                    - auth
-                    - certs
-                    - data
-
-                - name: Generate credentials for accessing the registry
-                  ansible.builtin.shell:
-                    cmd: >
-                      htpasswd -bBc /opt/registry/auth/htpasswd
-                      {{ local_registry_user }}
-                      {{ local_registry_pwd }}
-                  changed_when: false
-
-                - name: Start the registry
-                  ansible.builtin.shell:
-                    cmd: >
-                      podman run --name registry500x
-                      -p {{ app_listening_port }}:5000
-                      -v /opt/registry/data:/var/lib/registry:z
-                      -v /opt/registry/auth:/auth:z
-                      -e "REGISTRY_AUTH=htpasswd"
-                      -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
-                      -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
-                      -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
-                      -d
-                      docker.io/library/registry:latest
-                  changed_when: false
-
-            - name: Push image into private registry
-              ansible.builtin.shell:
-                cmd: >
-                  podman login 127.0.0.1:{{ app_listening_port }} -u '{{ local_registry_user }}' -p '{{ local_registry_pwd }}' --tls-verify=false &&
-                  podman tag webapp 127.0.0.1:{{ app_listening_port }}/ansible-webapp &&
-                  podman push 127.0.0.1:{{ app_listening_port }}/ansible-webapp --tls-verify=false
-              changed_when: false
-
-        - name: Initialize database tables
+        - name: Generate credentials for accessing the registry
           ansible.builtin.shell:
             cmd: >
-              podman run --rm
-              -e FLASK_APP="{{ app_config.app_dir }}"
-              -e FLASK_ENV="{{ app_config.env }}"
-              -e DATABASE_HOST="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.host }}"
-              -e DATABASE_INSTANCE="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.name }}"
-              -e DATABASE_USER="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_username }}"
-              -e DATABASE_PASSWORD="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_user_password }}"
-              -e ADMIN_USER="{{ app_config.admin_user }}"
-              -e ADMIN_PASSWORD="{{ app_config.admin_password }}"
-              -e WORKER_HOSTNAME="{{ inventory_hostname }}"
-              -e WORKERS_HOSTS="bastion"
-              webapp flask {{ app_force_init | bool | ternary('force-init-db', 'init-db') }}
-          run_once: true
+              htpasswd -bBc /opt/registry/auth/htpasswd
+              {{ local_registry_user }}
+              {{ local_registry_pwd }}
           changed_when: false
 
-        - name: Copy playbook into bastion host
-          ansible.builtin.copy:
-            src: run_app.yaml
-            dest: ~/playbook.yaml
-            mode: 0644
-
-        - name: Deploy application into workers
+        - name: Start the registry
           ansible.builtin.shell:
             cmd: >
-              ansible-playbook playbook.yaml -i inventory.ini -vvv
-              -e '@vars.yaml'
-              -e registry_host_port='{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_ip }}:{{ app_listening_port }}'
-          args:
-            chdir: ~/
+              podman run --name registry500x
+              -p {{ app_listening_port }}:5000
+              -v /opt/registry/data:/var/lib/registry:z
+              -v /opt/registry/auth:/auth:z
+              -e "REGISTRY_AUTH=htpasswd"
+              -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
+              -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+              -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
+              -d
+              docker.io/library/registry:latest
           changed_when: false
 
-        - name: Create load balancer
-          amazon.aws.elb_classic_lb:
-            state: present
-            name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-lb"
-            listeners:
-              - load_balancer_port: "{{ app_listening_port }}"
-                instance_port: 5000
-                protocol: HTTP
-                instance_protocol: HTTP
-            instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
-            security_group_ids:
-              - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
-            subnets:
-              - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.public_subnet_id }}"
-            scheme: internet-facing
-            wait: true
-            wait_timeout: 360
-          retries: 5
-          delay: 10
-          until: deploy_flask_app_lb_result is successful
-          register: deploy_flask_app_lb_result
-          delegate_to: localhost
+    - name: Push image into private registry
+      ansible.builtin.shell:
+        cmd: >
+          podman login 127.0.0.1:{{ app_listening_port }} -u '{{ local_registry_user }}' -p '{{ local_registry_pwd }}' --tls-verify=false &&
+          podman tag webapp 127.0.0.1:{{ app_listening_port }}/ansible-webapp &&
+          podman push 127.0.0.1:{{ app_listening_port }}/ansible-webapp --tls-verify=false
+      changed_when: false
 
-        - name: Debug application url
-          ansible.builtin.debug:
-            msg: "Application url: {{ deploy_flask_app_lb_result.elb.dns_name }}:{{ app_listening_port }}"
+- name: Initialize database tables
+  ansible.builtin.shell:
+    cmd: >
+      podman run --rm
+      -e FLASK_APP="{{ app_config.app_dir }}"
+      -e FLASK_ENV="{{ app_config.env }}"
+      -e DATABASE_HOST="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.host }}"
+      -e DATABASE_INSTANCE="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.name }}"
+      -e DATABASE_USER="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_username }}"
+      -e DATABASE_PASSWORD="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_user_password }}"
+      -e ADMIN_USER="{{ app_config.admin_user }}"
+      -e ADMIN_PASSWORD="{{ app_config.admin_password }}"
+      -e WORKER_HOSTNAME="{{ inventory_hostname }}"
+      -e WORKERS_HOSTS="bastion"
+      webapp flask {{ app_force_init | bool | ternary('force-init-db', 'init-db') }}
+  run_once: true
+  changed_when: false
+  delegate_to: bastion
+
+- name: Copy playbook into bastion host
+  ansible.builtin.copy:
+    src: run_app.yaml
+    dest: ~/playbook.yaml
+    mode: 0644
+  delegate_to: bastion
+
+- name: Deploy application into workers
+  ansible.builtin.shell:
+    cmd: >
+      ansible-playbook playbook.yaml -i inventory.ini -vvv
+      -e '@vars.yaml'
+      -e registry_host_port='{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_ip }}:{{ app_listening_port }}'
+  args:
+    chdir: ~/
+  changed_when: false
+  delegate_to: bastion
+
+- name: Create load balancer
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ aws_security_token }}"
+      region: "{{ aws_region }}"
+  amazon.aws.elb_classic_lb:
+    state: present
+    name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-lb"
+    listeners:
+      - load_balancer_port: "{{ app_listening_port }}"
+        instance_port: 5000
+        protocol: HTTP
+        instance_protocol: HTTP
+    instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+    security_group_ids:
+      - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.group_id }}"
+    subnets:
+      - "{{ deploy_flask_app_setup.add_host.host_vars.host_config.public_subnet_id }}"
+    scheme: internet-facing
+    wait: true
+    wait_timeout: 360
+  retries: 5
+  delay: 10
+  until: deploy_flask_app_lb_result is successful
+  register: deploy_flask_app_lb_result
+  # delegate_to: localhost
+
+- name: Debug application url
+  ansible.builtin.debug:
+    msg: "Application url: {{ deploy_flask_app_lb_result.elb.dns_name }}:{{ app_listening_port }}"

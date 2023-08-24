@@ -1,0 +1,76 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy flask app in AWS.
+    options:
+      region:
+        description: (Optional) Region where the app has to be deployed.
+        type: str
+      bastion_host_username:
+        description: Username for the bastion host SSH user.
+        type: str
+        required: True
+      bastion_host_name:
+        description: Name for the EC2 instance.
+        type: str
+        required: True
+      bastion_host_required_packages:
+        description: Packages to be installed on the bastion host.
+        type: list
+        elements: str
+        required: True
+      private_subnet_id:
+        description: Private subnet id of the bastion host.
+        type: list
+        elements: str
+        required: True
+        options:
+          asn:
+            description:
+              - A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
+              - The range is 64512 to 65534 for 16-bit ASNs and 4200000000 to 4294967294 for 32-bit ASNs.
+            type: int
+          description:
+            description:
+              - The description of the transit gateway.
+            type: str
+          tags:
+            description: A dict of tags for the transit gateway.
+            type: dict
+      vpc_attachment:
+        description: VPC to be attached.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: Name of the attachment.
+            type: str
+          subnets:
+            description: Subnets for the attachment.
+            type: list
+            elements: str
+          tags:
+            description: A dict of tags for the attachment.
+            type: dict
+      vpn_attachment:
+        description: VPC to be attached.
+        type: list
+        elements: dict
+        options:
+          customer_gateway_id:
+            description: id of the customer gateway for the vpn attachment.
+            type: str
+      vpc_route_table:
+        description: Route table entries for the VPC
+        type: list
+        elements: dict
+        options:
+          vpc_id:
+            description: Te VPC id for which the route should be added.
+            type: str
+          cidr_block:
+            description: Destination CIDR block.
+            type: str
+          tags:
+            description: A dict of tags for the route table.
+            type: dict

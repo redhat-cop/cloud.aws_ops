@@ -23,38 +23,34 @@ Role Variables
 
 ## variables to create new hosts and groups in inventory of in memory playbook.
 
-* **region**: Region where the app is to be deployed.
-* **bastion_host_username**: Username for the bastion host SSH user.
-* **private_subnet_id**: Private subnet id of the bastion host
-* **vpc_id**: vpc id for the host.
-* **rds_info**: A dict of information for the backend RDS
-    **rds_instance_name**: Postgresql DB name. default: 'mysampledb123'.
-    **rds_master_password**: Postgresql DB user name. default: 'ansible'.
-    **rds_master_user**: Postgresql DB password. default: 'L#5cH2mgy_'.
+* **region** (str): Region where the app is to be deployed.
+* **bastion_host_username** (str): Username for the bastion host SSH user.
+* **private_subnet_id** (str): Private subnet id of the bastion host
+* **vpc_id** (str): vpc id for the host.
+* **rds_info** (dict): A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info mode.
+* **rds_master_username** (str): Username for the RDS instance.
+* **rds_master_password** (str): password for the RDS instance.
+* **vm_info** (dict): A dict of information for the vm to use. This dict has the output of amazon.aws.ec2_instance_info module.
 
-## variables need for the deployment
+## variables needed for the deployment
 
 # Bastion host
-* **bastion_host_name**: Name for the EC2 instance.
-* **bastion_host_required_packages**: Packages to be installed on the bastion host.
-* **number_of_workers**: Number of instances to create.
-* **workers_instance_type**: RC2 instance type for workers.
+* **bastion_host_name** (str): Name for the EC2 instance.
+* **bastion_host_required_packages** (list): Packages to be installed on the bastion host.
+* **number_of_workers** (int): Number of instances to create.
+* **workers_instance_type** (str): RC2 instance type for workers.
 
 # App
-* **app_git_repository**: Git repository to be cloned for the webapp.
-* **app_listening_port**: Load balancer port.
-* **app_force_init**: A boolean value True to force init the app and False to not force init.
-
-# RDS
-**rds_identifier**: Unique identifier for the RDS instance.
-* **rds_listening_port**: Listening port for the RDS.
-* **local_registry_user**: Registry user name.
-* **local_registry_pwd**: Registry password.
-* **app_config**: A dict of config parameterys for the app.
-    **env**: Flask env.
-    **admin_user**: App config's admin username.
-    **admin_password**: App config's admin password.
-    **app_dir**: App directory.
+* **app_git_repository** (str): Git repository to be cloned for the webapp.
+* **app_listening_port** (int): Load balancer port.
+* **app_force_init** (bool): A boolean value True to force init the app and False to not force init.
+* **local_registry_user** (str): Registry user name.
+* **local_registry_pwd** (str): Registry password.
+* **app_config** (dict): A dict of config parameterys for the app.
+    **env** (str): Flask env.
+    **admin_user** (str): App config's admin username.
+    **admin_password** (str): App config's admin password.
+    **app_dir** (str): App directory.
 
 Dependencies
 ------------

@@ -1,0 +1,32 @@
+---
+- name: Deploy resource from Bastion
+  delegate_to: bastion
+  block:
+    - name: Update ssh_config
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regex: "{{ item.regex }}"
+        line: "{{ item.line }}"
+      loop:
+        - regex: ^(# *)?ClientAliveInterval
+          line: ClientAliveInterval  1200
+        - regex: ^(# *)?ClientAliveCountMax
+          line: ClientAliveCountMax 3
+      become: true
+
+    - name: Install required packages
+      ansible.builtin.yum:
+        name: "{{ bastion_host_required_packages }}"
+        state: present
+      become: true
+
+    - name: Generate ssh key for existing user
+      ansible.builtin.user:
+        name: "{{ bastion_host_username }}"
+        state: present
+        generate_ssh_key: true
+
+    - name: Get content of public key
+      ansible.builtin.slurp:
+        src: ~/.ssh/id_rsa.pub
+      register: deploy_flask_app_sshkey

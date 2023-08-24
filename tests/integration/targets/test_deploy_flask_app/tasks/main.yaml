@@ -1,0 +1,31 @@
+---
+- name: "Run deploy_flask_app integration tests"
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ aws_security_token }}"
+      region: "{{ aws_region }}"
+
+  block:
+    - name: Fail when 'resource_prefix' is not defined
+      ansible.builtin.fail:
+        msg: resource prefix should be defined as resource_prefix
+      when: resource_prefix is not defined
+
+    - name: Run operation create
+      ansible.builtin.include_tasks: "create.yaml"
+
+    - name: Deploy resource from Bastion
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.deploy_flask_app
+      vars:
+        private_subnet_id: "{{ private_subnet.subnet.id }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        vm_info: "{{ vm_result }}"
+        rds_info: "{{ rds_result }}"
+
+  always:
+    # Cleanup after ourselves
+    - name: Cleanup
+      ansible.builtin.include_tasks: "delete.yaml"

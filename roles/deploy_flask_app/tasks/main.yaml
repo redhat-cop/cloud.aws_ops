@@ -1,11 +1,13 @@
 ---
-- name: Debug Debug msg
-  ansible.builtin.debug:
-    msg: "Enter deploy app"
+- name: Deploy flask app.
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+  block:
+    - name: Create new host in inventory for use in later plays.
+      ansible.builtin.include_tasks: setup.yaml
 
-- name: Create new host in inventory for use in later plays.
-  ansible.builtin.include_tasks: setup.yaml
-  register: deploy_flask_app_setup
+    - name: Deploy resource from Bastion
+      ansible.builtin.include_tasks: bastion_setup.yaml
 
-- name: Deploy resource from Bastion
-  ansible.builtin.include_tasks: deploy_app.yaml
+    - name: Deploy App
+      ansible.builtin.include_tasks: deploy_app.yaml
