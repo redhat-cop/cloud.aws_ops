@@ -36,10 +36,10 @@ AWS User Account with the following permissions:
 
 ## Rulebook Variables
 
-* **cloudtrail_name**: (Required) Name of the Cloudtrail trail to monitor.
-* **kms_key_alias**: (Required) Alias for the KMS key used to encrypt the trail.
-* **s3_bucket_name**: (Required) Name of the s3 bucket used to store trail logs.
-* **s3_key_prefix**: Optional s3 key prefix for trail logs.
+* **cloudtrail_name** (str): (Required) Name of the Cloudtrail trail to monitor.
+* **kms_key_alias** (str): (Required) Alias for the KMS key used to encrypt the trail.
+* **s3_bucket_name** (str): (Required) Name of the s3 bucket used to store trail logs.
+* **s3_key_prefix** (str): Optional s3 key prefix for trail logs.
 
 ## Example Usage
 

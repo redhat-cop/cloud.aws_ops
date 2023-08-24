@@ -84,24 +84,24 @@ To delete the webapp:
 
 ### Common
 
-* **operation**: Operation for the webapp playbook to perform, either `create` or `delete`. Default: `create`
-* **resource_prefix**: (Required) A prefix to prepend to the name of all AWS resources created for the webapp
-* **resource_tags**: Tags to apply to all AWS resources created for the webapp. Default: `prefix: "{{ resource_prefix }}"`
-* **aws_access_key**: (Required) AWS access key ID for user account with the above permissions
-* **aws_secret_key**: (Required) AWS secret access key for user account with the above permissions
-* **aws_region**: (Required) AWS region in which to create webapp resources
-* **dest_region**: AWS region to migrate the webapp to, only used when migrating an existing webapp
-* **delete_source**: Whether to delete the source region webapp resources when migrating an existing webapp. Default: `false`
-* **security_token**: Security token for AWS session authentication
+* **operation** (str): Operation for the webapp playbook to perform, either `create` or `delete`. Default: `create`
+* **resource_prefix** (str): (Required) A prefix to prepend to the name of all AWS resources created for the webapp
+* **resource_tags** (dict, elements dict): Tags to apply to all AWS resources created for the webapp. Default: `prefix: "{{ resource_prefix }}"`
+* **aws_access_key** (str): (Required) AWS access key ID for user account with the above permissions
+* **aws_secret_key** (str): (Required) AWS secret access key for user account with the above permissions
+* **aws_region** (str): (Required) AWS region in which to create webapp resources
+* **dest_region** (str): AWS region to migrate the webapp to, only used when migrating an existing webapp
+* **delete_source** (bool): Whether to delete the source region webapp resources when migrating an existing webapp. Default: `false`
+* **security_token** (str): Security token for AWS session authentication
 
 ### EC2 instance
 
-* **image_filter**: Name of AWS AMI to use. Default: `Fedora-Cloud-Base-35-*`
-* **sshkey_pair_name**: Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
-* **bastion_host_name**: Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
-* **bastion_host_type**: Instance type for the EC2 instance. Default: `t2.xlarge`
-* **bastion_host_username**: Username for the bastion host SSH user. Default: `fedora`
-* **bastion_host_required_packages**: Packages to be installed on the bastion host. Default:
+* **image_filter** (str): Name of AWS AMI to use. Default: `Fedora-Cloud-Base-35-*`
+* **sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
+* **bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
+* **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t2.xlarge`
+* **bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
+* **bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:
   ```yaml
   - python3
   - python-virtualenv
@@ -114,48 +114,48 @@ To delete the webapp:
 
 ### Networking
 
-* **vpc_name**: Name for the VPC. Default: `"{{ resource_prefix }}-vpc"`
-* **vpc_cidr**: IPv4 address range for the VPC. Default: `10.1.0.0/16`
-* **subnet_cidr**: Subnet CIDR blocks - a public subnet for the bastion host, private subnets for workers and RDS instance. Default:
+* **vpc_name** (str): Name for the VPC. Default: `"{{ resource_prefix }}-vpc"`
+* **vpc_cidr** (str): IPv4 address range for the VPC. Default: `10.1.0.0/16`
+* **subnet_cidr** (list, elements str): Subnet CIDR blocks - a public subnet for the bastion host, private subnets for workers and RDS instance. Default:
   ```yaml
   - 10.1.0.0/24
   - 10.1.1.0/24
   - 10.1.2.0/24
   ```
-* **rds_subnet_group_name**: Subnet group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sg"`
-* **rds_secgroup_name**: Security group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sec"`
-* **public_secgroup_name**: Security group name for the bastion host. Default: `"{{ resource_prefix }}-sg"`
-* **app_listening_port**: Connection listening port for the app on the bastion host. Default: `5000`
-* **rds_listening_port**: Connection listening port for the RDS instance. Default: `5432`
+* **rds_subnet_group_name** (str): Subnet group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sg"`
+* **rds_secgroup_name** (str): Security group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sec"`
+* **public_secgroup_name** (str): Security group name for the bastion host. Default: `"{{ resource_prefix }}-sg"`
+* **app_listening_port** (int): Connection listening port for the app on the bastion host. Default: `5000`
+* **rds_listening_port** (int): Connection listening port for the RDS instance. Default: `5432`
 
 ### RDS instance
 
-* **rds_snapshot_arn**: If provided, will create an RDS instance from an existing snapshot. Default: `null`
-* **rds_identifier**: Unique identifier for the RDS instance. Default: `"{{ resource_prefix }}-rds-01"`
-* **rds_allocated_storage_gb**: The amount of storage (in GB) to allocate for the DB instance. Default: `20`
-* **rds_instance_class**: DB instance class for the RDS instance. Default: `db.m6g.large`
-* **rds_instance_name**: Name for the database. Default: `mysampledb123`
-* **rds_engine**: Engine to use for the database. Default: `postgres`
-* **rds_engine_version**: Version number of the database engine to use. Default: `"14.8"`
-* **rds_master_user**: Name of the master user for the database instance. Default: `ansible`
-* **rds_master_password**: Password for the master database user. Default: `L#5cH2mgy_`
+* **rds_snapshot_arn** (str): If provided, will create an RDS instance from an existing snapshot. Default: `null`
+* **rds_identifier** (str): Unique identifier for the RDS instance. Default: `"{{ resource_prefix }}-rds-01"`
+* **rds_allocated_storage_gb** (int): The amount of storage (in GB) to allocate for the DB instance. Default: `20`
+* **rds_instance_class** (str): DB instance class for the RDS instance. Default: `db.m6g.large`
+* **rds_instance_name** (str): Name for the database. Default: `mysampledb123`
+* **rds_engine** (str): Engine to use for the database. Default: `postgres`
+* **rds_engine_version** (str): Version number of the database engine to use. Default: `"14.8"`
+* **rds_master_user** (str): Name of the master user for the database instance. Default: `ansible`
+* **rds_master_password** (str): Password for the master database user. Default: `L#5cH2mgy_`
 
 ### Webapp
 
-* **app_git_repository**: Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
-* **number_of_workers**: Number of worker instances to create. Default: `2`
-* **workers_instance_type**: EC2 instance type for workers. Default: `t2.large`
-* **local_registry_user**: Username for local Podman registry. Default: `ansible`
-* **local_registry_pwd**: Password for local Podman registry. Default: `testing123`
-* **local_registry_port**: Port for the local Podman registery. Default: `"{{ app_listening_port }}"`
-* **app_config**: Configuration values for the webapp, passed as corresponding env variables FLASK_APP, FLASK_ENV, ADMIN_USER, and ADMIN_PASSWORD when the app is deployed. Default:
+* **app_git_repository** (str): Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
+* **number_of_workers** (int): Number of worker instances to create. Default: `2`
+* **workers_instance_type** (str): EC2 instance type for workers. Default: `t2.large`
+* **local_registry_user** (str): Username for local Podman registry. Default: `ansible`
+* **local_registry_pwd** (str): Password for local Podman registry. Default: `testing123`
+* **local_registry_port** (int): Port for the local Podman registery. Default: `"{{ app_listening_port }}"`
+* **app_config** (dict, elements dict): Configuration values for the webapp, passed as corresponding env variables FLASK_APP, FLASK_ENV, ADMIN_USER, and ADMIN_PASSWORD when the app is deployed. Default:
   ```yaml
   app_dir: /app/pyapp
   env: development
   admin_user: admin
   admin_password: admin
   ```
-* **app_force_init**: Whether to drop existing tables and create new ones when deploying the webapp database. Default: `false`
+* **app_force_init** (bool): Whether to drop existing tables and create new ones when deploying the webapp database. Default: `false`
 
 ## Example Usage
 
