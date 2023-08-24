@@ -136,7 +136,6 @@ def is_port_in_range(port, from_port, to_port):
 
 class ValidateNetworkACL(AnsibleModule):
     def __init__(self):
-
         argument_spec = dict(
             dest_subnet_cidrs=dict(type="list", elements="str", required=True),
             dest_network_acl_rules=dict(type="list", elements="dict", required=True),
@@ -221,7 +220,6 @@ class ValidateNetworkACL(AnsibleModule):
 
 
 def main():
-
     ValidateNetworkACL()
 
 

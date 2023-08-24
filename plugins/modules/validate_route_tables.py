@@ -269,7 +269,6 @@ from ansible.module_utils.basic import AnsibleModule
 
 class ValidateRouteTables(AnsibleModule):
     def __init__(self):
-
         argument_spec = dict(
             dest_subnets=dict(type="list", elements="dict", required=True),
             dest_route_tables=dict(type="list", elements="dict", required=True),
@@ -330,7 +329,6 @@ class ValidateRouteTables(AnsibleModule):
         dest_route_tables,
         b_check_vpc_rtb_rds,
     ):
-
         # Third verification: Check wheter route is through a peering connection
         # Verify whether Destination RTBs contains route to Source network
         for rtb in dest_route_tables:
@@ -372,7 +370,6 @@ class ValidateRouteTables(AnsibleModule):
         dest_subnet_cidrs,
         b_check_vpc_rtb_ec2,
     ):
-
         # Verify whether Source RTB contains route to Destination network
         for rtb in src_route_tables:
             required_cidrs = copy.deepcopy(dest_subnet_cidrs)
@@ -496,7 +493,6 @@ class ValidateRouteTables(AnsibleModule):
 
 
 def main():
-
     ValidateRouteTables()
 
 

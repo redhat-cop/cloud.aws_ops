@@ -126,7 +126,6 @@ from ansible.module_utils.basic import AnsibleModule
 
 class ValidateSecurityGroupRules(AnsibleModule):
     def __init__(self):
-
         argument_spec = dict(
             dest_subnet_cidrs=dict(type="list", elements="str", required=True),
             dest_security_groups=dict(type="list", elements="dict", required=True),
@@ -197,7 +196,6 @@ class ValidateSecurityGroupRules(AnsibleModule):
         )
 
     def execute_module(self):
-
         try:
             dest_secgroup_ids = [
                 x["group_id"] for x in self.params.get("dest_security_groups")
@@ -250,7 +248,6 @@ class ValidateSecurityGroupRules(AnsibleModule):
 
 
 def main():
-
     ValidateSecurityGroupRules()
 
 
