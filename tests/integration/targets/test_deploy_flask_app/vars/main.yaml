@@ -44,7 +44,7 @@ bastion_host_required_packages:
   - httpd-tools
   - ansible
 
-workers_instance_type: t2.large
+workers_instance_type: t3.micro
 number_of_workers: 2
 
 app_listening_port: 5000
