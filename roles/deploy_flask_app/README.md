@@ -1,4 +1,4 @@
-manage_transit_gateway
+deploy_flask_app
 ==================
 
 A role to deploy a simple flask application with RDS db cluster as backend.
