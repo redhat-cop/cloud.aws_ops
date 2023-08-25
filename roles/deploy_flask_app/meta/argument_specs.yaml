@@ -1,0 +1,94 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy flask app in AWS.
+    options:
+      region:
+        description: (Optional) Region where the app has to be deployed.
+        type: str
+      bastion_host_username:
+        description: Username for the bastion host SSH user.
+        type: str
+        required: True
+      bastion_host_name:
+        description: Name for the EC2 instance.
+        type: str
+        required: True
+      bastion_host_required_packages:
+        description: Packages to be installed on the bastion host.
+        type: list
+        elements: str
+        required: True
+      private_subnet_id:
+        description: Private subnet id of the bastion host.
+        type: str
+        required: True
+      vpc_id:
+        description: vpc id for the host.
+        type: str
+        required: True
+      rds_info:
+        description: A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info module.
+        type: dict
+        required: True
+      rds_master_username:
+        description: Master username of the RDS backend.
+        type: str
+        required: True
+      rds_master_password:
+        description: Master password of the RDS backend.
+        type: str
+        required: True
+      vm_info:
+        description: A dict of information for the vm to use. This dict has the output of amazon.aws.ec2_instance_info module.
+        type: dict
+        required: True
+      number_of_workers:
+        description: Number of instances to create.
+        type: int
+      workers_instance_type:
+        description: RC2 instance type for workers.
+        type: str
+        required: True
+        choices: ["t2.nano", "t2.micro", "t3.nano", "t3.micro", "m1.large"]
+      app_git_repository:
+        description: Git repository to be cloned for the webapp.
+        type: str
+        required: True
+      app_listening_port:
+        description: Load balancer port.
+        type: int
+        required: True
+      app_force_init:
+        description: A boolean value True to force init the app and False to not force init.
+        type: bool
+        required: True
+      local_registry_user:
+        description: Registry user name.
+        type: str
+        required: True
+      local_registry_pwd:
+        description: Registry password.
+        type: str
+        required: True
+      app_config:
+        description: A dict of config parameterys for the app.
+        type: dict
+        required: True
+        options:
+          env:
+            description: Flask env.
+            type: str
+            required: True
+          admin_user:
+            description: App config's admin username.
+            type: str
+            required: True
+          admin_password:
+            description: App config's admin password.
+            type: str
+            required: True
+          app_dir:
+            description: App directory.
+            type: str
+            required: True
