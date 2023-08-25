@@ -24,7 +24,7 @@ rds_instance_name: mysampledb123
 rds_engine: postgres
 rds_engine_version: "14.8"
 
-bastion_host_type: t2.xlarge
+bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
 
 workers_user_name: fedora

@@ -218,10 +218,6 @@
 
     - name: Create a virtual machine
       amazon.aws.ec2_instance:
-        aws_access_key: "{{ aws_access_key }}"
-        aws_secret_key: "{{ aws_secret_key }}"
-        security_token: "{{ aws_security_token }}"
-        region: "{{ aws_region }}"
         name: "{{ bastion_host_name }}"
         instance_type: "{{ bastion_host_type }}"
         image_id: "{{ images.images.0.image_id }}"
