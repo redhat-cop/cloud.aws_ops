@@ -28,5 +28,5 @@
             host: "{{ rds_info.instances.0.endpoint.address }}"
             name: "{{ rds_info.instances.0.dbname | default('mysampledb123') }}"
             master_user_password: "{{ rds_master_password | default('L#5cH2mgy_') }}"
-            master_username: "{{ rds_master_user | default('ansible') }}"
+            master_username: "{{ rds_master_username | default('ansible') }}"
       register: deploy_flask_app_setup

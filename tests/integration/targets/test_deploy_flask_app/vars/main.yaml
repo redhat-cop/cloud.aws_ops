@@ -60,4 +60,4 @@ local_registry_pwd: testing123
 local_registry_port: "{{ app_listening_port }}"
 
 rds_master_password: L#5cH2mgy_
-rds_master_user: ansible
+rds_master_username: ansible
