@@ -86,7 +86,6 @@
 
 - name: Create private registry and store webapp container image
   delegate_to: bastion
->>>>>>> de42729 (Add integration testcases)
   block:
     - name: Clone git repository for web application
       ansible.builtin.git:
