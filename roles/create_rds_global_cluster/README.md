@@ -44,6 +44,31 @@ Dependencies
 
 Example Playbook
 ----------------
+```
+---
+- name: Playbook for demonstrating use of cloud.aws_ops.create_rds_global_cluster role
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create global db, primary cluster with instance & replica cluster with instance
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_rds_global_cluster
+      vars:
+        create_rds_global_cluster_operation: create
+        create_rds_global_cluster_enigne: "{{ test_enigne }}"
+        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
+        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+        create_rds_global_cluster_username: "{{ test_username }}"
+        create_rds_global_cluster_password: "{{ test_password }}"
+        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
+```
 
 License
 -------
