@@ -48,8 +48,8 @@
         state: present
         name: "{{ enable_cloudtrail_encryption_with_kms_trail_name }}"
         kms_key_id: "{{ enable_cloudtrail_encryption_with_kms__kms_key_info.kms_keys.0.key_arn }}"
-        s3_bucket_name: "{{__trail_info.trail_list.0.s3_bucket_name}}"
-        s3_key_prefix: "{{__trail_info.trail_list.0.s3_key_prefix}}"
+        s3_bucket_name: "{{ enable_cloudtrail_encryption_with_kms__trail_info.trail_list.0.s3_bucket_name }}"
+        s3_key_prefix: "{{ enable_cloudtrail_encryption_with_kms__trail_info.trail_list.0.s3_key_prefix | default(omit ) }}"
 
     - name: Verify that encryption has been enabled on the CloudTrail trail
       amazon.aws.cloudtrail_info:

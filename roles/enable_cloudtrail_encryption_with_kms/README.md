@@ -6,7 +6,19 @@ A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (
 Requirements
 ------------
 
-N/A
+AWS User Account with the following permissions:
+
+* cloudtrail:DescribeTrails
+* cloudtrail:GetTrailStatus
+* cloudtrail:ListTags
+* cloudtrail:UpdateTrail
+* kms:DescribeKey
+* kms:GetKeyPolicy
+* kms:GetKeyRotationStatus
+* kms:ListAliases
+* kms:ListGrants
+* kms:ListKeyPolicies
+* kms:ListResourceTags
 
 Role Variables
 --------------

@@ -1,0 +1,49 @@
+- name: Rules for cloud.aws_ops to ensure a CloudTrail trail remains active and encrypted
+  hosts: all
+
+  sources:
+    - ansible.eda.aws_cloudtrail:
+        connection:
+          region_name: vars.region_name
+        delay: 5
+  rules:
+    - name: Cancel deletion or disabling of the KMS key
+      condition: event.CloudTrailEvent.eventName=="ScheduleKeyDeletion" or event.CloudTrailEvent.eventName=="DisableKey"
+      action:
+        run_playbook:
+          name: cloud.aws_ops.aws_restore_kms_key
+          extra_vars:
+            kms_key_alias: "{{ kms_key_alias }}"
+
+    - name: Re-create the deleted trail
+      condition: >
+        event.CloudTrailEvent.eventName=="DeleteTrail"
+        and event.CloudTrailEvent.requestParameters.name is search(vars.cloudtrail_name)
+      action:
+        run_playbook:
+          name: cloud.aws_ops.aws_restore_cloudtrail
+          extra_vars:
+            cloudtrail_name: "{{ cloudtrail_name }}"
+            kms_key_alias: "{{ kms_key_alias }}"
+            s3_bucket_name: "{{ s3_bucket_name }}"
+            s3_key_prefix: "{{ s3_key_prefix | default('') }}"
+
+    - name: Re-enable trail encryption
+      condition: >
+        event.CloudTrailEvent.eventName == "UpdateTrail"
+        and event.CloudTrailEvent.responseElements.name == vars.cloudtrail_name
+        and event.CloudTrailEvent.requestParameters.kmsKeyId == ""
+      action:
+        run_playbook:
+          name: cloud.aws_ops.aws_restore_cloudtrail_encryption
+          extra_vars:
+            cloudtrail_name: "{{ cloudtrail_name }}"
+            kms_key_alias: "{{ kms_key_alias }}"
+
+    - name: Print when Cloudtrail log S3 bucket is deleted
+      condition: >
+        event.CloudTrailEvent.eventName == "DeleteBucket"
+        and event.CloudTrailEvent.bucketName == vars.s3_bucket_name
+      action:
+        print_event:
+          pretty: true
