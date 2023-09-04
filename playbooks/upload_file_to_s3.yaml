@@ -1,6 +1,6 @@
 ---
 - name: Upload a local file to S3
-  hosts: localhost
+  hosts: all
   gather_facts: false
 
   module_defaults:
@@ -31,11 +31,33 @@
         msg: 'File {{ upload_file_to_s3_file_path }} does not exist.'
       when: not _stat.stat.exists
 
-    - name: Upload object into S3
-      amazon.aws.s3_object:
-        mode: put
-        bucket: "{{ upload_file_to_s3_bucket_name }}"
-        object: "{{ upload_file_to_s3_object_name | default(upload_file_to_s3_file_path | basename) }}"
-        src: "{{ upload_file_to_s3_file_path }}"
-        permission: "{{ upload_file_to_s3_object_permission | default(omit) }}"
-        overwrite: "{{ upload_file_to_s3_object_overwrite | default(omit) }}"
+    - name: Fetch file from remote host and put into S3 bucket
+      vars:
+        upload_file_to_s3_file_basename: "{{ upload_file_to_s3_file_path | basename }}"
+      block:
+        - name: Create temporary directory to download file in
+          ansible.builtin.tempfile:
+            suffix: .s3_download
+          register: _tempfile
+
+        - name: Download file from Remote host
+          ansible.builtin.fetch:
+            src: "{{ upload_file_to_s3_file_path }}"
+            dest: "{{ _tempfile.path }}"
+            flat: true
+
+        - name: Upload object into S3
+          amazon.aws.s3_object:
+            mode: put
+            bucket: "{{ upload_file_to_s3_bucket_name }}"
+            object: "{{ upload_file_to_s3_object_name | default(upload_file_to_s3_file_basename) }}"
+            src: "{{ _tempfile.path }}"
+            permission: "{{ upload_file_to_s3_object_permission | default(omit) }}"
+            overwrite: "{{ upload_file_to_s3_object_overwrite | default(omit) }}"
+          delegate_to: localhost
+
+      always:
+        - name: Delete temporary directory
+          ansible.builtin.file:
+            state: absent
+            path: "{{ _tempfile.path }}"

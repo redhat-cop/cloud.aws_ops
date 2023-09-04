@@ -1,6 +1,6 @@
 ## cloud.aws_ops.upload_file_to_s3
 
-A playbook to upload a local file to S3.
+A playbook to upload a local file to S3. When running this playbook the file to upload is expected to be located on the remote host, the controller host is responsible of the PUT operation on the S3 bucket.
 
 ## Variables
 
@@ -26,7 +26,7 @@ __vars.yaml__
 ---
 aws_profile: sample-profile
 upload_file_to_s3_bucket_name: my-test-bucket
-upload_file_to_s3_file_path: path_to_a_valid_file
+upload_file_to_s3_file_path: /path/to/file/on/remote/host
 ```
 
 __playbook.yaml__
@@ -35,10 +35,16 @@ __playbook.yaml__
 ansible.builtin.import_playbook: cloud.aws_ops.upload_file_to_s3
 ```
 
+__inventory.ini__
+```
+[all]
+sample_host ansible_ssh_user=some_user ansible_host=xxx.xxx.xxx.xxx
+```
+
 Run the following command:
 
 ```shell
-ansible-playbook ./playbook.yaml -e "@./vars.yaml"
+ansible-playbook ./playbook.yaml -e "@./vars.yaml" -i inventory.ini
 ```
 
 ## License
