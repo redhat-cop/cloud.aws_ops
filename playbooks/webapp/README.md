@@ -99,7 +99,7 @@ To delete the webapp:
 * **image_filter** (str): Name of AWS AMI to use. Default: `Fedora-Cloud-Base-35-*`
 * **sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
 * **bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
-* **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t2.xlarge`
+* **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t3.micro`
 * **bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
 * **bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:
   ```yaml
@@ -137,14 +137,14 @@ To delete the webapp:
 * **rds_instance_name** (str): Name for the database. Default: `mysampledb123`
 * **rds_engine** (str): Engine to use for the database. Default: `postgres`
 * **rds_engine_version** (str): Version number of the database engine to use. Default: `"14.8"`
-* **rds_master_user** (str): Name of the master user for the database instance. Default: `ansible`
+* **rds_master_username** (str): Name of the master user for the database instance. Default: `ansible`
 * **rds_master_password** (str): Password for the master database user. Default: `L#5cH2mgy_`
 
 ### Webapp
 
 * **app_git_repository** (str): Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
 * **number_of_workers** (int): Number of worker instances to create. Default: `2`
-* **workers_instance_type** (str): EC2 instance type for workers. Default: `t2.large`
+* **workers_instance_type** (str): EC2 instance type for workers. Default: `t3.micro`
 * **local_registry_user** (str): Username for local Podman registry. Default: `ansible`
 * **local_registry_pwd** (str): Password for local Podman registry. Default: `testing123`
 * **local_registry_port** (int): Port for the local Podman registery. Default: `"{{ app_listening_port }}"`

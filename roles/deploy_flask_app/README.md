@@ -60,7 +60,13 @@ Dependencies
 Example Playbook
 ----------------
 
-The setup of resources needed for the app deployment can be done using a playbook similar to this [sample playbbok]((https://github.com/ansible-collections/cloud.aws_ops/roles/deploy_flask_app/files/create.yaml).
+This role takes care of adding the bastion host to the inventory and deploying the app. You can use the deploy_flask_app role after setting up the necessary resources.The resources required for using the app are
+
+* RDS cluster and instances.
+* A Bastion host.
+* SSH key pair to connect to the host.
+
+The setup of these resources needed for the app deployment can be done using a playbook similar to this [sample playbook]((https://github.com/ansible-collections/cloud.aws_ops/roles/deploy_flask_app/files/create.yaml).
 
 **Deploy a simple flask app**
 

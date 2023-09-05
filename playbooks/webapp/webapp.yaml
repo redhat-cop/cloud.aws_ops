@@ -16,7 +16,7 @@
       ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
 
 - name: Deploy resource from Bastion
-  hosts: bastion
+  hosts: localhost
   gather_facts: false
 
   vars_files:

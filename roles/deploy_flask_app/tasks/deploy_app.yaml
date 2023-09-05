@@ -196,10 +196,10 @@
 - name: Create load balancer
   module_defaults:
     group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ aws_security_token }}"
-      region: "{{ aws_region }}"
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region | default(aws_region) }}"
   amazon.aws.elb_classic_lb:
     state: present
     name: "{{ deploy_flask_app_setup.add_host.host_vars.ansible_host_name }}-lb"

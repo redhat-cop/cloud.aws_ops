@@ -1,13 +1,11 @@
 ---
 - name: Delete resources playbook
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ region | default(aws_region) }}"
 
   block:
+    - name: Set 'region' variable
+      ansible.builtin.set_fact:
+        region: "{{ region | default(aws_region) }}"
+
     - name: Get vpc information
       amazon.aws.ec2_vpc_net_info:
         filters:
