@@ -1,0 +1,43 @@
+---
+- name: Delete used for testing
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars/main.yaml
+
+  module_defaults:
+    group/aws:
+      region: '{{ aws_region }}'
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      security_token: '{{ security_token | default(omit) }}'
+
+  tasks:
+    - name: Create temporary file to download object content in
+      ansible.builtin.tempfile:
+        suffix: .s3
+      register: _tmpfile
+
+    - name: Download object from S3 and validate content
+      block:
+        - name: Read object from S3 bucket
+          amazon.aws.s3_object:
+            bucket: "{{ s3_bucket_name }}"
+            dest: "{{ _tmpfile.path }}"
+            mode: get
+            object: "{{ s3_object_name }}"
+
+        - name: Validate content
+          ansible.builtin.assert:
+            that:
+              - s3_content == local_content
+          vars:
+            s3_content: "{{ lookup('file', _tmpfile.path) }}"
+            local_content: "{{ lookup('file', upload_file_to_s3_file_path) }}"
+
+      always:
+        - name: Delete temporary file
+          ansible.builtin.file:
+            path: "{{ _tmpfile.path }}"
+            state: absent

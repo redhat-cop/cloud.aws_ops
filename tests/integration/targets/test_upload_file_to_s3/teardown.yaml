@@ -1,0 +1,27 @@
+---
+- name: Delete used for testing
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars/main.yaml
+
+  module_defaults:
+    group/aws:
+      region: '{{ aws_region }}'
+      aws_access_key: '{{ aws_access_key }}'
+      aws_secret_key: '{{ aws_secret_key }}'
+      security_token: '{{ security_token | default(omit) }}'
+
+  tasks:
+
+    - name: Delete S3 bucket
+      amazon.aws.s3_bucket:
+        name: "{{ s3_bucket_name }}"
+        force: true
+        state: absent
+
+    - name: Delete vars file
+      ansible.builtin.file:
+        path: upload_file_vars.yaml
+        state: absent

@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - cloud.aws_ops.upload_file_to_s3 - A playbook to upload file from local filesystem into S3 bucket (https://github.com/redhat-cop/cloud.aws_ops/pull/88).
