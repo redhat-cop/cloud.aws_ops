@@ -39,6 +39,7 @@
           ansible.builtin.tempfile:
             suffix: .s3_download
           register: _tempfile
+          delegate_to: localhost
 
         - name: Download file from Remote host
           ansible.builtin.fetch:
@@ -61,3 +62,4 @@
           ansible.builtin.file:
             state: absent
             path: "{{ _tempfile.path }}"
+          delegate_to: localhost
