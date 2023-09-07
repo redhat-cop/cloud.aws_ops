@@ -24,16 +24,14 @@
         vpc_id: "{{ vpc.vpc.id }}"
         vm_info: "{{ vm_result }}"
         rds_info: "{{ rds_result }}"
-      register: deploy_flask_app_role_output
 
     - name: Check that a page returns successfully
       ansible.builtin.uri:
         url: "http://{{ deploy_flask_app_lb_result.elb.dns_name }}:{{ app_listening_port }}"
-        return_content: true
       register: deploy_flask_app_check
-
-    - debug:
-        msg: "{{ deploy_flask_app_check }}"
+      until: "deploy_flask_app_check.status == 200"
+      retries: 5
+      delay: 10
 
   always:
     # Cleanup after ourselves
