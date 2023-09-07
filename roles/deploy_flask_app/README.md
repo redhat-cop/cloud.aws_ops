@@ -66,23 +66,16 @@ This role takes care of adding the bastion host to the inventory and deploying t
 * A Bastion host.
 * SSH key pair to connect to the host.
 
-The setup of these resources needed for the app deployment can be done using a playbook similar to this [sample playbook]((https://github.com/ansible-collections/cloud.aws_ops/roles/deploy_flask_app/files/create.yaml).
+The setup of these resources needed for the app deployment can be done using a playbook similar to this [playbook]((https://github.com/ansible-collections/cloud.aws_ops/playbooks/webapp/tasks/create.yaml).
 
 **Deploy a simple flask app**
 
 - name: Deploy resource from Bastion
-  hosts: bastion
+  hosts: localhost
   gather_facts: false
 
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ aws_region }}"
-
   vars_files:
-    - [vars.yaml](https://github.com/ansible-collections/cloud.aws_ops/roles/deploy_flask_app/files/vars/main.yaml)
+    - [vars.yaml](https://github.com/ansible-collections/cloud.aws_ops/playbooks/webapp/vars/main.yaml)
 
   tasks:
     - name: Deploy app

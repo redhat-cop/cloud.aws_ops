@@ -164,7 +164,7 @@
             engine: "{{ rds_engine }}"
             engine_version: "{{ rds_engine_version }}"
             master_user_password: "{{ rds_master_password }}"
-            master_username: "{{ rds_master_user }}"
+            master_username: "{{ rds_master_username }}"
             monitoring_interval: 0
             storage_type: standard
             skip_final_snapshot: true
@@ -184,7 +184,7 @@
             engine: "{{ rds_engine }}"
             engine_version: "{{ rds_engine_version }}"
             master_user_password: "{{ rds_master_password }}"
-            master_username: "{{ rds_master_user }}"
+            master_username: "{{ rds_master_username }}"
             monitoring_interval: 0
             storage_type: standard
             skip_final_snapshot: true

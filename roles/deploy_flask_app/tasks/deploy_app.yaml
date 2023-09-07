@@ -220,7 +220,6 @@
   delay: 10
   until: deploy_flask_app_lb_result is successful
   register: deploy_flask_app_lb_result
-  # delegate_to: localhost
 
 - name: Debug application url
   ansible.builtin.debug:
