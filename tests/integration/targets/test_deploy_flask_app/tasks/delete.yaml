@@ -8,7 +8,7 @@
           tag:Name: "{{ vpc_name }}"
       register: vpc
 
-    - name: Deelete resources
+    - name: Delete resources
       when: vpc.vpcs | length == 1
       block:
         - name: Set 'vpc_id' variable
