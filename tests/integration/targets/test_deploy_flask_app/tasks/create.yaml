@@ -1,10 +1,9 @@
 ---
 - name: Set 'region' variable
   ansible.builtin.set_fact:
-    region: "{{ region | default(aws_region) }}"
+    region: "{{ deploy_flask_app_region | default(aws_region) }}"
 
 - name: Create resources playbook
-
   block:
     - name: Get image ID to create an instance
       amazon.aws.ec2_ami_info:
@@ -121,8 +120,8 @@
             to_port: 22
           - cidr_ip: 0.0.0.0/0
             proto: tcp
-            from_port: "{{ app_listening_port }}"
-            to_port: "{{ app_listening_port }}"
+            from_port: "{{ deploy_flask_app_listening_port }}"
+            to_port: "{{ deploy_flask_app_listening_port }}"
         rules_egress:
           - cidr_ip: 0.0.0.0/0
             proto: -1
@@ -163,8 +162,8 @@
             db_name: "{{ rds_instance_name }}"
             engine: "{{ rds_engine }}"
             engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ rds_master_password }}"
-            master_username: "{{ rds_master_username }}"
+            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+            master_username: "{{ deploy_flask_app_rds_master_username }}"
             monitoring_interval: 0
             storage_type: standard
             skip_final_snapshot: true
@@ -183,8 +182,8 @@
             db_instance_identifier: "{{ rds_identifier }}"
             engine: "{{ rds_engine }}"
             engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ rds_master_password }}"
-            master_username: "{{ rds_master_user }}"
+            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+            master_username: "{{ deploy_flask_app_rds_master_user }}"
             monitoring_interval: 0
             storage_type: standard
             skip_final_snapshot: true
@@ -202,11 +201,11 @@
 
     - name: Set 'sshkey_file' variable
       ansible.builtin.set_fact:
-        sshkey_file: ~/private-key-{{ sshkey_pair_name }}-{{ region | default(aws_region) }}
+        sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ region | default(aws_region) }}
 
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
-        name: "{{ sshkey_pair_name }}"
+        name: "{{ deploy_flask_app_sshkey_pair_name }}"
       register: rsa_key
 
     - name: Save private key into file
@@ -218,10 +217,10 @@
 
     - name: Create a virtual machine
       amazon.aws.ec2_instance:
-        name: "{{ bastion_host_name }}"
+        name: "{{ deploy_flask_app_bastion_host_name }}"
         instance_type: "{{ bastion_host_type }}"
         image_id: "{{ images.images.0.image_id }}"
-        key_name: "{{ sshkey_pair_name }}"
+        key_name: "{{ deploy_flask_app_sshkey_pair_name }}"
         subnet_id: "{{ subnet.subnet.id }}"
         network:
           assign_public_ip: true

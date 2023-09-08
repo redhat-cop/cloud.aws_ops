@@ -19,7 +19,7 @@
           amazon.aws.ec2_instance_info:
             filters:
               instance-type: "{{ bastion_host_type }}"
-              key-name: "{{ sshkey_pair_name }}"
+              key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
               vpc-id: "{{ vpc_id }}"
           register: bastion
 
@@ -70,7 +70,7 @@
 
         - name: Delete key pair to connect to the bastion VM
           amazon.aws.ec2_key:
-            name: "{{ sshkey_pair_name }}"
+            name: "{{ deploy_flask_app_sshkey_pair_name }}"
             state: absent
 
         - name: Delete RDS subnet group

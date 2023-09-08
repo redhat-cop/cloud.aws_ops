@@ -16,13 +16,13 @@
 
     - name: Install required packages
       ansible.builtin.yum:
-        name: "{{ bastion_host_required_packages }}"
+        name: "{{ deploy_flask_app_bastion_host_required_packages }}"
         state: present
       become: true
 
     - name: Generate ssh key for existing user
       ansible.builtin.user:
-        name: "{{ bastion_host_username }}"
+        name: "{{ deploy_flask_app_bastion_host_username }}"
         state: present
         generate_ssh_key: true
 
