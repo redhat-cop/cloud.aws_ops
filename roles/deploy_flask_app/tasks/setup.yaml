@@ -11,7 +11,7 @@
 
     - name: Add host to inventory
       ansible.builtin.add_host:
-        hostname: "bastion"
+        hostname: bastion
         ansible_ssh_user: "{{ deploy_flask_app_bastion_host_username }}"
         ansible_host: "{{ deploy_flask_app_vm_info.instances.0.public_ip_address }}"
         ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_sshkey_file }}
