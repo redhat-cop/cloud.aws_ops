@@ -6,12 +6,6 @@
   vars_files:
     - vars/main.yaml
 
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-
   tasks:
     - name: Fail when 'resource_prefix' is not defined
       ansible.builtin.fail:
@@ -60,6 +54,17 @@
         rds_snapshot_arn: "{{ result.db_snapshot_arn }}"
         region: "{{ dest_region }}"
 
+    - name: Deploy app
+      when: operation == "create"
+      ansible.builtin.import_role:
+        name: cloud.aws_ops.deploy_flask_app
+      vars:
+        deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
+        deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
+        deploy_flask_app_vm_info: "{{ vm_result }}"
+        deploy_flask_app_rds_info: "{{ rds_result }}"
+        deploy_flask_app_region: "{{ dest_region }}"
+
     - name: Delete RDS snapshots from different regions
       amazon.aws.rds_instance_snapshot:
         region: "{{ item }}"
@@ -73,21 +78,3 @@
     - name: Delete instance from source region
       ansible.builtin.import_tasks: tasks/delete.yaml
       when: delete_source | default(false) | bool
-
-- name: Deploy resource from Bastion
-  hosts: bastion
-  gather_facts: false
-
-  vars_files:
-    - vars/main.yaml
-
-  tasks:
-    - name: Deploy app
-      ansible.builtin.import_role:
-        name: cloud.aws_ops.deploy_flask_app
-      vars:
-        deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
-        deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
-        deploy_flask_app_vm_info: "{{ vm_result }}"
-        deploy_flask_app_rds_info: "{{ rds_result }}"
-        deploy_flask_app_region: "{{ dest_region }}"

@@ -1,6 +1,7 @@
 ---
 # Variables for create.yaml
 aws_region: us-east-1
+dest_region: us-east-2
 resource_prefix: "ansible-demo-test"
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16

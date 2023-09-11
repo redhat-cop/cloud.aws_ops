@@ -4,7 +4,12 @@
     region: "{{ region | default(aws_region) }}"
 
 - name: Create resources playbook
-
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region }}"
   block:
     - name: Get image ID to create an instance
       amazon.aws.ec2_ami_info:
@@ -17,8 +22,7 @@
 
     - name: List availability zones from aws region
       amazon.aws.aws_az_info:
-        filters:
-          region-name: "{{ region }}"
+        region: "{{ region }}"
       register: zones
 
     - name: Set region_av_zones' variable
