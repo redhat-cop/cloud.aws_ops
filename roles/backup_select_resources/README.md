@@ -54,7 +54,7 @@ Example Playbooks
             backup_select_resources_selection_name: s3_buckets
             backup_select_resources_selection_resources:
               - "{{ all_s3_buckets }}"
-            backup_role_name: my-iam-role
+            backup_select_resources_backup_role_name: my-iam-role
 
 ### Create backup plan and select resources
 
@@ -62,8 +62,8 @@ Example Playbooks
       roles:
         - role: cloud.aws_ops.backup_create_plan
           vars:
-            plan_name: my-backup-plan
-            plan_rules:
+            backup_select_resources_plan_name: my-backup-plan
+            backup_select_resources_plan_rules:
               - "{{ daily_backup }}"
 
     - hosts: localhost
@@ -74,7 +74,7 @@ Example Playbooks
             backup_select_resources_selection_name: s3_buckets
             backup_select_resources_selection_resources:
               - "{{ all_s3_buckets }}"
-            backup_role_name: my-iam-role
+            backup_select_resources_backup_role_name: my-iam-role
 
 License
 -------

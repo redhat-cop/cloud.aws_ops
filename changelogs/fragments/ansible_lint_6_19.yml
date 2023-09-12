@@ -1,0 +1,31 @@
+breaking_changes:
+  - roles/awsconfig_multiregion_cloudtrail - ``operation`` option has been renamed to ``awsconfig_multiregion_cloudtrail_operation`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/awsconfig_multiregion_cloudtrail - ``bucket_name`` option has been renamed to ``awsconfig_multiregion_cloudtrail_bucket_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/awsconfig_multiregion_cloudtrail - ``key_prefix`` option has been renamed to ``awsconfig_multiregion_cloudtrail_key_prefix`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/awsconfig_multiregion_cloudtrail - ``trail_name`` option has been renamed to ``awsconfig_multiregion_cloudtrail_trail_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``plan_name`` option has been renamed to ``backup_create_plan_plan_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``plan_rules`` option has been renamed to ``backup_create_plan_plan_rules`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``plan_windows_vss_settings`` option has been renamed to ``backup_create_plan_plan_windows_vss_settings`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``plan_tags`` option has been renamed to ``backup_create_plan_plan_tags`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``vault_name`` option has been renamed to ``backup_create_plan_vault_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``vault_encryption_key_arn`` option has been renamed to ``backup_create_plan_vault_encryption_key_arn`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_create_plan - ``vault_tags`` option has been renamed to ``backup_create_planvault_tags`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_select_resources - ``plan_name`` option has been renamed to ``backup_select_resources_plan_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_select_resources - ``selection_name`` option has been renamed to ``backup_select_resources_selection_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_select_resources - ``selection_tags`` option has been renamed to ``backup_select_resources_selection_tags`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_select_resources - ``selection_conditions`` option has been renamed to ``backup_select_resources_selection_conditions`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/backup_select_resources - ``backup_role_name`` option has been renamed to ``backup_select_resources_backup_role_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``custom_ami_operation`` option has been renamed to ``customized_ami_operation`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``custom_ami_name`` option has been renamed to ``customized_ami_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``custom_ami_packages`` option has been renamed to ``customized_ami_packages`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``custom_ami_recreate_if_exists`` option has been renamed to ``customized_ami_recreate_if_exists`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``source_ami_filters`` option has been renamed to ``customized_ami_source_ami_filters`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``source_ami_image_id`` option has been renamed to ``customized_ami_source_ami_image_id`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/customized_ami - ``source_ami_user_name`` option has been renamed to ``customized_ami_source_ami_user_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/ec2_instance_terminate_by_tag - ``tag_key_to_terminate_instances`` option has been renamed to `` ec2_instance_terminate_by_tag_tag_key_to_terminate_instances`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/ec2_instance_terminate_by_tag - ``tag_value_to_terminate_instances`` option has been renamed to `` ec2_instance_terminate_by_tag_tag_value_to_terminate_instances`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/ec2_instance_terminate_by_tag - ``terminate_protected_instances`` option has been renamed to `` ec2_instance_terminate_by_tag_terminate_protected_instances`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/manage_transit_gateway - ``action`` option has been renamed to `` manage_transit_gateway_action`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/manage_transit_gateway - ``transit_gateway`` option has been renamed to `` manage_transit_gateway_transit_gateway`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/manage_transit_gateway - ``vpc_attachment`` option has been renamed to `` manage_transit_gateway_vpc_attachment`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+  - roles/manage_transit_gateway - ``vpn_attachment`` option has been renamed to `` manage_transit_gateway_vpn_attachment`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).

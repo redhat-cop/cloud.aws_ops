@@ -9,7 +9,7 @@
   block:
     - name: Get source AMI image ID using filters
       amazon.aws.ec2_ami_info:
-        filters: "{{ source_ami_filters }}"
+        filters: "{{ customized_ami_source_ami_filters }}"
       register: customized_ami__source_images
       # very spammy
       no_log: true

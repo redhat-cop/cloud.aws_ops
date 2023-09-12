@@ -1,5 +1,8 @@
 ---
 - name: Test role 'customized_ami'
+  collections:
+    - amazon.aws
+    - community.crypto
   vars:
     customized_ami_ec2_instance_type: t2.micro
     customized_ami_public_key_file: "{{ setup_rsa_keys__public_key_file }}"
@@ -12,6 +15,7 @@
       vars:
         customized_ami_packages:
           - podman
+        customized_ami_name: "{{ custom_ami_name }}"
 
     - name: Validate settings for initial AMI
       vars:

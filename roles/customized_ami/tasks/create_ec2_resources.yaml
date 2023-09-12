@@ -29,7 +29,7 @@
       - dest: 0.0.0.0/0
         gateway_id: "{{ customized_ami__internet_gateway.gateway_id }}"
     lookup: tag
-    tags: "{{ custom_ami_resource_tags }}"
+    tags: "{{ customized_ami_resource_tags }}"
     state: present
 
 - name: Create security group allowing SSH connection
@@ -45,15 +45,15 @@
     rules_egress:
       - cidr_ip: 0.0.0.0/0
         proto: -1
-    tags: "{{ customized_amiresource_tags }}"
+    tags: "{{ customized_ami_resource_tags }}"
     state: present
   register: customized_ami__security_group
 
 - name: Create key pair to connect to the VM
   amazon.aws.ec2_key:
     name: "{{ customized_ami_key_name }}"
-    key_material: "{{ lookup('file', customized_amipublic_key_file) }}"
-    tags: "{{ customized_amiresource_tags }}"
+    key_material: "{{ lookup('file', customized_ami_public_key_file) }}"
+    tags: "{{ customized_ami_resource_tags }}"
 
 - name: Create a virtual machine
   amazon.aws.ec2_instance:
@@ -69,7 +69,7 @@
     security_groups:
       - "{{ customized_ami__security_group.group_id }}"
     wait: true
-    tags: "{{ custom_ami_resource_tags }}"
+    tags: "{{ customized_ami_resource_tags }}"
     state: started
   register: customized_ami__ec2
 
@@ -80,9 +80,9 @@
 - name: Add host to inventory
   ansible.builtin.add_host:
     hostname: ec2
-    ansible_ssh_user: "{{ source_ami_user_name }}"
+    ansible_ssh_user: "{{ customized_ami_source_ami_user_name }}"
     ansible_host: "{{ customized_ami__ec2.instances.0.public_ip_address }}"
-    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ custom_ami_private_key_file }}
+    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ customized_ami_private_key_file }}
     ansible_python_interpreter: auto
 
 - name: Gather facts from ec2 instance

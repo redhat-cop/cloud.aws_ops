@@ -4,9 +4,9 @@
     - name: Create  transit gateway
       community.aws.ec2_transit_gateway:
         state: present
-        description: "{{ transit_gateway.description }}"
-        asn: "{{ transit_gateway.asn }}"
-        tags: "{{ transit_gateway.tags }}"
+        description: "{{ manage_transit_gateway_transit_gateway.description }}"
+        asn: "{{ manage_transit_gateway_transit_gateway.asn }}"
+        tags: "{{ manage_transit_gateway_transit_gateway.tags }}"
       register: manage_transit_gateway_tgw_result
 
     - name: Verify that transit gateway has been created/updated

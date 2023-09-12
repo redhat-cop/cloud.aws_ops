@@ -9,7 +9,7 @@
       ansible.builtin.set_fact:
         manage_transit_gateway_gw: "{{ item }}"
       when:
-        - item.description == transit_gateway.description
+        - item.description == manage_transit_gateway_transit_gateway.description
         - item.state == "available"
       loop: "{{ manage_transit_gateway_info.transit_gateways }}"
 
