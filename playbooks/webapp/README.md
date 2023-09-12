@@ -97,11 +97,11 @@ To delete the webapp:
 ### EC2 instance
 
 * **image_filter** (str): Name of AWS AMI to use. Default: `Fedora-Cloud-Base-35-*`
-* **sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
-* **bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
+* **deploy_flask_app_sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
+* **deploy_flask_app_bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
 * **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t2.xlarge`
-* **bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
-* **bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:
+* **deploy_flask_app_bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
+* **deploy_flask_app_bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:
   ```yaml
   - python3
   - python-virtualenv
@@ -125,7 +125,7 @@ To delete the webapp:
 * **rds_subnet_group_name** (str): Subnet group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sg"`
 * **rds_secgroup_name** (str): Security group name for the RDS instance. Default: `"{{ resource_prefix }}-rds-sec"`
 * **public_secgroup_name** (str): Security group name for the bastion host. Default: `"{{ resource_prefix }}-sg"`
-* **app_listening_port** (int): Connection listening port for the app on the bastion host. Default: `5000`
+* **deploy_flask_app_listening_port** (int): Connection listening port for the app on the bastion host. Default: `5000`
 * **rds_listening_port** (int): Connection listening port for the RDS instance. Default: `5432`
 
 ### RDS instance
@@ -137,25 +137,25 @@ To delete the webapp:
 * **rds_instance_name** (str): Name for the database. Default: `mysampledb123`
 * **rds_engine** (str): Engine to use for the database. Default: `postgres`
 * **rds_engine_version** (str): Version number of the database engine to use. Default: `"14.8"`
-* **rds_master_user** (str): Name of the master user for the database instance. Default: `ansible`
-* **rds_master_password** (str): Password for the master database user. Default: `L#5cH2mgy_`
+* **deploy_flask_app_rds_master_username** (str): Name of the master user for the database instance. Default: `ansible`
+* **deploy_flask_app_rds_master_password** (str): Password for the master database user. Default: `L#5cH2mgy_`
 
 ### Webapp
 
-* **app_git_repository** (str): Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
-* **number_of_workers** (int): Number of worker instances to create. Default: `2`
-* **workers_instance_type** (str): EC2 instance type for workers. Default: `t2.large`
-* **local_registry_user** (str): Username for local Podman registry. Default: `ansible`
-* **local_registry_pwd** (str): Password for local Podman registry. Default: `testing123`
-* **local_registry_port** (int): Port for the local Podman registery. Default: `"{{ app_listening_port }}"`
-* **app_config** (dict, elements dict): Configuration values for the webapp, passed as corresponding env variables FLASK_APP, FLASK_ENV, ADMIN_USER, and ADMIN_PASSWORD when the app is deployed. Default:
+* **deploy_flask_app_git_repository** (str): Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
+* **deploy_flask_app_number_of_workers** (int): Number of worker instances to create. Default: `2`
+* **deploy_flask_app_workers_instance_type** (str): EC2 instance type for workers. Default: `t2.xlarge`
+* **deploy_flask_app_local_registry_user** (str): Username for local Podman registry. Default: `ansible`
+* **deploy_flask_app_local_registry_pwd** (str): Password for local Podman registry. Default: `testing123`
+* **deploy_flask_app_local_registry_port** (int): Port for the local Podman registery. Default: `"{{ app_listening_port }}"`
+* **deploy_flask_app_config** (dict, elements dict): Configuration values for the webapp, passed as corresponding env variables FLASK_APP, FLASK_ENV, ADMIN_USER, and ADMIN_PASSWORD when the app is deployed. Default:
   ```yaml
   app_dir: /app/pyapp
   env: development
   admin_user: admin
   admin_password: admin
   ```
-* **app_force_init** (bool): Whether to drop existing tables and create new ones when deploying the webapp database. Default: `false`
+* **deploy_flask_app_force_init** (bool): Whether to drop existing tables and create new ones when deploying the webapp database. Default: `false`
 
 ## Example Usage
 

@@ -1,0 +1,21 @@
+---
+breaking_changes:
+- "Rename the vars in webapp playbook with role name prefix (https://github.com/redhat-cop/cloud.aws_ops/pull/85).
+  'sshkey_pair_name' changed to 'deploy_flask_app_sshkey_pair_name'
+  'bastion_host_name' changed to 'deploy_flask_app_bastion_host_name'
+  'bastion_host_username' changed to 'deploy_flask_app_bastion_host_username'
+  'bastion_host_required_packages' changed to 'deploy_flask_app_bastion_host_required_packages'
+  'app_listening_port' changed to 'deploy_flask_app_listening_port'
+  'rds_master_user' changed to 'deploy_flask_app_rds_master_username'
+  'rds_master_password' changed to 'deploy_flask_app_rds_master_password'
+  'app_git_repository' changed to 'deploy_flask_app_git_repository'
+  'number_of_workers' changed to 'deploy_flask_app_number_of_workers'
+  'workers_instance_type' changed to 'deploy_flask_app_workers_instance_type'
+  'local_registry_user' changed to 'deploy_flask_app_local_registry_user'
+  'local_registry_pwd' changed to 'deploy_flask_app_local_registry_pwd'
+  'local_registry_port' changed to 'deploy_flask_app_local_registry_port'
+  'app_config' changed to 'deploy_flask_app_config'
+  'app_force_init' changed to 'deploy_flask_app_force_init'
+  "
+minor_changes:
+- "Convert deploy_flask_app playbook to role (https://github.com/redhat-cop/cloud.aws_ops/pull/85)."

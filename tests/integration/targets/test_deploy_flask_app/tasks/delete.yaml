@@ -2,17 +2,13 @@
 - name: Delete resources playbook
 
   block:
-    - name: Set 'region' variable
-      ansible.builtin.set_fact:
-        region: "{{ region | default(aws_region) }}"
-
     - name: Get vpc information
       amazon.aws.ec2_vpc_net_info:
         filters:
           tag:Name: "{{ vpc_name }}"
       register: vpc
 
-    - name: Deelete resources
+    - name: Delete resources
       when: vpc.vpcs | length == 1
       block:
         - name: Set 'vpc_id' variable

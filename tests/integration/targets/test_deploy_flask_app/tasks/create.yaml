@@ -1,15 +1,9 @@
 ---
 - name: Set 'region' variable
   ansible.builtin.set_fact:
-    region: "{{ region | default(aws_region) }}"
+    region: "{{ deploy_flask_app_region | default(aws_region) }}"
 
 - name: Create resources playbook
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ region }}"
   block:
     - name: Get image ID to create an instance
       amazon.aws.ec2_ami_info:
@@ -187,7 +181,7 @@
             engine: "{{ rds_engine }}"
             engine_version: "{{ rds_engine_version }}"
             master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-            master_username: "{{ deploy_flask_app_rds_master_username }}"
+            master_username: "{{ deploy_flask_app_rds_master_user }}"
             monitoring_interval: 0
             storage_type: standard
             skip_final_snapshot: true

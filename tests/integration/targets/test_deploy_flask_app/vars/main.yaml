@@ -1,8 +1,6 @@
 ---
-# Variables for create.yaml
-aws_region: us-east-1
-dest_region: us-east-2
-resource_prefix: "ansible-demo-test"
+# vars for create and delete
+# ==================================
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16
 subnet_cidr:
@@ -11,24 +9,24 @@ subnet_cidr:
   - 10.1.2.0/24
 resource_tags:
   prefix: "{{ resource_prefix }}"
-operation: create
 
-image_filter: Fedora-Cloud-Base-35-*
-public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_subnet_group_name: "{{ resource_prefix }}-rds-sg"
+public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
 rds_identifier: "{{ resource_prefix }}-rds-01"
+rds_listening_port: 5432
 rds_allocated_storage_gb: 20
 rds_instance_class: db.m6g.large
 rds_instance_name: mysampledb123
 rds_engine: postgres
 rds_engine_version: "14.8"
-bastion_host_type: t2.xlarge
+bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
-rds_listening_port: 5432
+image_filter: Fedora-Cloud-Base-35-*
 
-# Variables for the deploy_flask_app role
-deploy_flask_app_sshkey_pair_name: "{{ resource_prefix }}-key"
+# vars for the deploy_flask_app role and create task
+# =================================================
+
 deploy_flask_app_bastion_host_name: "{{ resource_prefix }}-bastion"
 deploy_flask_app_bastion_host_username: fedora
 deploy_flask_app_bastion_host_required_packages:
@@ -39,9 +37,11 @@ deploy_flask_app_bastion_host_required_packages:
   - podman
   - httpd-tools
   - ansible
-deploy_flask_app_workers_instance_type: t3.micro
+deploy_flask_app_sshkey_pair_name: "{{ resource_prefix }}-key"
 deploy_flask_app_workers_user_name: fedora
+deploy_flask_app_workers_instance_type: t3.micro
 deploy_flask_app_number_of_workers: 2
+
 deploy_flask_app_listening_port: 5000
 deploy_flask_app_git_repository: https://github.com/abikouo/webapp_pyflask_demo.git
 deploy_flask_app_config:
@@ -53,5 +53,6 @@ deploy_flask_app_force_init: false
 deploy_flask_app_local_registry_user: ansible
 deploy_flask_app_local_registry_pwd: testing123
 deploy_flask_app_local_registry_port: "{{ deploy_flask_app_listening_port }}"
+
 deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible

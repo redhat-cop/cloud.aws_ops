@@ -15,20 +15,20 @@
     - name: Run operation create/delete
       ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
 
-- name: Deploy resource from Bastion
-  hosts: bastion
+- name: Deploy Flask App
+  hosts: localhost
   gather_facts: false
-
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ aws_region }}"
 
   vars_files:
     - vars/main.yaml
 
   tasks:
     - name: Deploy app
-      ansible.builtin.import_tasks: tasks/deploy_app.yaml
+      when: operation == "create"
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.deploy_flask_app
+      vars:
+        deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
+        deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
+        deploy_flask_app_vm_info: "{{ vm_result }}"
+        deploy_flask_app_rds_info: "{{ rds_result }}"
