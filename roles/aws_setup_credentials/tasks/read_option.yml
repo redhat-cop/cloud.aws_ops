@@ -3,11 +3,13 @@
   ansible.builtin.set_fact:
     aws_setup_credentials__item_key: "{{ ('dest' in item.value) | ternary(item.value.dest, item.key) }}"
     aws_setup_credentials__item_value: "{{ lookup('vars', item.key, default='') }}"
+  no_log: true
 
 - name: Combine user-defined variable
   ansible.builtin.set_fact:
     aws_setup_credentials__output: "{{ aws_setup_credentials__output | combine({aws_setup_credentials__item_key: aws_setup_credentials__item_value}) }}"
   when: aws_setup_credentials__item_value | length > 0
+  no_log: true
 
 - name: Read value from Environment
   when: aws_setup_credentials__item_value | length == 0
@@ -23,8 +25,10 @@
       when: lookup('env', aws_setup_credentials__env_key) | length > 0
       loop_control:
         loop_var: aws_setup_credentials__env_key
+      no_log: true
 
     - name: Combine with environment-defined variable
       ansible.builtin.set_fact:
         aws_setup_credentials__output: "{{ aws_setup_credentials__output | combine({aws_setup_credentials__item_key: aws_setup_credentials__env_values[0]}) }}"
       when: aws_setup_credentials__env_values | length > 0
+      no_log: true
