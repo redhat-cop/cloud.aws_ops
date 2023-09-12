@@ -97,8 +97,8 @@ To delete the webapp:
 ### EC2 instance
 
 * **image_filter** (str): Name of AWS AMI to use. Default: `Fedora-Cloud-Base-35-*`
-* **deploy_sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
-* **deploy_bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
+* **deploy_flask_app_sshkey_pair_name** (str): Name for the EC2 key pair. Default: `"{{ resource_prefix }}-key"`
+* **deploy_flask_app_bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
 * **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t2.xlarge`
 * **deploy_flask_app_bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
 * **deploy_flask_app_bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:

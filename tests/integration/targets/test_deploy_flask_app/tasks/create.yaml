@@ -16,7 +16,6 @@
 
     - name: List availability zones from aws region
       amazon.aws.aws_az_info:
-        region: "{{ region }}"
       register: zones
 
     - name: Set region_av_zones' variable
