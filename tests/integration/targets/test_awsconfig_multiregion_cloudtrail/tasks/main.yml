@@ -16,10 +16,10 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
-        operation: create
-        bucket_name: "{{ s3_bucket_name }}"
-        trail_name: "{{ cloud_trail_name }}"
-        key_prefix: ansible
+        awsconfig_multiregion_cloudtrail_operation: create
+        awsconfig_multiregion_cloudtrail_bucket_name: "{{ s3_bucket_name }}"
+        awsconfig_multiregion_cloudtrail_trail_name: "{{ cloud_trail_name }}"
+        awsconfig_multiregion_cloudtrail_key_prefix: ansible
 
     # Validate that the cloud trail has been created
     - name: Validate that cloud trail has been created
@@ -44,8 +44,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.awsconfig_multiregion_cloudtrail
       vars:
-        operation: delete
-        trail_name: "{{ cloud_trail_name }}"
+        awsconfig_multiregion_cloudtrail_operation: delete
+        awsconfig_multiregion_cloudtrail_trail_name: "{{ cloud_trail_name }}"
 
     # Validate that the cloud trail has been deleted
     - name: Validate that cloud trail has been deleted

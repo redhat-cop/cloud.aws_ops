@@ -1,8 +1,8 @@
 ---
-- name: Fail when 'custom_ami_name' is not defined
+- name: Fail when 'customized_ami_name' is not defined
   ansible.builtin.fail:
-    msg: Custom AMI name should be defined using variable custom_ami_name
-  when: custom_ami_name is undefined
+    msg: Custom AMI name should be defined using variable customized_ami_name
+  when: customized_ami_name is undefined
 
 - name: Run 'customized_ami' role
   module_defaults:
@@ -10,4 +10,4 @@
 
   block:
     - name: Include file
-      ansible.builtin.include_tasks: "{{ custom_ami_operation }}.yaml"
+      ansible.builtin.include_tasks: "{{ customized_ami_operation }}.yaml"

@@ -3,11 +3,11 @@
   amazon.aws.aws_az_info:
     filters:
       region-name: '{{ aws_region }}'
-  register: _az_info
+  register: manage_transit_gateway_action__az_info
 
 - name: Pick an AZ
   ansible.builtin.set_fact:
-    ec2_availability_zone_names: '{{ _az_info.availability_zones | selectattr("zone_name", "defined") | map(attribute="zone_name") | list }}'
+    ec2_availability_zone_names: '{{ manage_transit_gateway_action__az_info.availability_zones | selectattr("zone_name", "defined") | map(attribute="zone_name") | list }}'
 
 - name: 'Pick 2 AZs available for use'
   ansible.builtin.set_fact:

@@ -19,6 +19,6 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.backup_create_plan
   vars:
-    vault_name: "{{ test_vault_name }}"
-    plan_rules:
+    backup_create_plan_vault_name: "{{ test_vault_name }}"
+    backup_create_plan_plan_rules:
       - "{{ daily_backup }}"

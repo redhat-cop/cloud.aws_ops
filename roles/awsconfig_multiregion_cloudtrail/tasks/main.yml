@@ -1,20 +1,20 @@
 ---
 - name: Fail when unexpected value for operation is provided
   ansible.builtin.fail:
-    msg: Unexpected value for operation, should be one of 'create' or 'delete'
-  when: operation not in ['create', 'delete']
+    msg: Unexpected value for awsconfig_multiregion_cloudtrail_operation, should be one of 'create' or 'delete'
+  when: awsconfig_multiregion_cloudtrail_operation not in ['create', 'delete']
 
-- name: Fail when 'trail_name' is not defined
+- name: Fail when 'awsconfig_multiregion_cloudtrail_trail_name' is not defined
   ansible.builtin.fail:
     msg: Cloud trail name must be defined using variable trail_name
-  when: trail_name is undefined
+  when: awsconfig_multiregion_cloudtrail_trail_name is undefined
 
-- name: Fail when 'bucket_name' is not defined
+- name: Fail when 'awsconfig_multiregion_cloudtrail_bucket_name' is not defined
   ansible.builtin.fail:
-    msg: Bucket name must be defined using variable bucket_name
+    msg: Bucket name must be defined using variable awsconfig_multiregion_cloudtrail_bucket_name
   when:
-    - operation == 'create'
-    - bucket_name is undefined
+    - awsconfig_multiregion_cloudtrail_operation == 'create'
+    - awsconfig_multiregion_cloudtrail_bucket_name is undefined
 
 - name: Run 'awsconfig_multiregion_cloudtrail' role
   module_defaults:
@@ -23,36 +23,36 @@
   block:
     - name: Create Cloud trail and start logging or Delete existing Cloud trail
       amazon.aws.cloudtrail:
-        state: "{{ (operation == 'create') | ternary('present', 'absent') }}"
-        name: "{{ trail_name }}"
+        state: "{{ (awsconfig_multiregion_cloudtrail_operation == 'create') | ternary('present', 'absent') }}"
+        name: "{{ awsconfig_multiregion_cloudtrail_trail_name }}"
         enable_logging: true
-        s3_bucket_name: "{{ bucket_name | default(omit) }}"
-        s3_key_prefix: "{{ key_prefix | default(omit) }}"
+        s3_bucket_name: "{{ awsconfig_multiregion_cloudtrail_bucket_name | default(omit) }}"
+        s3_key_prefix: "{{ awsconfig_multiregion_cloudtrail_key_prefix | default(omit) }}"
         is_multi_region_trail: true
       register: awsconfig_multiregion_cloudtrail_result
 
     - name: Create/update trail
-      when: operation == 'create'
+      when: awsconfig_multiregion_cloudtrail_operation == 'create'
       block:
         - name: Verify that trail has been created/updated
           ansible.builtin.debug:
-            msg: Trail '{{ trail_name }}' successfully created/updated.
+            msg: Trail '{{ awsconfig_multiregion_cloudtrail_trail_name }}' successfully created/updated.
           when: awsconfig_multiregion_cloudtrail_result is changed
 
         - name: Verify that trail already exists
           ansible.builtin.debug:
-            msg: Trail '{{ trail_name }}' already exists.
+            msg: Trail '{{ awsconfig_multiregion_cloudtrail_trail_name }}' already exists.
           when: awsconfig_multiregion_cloudtrail_result is not changed
 
     - name: Delete trail
-      when: operation == 'delete'
+      when: awsconfig_multiregion_cloudtrail_operation == 'delete'
       block:
         - name: Verify that trail has been deleted
           ansible.builtin.debug:
-            msg: Trail '{{ trail_name }}' successfully deleted.
+            msg: Trail '{{ awsconfig_multiregion_cloudtrail_trail_name }}' successfully deleted.
           when: awsconfig_multiregion_cloudtrail_result is changed
 
         - name: Verify that trail does not exists anymore
           ansible.builtin.debug:
-            msg: Trail '{{ trail_name }}' does not exist.
+            msg: Trail '{{ awsconfig_multiregion_cloudtrail_trail_name }}' does not exist.
           when: awsconfig_multiregion_cloudtrail_result is not changed

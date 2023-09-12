@@ -19,10 +19,10 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **operation**: Whether to create or delete the Trail. Choices: 'create', 'delete'. Default: 'create'.
-* **bucket_name**: The name of the Amazon S3 bucket you want to upload logs to. Required when **operation** is set to **create**.
-* **key_prefix**: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
-* **trail_name**: The name of the CloudTrail trail to be created.
+* **awsconfig_multiregion_cloudtrail_operation**: Whether to create or delete the Trail. Choices: 'create', 'delete'. Default: 'create'.
+* **awsconfig_multiregion_cloudtrail_bucket_name**: The name of the Amazon S3 bucket you want to upload logs to. Required when **operation** is set to **create**.
+* **awsconfig_multiregion_cloudtrail_key_prefix**: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
+* **awsconfig_multiregion_cloudtrail_trail_name**: The name of the CloudTrail trail to be created.
 
 Dependencies
 ------------
@@ -38,10 +38,10 @@ Example Playbook
           aws_profile: xxxxxxxxxxx
           aws_access_key: xxxxxxxxxxx
           aws_secret_key: xxxxxxxxxxx
-          operation: create
-          bucket_name: mys3bucket
-          key_prefix: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
-          trail_name: mytrail
+          awsconfig_multiregion_cloudtrail_operation: create
+          awsconfig_multiregion_cloudtrail_bucket_name: mys3bucket
+          awsconfig_multiregion_cloudtrail_key_prefix: The Amazon S3 key prefix that comes after the name of the bucket you designated for log file delivery.
+          awsconfig_multiregion_cloudtrail_trail_name: mytrail
 
 License
 -------

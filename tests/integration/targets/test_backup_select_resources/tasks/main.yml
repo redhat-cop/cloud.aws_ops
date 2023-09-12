@@ -15,8 +15,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_role_name: "{{ test_iam_role_name_new }}"
-        selection_resources:
+        backup_select_resources_backup_role_name: "{{ test_iam_role_name_new }}"
+        backup_select_resources_selection_resources:
           - "{{ all_resources }}"
 
     - name: Get backup selection info
@@ -35,8 +35,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_role_name: "{{ test_iam_role_name }}"
-        selection_resources:
+        backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
+        backup_select_resources_selection_resources:
           - "{{ all_resources }}"
 
     - name: Get backup selection info
@@ -55,10 +55,10 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_role_name: "{{ test_iam_role_name }}"
-        selection_resources:
+        backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
+        backup_select_resources_selection_resources:
           - "{{ all_s3_buckets }}"
-        selection_tags: "{{ tag_list_backup_or_prod }}"
+        backup_select_resources_selection_tags: "{{ tag_list_backup_or_prod }}"
 
     - name: Get updated backup selection info
       amazon.aws.backup_selection_info:
@@ -77,13 +77,13 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_role_name: "{{ test_iam_role_name }}"
-        selection_name: "{{ selection_two }}"
-        selection_resources:
+        backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
+        backup_select_resources_selection_name: "{{ selection_two }}"
+        backup_select_resources_selection_resources:
           - "{{ all_resources }}"
-        selection_excluded_resources:
+        backup_select_resources_selection_excluded_resources:
           - "{{ all_rds_db_instances }}"
-        selection_conditions: "{{ conditions_tagged_backup_and_prod }}"
+        backup_select_resources_selection_conditions: "{{ conditions_tagged_backup_and_prod }}"
 
     - name: Get updated backup selection info
       amazon.aws.backup_selection_info:

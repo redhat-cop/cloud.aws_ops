@@ -20,13 +20,13 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **plan_name**: (Required) The name of the backup plan you want to use for the selected resources.
-* **selection_name**: (Required) The display name of the resource selection you want to back up.
-* **selection_resources**: (Required) List of resources selected for backup. Can use wild cards and/or combine with selection options below to precisely restrict resources based on various conditions. See included vars for examples.
-* **selection_excluded_resources**: List of resources to exclude from backup
-* **selection_tags**: List of resource tags selected for backup
-* **selection_conditions**: Conditions for resources to back up
-* **backup_role_name**: (Required) The name of an IAM role with permissions to perform all needed backup actions for the selected resources. Alternatively, provide a name for a new IAM role which will be created with the same permissions as the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources).
+* **backup_select_resources_plan_name**: (Required) The name of the backup plan you want to use for the selected resources.
+* **backup_select_resources_selection_name**: (Required) The display name of the resource selection you want to back up.
+* **backup_select_resources_selection_resources**: (Required) List of resources selected for backup. Can use wild cards and/or combine with selection options below to precisely restrict resources based on various conditions. See included vars for examples.
+* **backup_select_resources_selection_excluded_resources**: List of resources to exclude from backup
+* **backup_select_resources_selection_tags**: List of resource tags selected for backup
+* **backup_select_resources_selection_conditions**: Conditions for resources to back up
+* **backup_select_resources_backup_role_name**: (Required) The name of an IAM role with permissions to perform all needed backup actions for the selected resources. Alternatively, provide a name for a new IAM role which will be created with the same permissions as the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources).
 
 ### Included sample resource selection variables
 These are included in vars/main.yaml for use as-is or as examples for modification.
@@ -34,8 +34,8 @@ These are included in vars/main.yaml for use as-is or as examples for modificati
 * **all_resources**: All AWS resources
 * **all_s3_buckets** All S3 buckets
 * **all_rds_db_instances**: All RDS database instances
-* **tag_list_backup_or_prod**: Resources tagged {"backup": "true"} OR {"env": "prod"}, for use with the **selection_tags** role variable
-* **conditions_tagged_backup_and_prod**: Resources tagged {"backup": "true"} AND {"env": "prod"}, for use with the **selection_conditions** role variable
+* **tag_list_backup_or_prod**: Resources tagged {"backup": "true"} OR {"env": "prod"}, for use with the **backup_select_resources_selection_tags** role variable
+* **conditions_tagged_backup_and_prod**: Resources tagged {"backup": "true"} AND {"env": "prod"}, for use with the **backup_select_resources_selection_conditions** role variable
 
 Dependencies
 ------------
@@ -50,9 +50,9 @@ Example Playbooks
       roles:
         - role: cloud.aws_ops.backup_select_resources
           vars:
-            plan_name: my-backup-plan
-            selection_name: s3_buckets
-            selection_resources:
+            backup_select_resources_plan_name: my-backup-plan
+            backup_select_resources_selection_name: s3_buckets
+            backup_select_resources_selection_resources:
               - "{{ all_s3_buckets }}"
             backup_role_name: my-iam-role
 
@@ -70,9 +70,9 @@ Example Playbooks
       roles:
         - role: cloud.aws_ops.backup_select_resources
           vars:
-            plan_name: my-backup-plan
-            selection_name: s3_buckets
-            selection_resources:
+            backup_select_resources_plan_name: my-backup-plan
+            backup_select_resources_selection_name: s3_buckets
+            backup_select_resources_selection_resources:
               - "{{ all_s3_buckets }}"
             backup_role_name: my-iam-role
 

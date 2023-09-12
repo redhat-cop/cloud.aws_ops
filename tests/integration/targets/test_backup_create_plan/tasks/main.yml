@@ -16,7 +16,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
-        plan_rules:
+        backup_create_plan_plan_rules:
           - "{{ daily_backup }}"
 
     - name: Get backup plan info
@@ -41,7 +41,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
-        plan_rules:
+        backup_create_plan_plan_rules:
           - "{{ weekly_backup }}"
 
     - name: Get backup vault info
@@ -74,11 +74,11 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
-        vault_tags:
+        backup_create_plan_vault_tags:
           environment: test
-        plan_rules:
+        backup_create_plan_plan_rules:
           - "{{ hourly_backup }}"
-        plan_tags:
+        backup_create_plan_plan_tags:
           environment: test
 
     - name: Get backup vault info

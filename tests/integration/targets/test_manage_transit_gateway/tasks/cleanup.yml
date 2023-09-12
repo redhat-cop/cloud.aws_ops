@@ -3,8 +3,8 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.manage_transit_gateway
   vars:
-    action: "delete"
-    transit_gateway:
+    manage_transit_gateway_action: "delete"
+    manage_transit_gateway_transit_gateway:
       asn: 4200000000
       description: "TGW for Cloud team"
       tags:
