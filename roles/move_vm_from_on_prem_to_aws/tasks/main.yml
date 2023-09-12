@@ -1,0 +1,52 @@
+---
+# tasks file for move_vm_from_on_prem_to_aws
+
+- name: Fail when 'move_vm_from_on_prem_to_aws_on_prem_vm_name' is undefined
+  ansible.builtin.fail:
+    msg: Source on prem VM name should be defined as move_vm_from_on_prem_to_aws_on_prem_vm_name
+  when: move_vm_from_on_prem_to_aws_on_prem_vm_name is undefined
+
+- name: Fail when 'move_vm_from_on_prem_to_aws_bucket_name' is undefined
+  ansible.builtin.fail:
+    msg: Source on prem VM name should be defined as move_vm_from_on_prem_to_aws_bucket_name
+  when: move_vm_from_on_prem_to_aws_bucket_name is undefined
+
+- name: Fail when 'move_vm_from_on_prem_to_aws_on_prem_instance_name' is undefined
+  ansible.builtin.fail:
+    msg: "The EC2 instance name {{ move_vm_from_on_prem_to_aws_on_prem_instance_name }} should be defined"
+  when: move_vm_from_on_prem_to_aws_on_prem_instance_name is undefined
+
+- set_fact:
+    move_vm_from_on_prem_to_aws_aws_vm_name: "{{move_vm_from_on_prem_to_aws_aws_vm_name | default(move_vm_from_on_prem_to_aws_on_prem_vm_name)}}"
+
+- name: Ensure qemu is installed
+  ansible.builtin.package:
+    name: "qemu"
+    update_homebrew: True
+  when: ansible_facts.os_family == "Darwin"
+
+- name: Ensure qemu-img is installed
+  ansible.builtin.package:
+    name: "{{ 'qemu-img' if ansible_facts.os_family == 'RedHat' else 'qemu'}}"
+    update_cache: "{{ True if ansible_facts.pkg_mgr == 'apt' else omit }}"
+  when: ansible_facts.os_family != "Darwin"
+  become: true
+
+- name: Create temporary directory to create the clone in
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: .storage
+  register: move_vm_from_on_prem_to_aws__tmpdir
+  notify:
+    - "Delete temporary directory"
+
+- name: Move on prem VM to an AWS EC2 instamce
+  module_defaults:
+    group/gcp: "{{ aws_setup_credentials__output }}"
+  block:
+
+  - name: Include tasks 'clone_on_prem_vm.yml'
+    ansible.builtin.include_tasks: clone_one_prem_vm.yml
+
+  - name: Include tasks 'import_image_and_start_ec2_instance.yml.yml'
+    ansible.builtin.include_tasks: import_image_and_start_ec2_instance.yml.yml

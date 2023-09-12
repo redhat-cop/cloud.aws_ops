@@ -1,0 +1,61 @@
+---
+- name: Get information about the S3 bucket
+  community.aws.s3_bucket_info:
+    name: "{{ move_vm_from_on_prem_to_aws_bucket_name }}"
+  register: move_vm_from_on_prem_to_aws__bucket_info
+
+- set_fact:
+    s3_object_key: "{{ move_vm_from_on_prem_to_aws_bucket_name }}/{{ move_vm_from_on_prem_to_aws_aws_vm_name }}.qcow2"
+
+- name: Fail when S3 bucket name does not exist
+  ansible.builtin.fail:
+    msg: "The on prem VM {{ move_vm_from_on_prem_to_aws_on_prem_bucket_name }} does not exist."
+  when: move_vm_from_on_prem_to_aws__bucket_info.bucket_list | length == 0
+
+- name: Upload raw image to S3 bucket
+  amazon.aws.s3_object:
+    bucket: "{{ move_vm_from_on_prem_to_aws_bucket_name }}"
+    object: "{{ s3_object_key }}"
+    src: "{{ move_vm_from_on_prem_to_aws__raw_image_path }}"
+    mode: put
+
+- name: Import image
+  amazon.aws.ec2_import_image:
+    state: present
+    task_name: "{{ move_vm_from_on_prem_to_aws_import_image_task_name }}"
+    disk_containers:
+      - format: raw
+        user_bucket:
+          s3_bucket: "{{ move_vm_from_on_prem_to_aws_bucket_name }}"
+          s3_key: "{{ s3_object_key }}"
+
+- name: Check status of the import image task
+  amazon.aws.ec2_import_image_info:
+    filters:
+      - Name: "tag:Name"
+        Values: ["{{ move_vm_from_on_prem_to_aws_import_image_task_name }}"]
+      - Name: "task-state"
+        Values: ["completed", "active"]
+  register: move_vm_from_on_prem_to_aws__import_image_info
+
+- set_fact:
+    ami_id: "{{ move_vm_from_on_prem_to_aws__import_image_info.import_image[0].image_id }}"
+    snapshot_id: "{{ move_vm_from_on_prem_to_aws__import_image_info.import_image[0].snapshot_details[0].snapshot_id }}"
+
+- name: Start EC2 instance
+  amazon.aws.ec2_instance:
+    name: "{{ move_vm_from_on_prem_to_aws_instance_name | default('t2.micro')}}"
+    instance_type: "{{ move_vm_from_on_prem_to_aws_instance_type }}"
+    key_name: "{{ move_vm_from_on_prem_to_aws_keypair_name | default(omit) }}"
+    security_group_ids: ["{{ move_vm_from_on_prem_to_aws_security_group | default(omit) }}"]
+    vpc_subnet_id: "{{ move_vm_from_on_prem_to_aws_vpc_subnet_id | default(omit) }}"
+    image_id: "{{ ami_id }}"
+    volumes:
+      - device_name: "{{ move_vm_from_on_prem_to_aws_volumes.device_name | default('/dev/sda1') }}"
+        ebs:
+          volume_size: "{{move_vm_from_on_prem_to_aws_volumes.ebs.volume_size | default(omit) }}"
+          volume_type: "{{ move_vm_from_on_prem_to_aws_volumes.ebs.volume_type | default(omit) }}"
+          iops: "{{ move_vm_from_on_prem_to_aws_volumes.ebs.iops | default(omit) }}"
+          kms_key_id: "{{ move_vm_from_on_prem_to_aws_volumes.ebs.kms_key_id | default(omit) }}"
+          delete_on_termination: "{{ move_vm_from_on_prem_to_aws_volumes.ebs.delete_on_termination | default(true) }}"
+          snapshot_id: "{{ snapshot_id }}"

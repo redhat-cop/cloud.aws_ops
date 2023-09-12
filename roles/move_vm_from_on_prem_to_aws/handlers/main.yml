@@ -1,0 +1,6 @@
+---
+# handlers file for move_vm_from_on_prem_to_aws
+- name: Delete temporary directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ move_vm_from_on_prem_to_aws__tmpdir.path }}"
