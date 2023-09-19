@@ -1,0 +1,100 @@
+---
+- name: Run 'cloud.aws_ops.import_image_and_run_aws_instance' role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+
+  block:
+    - name: Fail when 'import_image_and_run_aws_instance_bucket_name' is undefined
+      ansible.builtin.fail:
+        msg: S3 bucket name to host the .raw image must be defined as import_image_and_run_aws_instance_bucket_name
+      when: import_image_and_run_aws_instance_bucket_name is undefined
+
+    - name: Fail when 'import_image_and_run_aws_instance_image_path' is undefined
+      ansible.builtin.fail:
+        msg: S3 bucket name to host the .raw image must be defined as import_image_and_run_aws_instance_image_path
+      when: import_image_and_run_aws_instance_image_path is undefined
+
+    - name: Fail when 'import_image_and_run_aws_instance_instance_name' is undefined
+      ansible.builtin.fail:
+        msg: The name to assign the to AWS EC2 instance must be defined as import_image_and_run_aws_instance_instance_name
+      when: import_image_and_run_aws_instance_instance_name is undefined
+
+    - name: Get information about the S3 bucket
+      community.aws.s3_bucket_info:
+        name: "{{ import_image_and_run_aws_instance_bucket_name }}"
+      register: import_image_and_run_aws_instance__bucket_info
+
+    - name: Fail when S3 bucket name does not exist
+      ansible.builtin.fail:
+        msg: "The on prem VM {{ import_image_and_run_aws_instance_bucket_name }} does not exist."
+      when: import_image_and_run_aws_instance__bucket_info.buckets | length == 0
+
+    - name: Set 'import_image_and_run_aws_instance__s3_object_key' variable
+      ansible.builtin.set_fact:
+        import_image_and_run_aws_instance__s3_object_key: "{{ import_image_and_run_aws_instance_bucket_name }}/{{ import_image_and_run_aws_instance_instance_name }}.raw"
+
+    - name: Upload raw image to S3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ import_image_and_run_aws_instance_bucket_name }}"
+        object: "{{ import_image_and_run_aws_instance__s3_object_key }}"
+        src: "{{ import_image_and_run_aws_instance_image_path }}"
+        mode: put
+
+    - name: Import image
+      amazon.aws.ec2_import_image:
+        state: present
+        task_name: "{{ import_image_and_run_aws_instance_import_image_task_name }}"
+        disk_containers:
+          - format: raw
+            user_bucket:
+              s3_bucket: "{{ import_image_and_run_aws_instance_bucket_name }}"
+              s3_key: "{{ import_image_and_run_aws_instance__s3_object_key }}"
+      register: import_image_and_run_aws_instance__import_result
+
+    # image_id and snapshot_id are not available until the import image task is completed
+    - name: Check status of the import image task
+      amazon.aws.ec2_import_image_info:
+        filters:
+          - Name: "tag:Name"
+            Values: ["{{ import_image_and_run_aws_instance_import_image_task_name }}"]
+          - Name: "task-state"
+            Values: ["completed", "active"]
+      register: import_image_and_run_aws_instance__import_image_info
+      until: import_image_and_run_aws_instance__import_image_info.import_image[0].status == "completed"
+      delay: 3
+      retries: 30
+
+    - name: Set 'import_image_and_run_aws_instance__ami_id' and 'import_image_and_run_aws_instance__snapshot_id'
+      ansible.builtin.set_fact:
+        import_image_and_run_aws_instance__ami_id: "{{ import_image_and_run_aws_instance__import_image_info.import_image[0].image_id }}"
+        import_image_and_run_aws_instance__snapshot_id: "{{ import_image_and_run_aws_instance__import_image_info.import_image[0].snapshot_details[0].snapshot_id }}"
+
+    - name: Check if an instance with the specified name alrerady exists
+      amazon.aws.ec2_instance_info:
+        filters:
+          "tag:Name": "{{ import_image_and_run_aws_instance_instance_name }}"
+          instance-state-name: [ "running", "pending", "shutting-down", "stopping", "stopped"]
+      register: import_image_and_run_aws_instance__ec2_instance_info
+
+    - name: Fail when an instance with the specified name already exists
+      ansible.builtin.fail:
+        msg: "An EC2 instance with name {{ import_image_and_run_aws_instance_instance_name }} already exists"
+      when: import_image_and_run_aws_instance__ec2_instance_info.instances | length == 1
+
+    - name: Start EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ import_image_and_run_aws_instance_instance_name }}"
+        instance_type: "{{ import_image_and_run_aws_instance_instance_type | default('t2.micro') }}"
+        key_name: "{{ import_image_and_run_aws_instances_keypair_name | default(omit) }}"
+        security_groups: "{{ import_image_and_run_aws_instance_security_groups | default(omit) }}"
+        vpc_subnet_id: "{{ import_image_and_run_aws_instance_vpc_subnet_id | default(omit) }}"
+        image_id: "{{ import_image_and_run_aws_instance__ami_id }}"
+        volumes:
+          - device_name: "{{ import_image_and_run_aws_instance_volumes.device_name | default('/dev/sda1') }}"
+            ebs:
+              volume_size: "{{ import_image_and_run_aws_instance_volumes.ebs.volume_size | default(omit) }}"
+              volume_type: "{{ import_image_and_run_aws_instance_volumes.ebs.volume_type | default(omit) }}"
+              iops: "{{ import_image_and_run_aws_instance_volumes.ebs.iops | default(omit) }}"
+              kms_key_id: "{{ import_image_and_run_aws_instance_volumes.ebs.kms_key_id | default(omit) }}"
+              delete_on_termination: "{{ import_image_and_run_aws_instance_volumes.ebs.delete_on_termination | default(true) }}"
+              snapshot_id: "{{ import_image_and_run_aws_instance__snapshot_id }}"

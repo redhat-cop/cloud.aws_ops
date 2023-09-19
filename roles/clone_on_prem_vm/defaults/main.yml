@@ -1,0 +1,3 @@
+---
+clone_on_prem_vm_uri: "qemu:///system"
+clone_on_prem_vm_overwrite: true

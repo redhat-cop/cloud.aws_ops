@@ -1,0 +1,42 @@
+- name: A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars/main.yml
+
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region | default('us-east-1') }}"
+
+  tasks:
+  - name: Add host to inventory
+    ansible.builtin.add_host:
+      name: "{{ kvm_host.name }}"
+      ansible_host: "{{ kvm_host.ip }}"
+      ansible_user: "{{ kvm_host.ansible_user }}"
+      ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ kvm_host.ansible_ssh_private_key_file }}
+      groups: "{{ kvm_host.groups }}"
+
+  - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
+    ansible.builtin.import_role:
+      name: cloud.aws_ops.clone_on_prem_vm
+    vars:
+      clone_on_prem_vm_source_vm_name: "{{ on_prem_source_vm_name }}"
+      clone_on_prem_vm_dest_vm_name: "{{ on_prem_vm_clone_name }}"
+      clone_on_prem_vm_uri: "{{ uri }}"
+      clone_on_prem_vm_local_image_path: "{{ local_image_path }}"
+    delegate_to: kvm
+
+  - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
+    ansible.builtin.import_role:
+      name: cloud.aws_ops.import_image_and_run_aws_instance
+    vars:
+      import_image_and_run_aws_instance_bucket_name: "{{ s3_bucket_name }}"
+      import_image_and_run_aws_instance_image_path: "{{ clone_on_prem_vm_local_image_path }}"
+      import_image_and_run_aws_instance_instance_name: "{{ instance_name }}"
+      import_image_and_run_aws_instance_instance_type: "{{ instance_type }}"
+      import_image_and_run_aws_instance_import_image_task_name: "{{ import_task_name }}"

@@ -1,0 +1,141 @@
+---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  register: package_facts
+
+- name: qemu is not installed
+  debug:
+    msg: "qemu is not installed"
+  when: "'qemu' not in package_facts.ansible_facts.packages"
+
+- name: qemu-img is not installed
+  debug:
+    msg: "qemu-img is not installed"
+  when: "'qemu-img' not in package_facts.ansible_facts.packages"
+
+- name: Create temporary directory to create the clone in
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: .storage
+  register: clone_on_prem_vm__tmpdir
+  notify:
+    - "Delete temporary directory"
+
+- name: Get information about the on prem VM
+  community.libvirt.virt:
+    command: info
+    name: "{{ clone_on_prem_vm_source_vm_name }}"
+    uri: "{{ clone_on_prem_vm_uri }}"
+  register: clone_on_prem_vm__vm_info
+
+- name: Fail when on prem VM does not exist
+  ansible.builtin.fail:
+    msg: "The on prem VM {{ clone_on_prem_vm_source_vm_name }} does not exist."
+  when: clone_on_prem_vm_source_vm_name not in clone_on_prem_vm__vm_info
+
+- name: Fail when on prem VM's state is destroyed
+  ansible.builtin.fail:
+    msg: "The VM {{ clone_on_prem_vm_source_vm_name }} has been destroyed."
+  when: clone_on_prem_vm__vm_info[clone_on_prem_vm_source_vm_name].state == "destroyed"
+
+- name: Set 'clone_on_prem_vm_image_name' varible
+  ansible.builtin.set_fact:
+    clone_on_prem_vm_image_name: "{{ clone_on_prem_vm_source_vm_name }}-clone"
+  when: clone_on_prem_vm_image_name is undefined
+
+- name: Check if domain exists
+  community.libvirt.virt:
+    name: "{{ clone_on_prem_vm_image_name }}"
+    command: info
+    uri: "{{ clone_on_prem_vm_uri }}"
+  register: clone_on_prem_vm__domain_info
+
+- name: Fail when a domain already exists
+  ansible.builtin.fail:
+    msg: "A domain {{ clone_on_prem_vm_image_name }} already exists. Please undefine it first or set clone_on_prem_vm_overwrite: true."
+  when: clone_on_prem_vm_image_name in clone_on_prem_vm__domain_info and clone_on_prem_vm_overwrite is false
+
+- name: Undefine domain
+  community.libvirt.virt:
+    name: "{{ clone_on_prem_vm_image_name }}"
+    command: undefine
+  when: clone_on_prem_vm_image_name in clone_on_prem_vm__domain_info and clone_on_prem_vm_overwrite is true
+
+- name: Ensure on prem VM is paused
+  community.libvirt.virt:
+    state: paused
+    name: "{{ clone_on_prem_vm_source_vm_name }}"
+    uri: "{{ clone_on_prem_vm_uri }}"
+  when: clone_on_prem_vm__vm_info[clone_on_prem_vm_source_vm_name].state == "running"
+
+- name: Set 'clone_on_prem_vm__clone_path' and 'clone_on_prem_vm__raw_image_path'
+  ansible.builtin.set_fact:
+    clone_on_prem_vm__clone_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_dest_vm_name }}.qcow2"
+    clone_on_prem_vm__raw_image_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_dest_vm_name }}.raw"
+
+- name: Cloning {{ clone_on_prem_vm_source_vm_name }} on prem VM
+  ansible.builtin.command: |
+          virt-clone --original {{ clone_on_prem_vm_source_vm_name }} \
+                    --name {{ clone_on_prem_vm_image_name }} \
+                    --file {{ clone_on_prem_vm__clone_path }}
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ clone_on_prem_vm_uri }}"
+
+- name: Get information about the clone
+  ansible.builtin.stat:
+    path: "{{ clone_on_prem_vm__clone_path }}"
+  register: clone_on_prem_vm__clone_info
+
+# Priviledge escalation is needed because the .qcow2 file is owned by root
+# when default hypervisor is used
+- name: Convert qcow2 to raw using qemu-img with priviledge escalation
+  ansible.builtin.command: |
+          qemu-img convert -f qcow2 -O raw \
+                          {{ clone_on_prem_vm__clone_path }} \
+                          {{ clone_on_prem_vm__raw_image_path }}
+  become: true
+  become_method: sudo
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ clone_on_prem_vm_uri }}"
+  when: clone_on_prem_vm__clone_info.stat.exists and clone_on_prem_vm__clone_info.stat.pw_name == "root"
+
+- name: Convert qcow2 to raw using qemu-img
+  ansible.builtin.command: |
+          qemu-img convert -f qcow2 -O raw \
+                          {{ clone_on_prem_vm__clone_path }} \
+                          {{ clone_on_prem_vm__raw_image_path }}
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ clone_on_prem_vm_uri }}"
+  when: clone_on_prem_vm__clone_info.stat.exists and clone_on_prem_vm__clone_info.stat.pw_name != "root"
+
+- name: Create temporary directory to localcolhost when clone_on_prem_vm_local_image_path is not set
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: .storage
+  register: clone_on_prem_vm__dir_localhost
+  when: clone_on_prem_vm_local_image_path is undefined
+  delegate_to: localhost
+
+- name: Create directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ clone_on_prem_vm_local_image_path }}"
+    state: directory
+    mode: 0775
+    recurse: yes
+  register: clone_on_prem_vm__dir_localhost
+  when: clone_on_prem_vm_local_image_path is defined
+  delegate_to: localhost
+
+- name: Fetch the converted RAW image to localhost
+  ansible.builtin.fetch:
+    src: "{{ clone_on_prem_vm__raw_image_path }}"
+    dest: "{{ clone_on_prem_vm__dir_localhost.path }}"
+    flat: yes
+    fail_on_missing: yes
+    validate_checksum: true
+  register: clone_on_prem_vm_fetch_to_localhost
+
+- name: Set 'clone_on_prem_vm_local_image_path'
+  ansible.builtin.set_fact:
+    clone_on_prem_vm_local_image_path: "{{ clone_on_prem_vm_fetch_to_localhost.dest }}"

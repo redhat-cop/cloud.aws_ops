@@ -1,0 +1,14 @@
+on_prem_source_vm_name: "ubuntu-guest"
+on_prem_vm_clone_name: "ubuntu-guest-clone"
+s3_bucket_name: "clone-vm-s3-bucket"
+instance_name: "ubuntu-vm-clone"
+local_image_path: "~/images"
+import_task_name: "import-clone"
+instance_type: "t2.micro"
+uri: "qemu:///system"
+kvm_host:
+  name: kvm
+  ip: 192.168.1.117
+  ansible_user: vagrant
+  ansible_ssh_private_key_file: ~/.ssh/id_rsa.pub
+  groups: "libvirt"

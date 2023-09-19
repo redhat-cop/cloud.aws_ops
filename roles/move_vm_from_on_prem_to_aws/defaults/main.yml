@@ -1,3 +1,0 @@
----
-# defaults file for move_vm_from_on_prem_to_aws
-move_vm_from_on_prem_to_aws_uri: "qemu:///system"
