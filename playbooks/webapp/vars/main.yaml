@@ -2,7 +2,7 @@
 # Variables for create.yaml
 aws_region: us-east-1
 dest_region: us-east-2
-resource_prefix: "ansible-demo-test"
+resource_prefix: "ansible-test"
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16
 subnet_cidr:
@@ -23,7 +23,7 @@ rds_instance_class: db.m6g.large
 rds_instance_name: mysampledb123
 rds_engine: postgres
 rds_engine_version: "14.8"
-bastion_host_type: t2.xlarge
+bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
 rds_listening_port: 5432
 
@@ -55,3 +55,18 @@ deploy_flask_app_local_registry_pwd: testing123
 deploy_flask_app_local_registry_port: "{{ deploy_flask_app_listening_port }}"
 deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible
+
+# vars to create aurora db cluster
+test_instance_class: db.r5.large
+# Global cluster parameters ================================
+test_global_cluster_name: "{{ resource_prefix }}-global-cluster"
+
+# Primary cluster parameters ================================
+test_primary_cluster_name: "{{ resource_prefix }}-primary-cluster"
+test_primary_cluster_region: us-west-2
+test_primary_cluster_instance_name: "{{ resource_prefix }}-primary-instance"
+
+# Replica cluster parameters ================================
+test_replica_cluster_name: "{{ resource_prefix }}-replica-cluster"
+test_replica_cluster_region: eu-north-1
+test_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"

@@ -1,0 +1,129 @@
+---
+- name: Create resources playbook
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+  block:
+    - name: Get security group id
+      amazon.aws.ec2_security_group_info:
+        filters:
+          group-name: "{{ rds_secgroup_name }}"
+        region: "{{ test_primary_cluster_region }}"
+      register: rds_primary_sg 
+      
+    - name: Create rds global database
+      amazon.cloud.rds_global_cluster:
+        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        engine: "aurora-postgresql"
+        engine_version: "15.2"
+        region: "{{ test_primary_cluster_region }}"
+        state: present
+      register: create_global_result
+
+    - name: Create a primary cluster for global database
+      amazon.aws.rds_cluster:
+        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        db_cluster_identifier: "{{ test_primary_cluster_name }}"
+        region: "{{ test_primary_cluster_region }}"
+        engine: "aurora-postgresql"
+        engine_version: "15.2"
+        username: "{{ deploy_flask_app_rds_master_username }}"
+        password: "{{ deploy_flask_app_rds_master_password }}"
+        db_subnet_group_name: "{{ rds_subnet_group_name }}"
+        vpc_security_group_ids:
+          - "{{ rds_primary_sg.security_groups[0].group_id }}"
+      register: create_primary_result
+
+    - name: Create an instance connected to primary cluster
+      amazon.aws.rds_instance:
+        db_cluster_identifier: "{{ test_primary_cluster_name }}"
+        db_instance_identifier: "{{ test_primary_cluster_name }}-instance"
+        db_name: "{{ rds_instance_name }}"
+        region: "{{ test_primary_cluster_region }}"
+        engine: "aurora-postgresql"
+        db_instance_class: "{{ test_instance_class }}"
+        monitoring_interval: 0
+        skip_final_snapshot: true
+
+    - name: Get primary instance info
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ test_primary_cluster_name }}-instance"
+        region: "{{ test_primary_cluster_region }}"
+      register: primary_instance_info_result
+
+    - name: Get primary cluster info
+      amazon.aws.rds_cluster_info:
+        db_cluster_identifier: "{{ test_primary_cluster_name }}"
+        region: "{{ test_primary_cluster_region }}"
+      register: primary_cluster_info_result
+
+    - name: Get global db info
+      command: "aws rds describe-global-clusters --global-cluster-identifier {{  test_global_cluster_name }}"
+      register: global_cluster_info_result
+
+    - name: convert it to an object
+      set_fact:
+        global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
+
+    - name: Assert that primary cluster is a part of global db
+      assert:
+        that:
+          - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[0].DBClusterArn == primary_cluster_info_result.clusters[0].db_cluster_arn
+
+    # Create replica cluster -------------------------------------------------------------------------------
+    - name: Get security group id
+      amazon.aws.ec2_security_group_info:
+        filters:
+          group-name: "{{ rds_secgroup_name }}"
+        region: "{{ test_replica_cluster_region }}"
+      register: rds_replica_sg 
+
+    - name: Create a replica cluster for global database
+      amazon.aws.rds_cluster:
+        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        db_cluster_identifier: "{{ test_replica_cluster_name }}"
+        engine: "aurora-postgresql"
+        engine_version: "{{ global_cluster_info.GlobalClusters[0].EngineVersion }}" # replica cluster engine version needs to be exact same as global db engine version
+        db_subnet_group_name: "{{ rds_subnet_group_name }}"
+        vpc_security_group_ids:
+          - "{{ rds_replica_sg.security_groups[0].group_id }}"
+        region: "{{ test_replica_cluster_region }}"
+      register: create_replica_result
+
+    - name: Create an instance connected to replica cluster
+      amazon.aws.rds_instance:
+        db_cluster_identifier: "{{ test_replica_cluster_name }}"
+        db_instance_identifier: "{{ test_replica_cluster_name }}-instance"
+        db_name: "{{ rds_instance_name }}"
+        region: "{{ test_replica_cluster_region }}"
+        engine: "aurora-postgresql"
+        db_instance_class: "{{ test_instance_class }}"
+        monitoring_interval: 0
+        skip_final_snapshot: true
+
+    - name: Get replica instance info
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ test_replica_cluster_name }}-instance"
+        region: "{{ test_replica_cluster_region }}"
+      register: replica_instance_info_result
+
+    - name: Get replica cluster info
+      amazon.aws.rds_cluster_info:
+        db_cluster_identifier: "{{ test_replica_cluster_name }}"
+        region: "{{ test_replica_cluster_region }}"
+      register: replica_cluster_info_result
+
+    - name: Get global db info
+      command: "aws rds describe-global-clusters --global-cluster-identifier {{ test_global_cluster_name }}"
+      register: global_cluster_info_result
+
+    - name: convert it to an object
+      set_fact:
+        global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
+
+    - name: Assert that replica cluster is a part of global db
+      assert:
+        that:
+          - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[1].DBClusterArn == replica_cluster_info_result.clusters[0].db_cluster_arn
