@@ -40,8 +40,8 @@ Role Variables
 * **import_image_and_run_aws_instance_instance_name**: (Required) The name of the EC2 instance you want to create using the imported AMI.
 * **move_vm_from_on_prem_to_aws_instance_type**: The EC2 instance type you want to use. Default: "t2.micro".
 * **import_image_and_run_aws_instances_keypair_name**: The name of the SSH access key to assign to the EC2 instance. It must exist in the region the instance is created. If not set, your default AWS account keypair will be used.
-* **import_image_and_run_aws_instance_security_groups**: A list of security group IDs or names to assiciate to the EC2 instance.
-* **import_image_and_run_aws_instance_vpc_subnet_id**: The subnet ID in which to launch the EC2 instance instance (VPC). If none is provided, M(amazon.aws.ec2_instance) will chose the default zone of the default VPC.
+* **import_image_and_run_aws_instance_security_groups**: A list of security group IDs or names to associate to the EC2 instance.
+* **import_image_and_run_aws_instance_vpc_subnet_id**: The subnet ID in which to launch the EC2 instance (VPC). If none is provided, M(amazon.aws.ec2_instance) will choose the default zone of the default VPC.
 * **import_image_and_run_aws_instance_volumes**: A dictionary of a block device mappings, by default this will always use the AMI root device so the **import_image_and_run_aws_instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys _device_name_, _ebs.volume_type_, _ebs.volume_size_, _ebs.kms_key_id_, _ebs.iops_, and _ebs.delete_on_termination_.
 
 Dependencies

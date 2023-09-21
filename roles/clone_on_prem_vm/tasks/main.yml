@@ -109,7 +109,7 @@
     LIBVIRT_DEFAULT_URI: "{{ clone_on_prem_vm_uri }}"
   when: clone_on_prem_vm__clone_info.stat.exists and clone_on_prem_vm__clone_info.stat.pw_name != "root"
 
-- name: Create temporary directory to localcolhost when clone_on_prem_vm_local_image_path is not set
+- name: Create temporary directory to localhost when clone_on_prem_vm_local_image_path is not set
   ansible.builtin.tempfile:
     state: directory
     suffix: .storage
