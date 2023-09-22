@@ -34,7 +34,7 @@ AWS User Account with the following permissions:
 Role Variables
 --------------
 
-* **import_image_and_run_aws_instance_import_image_task_name**: (Required) The  name you want to assign to the AWS EC2 import image task.
+* **import_image_and_run_aws_instance_import_image_task_name**: (Required) The name you want to assign to the AWS EC2 import image task.
 * **import_image_and_run_aws_instance_bucket_name**: (Required) The name of the S3 bucket name where you want to upload the .raw image.
 **import_image_and_run_aws_instance_image_path**: (Required) The path where the .raw image is stored.
 * **import_image_and_run_aws_instance_instance_name**: (Required) The name of the EC2 instance you want to create using the imported AMI.
