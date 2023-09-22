@@ -1,4 +1,4 @@
-Role Name
+import_image_and_run_aws_instance
 =========
 
 A role that imports a local .raw image into an Amazon Machine Image (AMI) and run an AWS EC2 instance.
@@ -42,7 +42,14 @@ Role Variables
 * **import_image_and_run_aws_instances_keypair_name**: The name of the SSH access key to assign to the EC2 instance. It must exist in the region the instance is created. If not set, your default AWS account keypair will be used.
 * **import_image_and_run_aws_instance_security_groups**: A list of security group IDs or names to associate to the EC2 instance.
 * **import_image_and_run_aws_instance_vpc_subnet_id**: The subnet ID in which to launch the EC2 instance (VPC). If none is provided, M(amazon.aws.ec2_instance) will choose the default zone of the default VPC.
-* **import_image_and_run_aws_instance_volumes**: A dictionary of a block device mappings, by default this will always use the AMI root device so the **import_image_and_run_aws_instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys _device_name_, _ebs.volume_type_, _ebs.volume_size_, _ebs.kms_key_id_, _ebs.iops_, and _ebs.delete_on_termination_.
+* **import_image_and_run_aws_instance_volumes**: A dictionary of a block device mappings, by default this will always use the AMI root device so the **import_image_and_run_aws_instance_volumes** (dict): (Optional) A dictionary of a block device mappings, by default this will always use the AMI root device so the **instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys:
+    * **device_name** (str): The device name (for example, /dev/sdh or xvdh).
+    * **ebs** (dict): Parameters used to automatically set up EBS volumes when the instance is launched.
+        * **volume_type** (str): The volume type. Valid Values: standard, io1, io2, gp2, sc1, st1, gp3.
+        * **volume_size** (int): The size of the volume, in GiBs.
+        * **kms_key_id** (str): Identifier (key ID, key alias, ID ARN, or alias ARN) for a customer managed CMK under which the EBS volume is encrypted.
+        * **iops** (str): The number of I/O operations per second (IOPS). For gp3, io1, and io2 volumes, this represents the number of IOPS that are provisioned for the volume. For gp2 volumes, this represents the baseline performance of the volume and the rate at which the volume accumulates I/O credits for bursting.
+        * **delete_on_termination_** (bool): Indicates whether the EBS volume is deleted on instance termination.
 
 Dependencies
 ------------
@@ -64,7 +71,7 @@ This role can be used together with the [cloud.aws_ops.clone_on_prem_vm](../clon
         local_image_path: "~/images/"
         kvm_host:
           name: kvm
-          ip: 192.168.1.117
+          ansible_host: 192.168.1.117
           ansible_user: vagrant
           ansible_ssh_private_key_file: ~/.ssh/id_rsa.pub
         instance_type: "t2.micro"
@@ -74,7 +81,7 @@ This role can be used together with the [cloud.aws_ops.clone_on_prem_vm](../clon
         - name: Add host to inventory
           ansible.builtin.add_host:
             name: "{{ kvm_host.name }}"
-            ansible_host: "{{ kvm_host.ip }}"
+            ansible_host: "{{ kvm_host.ansible_host }}"
             ansible_user: "{{ kvm_host.ansible_user }}"
             ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ kvm_host.ansible_ssh_private_key_file }}
             groups: "libvirt"
@@ -103,7 +110,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](https://github.com/ansible-collections/cloud.azure_roles/blob/main/LICENSE) to see the full text.
+See [LICENCE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
 
 Author Information
 ------------------

@@ -1,5 +1,5 @@
-Role Name
-=========
+clone_on_prem_vm
+================
 
 A role to clone an existing on prem VM using the KVM hypervisor. The role sets the **clone_on_prem_vm_local_image_path** variable containing the path where the image was saved on localhost. This role requires privilege escalation because the .qcow2 file created by ``virt-clone`` is owned by root and ``qemu-img convert`` requires access to convert it to .raw.
 
@@ -34,7 +34,7 @@ Example Playbook
         local_image_path: "~/images/"
         kvm_host:
           name: kvm
-          ip: 192.168.1.117
+          ansible_host: 192.168.1.117
           ansible_user: vagrant
           ansible_ssh_private_key_file: ~/.ssh/id_rsa.pub
 
@@ -42,7 +42,7 @@ Example Playbook
         - name: Add host to inventory
           ansible.builtin.add_host:
             name: "{{ kvm_host.name }}"
-            ansible_host: "{{ kvm_host.ip }}"
+            ansible_host: "{{ kvm_host.ansible_host }}"
             ansible_user: "{{ kvm_host.ansible_user }}"
             ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ kvm_host.ansible_ssh_private_key_file }}
             groups: "libvirt"
@@ -61,7 +61,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](https://github.com/ansible-collections/cloud.azure_roles/blob/main/LICENSE) to see the full text.
+See [LICENCE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
 
 Author Information
 ------------------
