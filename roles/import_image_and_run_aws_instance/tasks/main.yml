@@ -11,12 +11,12 @@
 
     - name: Fail when 'import_image_and_run_aws_instance_image_path' is undefined
       ansible.builtin.fail:
-        msg: S3 bucket name to host the .raw image must be defined as import_image_and_run_aws_instance_image_path
+        msg: The .raw image path must be defined as import_image_and_run_aws_instance_image_path
       when: import_image_and_run_aws_instance_image_path is undefined
 
     - name: Fail when 'import_image_and_run_aws_instance_instance_name' is undefined
       ansible.builtin.fail:
-        msg: The name to assign the to AWS EC2 instance must be defined as import_image_and_run_aws_instance_instance_name
+        msg: The name to assign to the AWS EC2 instance must be defined as import_image_and_run_aws_instance_instance_name
       when: import_image_and_run_aws_instance_instance_name is undefined
 
     - name: Get information about the S3 bucket
