@@ -42,7 +42,7 @@ Role Variables
 * **import_image_and_run_aws_instances_keypair_name**: The name of the SSH access key to assign to the EC2 instance. It must exist in the region the instance is created. If not set, your default AWS account keypair will be used.
 * **import_image_and_run_aws_instance_security_groups**: A list of security group IDs or names to associate to the EC2 instance.
 * **import_image_and_run_aws_instance_vpc_subnet_id**: The subnet ID in which to launch the EC2 instance (VPC). If none is provided, M(amazon.aws.ec2_instance) will choose the default zone of the default VPC.
-* **import_image_and_run_aws_instance_volumes**: A dictionary of a block device mappings, by default this will always use the AMI root device so the **import_image_and_run_aws_instance_volumes** (dict): (Optional) A dictionary of a block device mappings, by default this will always use the AMI root device so the **instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys:
+**import_image_and_run_aws_instance_volumes** (dict): (Optional) A dictionary of a block device mappings, by default this will always use the AMI root device so the **instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys:
     * **device_name** (str): The device name (for example, /dev/sdh or xvdh).
     * **ebs** (dict): Parameters used to automatically set up EBS volumes when the instance is launched.
         * **volume_type** (str): The volume type. Valid Values: standard, io1, io2, gp2, sc1, st1, gp3.
