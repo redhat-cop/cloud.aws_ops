@@ -21,4 +21,4 @@
   vars:
     backup_create_plan_vault_name: "{{ test_vault_name }}"
     backup_create_plan_plan_rules:
-      - "{{ daily_backup }}"
+      - "{{ backup_create_plan_daily_backup }}"

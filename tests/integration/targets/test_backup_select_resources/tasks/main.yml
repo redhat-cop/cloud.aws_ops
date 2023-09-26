@@ -17,7 +17,7 @@
       vars:
         backup_select_resources_backup_role_name: "{{ test_iam_role_name_new }}"
         backup_select_resources_selection_resources:
-          - "{{ all_resources }}"
+          - "{{ backup_select_resources_all_resources }}"
 
     - name: Get backup selection info
       amazon.aws.backup_selection_info:
@@ -37,7 +37,7 @@
       vars:
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
-          - "{{ all_resources }}"
+          - "{{ backup_select_resources_all_resources }}"
 
     - name: Get backup selection info
       amazon.aws.backup_selection_info:
@@ -57,8 +57,8 @@
       vars:
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
-          - "{{ all_s3_buckets }}"
-        backup_select_resources_selection_tags: "{{ tag_list_backup_or_prod }}"
+          - "{{ backup_select_resources_all_s3_buckets }}"
+        backup_select_resources_selection_tags: "{{ backup_select_resources_conditions_tagged_backup_and_prod }}"
 
     - name: Get updated backup selection info
       amazon.aws.backup_selection_info:
@@ -80,10 +80,10 @@
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_name: "{{ selection_two }}"
         backup_select_resources_selection_resources:
-          - "{{ all_resources }}"
+          - "{{ backup_select_resources_all_resources }}"
         backup_select_resources_selection_excluded_resources:
-          - "{{ all_rds_db_instances }}"
-        backup_select_resources_selection_conditions: "{{ conditions_tagged_backup_and_prod }}"
+          - "{{ backup_select_resources_all_rds_db_instances }}"
+        backup_select_resources_selection_conditions: "{{ backup_select_resources_conditions_tagged_backup_and_prod }}"
 
     - name: Get updated backup selection info
       amazon.aws.backup_selection_info:

@@ -34,10 +34,10 @@ Role Variables
 ### Included sample plan rules variables
 These are included in vars/main.yaml for use as-is or as examples for modification.
 
-* **hourly_backup**: Rules specifying hourly continous backup at :15 UTC with 7-day retention
-* **daily_backup**: Rules specifying daily backup at 5am UTC with Amazon defaults for all other settings
-* **weekly_backup**: Rules specifying weekly backup on Mondays at 5am UTC with 90 day retention after quick transition to cold storage
-* **monthly_backup**: Rules specifying monthly backup at 5am UTC on 1st of month with copy to additional vault (requires an additional variable **copy_vault_name** be set with the name of the vault to copy to)
+* **backup_create_plan_hourly_backup**: Rules specifying hourly continous backup at :15 UTC with 7-day retention
+* **backup_create_plan_daily_backup**: Rules specifying daily backup at 5am UTC with Amazon defaults for all other settings
+* **backup_create_plan_weekly_backup**: Rules specifying weekly backup on Mondays at 5am UTC with 90 day retention after quick transition to cold storage
+* **backup_create_plan_monthly_backup**: Rules specifying monthly backup at 5am UTC on 1st of month with copy to additional vault (requires an additional variable **copy_vault_name** be set with the name of the vault to copy to)
 
 
 Dependencies

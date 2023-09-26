@@ -1,9 +1,9 @@
 ---
-all_resources: "*"
-all_s3_buckets: "arn:aws:s3:::*"
-all_rds_db_instances: "arn:aws:rds:*:*:db:*"
+backup_select_resources_all_resources: "*"
+backup_select_resources_all_s3_buckets: "arn:aws:s3:::*"
+backup_select_resources_all_rds_db_instances: "arn:aws:rds:*:*:db:*"
 
-tag_list_backup_or_prod:  # Resources tagged {"backup": "true"} OR {"env": "prod"}
+backup_select_resources_tag_list_backup_or_prod:  # Resources tagged {"backup": "true"} OR {"env": "prod"}
   - condition_type: "STRINGEQUALS"
     condition_key: "backup"
     condition_value: "true"
@@ -11,7 +11,7 @@ tag_list_backup_or_prod:  # Resources tagged {"backup": "true"} OR {"env": "prod
     condition_key: "env"
     condition_value: "prod"
 
-conditions_tagged_backup_and_prod:  # Resources tagged {"backup": "true"} AND {"env": "prod"}
+backup_select_resources_conditions_tagged_backup_and_prod:  # Resources tagged {"backup": "true"} AND {"env": "prod"}
   string_equals:
     - condition_key: "aws:ResourceTag/backup"
       condition_value: "true"

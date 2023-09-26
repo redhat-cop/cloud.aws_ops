@@ -17,7 +17,7 @@
         name: cloud.aws_ops.backup_create_plan
       vars:
         backup_create_plan_plan_rules:
-          - "{{ daily_backup }}"
+          - "{{ backup_create_plan_daily_backup }}"
 
     - name: Get backup plan info
       amazon.aws.backup_plan_info:
@@ -77,7 +77,7 @@
         backup_create_plan_vault_tags:
           environment: test
         backup_create_plan_plan_rules:
-          - "{{ hourly_backup }}"
+          - "{{ backup_create_plan_hourly_backup }}"
         backup_create_plan_plan_tags:
           environment: test
 
