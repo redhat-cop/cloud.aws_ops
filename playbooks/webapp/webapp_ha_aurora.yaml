@@ -6,104 +6,102 @@
   vars_files:
     - vars/main.yaml
   tasks:
-    - name: Fail when 'resource_prefix' is not defined
-      ansible.builtin.fail:
-        msg: resource prefix should be defined as resource_prefix
-      when: resource_prefix is not defined
-
-    - name: Fail when 'test_replica_cluster_region' is not defined
-      ansible.builtin.fail:
-        msg: destination region should be defined as test_replica_cluster_region
-      when: test_replica_cluster_region is not defined
-
-    - name: Create resources
+    - name: Create resources and Deploy App
       when: operation == "create"
-      ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
-      vars:
-        region: "{{ item }}"
-      with_items:
-        - "{{ test_primary_cluster_region }}"
-        - "{{ test_replica_cluster_region }}"
+      block:
+        - name: Create resources in primary region
+          ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
+          vars:
+            region: "{{ test_primary_cluster_region }}"
 
-    - name: Create  Aurora db cluster
-      when: operation == "create"
-      ansible.builtin.import_tasks: tasks/create_aurora_db_cluster.yaml
+        - name: Create resources in replica region
+          ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
+          vars:
+            region: "{{ test_replica_cluster_region }}"
 
-    # ================= Deploy App in the primary region =================
-    - name: Get VPC info from primary region
-      amazon.aws.ec2_vpc_net_info:
-        filters:
-          "tag:Name": "{{ vpc_name }}"
-        region: "{{ test_primary_cluster_region }}"
-      register: primary_vpc
+        - name: Create  Aurora db cluster
+          ansible.builtin.import_tasks: tasks/create_aurora_db_cluster.yaml
+          vars:
+            rds_engine: "aurora-postgresql"
 
-    - name: Get primary private subnet for workers
-      amazon.aws.ec2_vpc_subnet_info:
-        filters:
-          vpc-id: "{{ primary_vpc.vpcs[0].id }}"
-        region: "{{ test_primary_cluster_region }}"
-      register: primary_private_subnet
+        # ================= Deploy App in the primary region =================
+        - name: Get VPC info from primary region
+          amazon.aws.ec2_vpc_net_info:
+            filters:
+              "tag:Name": "{{ vpc_name }}"
+            region: "{{ test_primary_cluster_region }}"
+          register: primary_vpc
 
-    - name: Get VM info in the primary region
-      amazon.aws.ec2_instance_info:
-        filters:
-          "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
-        region: "{{ test_primary_cluster_region }}"
-      register: primary_vm_result
+        - name: Get primary private subnet for workers
+          amazon.aws.ec2_vpc_subnet_info:
+            filters:
+              vpc-id: "{{ primary_vpc.vpcs[0].id }}"
+            region: "{{ test_primary_cluster_region }}"
+          register: primary_private_subnet
 
-    - debug:
-        msg: "{{ primary_vm_result.instances }}"
+        - name: Get VM info in the primary region
+          amazon.aws.ec2_instance_info:
+            filters:
+              "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
+              instance-state-name: [ "running"]
+            region: "{{ test_primary_cluster_region }}"
+          register: primary_vm_result
 
-    - name: Deploy app in primary region
-      when: operation == "create"
-      ansible.builtin.import_role:
-        name: cloud.aws_ops.deploy_flask_app
-      vars:
-        deploy_flask_app_private_subnet_id: "{{ primary_private_subnet.subnets[0].id }}"
-        deploy_flask_app_vpc_id: "{{ primary_vpc.vpcs[0].id }}"
-        deploy_flask_app_vm_info: "{{ primary_vm_result }}"
-        deploy_flask_app_rds_info: "{{ primary_instance_info_result }}"
-        deploy_flask_app_region: "{{ test_primary_cluster_region }}"
+        - name: Deploy app in primary region
+          ansible.builtin.include_role:
+            name: cloud.aws_ops.deploy_flask_app
+          vars:
+            deploy_flask_app_private_subnet_id: "{{ primary_private_subnet.subnets[0].id }}"
+            deploy_flask_app_vpc_id: "{{ primary_vpc.vpcs[0].id }}"
+            deploy_flask_app_vm_info: "{{ primary_vm_result }}"
+            deploy_flask_app_rds_info: "{{ primary_instance_info_result }}"
+            deploy_flask_app_region: "{{ test_primary_cluster_region }}"
 
-    # ================= Deploy App in the replica region =================
+        # ================= Deploy App in the replica region =================
 
-    - name: Get VPC info from replica region
-      amazon.aws.ec2_vpc_net_info:
-        filters:
-          "tag:Name": "{{ vpc_name }}"
-        region: "{{ test_replica_cluster_region }}"
-      register: replica_vpc
+        - name: Get VPC info from replica region
+          amazon.aws.ec2_vpc_net_info:
+            filters:
+              "tag:Name": "{{ vpc_name }}"
+            region: "{{ test_replica_cluster_region }}"
+          register: replica_vpc
 
-    - name: Get VM info in the replica region
-      amazon.aws.ec2_instance_info:
-        filters:
-          "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
-        region: "{{ test_replica_cluster_region }}"
-      register: replica_vm_result
+        - name: Get VM info in the replica region
+          amazon.aws.ec2_instance_info:
+            filters:
+              "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
+              instance-state-name: [ "running"]
+            region: "{{ test_replica_cluster_region }}"
+          register: replica_vm_result
 
-    - name: Get replica private subnet for workers
-      amazon.aws.ec2_vpc_subnet_info:
-        filters:
-          vpc-id: "{{ replica_vpc.vpcs[0].id }}"
-        region: "{{ test_replica_cluster_region }}"
-      register: replica_private_subnet
+        - name: Get replica private subnet for workers
+          amazon.aws.ec2_vpc_subnet_info:
+            filters:
+              vpc-id: "{{ replica_vpc.vpcs[0].id }}"
+            region: "{{ test_replica_cluster_region }}"
+          register: replica_private_subnet
 
-    - name: Deploy app in replica region
-      when: operation == "create"
-      ansible.builtin.import_role:
-        name: cloud.aws_ops.deploy_flask_app
-      vars:
-        deploy_flask_app_private_subnet_id: "{{ replica_private_subnet.subnets[0].id }}"
-        deploy_flask_app_vpc_id: "{{ replica_vpc.vpcs[0].id }}"
-        deploy_flask_app_vm_info: "{{ replica_vm_result }}"
-        deploy_flask_app_rds_info: "{{ replica_instance_info_result }}"
-        deploy_flask_app_region: "{{ test_replica_cluster_region }}"
+        - debug:
+            msg: "Replica : {{ test_replica_cluster_region }}"
+
+        - name: Deploy app in replica region
+          ansible.builtin.include_role:
+            name: cloud.aws_ops.deploy_flask_app
+          vars:
+            deploy_flask_app_private_subnet_id: "{{ replica_private_subnet.subnets[0].id }}"
+            deploy_flask_app_vpc_id: "{{ replica_vpc.vpcs[0].id }}"
+            deploy_flask_app_vm_info: "{{ replica_vm_result }}"
+            deploy_flask_app_rds_info: "{{ replica_instance_info_result }}"
+            deploy_flask_app_region: "{{ test_replica_cluster_region }}"
+
 
     # ================================================================================
 
     - name: Delete instance from source region
       when: operation == "delete"
       ansible.builtin.import_tasks: tasks/delete_aurora_db_cluster.yaml
+      vars:
+        rds_engine: "aurora-postgresql"
 
     - name: Delete instance from source region
       when: operation == "delete"

@@ -149,7 +149,7 @@
 
     - name: Set 'sshkey_file' variable
       ansible.builtin.set_fact:
-        sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ region | default(aws_region) }}
+        sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ region }}
 
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:

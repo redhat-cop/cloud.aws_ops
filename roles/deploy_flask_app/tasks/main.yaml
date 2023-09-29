@@ -1,8 +1,13 @@
 ---
+- debug:
+    msg: "Rgion {{ deploy_flask_app_region }}"
 - name: Deploy flask app.
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
   block:
+    - debug:
+        msg: "Rgion {{ deploy_flask_app_region }}"
+
     - name: Create new host in inventory for use in later plays.
       ansible.builtin.include_tasks: setup.yaml
 
