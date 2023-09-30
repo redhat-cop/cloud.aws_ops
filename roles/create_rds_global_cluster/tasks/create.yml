@@ -1,5 +1,5 @@
 ---
-- name: Run 'create_rds_global_cluster' role
+- name: Run 'create_rds_global_cluster' role create operations
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
 
@@ -9,6 +9,7 @@
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
         engine: "{{ create_rds_global_cluster_enigne  | default('aurora-postgresql')}}"
         engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         state: present
 
     - name: Create a primary cluster for global database "{{ create_rds_global_cluster_global_cluster_name }}" in "{{ create_rds_global_cluster_primary_cluster_region }}"
