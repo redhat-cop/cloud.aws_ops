@@ -74,14 +74,15 @@
         state: absent
       ignore_errors: true
 
-    # disabled: does not work currently, error - cluster is part of global db, remove from global db to delete
-    # - name: Delete secondary rds cluster (replica)
-    #   amazon.aws.rds_cluster:
-    #     db_cluster_identifier: "{{ test_replica_cluster_name }}"
-    #     region: "{{ test_replica_cluster_region }}"
-    #     skip_final_snapshot: true
-    #     state: absent
-    #   ignore_errors: true
+    - name: Delete secondary rds cluster (replica)
+      amazon.aws.rds_cluster:
+        db_cluster_identifier: "{{ test_replica_cluster_name }}"
+        region: "{{ test_replica_cluster_region }}"
+        remove_from_global_db: true
+        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        skip_final_snapshot: true
+        state: absent
+      ignore_errors: true
 
     - name: Delete primary rds cluster instance
       amazon.aws.rds_instance:
