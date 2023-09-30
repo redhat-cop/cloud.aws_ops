@@ -35,6 +35,7 @@ Role Variables
 - **create_rds_global_cluster_replica_cluster_region** - Region of the replica (secondary) cluster. **required**
 - **create_rds_global_cluster_replica_cluster_instance_name** - Name of the instance in secondary cluster. **required**
 - **create_rds_global_cluster_replica_enable_global_write_forwarding** - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database. Default is False. Supported only while creating new cluster. Choices include 'true', 'false, 'yes', 'no'.
+
 - **create_rds_global_cluster_operation** - Choices include 'create' and 'delete' to create or delete the resources.
 
 Dependencies
@@ -55,6 +56,25 @@ Example Playbook
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: create
+        create_rds_global_cluster_enigne: "{{ test_enigne }}"
+        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
+        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+        create_rds_global_cluster_username: "{{ test_username }}"
+        create_rds_global_cluster_password: "{{ test_password }}"
+        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
+
+    - name: Delete global db, primary cluster with instance & replica cluster with instance
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_rds_global_cluster
+      vars:
+        create_rds_global_cluster_operation: delete
         create_rds_global_cluster_enigne: "{{ test_enigne }}"
         create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
