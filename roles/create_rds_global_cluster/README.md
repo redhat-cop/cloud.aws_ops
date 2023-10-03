@@ -58,7 +58,7 @@ Example Playbook
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: create
-        create_rds_global_cluster_enigne: "{{ test_enigne }}"
+        create_rds_global_cluster_engine: "{{ test_engine }}"
         create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
         create_rds_global_cluster_username: "{{ test_username }}"
@@ -77,7 +77,7 @@ Example Playbook
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: delete
-        create_rds_global_cluster_enigne: "{{ test_enigne }}"
+        create_rds_global_cluster_engine: "{{ test_engine }}"
         create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
         create_rds_global_cluster_username: "{{ test_username }}"
