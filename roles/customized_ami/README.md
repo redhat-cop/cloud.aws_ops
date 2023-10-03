@@ -15,7 +15,7 @@ Role Variables
 * **custom_ami_name** (str) - Name of the AMI to create. **Required**
 * **custom_ami_packages** (list) - List of packages to install.
 * **custom_ami_recreate_if_exists** (bool) - Whether to recreate the AMI if it already exists. Default: False.
-* **source_ami_filters** (dict) - A dict of filters to apply to find the source AMI id. See [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html) for possible filters.
+* **source_ami_filters** (dict) - A dict of filters to apply to find the source AMI id. See [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html) for possible filters. The following are used by the role, by default:
     **architecture** (str) - Architecture supported by the AMI. Default: 'x86_64'.
     **virtualization-type** (str) - Virtualization supported by the AMI. Default: 'hvm'.
     **root-device-type** (str) - Root Device Type supported by the AMI. Default: 'ebs'
