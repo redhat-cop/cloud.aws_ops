@@ -22,6 +22,7 @@
         password: "{{ create_rds_global_cluster_password }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"  # what global db cluster should be associated to
+        database_name: "{{ create_rds_global_cluster_primary_cluster_db_name | default(omit) }}"
 
     - name: Create an instance connected to primary cluster
       amazon.aws.rds_instance:
@@ -39,6 +40,8 @@
         engine_version: "{{ create_rds_global_cluster_engine_version }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}" # what global db cluster should be associated to
+        database_name: "{{ create_rds_global_cluster_replica_cluster_db_name | default(omit) }}"
+        enable_global_write_forwarding: "{{ create_rds_global_cluster_replica_enable_global_write_forwarding | default(omit) }}"
 
     - name: Create an instance connected to secondary cluster
       amazon.aws.rds_instance:
