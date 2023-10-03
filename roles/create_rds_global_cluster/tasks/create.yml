@@ -8,7 +8,7 @@
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
         engine: "{{ create_rds_global_cluster_engine  | default('aurora-postgresql')}}"
-        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        engine_version: "{{ create_rds_global_cluster_engine_version }}"
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         state: present
 
@@ -17,7 +17,7 @@
         db_cluster_identifier: "{{ create_rds_global_cluster_primary_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}" #aka cluster_name
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         engine: "{{ create_rds_global_cluster_engine  | default('aurora-postgresql')}}"
-        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        engine_version: "{{ create_rds_global_cluster_engine_version }}"
         username: "{{ create_rds_global_cluster_username }}"
         password: "{{ create_rds_global_cluster_password }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
@@ -36,7 +36,7 @@
         db_cluster_identifier: "{{ create_rds_global_cluster_replica_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}" #aka cluster_name
         region: "{{ create_rds_global_cluster_replica_cluster_region }}"
         engine: "{{ create_rds_global_cluster_engine  | default('aurora-postgresql')}}"
-        engine_version: "{{ create_rds_global_cluster_engine_version | default(omit) }}"
+        engine_version: "{{ create_rds_global_cluster_engine_version }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}" # what global db cluster should be associated to
 
