@@ -38,6 +38,7 @@
     - name: Get Global DB information
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ test_global_cluster_name }}"
+        region: "{{ test_primary_cluster_region }}"
         state: describe
       register: global_cluster_info
 
@@ -103,5 +104,6 @@
     - name: Delete Aurora global cluster
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ test_global_cluster_name }}"
+        region: "{{ test_primary_cluster_region }}"
         state: absent
       ignore_errors: true

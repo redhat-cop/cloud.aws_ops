@@ -19,7 +19,6 @@
             skip_final_snapshot: true
             wait: false
             state: absent
-          when: _result_replica_cluster_info.clusters[0].db_cluster_members | length >= 1
 
         - name: Delete replica cluster without creating a final snapshot
           amazon.aws.rds_cluster:
@@ -46,14 +45,12 @@
             skip_final_snapshot: true
             wait: false
             state: absent
-          when: _result_primary_cluster_info.clusters[0].db_cluster_members | length >= 1
 
         - name: Delete primary cluster without creating a final snapshot
           amazon.aws.rds_cluster:
             cluster_id: "{{ create_rds_global_cluster_primary_cluster_name }}"
             region: "{{ create_rds_global_cluster_primary_cluster_region }}"
             global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
-            remove_from_global_db: true
             skip_final_snapshot: True
             state: absent
       when: _result_primary_cluster_info.clusters | length != 0
