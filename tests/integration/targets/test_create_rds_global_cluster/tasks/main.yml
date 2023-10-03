@@ -67,43 +67,21 @@
 
   always:
 
-    - name: Delete secondary rds cluster instance (replica)
-      amazon.aws.rds_instance:
-        db_instance_identifier: "{{ test_replica_cluster_instance_name }}"
-        region: "{{ test_replica_cluster_region }}"
-        skip_final_snapshot: true
-        state: absent
-      ignore_errors: true
-
-    - name: Delete secondary rds cluster (replica)
-      amazon.aws.rds_cluster:
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        region: "{{ test_replica_cluster_region }}"
-        remove_from_global_db: true
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
-        skip_final_snapshot: true
-        state: absent
-      ignore_errors: true
-
-    - name: Delete primary rds cluster instance
-      amazon.aws.rds_instance:
-        db_instance_identifier: "{{ test_primary_cluster_instance_name }}"
-        region: "{{ test_primary_cluster_region }}"
-        skip_final_snapshot: true
-        state: absent
-      ignore_errors: true
-
-    - name: Delete primary rds cluster
-      amazon.aws.rds_cluster:
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        region: "{{ test_primary_cluster_region }}"
-        skip_final_snapshot: true
-        state: absent
-      ignore_errors: true
-
-    - name: Delete Aurora global cluster
-      amazon.cloud.rds_global_cluster:
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
-        region: "{{ test_primary_cluster_region }}"
-        state: absent
-      ignore_errors: true
+    - name: create global db
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_rds_global_cluster
+      vars:
+        create_rds_global_cluster_operation: delete
+        create_rds_global_cluster_enigne: "{{ test_enigne }}"
+        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
+        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+        create_rds_global_cluster_username: "{{ test_username }}"
+        create_rds_global_cluster_password: "{{ test_password }}"
+        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
