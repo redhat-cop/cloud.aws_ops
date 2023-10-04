@@ -11,6 +11,7 @@
       register: _result_replica_cluster_info
 
     - name: If replica cluster exists
+      when: _result_replica_cluster_info.clusters | length != 0
       block:
         - name: Delete instance attached to replica cluster if present
           amazon.aws.rds_instance:
@@ -28,7 +29,6 @@
             remove_from_global_db: true
             skip_final_snapshot: True
             state: absent
-      when: _result_replica_cluster_info.clusters | length != 0
 
     - name: Get primary cluster info
       amazon.aws.rds_cluster_info:
@@ -37,6 +37,7 @@
       register: _result_primary_cluster_info
 
     - name: If primary cluster exists
+      when: _result_primary_cluster_info.clusters | length != 0
       block:
         - name: Delete instance attached to primary cluster if present
           amazon.aws.rds_instance:
@@ -53,7 +54,7 @@
             global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
             skip_final_snapshot: True
             state: absent
-      when: _result_primary_cluster_info.clusters | length != 0
+
 
     - name: Delete the global cluster
       amazon.cloud.rds_global_cluster:
@@ -62,14 +63,14 @@
         state: absent
       register: _result_global_cluster_delete
 
-    - name: Print success or failure
-      debug:
+    - name: Print success
+      ansible.builtin.debug:
         msg:
           - 'Global cluster {{ create_rds_global_cluster_global_cluster_name }} deleted successfully'
       when: _result_global_cluster_delete is not failed
 
-    - name: Print success or failure
-      debug:
+    - name: Print failure
+      ansible.builtin.debug:
         msg:
           - 'Global cluster {{ create_rds_global_cluster_global_cluster_name }} deletion failed'
       when: _result_global_cluster_delete is failed

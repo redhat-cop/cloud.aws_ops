@@ -16,7 +16,7 @@
   # and with AWS limitations we cannot create a replica cluster in same region as primary cluster i.e. us-east-1
   # can be run on team account
   block:
-    - name: create global db
+    - name: Create global db
       ansible.builtin.include_role:
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
@@ -67,7 +67,7 @@
 
   always:
 
-    - name: delete global db and other role infrastructure
+    - name: Delete global db and other role infrastructure
       ansible.builtin.include_role:
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
