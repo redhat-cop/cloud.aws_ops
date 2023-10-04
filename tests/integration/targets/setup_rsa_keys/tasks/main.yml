@@ -7,8 +7,6 @@
   notify: 'Delete temporary RSA key directory'
 
 - name: Generate RSA keys
-  collections:
-    - community.crypto
   community.crypto.openssh_keypair:
     path: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa"
 
