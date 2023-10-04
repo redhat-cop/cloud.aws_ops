@@ -32,6 +32,7 @@ Role Variables
 - **create_rds_global_cluster_primary_cluster_region** - Region of the primary cluster. **required**
 - **create_rds_global_cluster_primary_cluster_instance_name** - Name of the instance in primary cluster. **required**
 - **create_rds_global_cluster_primary_cluster_db_name** - The name for your database of up to 64 alphanumeric characters. If not provided, database is not created in the cluster.
+- **create_rds_global_cluster_primary_cluster_vpc_security_group_ids** - A list of EC2 VPC security groups to associate with the primary DB cluster.
 
 **Replica cluster variables**
 - **create_rds_global_cluster_replica_cluster_name** - Name of the replica (secondary) cluster. Default is create_rds_global_cluster_global_cluster_name.
@@ -39,6 +40,7 @@ Role Variables
 - **create_rds_global_cluster_replica_cluster_instance_name** - Name of the instance in secondary cluster. **required**
 - **create_rds_global_cluster_replica_enable_global_write_forwarding** - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database. Default is False. Supported only while creating new cluster. Choices include 'true', 'false, 'yes', 'no'.
 - **create_rds_global_cluster_replica_cluster_db_name** - The name for your database of up to 64 alphanumeric characters. If not provided, database is not created in the cluster.
+- **create_rds_global_cluster_replica_cluster_vpc_security_group_ids** -  A list of EC2 VPC security groups to associate with the replica DB cluster.
 
 - **create_rds_global_cluster_operation** - Choices include 'create' and 'delete' to create or delete the resources.
 
