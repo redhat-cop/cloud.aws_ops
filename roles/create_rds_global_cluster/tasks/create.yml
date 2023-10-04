@@ -18,8 +18,8 @@
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         engine: "{{ create_rds_global_cluster_engine  | default('aurora-postgresql')}}"
         engine_version: "{{ create_rds_global_cluster_engine_version }}"
-        username: "{{ create_rds_global_cluster_username }}"
-        password: "{{ create_rds_global_cluster_password }}"
+        master_username: "{{ create_rds_global_cluster_master_username }}"
+        master_user_password: "{{ create_rds_global_cluster_master_user_password }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"  # what global db cluster should be associated to
         database_name: "{{ create_rds_global_cluster_primary_cluster_db_name | default(omit) }}"
@@ -40,7 +40,6 @@
         engine_version: "{{ create_rds_global_cluster_engine_version }}"
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}" # what global db cluster should be associated to
-        database_name: "{{ create_rds_global_cluster_replica_cluster_db_name | default(omit) }}"
         enable_global_write_forwarding: "{{ create_rds_global_cluster_replica_enable_global_write_forwarding | default(omit) }}"
 
     - name: Create an instance connected to secondary cluster

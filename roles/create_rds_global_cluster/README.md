@@ -24,8 +24,8 @@ Role Variables
 - **create_rds_global_cluster_engine** - Engine of the Amazon Aurora global and rds clusters. Default is aurora-postgresql.
 - **create_rds_global_cluster_engine_version** - Engine version of the Amazon Aurora global and rds clusters.
 - **create_rds_global_cluster_instance_class** - Instance class of instance in primary and replica cluster. **required**
-- **create_rds_global_cluster_username** - Username of the rds clusters. **required**
-- **create_rds_global_cluster_password** - Password of the rds clusters. **required**
+- **create_rds_global_cluster_master_username** - Username of the rds clusters master user. **required**
+- **create_rds_global_cluster_master_user_password** - Password of the rds clusters master user. **required**
 
 **Primary cluster variables**
 - **create_rds_global_cluster_primary_cluster_name** - Name of the primary cluster. Default is $create_rds_global_cluster_global_cluster_name.
@@ -63,8 +63,8 @@ Example Playbook
         create_rds_global_cluster_engine: "{{ test_engine }}"
         create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
-        create_rds_global_cluster_username: "{{ test_username }}"
-        create_rds_global_cluster_password: "{{ test_password }}"
+        create_rds_global_cluster_master_username: "{{ test_username }}"
+        create_rds_global_cluster_master_user_password: "{{ test_password }}"
         create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
         create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
         create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
@@ -82,8 +82,8 @@ Example Playbook
         create_rds_global_cluster_engine: "{{ test_engine }}"
         create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
-        create_rds_global_cluster_username: "{{ test_username }}"
-        create_rds_global_cluster_password: "{{ test_password }}"
+        create_rds_global_cluster_master_username: "{{ test_username }}"
+        create_rds_global_cluster_master_user_password: "{{ test_password }}"
         create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
         create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
         create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
