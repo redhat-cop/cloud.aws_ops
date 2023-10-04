@@ -13,10 +13,10 @@ resource_tags:
   prefix: "{{ resource_prefix }}"
 operation: create
 
-# image_filter: Fedora-Cloud-Base-37-*
+image_filter: Fedora-Cloud-Base-35-*gp2-0
 # image_filter: RHEL-8.7.0_HVM-20221101-x86_64-0-Hourly2-GP2
 # image_filter: RHEL_HA-9.0.0_HVM-20230822-x86_64-17-Hourly2-GP2 - podman 503 error
-image_filter: RHEL_HA-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2
+#image_filter: RHEL_HA-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2
 public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_subnet_group_name: "{{ resource_prefix }}-rds-sg"
 rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
@@ -33,9 +33,10 @@ rds_listening_port: 5432
 # Variables for the deploy_flask_app role
 deploy_flask_app_sshkey_pair_name: "{{ resource_prefix }}-key"
 deploy_flask_app_bastion_host_name: "{{ resource_prefix }}-bastion"
-deploy_flask_app_bastion_host_username: ec2-user
+deploy_flask_app_bastion_host_username: fedora
 deploy_flask_app_bastion_host_required_packages:
   - python3
+  - python-virtualenv
   - sshpass
   - git
   - gcc
@@ -43,7 +44,7 @@ deploy_flask_app_bastion_host_required_packages:
   - httpd-tools
   - ansible-core
 deploy_flask_app_workers_instance_type: t3.micro
-deploy_flask_app_workers_user_name: ec2-user
+deploy_flask_app_workers_user_name: fedora
 deploy_flask_app_number_of_workers: 2
 deploy_flask_app_listening_port: 5000
 deploy_flask_app_git_repository: https://github.com/abikouo/webapp_pyflask_demo.git
@@ -72,5 +73,5 @@ test_primary_cluster_instance_name: "{{ resource_prefix }}-primary-instance"
 
 # Replica cluster parameters ================================
 test_replica_cluster_name: "{{ resource_prefix }}-replica-cluster"
-test_replica_cluster_region: us-east-1
+test_replica_cluster_region: us-east-2
 test_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"
