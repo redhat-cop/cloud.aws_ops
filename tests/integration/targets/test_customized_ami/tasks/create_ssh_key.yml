@@ -1,15 +1,9 @@
-- name: Create temporary directory to generate keys
-  ansible.builtin.tempfile:
-    state: directory
-    suffix: ssh
-  register: setup_rsa_keys__tmpdir
-  notify: 'Delete temporary RSA key directory'
+- name: Ensure module community.crypto.openssh_keypair has been loaded
+  ansible.builtin.stat:
+    path: /home/runner/collections/ansible_collections/community/crypto/plugins/modules/openssh_keypair.py
+  register: stat
 
-- name: Generate RSA keys
-  community.crypto.openssh_keypair:
-    path: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa"
-
-- name: Define path to private and public keys
-  ansible.builtin.set_fact:
-    setup_rsa_keys__public_key_file: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa.pub"
-    setup_rsa_keys__private_key_file: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa"
+- name: Fail when the module was not loaded
+  ansible.builtin.fail:
+    msg: 'missing community.crypto module'
+  when: not stat.stat.exists
