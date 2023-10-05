@@ -45,9 +45,9 @@ AWS User Account with the following permissions:
 ### Needed for the cloud.aws_ops.clone_on_prem_vm role
 
 * **clone_on_prem_vm_source_vm_name** (str): (Required) The name of the on-prem VM you want to clone.
-* **clone_on_prem_vm_image_name** (str): (Optional) The name you want to call the cloned image. If not set, the **on_prem_vm_clone_name** will be used with a _-clone_ suffix.
+* **clone_on_prem_vm_image_name** (str): (Optional) The name you want to call the cloned image. If not set, the **clone_on_prem_vm_source_vm_name** will be used with a _-clone_ suffix.
 * **clone_on_prem_vm_uri** (str): (Optional) Libvirt connection uri. Default: "qemu:///system".
-* **clone_on_prem_vm_overwrite** (bool): (Optional) Weather to overwrite or not an already existing on prem VM clone. Default: true.
+* **clone_on_prem_vm_overwrite** (bool): (Optional) Whether to overwrite or not an already existing on prem VM clone. Default: true.
 * **clone_on_prem_vm_local_image_path** (str): (Optional) The path where you would like to save the image. If the path does not exists on localhost, the role will create it. If this parameter is not set, the role will save the image in a _~/tmp_ folder.
 
 ### Needed for the cloud.aws_ops.import_image_and_run_aws_instance role

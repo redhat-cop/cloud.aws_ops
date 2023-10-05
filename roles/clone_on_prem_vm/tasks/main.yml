@@ -71,8 +71,8 @@
 
 - name: Set 'clone_on_prem_vm__clone_path' and 'clone_on_prem_vm__raw_image_path'
   ansible.builtin.set_fact:
-    clone_on_prem_vm__clone_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_dest_vm_name }}.qcow2"
-    clone_on_prem_vm__raw_image_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_dest_vm_name }}.raw"
+    clone_on_prem_vm__clone_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_image_name }}.qcow2"
+    clone_on_prem_vm__raw_image_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_image_name }}.raw"
 
 - name: Cloning {{ clone_on_prem_vm_source_vm_name }} on prem VM
   ansible.builtin.command: |
@@ -87,7 +87,7 @@
     path: "{{ clone_on_prem_vm__clone_path }}"
   register: clone_on_prem_vm__clone_info
 
-# Priviledge escalation is needed because the .qcow2 file is owned by root
+# Privilege escalation is needed because the .qcow2 file is owned by root
 # when default hypervisor is used
 - name: Convert qcow2 to raw using qemu-img with priviledge escalation
   ansible.builtin.command: |
