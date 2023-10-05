@@ -1,5 +1,5 @@
 ---
-- name: Test role 'customized_ami'
+- name: Test role 'customized_ami' with environment update and delete
   vars:
     custom_ami_ec2_instance_type: t2.micro
     custom_ami_public_key_file: "{{ setup_rsa_keys__public_key_file }}"
