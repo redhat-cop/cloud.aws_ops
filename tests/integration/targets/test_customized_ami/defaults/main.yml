@@ -8,4 +8,4 @@ ami_security_group: "security-group-{{ resource_prefix }}"
 ami_security_group_desc: "Allow connection to instance via SSH port"
 ami_key_name: "key-{{ resource_prefix }}"
 ami_user_name: fedora
-ami_ec2_instance_type: t2.micro
+ami_ec2_instance_type: t2.medium
