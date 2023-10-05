@@ -53,7 +53,7 @@ jobs:
     if: ${{ needs.splitter.outputs.test_targets != '' }}
     env:
       source: "./source"
-      ansible_version: "stable-2.14"
+      ansible_version: "milestone"
       python_version: "3.9"
     strategy:
       fail-fast: false
@@ -83,12 +83,21 @@ jobs:
           path: ${{ env.source }}
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Pre install collections dependencies first so the collection install does not
+      - name: Set up Python ${{ env.python_version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python_version }}
+
+      # install ansible
+      - name: Install ansible-core (${{ env.ansible_version }})
         run: >-
-          ansible-galaxy collection install
-          --pre "-r${{ env.source }}/tests/integration/requirements.yml"
-          -p /home/runner/collections/
+          python3 -m pip install
+          https://github.com/ansible/ansible/archive/${{ env.ansible_version }}.tar.gz
+          --disable-pip-version-check
         shell: bash
+
+      - name: Pre install collections dependencies first so the collection install does not
+        run: ansible-galaxy collection install --pre '-r${{ env.source }}/tests/integration/requirements.yml' -p /home/runner/collections/
 
       - name: Build and install collection
         id: install
