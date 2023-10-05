@@ -90,6 +90,14 @@ jobs:
           -p /home/runner/collections/
         shell: bash
 
+      - name: List collection installed
+        run: |
+          ls /home/runner/collections/ansible_collections/community/crypto
+          ls /home/runner/collections/ansible_collections/community/general
+          ls /home/runner/collections/ansible_collections/community/aws
+          ls /home/runner/collections/ansible_collections/amazon/aws
+        shell: bash
+
       - name: Build and install collection
         id: install
         uses: ansible-network/github_actions/.github/actions/build_install_collection@main
