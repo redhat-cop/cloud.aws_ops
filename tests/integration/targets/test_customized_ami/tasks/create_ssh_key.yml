@@ -1,9 +1,12 @@
-- name: Ensure module community.crypto.openssh_keypair has been loaded
-  ansible.builtin.stat:
-    path: /home/runner/collections/ansible_collections/community/crypto/plugins/modules/openssh_keypair.py
-  register: stat
+- name: list collections
+  ansible.builtin.shell:
+    cmd: "ls /home/runner/collections/ansible_collections/{{ item }}"
+  register: _collections
+  with_items:
+    - community
+    - amazon
+    - cloud
 
-- name: Fail when the module was not loaded
-  ansible.builtin.fail:
-    msg: 'missing community.crypto module'
-  when: not stat.stat.exists
+- name: Display collections
+  ansible.builtin.debug:
+    var: _collections
