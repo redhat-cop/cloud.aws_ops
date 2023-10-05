@@ -1,4 +1,7 @@
 ---
+- name: Create ssh key on localhost
+  ansible.builtin.include_tasks: create_ssh_key.yml
+
 - name: Test role 'customized_ami'
   vars:
     custom_ami_ec2_instance_type: t2.micro
