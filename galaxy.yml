@@ -19,7 +19,6 @@ tags:
 dependencies:
   amazon.aws: '>=5.1.0'
   community.aws: '>=5.0.0'
-  community.crypto: '>=2.15.1'
 version: 1.0.3
 build_ignore:
   - .DS_Store
