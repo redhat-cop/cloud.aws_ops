@@ -10,3 +10,6 @@
 - name: Display collections
   ansible.builtin.debug:
     var: _collections
+
+- fail:
+    msg: "Exist here for test"
