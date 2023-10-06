@@ -2,7 +2,7 @@
 # Variables for create.yaml
 # aws_region: us-west-2
 dest_region: us-east-2
-resource_prefix: "ansible-test-gosriniv"
+resource_prefix: "ansible-test"
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16
 subnet_cidr:
