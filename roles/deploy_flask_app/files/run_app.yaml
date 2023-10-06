@@ -20,11 +20,6 @@
         - regex: ^(# *)?ClientAliveCountMax
           line: ClientAliveCountMax 3
 
-   # - name: Enable EPEL
-   #   ansible.builtin.package:
-   #     name:
-   #       - epel-release
-
     - name: Install Podman
       ansible.builtin.yum:
         name:

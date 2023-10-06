@@ -20,12 +20,6 @@
           line: ClientAliveCountMax 3
       become: true
 
-#    - name: Enable EPEL
-#      ansible.builtin.package:
-#        name:
-#          - epel-release
-#      become: true
-
     - name: Install required packages
       ansible.builtin.yum:
         name: "{{ deploy_flask_app_bastion_host_required_packages }}"

@@ -11,8 +11,8 @@
         filters:
           group-name: "{{ rds_secgroup_name }}"
         region: "{{ test_primary_cluster_region }}"
-      register: rds_primary_sg 
-      
+      register: rds_primary_sg
+
     - name: Create rds global database
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ test_global_cluster_name }}"
@@ -30,7 +30,7 @@
         region: "{{ test_primary_cluster_region }}"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
-        #enable_global_write_forwarding: True
+        # enable_global_write_forwarding: true
         master_user_password: "{{ deploy_flask_app_rds_master_password }}"
         master_username: "{{ deploy_flask_app_rds_master_username }}"
         db_subnet_group_name: "{{ rds_subnet_group_name }}"
@@ -78,7 +78,7 @@
         filters:
           group-name: "{{ rds_secgroup_name }}"
         region: "{{ test_replica_cluster_region }}"
-      register: rds_replica_sg 
+      register: rds_replica_sg
 
     - name: Create a replica cluster for global database
       amazon.aws.rds_cluster:
@@ -86,8 +86,8 @@
         db_cluster_identifier: "{{ test_replica_cluster_name }}"
         db_subnet_group_name: "{{ rds_subnet_group_name }}"
         engine: "{{ rds_engine }}"
-        engine_version: "{{ global_cluster_info.GlobalClusters[0].EngineVersion }}" # replica cluster engine version needs to be exact same as global db engine version
-        #enable_global_write_forwarding: True
+        engine_version: "{{ global_cluster_info.GlobalClusters[0].EngineVersion }}"  # replica cluster engine version needs to be exact same as global db engine version
+        # enable_global_write_forwarding: true
         vpc_security_group_ids:
           - "{{ rds_replica_sg.security_groups[0].group_id }}"
         region: "{{ test_replica_cluster_region }}"

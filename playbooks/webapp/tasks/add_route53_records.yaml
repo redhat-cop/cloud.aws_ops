@@ -1,0 +1,68 @@
+---
+- name: Add Route53 configurations
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+  block:
+
+    - name: Add route53 health check for the load balancer in primary region
+      amazon.aws.route53_health_check:
+        health_check_name: "healthchk-lb-primary"
+        fqdn: "{{ primary_lb.elb.dns_name }}"
+        port: 5000
+        type: HTTP
+        use_unique_names: true
+        state: present
+      register: healthchk_primary_result
+
+    - name: Add route53 health check for the load balancer in replica region
+      amazon.aws.route53_health_check:
+        health_check_name: "healthchk-lb-replica"
+        fqdn: "{{ replica_lb.elb.dns_name }}"
+        port: 5000
+        type: HTTP
+        use_unique_names: true
+        state: present
+      register: healthchk_replica_result
+
+    - name: Pause for 30 secs for the health check status to be in sync
+      ansible.builtin.pause:
+        seconds: 30
+
+    - name: Add an alias record that points to an aws ELB in the primary region
+      amazon.aws.route53:
+        state: present
+        zone: "{{ route53_zone_name }}"
+        record: "{{route53_subdomain }}.{{ route53_zone_name }}"
+        type: A
+        value: "{{ primary_lb.elb.dns_name }}"
+        alias: True
+        identifier: "primary-record"
+        failover: "PRIMARY"
+        health_check: "{{ healthchk_primary_result.health_check.id }}"
+        alias_hosted_zone_id: "{{ primary_lb.elb.hosted_zone_id }}"
+      register: alias_record_primary_result
+
+    - name: Add an alias record that points to an aws ELB in the replica region
+      amazon.aws.route53:
+        state: present
+        zone: "{{ route53_zone_name }}"
+        record: "{{route53_subdomain }}.{{ route53_zone_name }}"
+        type: A
+        value: "{{ replica_lb.elb.dns_name }}"
+        alias: True
+        identifier: "replica-record"
+        failover: "SECONDARY"
+        health_check: "{{ healthchk_replica_result.health_check.id }}"
+        alias_hosted_zone_id: "{{ replica_lb.elb.hosted_zone_id }}"
+      register: alias_record_replica_result
+
+    - name: Pause for 30 secs for the alias records to be active
+      ansible.builtin.pause:
+        seconds: 30
+
+    - name: Get Application URL
+      ansible.builtin.debug:
+        msg: "Application url: {{ route53_subdomain }}.{{ route53_zone_name }}:{{ deploy_flask_app_listening_port }}"

@@ -12,12 +12,10 @@
         - name: Create resources in primary region
           ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
           vars:
-            region: "{{ test_primary_cluster_region }}"
-
-        - name: Create resources in replica region
-          ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
-          vars:
-            region: "{{ test_replica_cluster_region }}"
+            region: "{{ item }}"
+          with_items:
+            - "{{ test_primary_cluster_region }}"
+            - "{{ test_replica_cluster_region }}"
 
         - name: Create  Aurora db cluster
           ansible.builtin.import_tasks: tasks/create_aurora_db_cluster.yaml
@@ -36,6 +34,7 @@
           amazon.aws.ec2_vpc_subnet_info:
             filters:
               vpc-id: "{{ primary_vpc.vpcs[0].id }}"
+              cidr: "{{ subnet_cidr[1] }}"
             region: "{{ test_primary_cluster_region }}"
           register: primary_private_subnet
 
@@ -56,6 +55,10 @@
             deploy_flask_app_vm_info: "{{ primary_vm_result }}"
             deploy_flask_app_rds_info: "{{ primary_instance_info_result }}"
             deploy_flask_app_region: "{{ test_primary_cluster_region }}"
+
+        - name: Get load balancer name from the primary region
+          ansible.builtin.set_fact:
+            primary_lb: "{{ deploy_flask_app_lb_result }}"
 
         # ================= Deploy App in the replica region =================
 
@@ -78,11 +81,9 @@
           amazon.aws.ec2_vpc_subnet_info:
             filters:
               vpc-id: "{{ replica_vpc.vpcs[0].id }}"
+              cidr: "{{ subnet_cidr[1] }}"
             region: "{{ test_replica_cluster_region }}"
           register: replica_private_subnet
-
-        - debug:
-            msg: "Replica : {{ test_replica_cluster_region }}"
 
         - name: Deploy app in replica region
           ansible.builtin.include_role:
@@ -94,6 +95,12 @@
             deploy_flask_app_rds_info: "{{ replica_instance_info_result }}"
             deploy_flask_app_region: "{{ test_replica_cluster_region }}"
 
+        - name: Get load balancer name from the replica region
+          ansible.builtin.set_fact:
+            replica_lb: "{{ deploy_flask_app_lb_result }}"
+
+        - name: Add Route53 configurations
+          ansible.builtin.include_tasks: tasks/add_route53_records.yaml
 
     # ================================================================================
 

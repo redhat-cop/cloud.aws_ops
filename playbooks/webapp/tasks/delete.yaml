@@ -57,6 +57,7 @@
               register: running
 
             - name: Delete workers
+              when: running.instances | length != 0
               amazon.aws.ec2_instance:
                 instance_ids: "{{ running.instances | map(attribute='instance_id') | list }}"
                 wait: true
@@ -85,20 +86,6 @@
           amazon.aws.rds_subnet_group:
             name: "{{ rds_subnet_group_name }}"
             state: absent
-          ignore_errors: true
-
-        - name: List Security group from VPC
-          amazon.aws.ec2_security_group_info:
-            filters:
-              vpc-id: "{{ vpc_id }}"
-              tag:prefix: "{{ resource_prefix }}"
-          register: secgroups
-
-        - name: Delete security groups
-          amazon.aws.ec2_security_group:
-            state: absent
-            group_id: "{{ item }}"
-          with_items: "{{ secgroups.security_groups | map(attribute='group_id') | list }}"
           ignore_errors: true
 
         - name: List routes table from VPC

@@ -59,4 +59,3 @@
         engine_version: "{{ rds_engine_version }}"
         region: "{{ test_primary_cluster_region }}"
         state: absent
-    

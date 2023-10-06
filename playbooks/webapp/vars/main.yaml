@@ -2,7 +2,7 @@
 # Variables for create.yaml
 # aws_region: us-west-2
 dest_region: us-east-2
-resource_prefix: "ansible-test"
+resource_prefix: "ansible-test-gosriniv"
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16
 subnet_cidr:
@@ -16,7 +16,7 @@ operation: create
 image_filter: Fedora-Cloud-Base-35-*gp2-0
 # image_filter: RHEL-8.7.0_HVM-20221101-x86_64-0-Hourly2-GP2
 # image_filter: RHEL_HA-9.0.0_HVM-20230822-x86_64-17-Hourly2-GP2 - podman 503 error
-#image_filter: RHEL_HA-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2
+# image_filter: RHEL_HA-9.2.0_HVM-20230905-x86_64-38-Hourly2-GP2
 public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_subnet_group_name: "{{ resource_prefix }}-rds-sg"
 rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
@@ -64,7 +64,6 @@ deploy_flask_app_rds_master_username: ansible
 test_instance_class: db.r5.large
 # Global cluster parameters ================================
 test_global_cluster_name: "{{ resource_prefix }}-global-cluster"
-aurora_listening_port: 3306
 
 # Primary cluster parameters ================================
 test_primary_cluster_name: "{{ resource_prefix }}-primary-cluster"
@@ -75,3 +74,7 @@ test_primary_cluster_instance_name: "{{ resource_prefix }}-primary-instance"
 test_replica_cluster_name: "{{ resource_prefix }}-replica-cluster"
 test_replica_cluster_region: us-east-2
 test_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"
+
+# vars for route53 records
+route53_zone_name: "ansiblecloud.xyz"
+route53_subdomain: "flaskapp"
