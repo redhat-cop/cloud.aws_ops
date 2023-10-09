@@ -18,6 +18,7 @@ tags:
   - cluster
 dependencies:
   amazon.aws: '>=5.1.0'
+  amazon.cloud: '>=0.4.0'
   community.aws: '>=5.0.0'
   amazon.cloud: '>=0.4.0'
 version: 1.0.3
