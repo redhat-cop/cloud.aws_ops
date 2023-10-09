@@ -24,12 +24,12 @@ Role Variables
 * **customized_ami_source_ami_user_name** (str) - User name to connect to EC2 instance used to create custom AMI. Default value is **ec2-user**. Default: 'fedora'.
 * **customized_ami_vpc_cidr** (str) - VPC CIDR for the ec2 instance. Default: '10.1.0.0/16'
 * **customized_ami_subnet_cidr** (str) - Subnet CIDR for the ec2 instance. Default: '10.1.0.0/24'
-* **customized_ami_ec2_instance_name** (str) - Name of EC2 instance. Default: '{{ custom_ami_name }}-ec2'
+* **customized_ami_ec2_instance_name** (str) - Name of EC2 instance. Default: '{{ customized_ami_name }}-ec2'
 * **customized_ami_ec2_instance_type** (str) - EC2 instance type. Default: 't2.large'
-* **customized_ami_resource_tags** (dict) - Resouce tags. Default: '{'role': 'customized_ami', 'customized_ami_name': '{{ custom_ami_name }}'}.
-* **custom_ami_vpc_name** (str) - Name of VPC. Default: 'vpc-{{ custom_ami_name }}'
-* **custom_ami_security_group** (str) - Name of Security Group. Default: 'security-{{ custom_ami_name }}'
-* **customized_ami_key_name** (str) - Name of the key pair. Default: 'key-{{ custom_ami_name }}'
+* **customized_ami_resource_tags** (dict) - Resouce tags. Default: '{'role': 'customized_ami', 'customized_ami_name': '{{ customized_ami_name }}'}.
+* **custom_ami_vpc_name** (str) - Name of VPC. Default: 'vpc-{{ customized_ami_name }}'
+* **custom_ami_security_group** (str) - Name of Security Group. Default: 'security-{{ customized_ami_name }}'
+* **customized_ami_key_name** (str) - Name of the key pair. Default: 'key-{{ customized_ami_name }}'
 * **customized_ami_public_key_file** (str) - Name of the public key file. Default: '~/.ssh/id_rsa.pub'
 * **customized_ami_private_key_file** (str) - Name of the private key file. Default: '~/.ssh/id_rsa'
 * **customized_ami_security_group_desc** (str) - Description of Security Group. Default: 'Security group allowing SSH connection to EC2 instance'

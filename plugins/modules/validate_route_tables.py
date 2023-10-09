@@ -68,48 +68,48 @@ EXAMPLES = r"""
 - name: Evaluate routes from EC2 instance to RDS Instance
   cloud.aws_ops.validate_route_tables:
     dest_subnets:
-        - assign_ipv6_address_on_creation: false
-          availability_zone: "eu-west-2b"
-          availability_zone_id: "euw2-az3"
-          available_ip_address_count: 250
-          cidr_block: "172.10.2.0/24"
-          default_for_az: false
-          enable_dns64: false
-          id: "subnet-032f1a2598b6318ed"
-          ipv6_cidr_block_association_set: []
-          ipv6_native: false
-          map_customer_owned_ip_on_launch: false
-          map_public_ip_on_launch: false
-          owner_id: "00000000000"
-          private_dns_name_options_on_launch:
-            enable_resource_name_dns_a_record: false
-            enable_resource_name_dns_aaaa_record: false
-            hostname_type: "ip-name"
-          state: "available"
-          subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-032f1a2598b6318ed"
-          subnet_id: "subnet-032f1a2598b6318ed"
-          vpc_id: "vpc-0274c44deffd7368a"
-        - assign_ipv6_address_on_creation: false
-          availability_zone: "eu-west-2a"
-          availability_zone_id: "euw2-az2"
-          available_ip_address_count: 250
-          cidr_block: "172.10.1.0/24"
-          default_for_az: false
-          enable_dns64: false
-          id: "subnet-0af56e0d353f88cb8"
-          ipv6_cidr_block_association_set: []
-          ipv6_native: false
-          map_customer_owned_ip_on_launch: false
-          map_public_ip_on_launch: false
-          owner_id: "00000000000"
-          private_dns_name_options_on_launch:
-            enable_resource_name_dns_a_record: false
-            enable_resource_name_dns_aaaa_record: false
-            hostname_type: "ip-name"
-          state: "available"
-          subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-0af56e0d353f88cb8"
-          subnet_id: "subnet-0af56e0d353f88cb8"
-          vpc_id: "vpc-0274c44deffd7368a"
+      - assign_ipv6_address_on_creation: false
+        availability_zone: "eu-west-2b"
+        availability_zone_id: "euw2-az3"
+        available_ip_address_count: 250
+        cidr_block: "172.10.2.0/24"
+        default_for_az: false
+        enable_dns64: false
+        id: "subnet-032f1a2598b6318ed"
+        ipv6_cidr_block_association_set: []
+        ipv6_native: false
+        map_customer_owned_ip_on_launch: false
+        map_public_ip_on_launch: false
+        owner_id: "00000000000"
+        private_dns_name_options_on_launch:
+          enable_resource_name_dns_a_record: false
+          enable_resource_name_dns_aaaa_record: false
+          hostname_type: "ip-name"
+        state: "available"
+        subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-032f1a2598b6318ed"
+        subnet_id: "subnet-032f1a2598b6318ed"
+        vpc_id: "vpc-0274c44deffd7368a"
+      - assign_ipv6_address_on_creation: false
+        availability_zone: "eu-west-2a"
+        availability_zone_id: "euw2-az2"
+        available_ip_address_count: 250
+        cidr_block: "172.10.1.0/24"
+        default_for_az: false
+        enable_dns64: false
+        id: "subnet-0af56e0d353f88cb8"
+        ipv6_cidr_block_association_set: []
+        ipv6_native: false
+        map_customer_owned_ip_on_launch: false
+        map_public_ip_on_launch: false
+        owner_id: "00000000000"
+        private_dns_name_options_on_launch:
+          enable_resource_name_dns_a_record: false
+          enable_resource_name_dns_aaaa_record: false
+          hostname_type: "ip-name"
+        state: "available"
+        subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-0af56e0d353f88cb8"
+        subnet_id: "subnet-0af56e0d353f88cb8"
+        vpc_id: "vpc-0274c44deffd7368a"
     dest_route_tables:
       - associations:
           - association_state:
