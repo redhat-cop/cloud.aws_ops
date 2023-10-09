@@ -89,7 +89,7 @@
 
 # Privilege escalation is needed because the .qcow2 file is owned by root
 # when default hypervisor is used
-- name: Convert qcow2 to raw using qemu-img with priviledge escalation
+- name: Convert qcow2 to raw using qemu-img with privilege escalation
   ansible.builtin.command: |
           qemu-img convert -f qcow2 -O raw \
                           {{ clone_on_prem_vm__clone_path }} \
