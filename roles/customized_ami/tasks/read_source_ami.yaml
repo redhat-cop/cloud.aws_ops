@@ -1,11 +1,11 @@
 ---
 - name: Set source AMI
   ansible.builtin.set_fact:
-    customized_ami__source_ami_image_id: "{{ source_ami_image_id }}"
-  when: source_ami_image_id is defined
+    customized_ami__source_ami_image_id: "{{ customized_ami_source_ami_image_id }}"
+  when: customized_ami_source_ami_image_id is defined
 
 - name: Define source AMI image id when not supplied as input
-  when: source_ami_image_id is undefined
+  when: customized_ami_source_ami_image_id is undefined
   block:
     - name: Get source AMI image ID using filters
       amazon.aws.ec2_ami_info:

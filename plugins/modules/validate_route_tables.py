@@ -111,146 +111,145 @@ EXAMPLES = r"""
           subnet_id: "subnet-0af56e0d353f88cb8"
           vpc_id: "vpc-0274c44deffd7368a"
     dest_route_tables:
-        - associations:
-            - association_state:
-                state: "associated"
-              id: "rtbassoc-0c5c333773772843b"
-              main: false
-              route_table_association_id: "rtbassoc-0c5c333773772843b"
-              route_table_id: "rtb-07a81d1afe14a009c"
-              subnet_id: "subnet-0ab63680e1e0316e2"
-          id: "rtb-07a81d1afe14a009c"
-          owner_id: "721066863947"
-          propagating_vgws: []
-          route_table_id: "rtb-07a81d1afe14a009c"
-          routes:
-            - destination_cidr_block: "10.1.0.0/16"
-              gateway_id: "local"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRouteTable"
-              state: "active"
-            - destination_cidr_block: "0.0.0.0/0"
-              gateway_id: "igw-057753b539008784c"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRoute"
-              state": "active"
-          vpc_id: "vpc-0bee28efef41e1de4"
+      - associations:
+          - association_state:
+              state: "associated"
+            id: "rtbassoc-0c5c333773772843b"
+            main: false
+            route_table_association_id: "rtbassoc-0c5c333773772843b"
+            route_table_id: "rtb-07a81d1afe14a009c"
+            subnet_id: "subnet-0ab63680e1e0316e2"
+        id: "rtb-07a81d1afe14a009c"
+        owner_id: "721066863947"
+        propagating_vgws: []
+        route_table_id: "rtb-07a81d1afe14a009c"
+        routes:
+          - destination_cidr_block: "10.1.0.0/16"
+            gateway_id: "local"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRouteTable"
+            state: "active"
+          - destination_cidr_block: "0.0.0.0/0"
+            gateway_id: "igw-057753b539008784c"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRoute"
+            state": "active"
+        vpc_id: "vpc-0bee28efef41e1de4"
     dest_vpc_route_tables:
-        - associations:
-            - association_state:
-                state: "associated"
-              id: "rtbassoc-0c5c333773772843b"
-              main: false
-              route_table_association_id: "rtbassoc-0c5c333773772843b"
-              route_table_id: "rtb-07a81d1afe14a009c"
-              subnet_id: "subnet-0ab63680e1e0316e2"
-          id: "rtb-07a81d1afe14a009c"
-          owner_id: "721066863947"
-          propagating_vgws: []
-          route_table_id: "rtb-07a81d1afe14a009c"
-          routes:
-            - destination_cidr_block: "10.1.0.0/16"
-              gateway_id: "local"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRouteTable"
-              state: "active"
-            - destination_cidr_block: "0.0.0.0/0"
-              gateway_id: "igw-057753b539008784c"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRoute"
-              state": "active"
-          vpc_id: "vpc-0bee28efef41e1de4"
+      - associations:
+          - association_state:
+              state: "associated"
+            id: "rtbassoc-0c5c333773772843b"
+            main: false
+            route_table_association_id: "rtbassoc-0c5c333773772843b"
+            route_table_id: "rtb-07a81d1afe14a009c"
+            subnet_id: "subnet-0ab63680e1e0316e2"
+        id: "rtb-07a81d1afe14a009c"
+        owner_id: "721066863947"
+        propagating_vgws: []
+        route_table_id: "rtb-07a81d1afe14a009c"
+        routes:
+          - destination_cidr_block: "10.1.0.0/16"
+            gateway_id: "local"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRouteTable"
+            state: "active"
+          - destination_cidr_block: "0.0.0.0/0"
+            gateway_id: "igw-057753b539008784c"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRoute"
+            state": "active"
+        vpc_id: "vpc-0bee28efef41e1de4"
     src_subnets:
-        - assign_ipv6_address_on_creation: false
-          availability_zone: "eu-west-2a"
-          availability_zone_id: "euw2-az2"
-          available_ip_address_count: 250
-          cidr_block: "172.10.1.0/24"
-          default_for_az: false
-          enable_dns64: false
-          id: "subnet-0af56e0d353f88cb8"
-          ipv6_cidr_block_association_set: []
-          ipv6_native: false
-          map_customer_owned_ip_on_launch: false
-          map_public_ip_on_launch: false
-          owner_id: "00000000000"
-          private_dns_name_options_on_launch:
-            enable_resource_name_dns_a_record: false
-            enable_resource_name_dns_aaaa_record": false
-            hostname_type: "ip-name"
-          state: "available"
-          subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-0af56e0d353f88cb8"
-          subnet_id: "subnet-0af56e0d353f88cb8"
-          vpc_id: "vpc-0274c44deffd7368a"
+      - assign_ipv6_address_on_creation: false
+        availability_zone: "eu-west-2a"
+        availability_zone_id: "euw2-az2"
+        available_ip_address_count: 250
+        cidr_block: "172.10.1.0/24"
+        default_for_az: false
+        enable_dns64: false
+        id: "subnet-0af56e0d353f88cb8"
+        ipv6_cidr_block_association_set: []
+        ipv6_native: false
+        map_customer_owned_ip_on_launch: false
+        map_public_ip_on_launch: false
+        owner_id: "00000000000"
+        private_dns_name_options_on_launch:
+          enable_resource_name_dns_a_record: false
+          enable_resource_name_dns_aaaa_record": false
+          hostname_type: "ip-name"
+        state: "available"
+        subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-0af56e0d353f88cb8"
+        subnet_id: "subnet-0af56e0d353f88cb8"
+        vpc_id: "vpc-0274c44deffd7368a"
     src_private_ip:
-        - 172.0.1.4
+      - 172.0.1.4
     src_route_tables:
-        - associations:
-            - association_state:
-                state: "associated"
-              id: "rtbassoc-0c5c333773772843b"
-              main: false
-              route_table_association_id: "rtbassoc-0c5c333773772843b"
-              route_table_id: "rtb-07a81d1afe14a009c"
-              subnet_id: "subnet-0ab63680e1e0316e2"
-          id: "rtb-07a81d1afe14a009c"
-          owner_id: "721066863947"
-          propagating_vgws: []
-          route_table_id: "rtb-07a81d1afe14a009c"
-          routes:
-            - destination_cidr_block: "10.1.0.0/16"
-              gateway_id: "local"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRouteTable"
-              state: "active"
-            - destination_cidr_block: "0.0.0.0/0"
-              gateway_id: "igw-057753b539008784c"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRoute"
-              state: "active"
-          vpc_id: "vpc-0bee28efef41e1de4"
+      - associations:
+          - association_state:
+              state: "associated"
+            id: "rtbassoc-0c5c333773772843b"
+            main: false
+            route_table_association_id: "rtbassoc-0c5c333773772843b"
+            route_table_id: "rtb-07a81d1afe14a009c"
+            subnet_id: "subnet-0ab63680e1e0316e2"
+        id: "rtb-07a81d1afe14a009c"
+        owner_id: "721066863947"
+        propagating_vgws: []
+        route_table_id: "rtb-07a81d1afe14a009c"
+        routes:
+          - destination_cidr_block: "10.1.0.0/16"
+            gateway_id: "local"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRouteTable"
+            state: "active"
+          - destination_cidr_block: "0.0.0.0/0"
+            gateway_id: "igw-057753b539008784c"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRoute"
+            state: "active"
+        vpc_id: "vpc-0bee28efef41e1de4"
     src_vpc_route_tables:
-        - associations:
-            - association_state:
-                state: "associated"
-              id: "rtbassoc-0c5c333773772843b"
-              main: false
-              route_table_association_id: "rtbassoc-0c5c333773772843b"
-              route_table_id: "rtb-07a81d1afe14a009c"
-              subnet_id: "subnet-0ab63680e1e0316e2"
-          id: "rtb-07a81d1afe14a009c"
-          owner_id: "721066863947"
-          propagating_vgws: []
-          route_table_id: "rtb-07a81d1afe14a009c"
-          routes:
-            - destination_cidr_block: "10.1.0.0/16"
-              gateway_id: "local"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRouteTable"
-              state: "active"
-            - destination_cidr_block: "0.0.0.0/0"
-              gateway_id: "igw-057753b539008784c"
-              instance_id: null
-              interface_id: null
-              network_interface_id: null
-              origin: "CreateRoute"
-              state: "active"
-          vpc_id: "vpc-0bee28efef41e1de4"
-
+      - associations:
+          - association_state:
+              state: "associated"
+            id: "rtbassoc-0c5c333773772843b"
+            main: false
+            route_table_association_id: "rtbassoc-0c5c333773772843b"
+            route_table_id: "rtb-07a81d1afe14a009c"
+            subnet_id: "subnet-0ab63680e1e0316e2"
+        id: "rtb-07a81d1afe14a009c"
+        owner_id: "721066863947"
+        propagating_vgws: []
+        route_table_id: "rtb-07a81d1afe14a009c"
+        routes:
+          - destination_cidr_block: "10.1.0.0/16"
+            gateway_id: "local"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRouteTable"
+            state: "active"
+          - destination_cidr_block: "0.0.0.0/0"
+            gateway_id: "igw-057753b539008784c"
+            instance_id: null
+            interface_id: null
+            network_interface_id: null
+            origin: "CreateRoute"
+            state: "active"
+        vpc_id: "vpc-0bee28efef41e1de4"
 """
 
 RETURN = r"""
