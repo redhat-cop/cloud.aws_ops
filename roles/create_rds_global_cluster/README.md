@@ -10,7 +10,7 @@ Creates following resources
 4. Replica (secondary) Cluster - Secondary cluster in specified region (create_rds_global_cluster_replica_cluster_region).
 5. Replica Cluster Instance - Instance in the replica cluster.
 
-Please refer `Role Variables` for varialbes and usage.
+Please refer `Role Variables` for variables and usage.
 
 Requirements
 ------------
@@ -33,13 +33,13 @@ Role Variables
 - **create_rds_global_cluster_primary_cluster_instance_name** - Name of the instance in primary cluster. **required**
 - **create_rds_global_cluster_primary_cluster_db_name** - The name for your database of up to 64 alphanumeric characters. If not provided, database is not created in the cluster.
 - **create_rds_global_cluster_primary_cluster_vpc_security_group_ids** - A list of EC2 VPC security groups to associate with the primary DB cluster.
+- **create_rds_global_cluster_db_subnet_group_name** - A DB subnet group to associate with this DB cluster if not using the default.
 
 **Replica cluster variables**
 - **create_rds_global_cluster_replica_cluster_name** - Name of the replica (secondary) cluster. Default is create_rds_global_cluster_global_cluster_name.
 - **create_rds_global_cluster_replica_cluster_region** - Region of the replica (secondary) cluster. **required**
 - **create_rds_global_cluster_replica_cluster_instance_name** - Name of the instance in secondary cluster. **required**
 - **create_rds_global_cluster_replica_enable_global_write_forwarding** - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database. Default is False. Supported only while creating new cluster. Choices include 'true', 'false, 'yes', 'no'.
-- **create_rds_global_cluster_replica_cluster_db_name** - The name for your database of up to 64 alphanumeric characters. If not provided, database is not created in the cluster.
 - **create_rds_global_cluster_replica_cluster_vpc_security_group_ids** -  A list of EC2 VPC security groups to associate with the replica DB cluster.
 
 - **create_rds_global_cluster_operation** - Choices include 'create' and 'delete' to create or delete the resources.
@@ -81,11 +81,6 @@ Example Playbook
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: delete
-        create_rds_global_cluster_engine: "{{ test_engine }}"
-        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
-        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
-        create_rds_global_cluster_master_username: "{{ test_username }}"
-        create_rds_global_cluster_master_user_password: "{{ test_password }}"
         create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
         create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
         create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
@@ -93,7 +88,6 @@ Example Playbook
         create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
         create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
         create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
-        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
 ```
 
 License
