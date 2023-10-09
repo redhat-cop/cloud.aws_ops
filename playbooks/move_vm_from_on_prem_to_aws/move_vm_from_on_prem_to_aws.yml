@@ -30,7 +30,7 @@
         clone_on_prem_vm_uri: "{{ clone_on_prem_vm_uri }}"
         clone_on_prem_vm_local_image_path: "{{ clone_on_prem_vm_local_image_path }}"
         clone_on_prem_vm_overwrite: "{{ clone_on_prem_vm_overwrite }}"
-      delegate_to: kvm
+      delegate_to: all
 
     - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
       ansible.builtin.import_role:
