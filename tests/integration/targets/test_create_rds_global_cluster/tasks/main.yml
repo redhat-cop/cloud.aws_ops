@@ -72,11 +72,6 @@
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: delete
-        create_rds_global_cluster_engine: "{{ test_engine }}"
-        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
-        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
-        create_rds_global_cluster_master_username: "{{ test_username }}"
-        create_rds_global_cluster_master_user_password: "{{ test_password }}"
         create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
         create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
         create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
@@ -84,4 +79,3 @@
         create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
         create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
         create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
-        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
