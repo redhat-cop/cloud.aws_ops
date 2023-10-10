@@ -30,6 +30,7 @@ Name | Description
 [cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API gateway with lambda function integration.
 [cloud.aws_ops.manage_transit_gateway](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/manage_transit_gateway/README.md)|A role to create/delete transit_gateway with vpc and vpn attachments.
 [cloud.aws_ops.deploy_flask_app](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/deploy_flask_app/README.md)|A role to deploy a flask web application on AWS.
+[cloud.aws_ops.create_rds_global_cluster](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/create_rds_global_cluster/README.md)|A role to create, delete aurora global cluster with a primary cluster and a replica cluster in different regions.
 
 ### Playbooks
 Name | Description
