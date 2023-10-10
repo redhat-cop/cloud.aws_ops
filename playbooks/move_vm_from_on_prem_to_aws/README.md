@@ -9,7 +9,7 @@ This playbook uses the ``cloud.aws_ops.clone_on_prem_vm`` role to clone an exist
 
 ## Playbook Variables
 
-For a fullo list of accepted variables see: [clone_on_prem_vm](../clone_on_prem_vm/README.md#Role-Variables) and respectively [import_image_and_run_aws_instance](../roles/import_image_and_run_aws_instance/REAME.md#Role-Variables).
+For a full list of accepted variables see: [clone_on_prem_vm](../clone_on_prem_vm/README.md#Role-Variables) and respectively [import_image_and_run_aws_instance](../roles/import_image_and_run_aws_instance/REAME.md#Role-Variables).
 
 ## Example Usage
 
@@ -39,5 +39,5 @@ All the variables defined in section ``Playbook Variables`` can be defined insid
 Run the playbook:
 
 ```shell
-ansible-playbook cloud.gcp_ops.move_vm_from_on_prem_to_aws -e "@credentials.yml - i inventory.yml"
+ansible-playbook cloud.aws_ops.move_vm_from_on_prem_to_aws -e "@credentials.yml" -i inventory.yml
 ```
