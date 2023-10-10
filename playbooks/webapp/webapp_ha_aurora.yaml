@@ -12,17 +12,19 @@
         - name: Create resources in primary region
           ansible.builtin.include_tasks: tasks/create_aurora_setup.yaml
           vars:
-            region: "{{ item }}"
-          with_items:
+            region: "{{ creation_region }}"
+          loop:
             - "{{ test_primary_cluster_region }}"
             - "{{ test_replica_cluster_region }}"
+          loop_control:
+            loop_var: creation_region
 
         - name: Create  Aurora db cluster
           ansible.builtin.import_tasks: tasks/create_aurora_db_cluster.yaml
-          vars:
-            rds_engine: "aurora-postgresql"
 
         # ================= Deploy App in the primary region =================
+
+
         - name: Get VPC info from primary region
           amazon.aws.ec2_vpc_net_info:
             filters:
@@ -104,17 +106,32 @@
 
     # ================================================================================
 
-    - name: Delete instance from source region
+    - name: Delete resources
       when: operation == "delete"
-      ansible.builtin.import_tasks: tasks/delete_aurora_db_cluster.yaml
-      vars:
-        rds_engine: "aurora-postgresql"
+      block:
 
-    - name: Delete instance from source region
-      when: operation == "delete"
-      ansible.builtin.include_tasks: tasks/delete.yaml
-      vars:
-        region: "{{ item }}"
-      with_items:
-        - "{{ test_primary_cluster_region }}"
-        - "{{ test_replica_cluster_region }}"
+        - name: Delete Route 53 records and health checks
+          ansible.builtin.import_tasks: tasks/delete_route53_records.yaml
+
+        - name: Delete Aurora DB
+          ansible.builtin.include_role:
+            name: cloud.aws_ops.create_rds_global_cluster
+          vars:
+            create_rds_global_cluster_operation: delete
+            create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+            create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+            create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+            create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+            create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+            create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+            create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+
+        - name: Delete all resources
+          ansible.builtin.include_tasks: tasks/delete.yaml
+          vars:
+            region: "{{ deletion_region }}"
+          loop:
+            - "{{ test_primary_cluster_region }}"
+            - "{{ test_replica_cluster_region }}"
+          loop_control:
+            loop_var: deletion_region

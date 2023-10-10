@@ -88,6 +88,19 @@
             state: absent
           ignore_errors: true
 
+        - name: List Security group from VPC
+          amazon.aws.ec2_security_group_info:
+            filters:
+              vpc-id: "{{ vpc_id }}"
+              tag:prefix: "{{ resource_prefix }}"
+          register: secgroups
+
+        - name: Delete security groups
+          amazon.aws.ec2_security_group:
+            state: absent
+            group_id: "{{ item }}"
+          with_items: "{{ secgroups.security_groups | map(attribute='group_id') | list }}"
+
         - name: List routes table from VPC
           amazon.aws.ec2_vpc_route_table_info:
             filters:

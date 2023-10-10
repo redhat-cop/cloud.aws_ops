@@ -6,50 +6,47 @@
       aws_secret_key: "{{ aws_secret_key | default(omit) }}"
       security_token: "{{ security_token | default(omit) }}"
   block:
-    - name: Get security group id
+    - name: Get security group id - primary region
       amazon.aws.ec2_security_group_info:
         filters:
           group-name: "{{ rds_secgroup_name }}"
         region: "{{ test_primary_cluster_region }}"
       register: rds_primary_sg
 
-    - name: Create rds global database
-      amazon.cloud.rds_global_cluster:
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
-        engine: "{{ rds_engine }}"
-        engine_version: "{{ rds_engine_version }}"
-        region: "{{ test_primary_cluster_region }}"
-        state: present
-      register: create_global_result
+    - name: Get security group id - replica region
+      amazon.aws.ec2_security_group_info:
+        filters:
+          group-name: "{{ rds_secgroup_name }}"
+        region: "{{ test_replica_cluster_region }}"
+      register: rds_replica_sg
 
-    - name: Create a primary cluster for global database
-      amazon.aws.rds_cluster:
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        db_name: "{{ rds_instance_name }}"
-        region: "{{ test_primary_cluster_region }}"
-        engine: "{{ rds_engine }}"
-        engine_version: "{{ rds_engine_version }}"
-        # enable_global_write_forwarding: true
-        master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-        master_username: "{{ deploy_flask_app_rds_master_username }}"
-        db_subnet_group_name: "{{ rds_subnet_group_name }}"
-        vpc_security_group_ids:
+    - name: Create  Aurora db cluster
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.create_rds_global_cluster
+      vars:
+        create_rds_global_cluster_operation: create
+        create_rds_global_cluster_engine: "aurora-postgresql"
+        create_rds_global_cluster_engine_version: "{{ rds_engine_version }}"
+        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+        create_rds_global_cluster_master_username: "{{ deploy_flask_app_rds_master_username }}"
+        create_rds_global_cluster_master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
+        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
+        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
+        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
+        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_db_subnet_group_name: "{{ rds_subnet_group_name }}"
+        create_rds_global_cluster_primary_cluster_db_name: "{{ rds_instance_name }}"
+        create_rds_global_cluster_primary_cluster_vpc_security_group_ids:
           - "{{ rds_primary_sg.security_groups[0].group_id }}"
-      register: create_primary_result
-
-    - name: Create an instance connected to primary cluster
-      amazon.aws.rds_instance:
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        db_instance_identifier: "{{ test_primary_cluster_name }}-instance"
-        region: "{{ test_primary_cluster_region }}"
-        engine: "{{ rds_engine }}"
-        db_instance_class: "db.r6g.large"
-        skip_final_snapshot: true
+        create_rds_global_cluster_replica_cluster_vpc_security_group_ids:
+          - "{{ rds_replica_sg.security_groups[0].group_id }}"
 
     - name: Get primary instance info
       amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ test_primary_cluster_name }}-instance"
+        db_instance_identifier: "{{ test_primary_cluster_instance_name }}"
         region: "{{ test_primary_cluster_region }}"
       register: primary_instance_info_result
 
@@ -72,39 +69,9 @@
         that:
           - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[0].DBClusterArn == primary_cluster_info_result.clusters[0].db_cluster_arn
 
-    # Create replica cluster -------------------------------------------------------------------------------
-    - name: Get security group id
-      amazon.aws.ec2_security_group_info:
-        filters:
-          group-name: "{{ rds_secgroup_name }}"
-        region: "{{ test_replica_cluster_region }}"
-      register: rds_replica_sg
-
-    - name: Create a replica cluster for global database
-      amazon.aws.rds_cluster:
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        db_subnet_group_name: "{{ rds_subnet_group_name }}"
-        engine: "{{ rds_engine }}"
-        engine_version: "{{ global_cluster_info.GlobalClusters[0].EngineVersion }}"  # replica cluster engine version needs to be exact same as global db engine version
-        # enable_global_write_forwarding: true
-        vpc_security_group_ids:
-          - "{{ rds_replica_sg.security_groups[0].group_id }}"
-        region: "{{ test_replica_cluster_region }}"
-      register: create_replica_result
-
-    - name: Create an instance connected to replica cluster
-      amazon.aws.rds_instance:
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        db_instance_identifier: "{{ test_replica_cluster_name }}-instance"
-        region: "{{ test_replica_cluster_region }}"
-        engine: "{{ rds_engine }}"
-        db_instance_class: "db.r6g.large"
-        skip_final_snapshot: true
-
     - name: Get replica instance info
       amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ test_replica_cluster_name }}-instance"
+        db_instance_identifier: "{{ test_replica_cluster_instance_name }}"
         region: "{{ test_replica_cluster_region }}"
       register: replica_instance_info_result
 
