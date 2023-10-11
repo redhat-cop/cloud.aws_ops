@@ -55,7 +55,7 @@
       register: replica_cluster_info
 
     - name: Verify resources are created successfully
-      assert:
+      ansible.builtin.assert:
         that:
           - global_cluster_info.result.identifier == "{{ test_global_cluster_name }}"
           - global_cluster_info.result.properties.source_db_cluster_identifier == primary_cluster_info.clusters[0].db_cluster_arn

@@ -8,10 +8,10 @@
       amazon.aws.rds_cluster_info:
         cluster_id: "{{ create_rds_global_cluster_replica_cluster_name }}"
         region: "{{ create_rds_global_cluster_replica_cluster_region }}"
-      register: _result_replica_cluster_info
+      register: create_rds_global_cluster_replica_cluster_info
 
     - name: If replica cluster exists
-      when: _result_replica_cluster_info.clusters | length != 0
+      when: create_rds_global_cluster_replica_cluster_info.clusters | length != 0
       block:
         - name: Delete instance attached to replica cluster if present
           amazon.aws.rds_instance:
@@ -34,10 +34,10 @@
       amazon.aws.rds_cluster_info:
         cluster_id: "{{ create_rds_global_cluster_primary_cluster_name }}"
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
-      register: _result_primary_cluster_info
+      register: create_rds_global_cluster_primary_cluster_info
 
     - name: If primary cluster exists
-      when: _result_primary_cluster_info.clusters | length != 0
+      when: create_rds_global_cluster_primary_cluster_info.clusters | length != 0
       block:
         - name: Delete instance attached to primary cluster if present
           amazon.aws.rds_instance:
@@ -61,16 +61,16 @@
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         state: absent
-      register: _result_global_cluster_delete
+      register: create_rds_global_cluster_global_cluster_delete
 
     - name: Print success
       ansible.builtin.debug:
         msg:
           - 'Global cluster {{ create_rds_global_cluster_global_cluster_name }} deleted successfully'
-      when: _result_global_cluster_delete is not failed
+      when: create_rds_global_cluster_global_cluster_delete is not failed
 
     - name: Print failure
       ansible.builtin.debug:
         msg:
           - 'Global cluster {{ create_rds_global_cluster_global_cluster_name }} deletion failed'
-      when: _result_global_cluster_delete is failed
+      when: create_rds_global_cluster_global_cluster_delete is failed
