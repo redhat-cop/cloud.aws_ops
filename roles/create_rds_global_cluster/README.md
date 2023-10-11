@@ -1,21 +1,30 @@
 create_rds_global_cluster
 =========
 
-A role to create Amazon Aurora global cluster with two different region rds clusters.
+A role to create an Amazon Aurora global cluster with two different region rds clusters.
 
-Creates following resources
-1. Global Cluster - Amazon Aurora Postgresql or Amazon Aurora MySql cluster. If `create_rds_global_cluster_engine` not provided, Defaults to Amazon Aurora Postgresql.
-2. Primary Cluster - Primary cluster in specified region (create_rds_global_cluster_primary_cluster_region).
+Creates the following resources:
+1. Global Cluster - Amazon Aurora Postgresql or Amazon Aurora MySql cluster. If `create_rds_global_cluster_engine` is not provided, defaults to Amazon Aurora Postgresql.
+2. Primary Cluster - Primary cluster in specified region (`create_rds_global_cluster_primary_cluster_region`).
 3. Primary Cluster Instance - Instance in the primary cluster.
-4. Replica (secondary) Cluster - Secondary cluster in specified region (create_rds_global_cluster_replica_cluster_region).
+4. Replica (secondary) Cluster - Secondary cluster in specified region (`create_rds_global_cluster_replica_cluster_region`).
 5. Replica Cluster Instance - Instance in the replica cluster.
 
-Please refer `Role Variables` for variables and usage.
+Please refer to [Role Variables](#role-variables) for variables and usage.
 
 Requirements
 ------------
 
-AWS credentials with valid permission.
+AWS User Account with the following permissions:
+
+* rds:CreateGlobalCluster
+* rds:DeleteGlobalCluster
+* rds:ModifyGlobalCluster
+* rds:CreateDBCluster
+* rds:DeleteDBCluster
+* rds:ModifyDBCluster
+* rds:DescribeGlobalClusters
+* rds:DescribeDBClusters
 
 Role Variables
 --------------
@@ -62,32 +71,35 @@ Example Playbook
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: create
-        create_rds_global_cluster_engine: "{{ test_engine }}"
-        create_rds_global_cluster_engine_version: "{{ test_engine_version }}"
-        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
-        create_rds_global_cluster_master_username: "{{ test_username }}"
-        create_rds_global_cluster_master_user_password: "{{ test_password }}"
-        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
-        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
-        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
-        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
-        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
-        create_rds_global_cluster_replica_enable_global_write_forwarding: "{{ test_replica_enable_global_write_forwarding }}"
+        create_rds_global_cluster_engine: aurora-mysql
+        create_rds_global_cluster_engine_version: 5.7
+        create_rds_global_cluster_instance_class: db.r5.large
+        create_rds_global_cluster_master_username: testusername
+        create_rds_global_cluster_master_user_password: test-password_rds
+        create_rds_global_cluster_global_cluster_name: test-cluster-global
+        create_rds_global_cluster_primary_cluster_name: test-cluster-primary
+        create_rds_global_cluster_primary_cluster_region: eu-central-1
+        create_rds_global_cluster_primary_cluster_instance_name: test-instance-primary
+        create_rds_global_cluster_replica_cluster_name: test-cluster-replica
+        create_rds_global_cluster_replica_cluster_region: us-west-2
+        create_rds_global_cluster_replica_enable_global_write_forwarding: true
+        create_rds_global_cluster_replica_cluster_instance_name: test-instance-replica
+        create_rds_global_cluster_primary_cluster_db_name: MyPrimaryDb
+        create_rds_global_cluster_primary_cluster_vpc_security_group_ids: [ "sg-03bfd123456789012", "sg-03bfd123456789034"]
+        create_rds_global_cluster_replica_cluster_vpc_security_group_ids: ["sg-03bfd123456789055"]
 
     - name: Delete global db, primary cluster with instance & replica cluster with instance
       ansible.builtin.include_role:
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: delete
-        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
-        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
-        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
-        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
-        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_global_cluster_name: test-cluster-global
+        create_rds_global_cluster_primary_cluster_name: test-cluster-primary
+        create_rds_global_cluster_primary_cluster_region: eu-central-1
+        create_rds_global_cluster_primary_cluster_instance_name: test-instance-primary
+        create_rds_global_cluster_replica_cluster_name: test-cluster-replica
+        create_rds_global_cluster_replica_cluster_region: us-west-2
+        create_rds_global_cluster_replica_cluster_instance_name: test-instance-replica
 ```
 
 License
