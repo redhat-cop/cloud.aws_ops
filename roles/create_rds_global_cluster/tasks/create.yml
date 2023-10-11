@@ -12,7 +12,7 @@
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
         state: present
 
-    - name: Create a primary cluster for global database "{{ create_rds_global_cluster_global_cluster_name }}" in "{{ create_rds_global_cluster_primary_cluster_region }}"
+    - name: Create a primary cluster for global database in "{{ create_rds_global_cluster_primary_cluster_region }}"
       amazon.aws.rds_cluster:
         db_cluster_identifier: "{{ create_rds_global_cluster_primary_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}"
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
@@ -33,7 +33,7 @@
         engine: "{{ create_rds_global_cluster_engine | default('aurora-postgresql') }}"
         db_instance_class: "{{ create_rds_global_cluster_instance_class }}"
 
-    - name: Create a read replica cluster for global database "{{ create_rds_global_cluster_global_cluster_name }}" in "{{ create_rds_global_cluster_replica_cluster_region }}"
+    - name: Create a read replica cluster for global database in "{{ create_rds_global_cluster_replica_cluster_region }}"
       amazon.aws.rds_cluster:
         db_cluster_identifier: "{{ create_rds_global_cluster_replica_cluster_name | default('{{ create_rds_global_cluster_global_cluster_name }}') }}"
         region: "{{ create_rds_global_cluster_replica_cluster_region }}"
