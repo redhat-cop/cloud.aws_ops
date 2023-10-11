@@ -42,7 +42,7 @@
         db_subnet_group_name: "{{ create_rds_global_cluster_db_subnet_group_name | default(omit) }}"
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
         enable_global_write_forwarding: "{{ create_rds_global_cluster_replica_enable_global_write_forwarding | default(omit) }}"
-        vpc_security_group_ids: "{{ create_rds_global_cluster_replica_cluster_vpc_security_group_ids| default(omit) }}"
+        vpc_security_group_ids: "{{ create_rds_global_cluster_replica_cluster_vpc_security_group_ids | default(omit) }}"
 
     - name: Create an instance connected to secondary cluster
       amazon.aws.rds_instance:
