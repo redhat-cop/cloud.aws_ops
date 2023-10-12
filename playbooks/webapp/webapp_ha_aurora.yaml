@@ -25,6 +25,9 @@
 
         - name: Create  Aurora db cluster
           ansible.builtin.import_tasks: tasks/create_aurora_db_cluster.yaml
+          vars:
+            rds_instance_class: db.r5.large
+            rds_engine: aurora-postgresql
 
         # ================= Deploy App in the primary region =================
 
