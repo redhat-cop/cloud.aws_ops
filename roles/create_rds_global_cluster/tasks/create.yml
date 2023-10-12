@@ -2,6 +2,7 @@
 - name: Run 'create_rds_global_cluster' role create operations
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
+    group/amazon.cloud.aws: "{{ aws_setup_credentials__output }}"
 
   block:
     - name: Create rds global database
