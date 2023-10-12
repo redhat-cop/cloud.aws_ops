@@ -163,14 +163,14 @@ To delete the webapp:
 
 Along with the above variables, following variables are need for this playbook:
 
-* **test_instance_class** (str): DB instance class for the aurora db instances. Default: `db.r5.large`
-* **test_global_cluster_name** (str): Name of the global cluster. Default: "{{ resource_prefix }}-global-cluster"
-* **test_primary_cluster_name** (str): Name of the primary cluster. Default: "{{ resource_prefix }}-primary-cluster"
-* **test_primary_cluster_region** (str): Primary Region. Default: `us-west-2`
-* **test_primary_cluster_instance_name* (str): Name of primary db instance. Default: "{{ resource_prefix }}-primary-instance"
-* **test_replica_cluster_name** (str): Name of the replica cluster. Default: "{{ resource_prefix }}-replica-cluster"
-* **test_replica_cluster_region** (str): Replica Region. Default: `us-east-2`
-* **test_replica_cluster_instance_name** (str): Name of the replica db instance. Default: "{{ resource_prefix }}-replica-instance"
+* **rds_instance_class** (str): DB instance class for the aurora db instances. Default: `db.r5.large`
+* **rds_global_cluster_name** (str): Name of the global cluster. Default: "{{ resource_prefix }}-global-cluster"
+* **rds_primary_cluster_name** (str): Name of the primary cluster. Default: "{{ resource_prefix }}-primary-cluster"
+* **rds_primary_cluster_region** (str): Primary Region. Default: `us-west-2`
+* **rds_primary_cluster_instance_name* (str): Name of primary db instance. Default: "{{ resource_prefix }}-primary-instance"
+* **rds_replica_cluster_name** (str): Name of the replica cluster. Default: "{{ resource_prefix }}-replica-cluster"
+* **rds_replica_cluster_region** (str): Replica Region. Default: `us-east-2`
+* **rds_replica_cluster_instance_name** (str): Name of the replica db instance. Default: "{{ resource_prefix }}-replica-instance"
 
 # vars for route53 records
 * **route53_zone_name** (str): Route53 Zone name. Default: "ansiblecloud.xyz"

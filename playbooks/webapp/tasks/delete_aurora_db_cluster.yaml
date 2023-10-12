@@ -8,54 +8,54 @@
   block:
     - name: Delete instance connected to replica cluster
       amazon.aws.rds_instance:
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        db_instance_identifier: "{{ test_replica_cluster_name }}-instance"
+        db_cluster_identifier: "{{ rds_replica_cluster_name }}"
+        db_instance_identifier: "{{ rds_replica_cluster_name }}-instance"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
-        db_instance_class: "{{ test_instance_class }}"
+        db_instance_class: "{{ rds_instance_class }}"
         skip_final_snapshot: true
-        region: "{{ test_replica_cluster_region }}"
+        region: "{{ rds_replica_cluster_region }}"
         wait: True
         state: absent
 
     - name: Delete replica cluster
       amazon.aws.rds_cluster:
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        db_cluster_identifier: "{{ rds_replica_cluster_name }}"
+        global_cluster_identifier: "{{ rds_global_cluster_name }}"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
         skip_final_snapshot: true
         remove_from_global_db: true
-        region: "{{ test_replica_cluster_region }}"
+        region: "{{ rds_replica_cluster_region }}"
         state: absent
 
     - name: Delete instance connected to primary cluster
       amazon.aws.rds_instance:
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        db_instance_identifier: "{{ test_primary_cluster_name }}-instance"
+        db_cluster_identifier: "{{ rds_primary_cluster_name }}"
+        db_instance_identifier: "{{ rds_primary_cluster_name }}-instance"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
-        db_instance_class: "{{ test_instance_class }}"
+        db_instance_class: "{{ rds_instance_class }}"
         skip_final_snapshot: true
-        region: "{{ test_primary_cluster_region }}"
+        region: "{{ rds_primary_cluster_region }}"
         state: absent
 
     - name: Delete primary cluster
       amazon.aws.rds_cluster:
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        db_cluster_identifier: "{{ rds_primary_cluster_name }}"
+        global_cluster_identifier: "{{ rds_global_cluster_name }}"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
         username: "{{ deploy_flask_app_rds_master_username }}"
         password: "{{ deploy_flask_app_rds_master_password }}"
         skip_final_snapshot: true
-        region: "{{ test_primary_cluster_region }}"
+        region: "{{ rds_primary_cluster_region }}"
         state: absent
 
     - name: Delete global db
       amazon.cloud.rds_global_cluster:
-        global_cluster_identifier: "{{ test_global_cluster_name }}"
+        global_cluster_identifier: "{{ rds_global_cluster_name }}"
         engine: "{{ rds_engine }}"
         engine_version: "{{ rds_engine_version }}"
-        region: "{{ test_primary_cluster_region }}"
+        region: "{{ rds_primary_cluster_region }}"
         state: absent

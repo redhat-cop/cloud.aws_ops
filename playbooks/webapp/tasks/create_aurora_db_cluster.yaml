@@ -10,14 +10,14 @@
       amazon.aws.ec2_security_group_info:
         filters:
           group-name: "{{ rds_secgroup_name }}"
-        region: "{{ test_primary_cluster_region }}"
+        region: "{{ rds_primary_cluster_region }}"
       register: rds_primary_sg
 
     - name: Get security group id - replica region
       amazon.aws.ec2_security_group_info:
         filters:
           group-name: "{{ rds_secgroup_name }}"
-        region: "{{ test_replica_cluster_region }}"
+        region: "{{ rds_replica_cluster_region }}"
       register: rds_replica_sg
 
     - name: Create  Aurora db cluster
@@ -27,16 +27,16 @@
         create_rds_global_cluster_operation: create
         create_rds_global_cluster_engine: "aurora-postgresql"
         create_rds_global_cluster_engine_version: "{{ rds_engine_version }}"
-        create_rds_global_cluster_instance_class: "{{ test_instance_class }}"
+        create_rds_global_cluster_instance_class: "{{ rds_instance_class }}"
         create_rds_global_cluster_master_username: "{{ deploy_flask_app_rds_master_username }}"
         create_rds_global_cluster_master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-        create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
-        create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
-        create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
-        create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
-        create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
-        create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+        create_rds_global_cluster_global_cluster_name: "{{ rds_global_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_name: "{{ rds_primary_cluster_name }}"
+        create_rds_global_cluster_primary_cluster_region: "{{ rds_primary_cluster_region }}"
+        create_rds_global_cluster_primary_cluster_instance_name: "{{ rds_primary_cluster_instance_name }}"
+        create_rds_global_cluster_replica_cluster_name: "{{ rds_replica_cluster_name }}"
+        create_rds_global_cluster_replica_cluster_region: "{{ rds_replica_cluster_region }}"
+        create_rds_global_cluster_replica_cluster_instance_name: "{{ rds_replica_cluster_instance_name }}"
         create_rds_global_cluster_db_subnet_group_name: "{{ rds_subnet_group_name }}"
         create_rds_global_cluster_primary_cluster_db_name: "{{ rds_instance_name }}"
         create_rds_global_cluster_primary_cluster_vpc_security_group_ids:
@@ -46,18 +46,18 @@
 
     - name: Get primary instance info
       amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ test_primary_cluster_instance_name }}"
-        region: "{{ test_primary_cluster_region }}"
+        db_instance_identifier: "{{ rds_primary_cluster_instance_name }}"
+        region: "{{ rds_primary_cluster_region }}"
       register: primary_instance_info_result
 
     - name: Get primary cluster info
       amazon.aws.rds_cluster_info:
-        db_cluster_identifier: "{{ test_primary_cluster_name }}"
-        region: "{{ test_primary_cluster_region }}"
+        db_cluster_identifier: "{{ rds_primary_cluster_name }}"
+        region: "{{ rds_primary_cluster_region }}"
       register: primary_cluster_info_result
 
     - name: Get global db info
-      command: "aws rds describe-global-clusters --global-cluster-identifier {{  test_global_cluster_name }}"
+      command: "aws rds describe-global-clusters --global-cluster-identifier {{  rds_global_cluster_name }}"
       register: global_cluster_info_result
 
     - name: convert it to an object
@@ -71,18 +71,18 @@
 
     - name: Get replica instance info
       amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ test_replica_cluster_instance_name }}"
-        region: "{{ test_replica_cluster_region }}"
+        db_instance_identifier: "{{ rds_replica_cluster_instance_name }}"
+        region: "{{ rds_replica_cluster_region }}"
       register: replica_instance_info_result
 
     - name: Get replica cluster info
       amazon.aws.rds_cluster_info:
-        db_cluster_identifier: "{{ test_replica_cluster_name }}"
-        region: "{{ test_replica_cluster_region }}"
+        db_cluster_identifier: "{{ rds_replica_cluster_name }}"
+        region: "{{ rds_replica_cluster_region }}"
       register: replica_cluster_info_result
 
     - name: Get global db info
-      command: "aws rds describe-global-clusters --global-cluster-identifier {{ test_global_cluster_name }}"
+      command: "aws rds describe-global-clusters --global-cluster-identifier {{ rds_global_cluster_name }}"
       register: global_cluster_info_result
 
     - name: convert it to an object

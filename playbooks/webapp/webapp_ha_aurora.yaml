@@ -14,8 +14,8 @@
           vars:
             region: "{{ creation_region }}"
           loop:
-            - "{{ test_primary_cluster_region }}"
-            - "{{ test_replica_cluster_region }}"
+            - "{{ rds_primary_cluster_region }}"
+            - "{{ rds_replica_cluster_region }}"
           loop_control:
             loop_var: creation_region
 
@@ -29,7 +29,7 @@
           amazon.aws.ec2_vpc_net_info:
             filters:
               "tag:Name": "{{ vpc_name }}"
-            region: "{{ test_primary_cluster_region }}"
+            region: "{{ rds_primary_cluster_region }}"
           register: primary_vpc
 
         - name: Get primary private subnet for workers
@@ -37,7 +37,7 @@
             filters:
               vpc-id: "{{ primary_vpc.vpcs[0].id }}"
               cidr: "{{ subnet_cidr[1] }}"
-            region: "{{ test_primary_cluster_region }}"
+            region: "{{ rds_primary_cluster_region }}"
           register: primary_private_subnet
 
         - name: Get VM info in the primary region
@@ -45,7 +45,7 @@
             filters:
               "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
               instance-state-name: [ "running"]
-            region: "{{ test_primary_cluster_region }}"
+            region: "{{ rds_primary_cluster_region }}"
           register: primary_vm_result
 
         - name: Deploy app in primary region
@@ -56,7 +56,7 @@
             deploy_flask_app_vpc_id: "{{ primary_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ primary_vm_result }}"
             deploy_flask_app_rds_info: "{{ primary_instance_info_result }}"
-            deploy_flask_app_region: "{{ test_primary_cluster_region }}"
+            deploy_flask_app_region: "{{ rds_primary_cluster_region }}"
 
         - name: Get load balancer name from the primary region
           ansible.builtin.set_fact:
@@ -68,7 +68,7 @@
           amazon.aws.ec2_vpc_net_info:
             filters:
               "tag:Name": "{{ vpc_name }}"
-            region: "{{ test_replica_cluster_region }}"
+            region: "{{ rds_replica_cluster_region }}"
           register: replica_vpc
 
         - name: Get VM info in the replica region
@@ -76,7 +76,7 @@
             filters:
               "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
               instance-state-name: [ "running"]
-            region: "{{ test_replica_cluster_region }}"
+            region: "{{ rds_replica_cluster_region }}"
           register: replica_vm_result
 
         - name: Get replica private subnet for workers
@@ -84,7 +84,7 @@
             filters:
               vpc-id: "{{ replica_vpc.vpcs[0].id }}"
               cidr: "{{ subnet_cidr[1] }}"
-            region: "{{ test_replica_cluster_region }}"
+            region: "{{ rds_replica_cluster_region }}"
           register: replica_private_subnet
 
         - name: Deploy app in replica region
@@ -95,7 +95,7 @@
             deploy_flask_app_vpc_id: "{{ replica_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ replica_vm_result }}"
             deploy_flask_app_rds_info: "{{ replica_instance_info_result }}"
-            deploy_flask_app_region: "{{ test_replica_cluster_region }}"
+            deploy_flask_app_region: "{{ rds_replica_cluster_region }}"
 
         - name: Get load balancer name from the replica region
           ansible.builtin.set_fact:
@@ -118,20 +118,20 @@
             name: cloud.aws_ops.create_rds_global_cluster
           vars:
             create_rds_global_cluster_operation: delete
-            create_rds_global_cluster_global_cluster_name: "{{ test_global_cluster_name }}"
-            create_rds_global_cluster_primary_cluster_name: "{{ test_primary_cluster_name }}"
-            create_rds_global_cluster_primary_cluster_region: "{{ test_primary_cluster_region }}"
-            create_rds_global_cluster_primary_cluster_instance_name: "{{ test_primary_cluster_instance_name }}"
-            create_rds_global_cluster_replica_cluster_name: "{{ test_replica_cluster_name }}"
-            create_rds_global_cluster_replica_cluster_region: "{{ test_replica_cluster_region }}"
-            create_rds_global_cluster_replica_cluster_instance_name: "{{ test_replica_cluster_instance_name }}"
+            create_rds_global_cluster_global_cluster_name: "{{ rds_global_cluster_name }}"
+            create_rds_global_cluster_primary_cluster_name: "{{ rds_primary_cluster_name }}"
+            create_rds_global_cluster_primary_cluster_region: "{{ rds_primary_cluster_region }}"
+            create_rds_global_cluster_primary_cluster_instance_name: "{{ rds_primary_cluster_instance_name }}"
+            create_rds_global_cluster_replica_cluster_name: "{{ rds_replica_cluster_name }}"
+            create_rds_global_cluster_replica_cluster_region: "{{ rds_replica_cluster_region }}"
+            create_rds_global_cluster_replica_cluster_instance_name: "{{ rds_replica_cluster_instance_name }}"
 
         - name: Delete all resources
           ansible.builtin.include_tasks: tasks/delete.yaml
           vars:
             region: "{{ deletion_region }}"
           loop:
-            - "{{ test_primary_cluster_region }}"
-            - "{{ test_replica_cluster_region }}"
+            - "{{ rds_primary_cluster_region }}"
+            - "{{ rds_replica_cluster_region }}"
           loop_control:
             loop_var: deletion_region
