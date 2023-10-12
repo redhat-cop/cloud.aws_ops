@@ -85,7 +85,7 @@ To delete the webapp:
 ### Common
 
 * **operation** (str): Operation for the webapp playbook to perform, either `create` or `delete`. Default: `create`
-* **resource_prefix** (str): (Required) A prefix to prepend to the name of all AWS resources created for the webapp
+* **resource_prefix** (str): A prefix to prepend to the name of all AWS resources created for the webapp. Default: `ansible-test`
 * **resource_tags** (dict, elements dict): Tags to apply to all AWS resources created for the webapp. Default: `prefix: "{{ resource_prefix }}"`
 * **aws_access_key** (str): (Required) AWS access key ID for user account with the above permissions
 * **aws_secret_key** (str): (Required) AWS secret access key for user account with the above permissions
@@ -167,16 +167,15 @@ Along with the above variables, following variables are need for this playbook:
 * **rds_global_cluster_name** (str): Name of the global cluster. Default: "{{ resource_prefix }}-global-cluster"
 * **rds_primary_cluster_name** (str): Name of the primary cluster. Default: "{{ resource_prefix }}-primary-cluster"
 * **rds_primary_cluster_region** (str): Primary Region. Default: `us-west-2`
-* **rds_primary_cluster_instance_name* (str): Name of primary db instance. Default: "{{ resource_prefix }}-primary-instance"
+* **rds_primary_cluster_instance_name** (str): Name of primary db instance. Default: "{{ resource_prefix }}-primary-instance"
 * **rds_replica_cluster_name** (str): Name of the replica cluster. Default: "{{ resource_prefix }}-replica-cluster"
 * **rds_replica_cluster_region** (str): Replica Region. Default: `us-east-2`
 * **rds_replica_cluster_instance_name** (str): Name of the replica db instance. Default: "{{ resource_prefix }}-replica-instance"
 
-# vars for route53 records
+#### vars for route53 records
 * **route53_zone_name** (str): Route53 Zone name. Default: "ansiblecloud.xyz"
 * **route53_subdomain** (str): Sub domain name for the application url. Default: "flaskapp"
 
-* **
 ## Example Usage
 
 Create a `credentials.yaml` file with the folling contents:

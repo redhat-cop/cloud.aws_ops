@@ -25,7 +25,7 @@
         name: cloud.aws_ops.create_rds_global_cluster
       vars:
         create_rds_global_cluster_operation: create
-        create_rds_global_cluster_engine: "aurora-postgresql"
+        create_rds_global_cluster_engine: "{{ rds_engine }}"
         create_rds_global_cluster_engine_version: "{{ rds_engine_version }}"
         create_rds_global_cluster_instance_class: "{{ rds_instance_class }}"
         create_rds_global_cluster_master_username: "{{ deploy_flask_app_rds_master_username }}"
