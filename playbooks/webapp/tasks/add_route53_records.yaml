@@ -35,7 +35,7 @@
       amazon.aws.route53:
         state: present
         zone: "{{ route53_zone_name }}"
-        record: "{{route53_subdomain }}.{{ route53_zone_name }}"
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}"
         type: A
         value: "{{ primary_lb.elb.dns_name }}"
         alias: True
@@ -49,7 +49,7 @@
       amazon.aws.route53:
         state: present
         zone: "{{ route53_zone_name }}"
-        record: "{{route53_subdomain }}.{{ route53_zone_name }}"
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}"
         type: A
         value: "{{ replica_lb.elb.dns_name }}"
         alias: True

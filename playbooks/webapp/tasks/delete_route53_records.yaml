@@ -45,7 +45,7 @@
       amazon.aws.route53:
         state: absent
         zone: "{{ route53_zone_name }}"
-        record: "{{route53_subdomain }}.{{ route53_zone_name }}."
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
         type: A
         alias: True
         alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
@@ -60,7 +60,7 @@
       amazon.aws.route53:
         state: absent
         zone: "{{ route53_zone_name }}"
-        record: "{{route53_subdomain }}.{{ route53_zone_name }}."
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
         type: A
         alias: True
         identifier: "replica-record"

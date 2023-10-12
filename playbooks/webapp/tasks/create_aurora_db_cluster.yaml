@@ -57,15 +57,15 @@
       register: primary_cluster_info_result
 
     - name: Get global db info
-      command: "aws rds describe-global-clusters --global-cluster-identifier {{  rds_global_cluster_name }}"
+      ansible.builtin.command: "aws rds describe-global-clusters --global-cluster-identifier {{  rds_global_cluster_name }}"
       register: global_cluster_info_result
 
     - name: convert it to an object
-      set_fact:
+      ansible.builtin.set_fact:
         global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
 
     - name: Assert that primary cluster is a part of global db
-      assert:
+      ansible.builtin.assert:
         that:
           - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[0].DBClusterArn == primary_cluster_info_result.clusters[0].db_cluster_arn
 
@@ -82,14 +82,14 @@
       register: replica_cluster_info_result
 
     - name: Get global db info
-      command: "aws rds describe-global-clusters --global-cluster-identifier {{ rds_global_cluster_name }}"
+      ansible.builtin.command: "aws rds describe-global-clusters --global-cluster-identifier {{ rds_global_cluster_name }}"
       register: global_cluster_info_result
 
-    - name: convert it to an object
-      set_fact:
+    - name: Convert it to an object
+      ansible.builtin.set_fact:
         global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
 
     - name: Assert that replica cluster is a part of global db
-      assert:
+      ansible.builtin.assert:
         that:
           - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[1].DBClusterArn == replica_cluster_info_result.clusters[0].db_cluster_arn
