@@ -2,9 +2,6 @@
   hosts: localhost
   gather_facts: false
 
-  vars_files:
-    - vars/main.yml
-
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key | default(omit) }}"
