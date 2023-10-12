@@ -61,7 +61,6 @@ deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible
 
 # vars to create aurora db cluster
-rds_instance_class: db.r5.large
 # Global cluster parameters ================================
 rds_global_cluster_name: "{{ resource_prefix }}-global-cluster"
 
