@@ -7,7 +7,7 @@
   block:
     - name: Get replica cluster info
       amazon.aws.rds_cluster_info:
-        cluster_id: "{{ create_rds_global_cluster_replica_cluster_name }}"
+        cluster_id: "{{ create_rds_global_cluster_replica_cluster_name | default(default_replica_cluster_name) }}"
         region: "{{ create_rds_global_cluster_replica_cluster_region }}"
       register: create_rds_global_cluster_replica_cluster_info
 
@@ -16,7 +16,7 @@
       block:
         - name: Delete instance attached to replica cluster if present
           amazon.aws.rds_instance:
-            db_instance_identifier: "{{ create_rds_global_cluster_replica_cluster_instance_name }}"
+            db_instance_identifier: "{{ create_rds_global_cluster_replica_cluster_instance_name | default(default_replica_cluster_instance_name) }}"
             region: "{{ create_rds_global_cluster_replica_cluster_region }}"
             skip_final_snapshot: true
             wait: false
@@ -24,16 +24,16 @@
 
         - name: Delete replica cluster without creating a final snapshot
           amazon.aws.rds_cluster:
-            cluster_id: "{{ create_rds_global_cluster_replica_cluster_name }}"
+            cluster_id: "{{ create_rds_global_cluster_replica_cluster_name | default(default_replica_cluster_name) }}"
             region: "{{ create_rds_global_cluster_replica_cluster_region }}"
             global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
             remove_from_global_db: true
-            skip_final_snapshot: True
+            skip_final_snapshot: true
             state: absent
 
     - name: Get primary cluster info
       amazon.aws.rds_cluster_info:
-        cluster_id: "{{ create_rds_global_cluster_primary_cluster_name }}"
+        cluster_id: "{{ create_rds_global_cluster_primary_cluster_name | default(default_primary_cluster_name) }}"
         region: "{{ create_rds_global_cluster_primary_cluster_region }}"
       register: create_rds_global_cluster_primary_cluster_info
 
@@ -42,7 +42,7 @@
       block:
         - name: Delete instance attached to primary cluster if present
           amazon.aws.rds_instance:
-            db_instance_identifier: "{{ create_rds_global_cluster_primary_cluster_instance_name }}"
+            db_instance_identifier: "{{ create_rds_global_cluster_primary_cluster_instance_name | default(default_primary_cluster_instance_name) }}"
             region: "{{ create_rds_global_cluster_primary_cluster_region }}"
             skip_final_snapshot: true
             wait: false
@@ -50,10 +50,10 @@
 
         - name: Delete primary cluster without creating a final snapshot
           amazon.aws.rds_cluster:
-            cluster_id: "{{ create_rds_global_cluster_primary_cluster_name }}"
+            cluster_id: "{{ create_rds_global_cluster_primary_cluster_name | default(default_primary_cluster_name)}}"
             region: "{{ create_rds_global_cluster_primary_cluster_region }}"
             global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"
-            skip_final_snapshot: True
+            skip_final_snapshot: true
             state: absent
 
 
