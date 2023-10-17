@@ -56,25 +56,6 @@
         region: "{{ rds_primary_cluster_region }}"
       register: primary_cluster_info_result
 
-    - name: Get global db info
-      ansible.builtin.command: "aws rds describe-global-clusters --global-cluster-identifier {{  rds_global_cluster_name }}"
-      register: global_cluster_info_result
-
-    - name: convert it to an object
-      ansible.builtin.set_fact:
-        global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
-
-    - name: Assert that primary cluster is a part of global db
-      ansible.builtin.assert:
-        that:
-          - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[0].DBClusterArn == primary_cluster_info_result.clusters[0].db_cluster_arn
-
-    - name: Get replica instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_replica_cluster_instance_name }}"
-        region: "{{ rds_replica_cluster_region }}"
-      register: replica_instance_info_result
-
     - name: Get replica cluster info
       amazon.aws.rds_cluster_info:
         db_cluster_identifier: "{{ rds_replica_cluster_name }}"
@@ -82,14 +63,13 @@
       register: replica_cluster_info_result
 
     - name: Get global db info
-      ansible.builtin.command: "aws rds describe-global-clusters --global-cluster-identifier {{ rds_global_cluster_name }}"
-      register: global_cluster_info_result
+      amazon.aws.rds_global_cluster_info:
+        global_cluster_identifier: "{{ rds_global_cluster_name }}"
+        region: "{{ rds_primary_cluster_region }}"
+      register: global_cluster_info
 
-    - name: Convert it to an object
-      ansible.builtin.set_fact:
-        global_cluster_info: "{{ global_cluster_info_result.stdout | from_json }}"
-
-    - name: Assert that replica cluster is a part of global db
+    - name: Assert that primary and replica cluster are part of global db
       ansible.builtin.assert:
         that:
-          - global_cluster_info.GlobalClusters[0].GlobalClusterMembers[1].DBClusterArn == replica_cluster_info_result.clusters[0].db_cluster_arn
+          - global_cluster_info.global_clusters[0].global_cluster_members[0].db_cluster_arn == primary_cluster_info_result.clusters[0].db_cluster_arn
+          - global_cluster_info.global_clusters[0].global_cluster_members[1].db_cluster_arn == replica_cluster_info_result.clusters[0].db_cluster_arn
