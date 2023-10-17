@@ -48,7 +48,7 @@
     - name: Create an instance connected to secondary cluster
       amazon.aws.rds_instance:
         db_cluster_identifier: "{{ create_rds_global_cluster_replica_cluster_name }}"
-        db_instance_identifier: "{{ create_rds_global_cluster_replica_cluster_instance_name | default(default_replica_cluster_instance_name) }}"
+        db_instance_identifier: "{{ create_rds_global_cluster_replica_cluster_instance_name }}"
         aws_region: "{{ create_rds_global_cluster_replica_cluster_region }}"
         engine: "{{ create_rds_global_cluster_engine }}"
         db_instance_class: "{{ create_rds_global_cluster_instance_class }}"
