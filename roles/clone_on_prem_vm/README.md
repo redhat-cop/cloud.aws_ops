@@ -38,7 +38,7 @@ all:
       groups: mygroup
 ```
 
-All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars/main.yml`` file.
+All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars.yml`` file.
 
 Create a ``playbook.ym`` file like this:
 
@@ -61,7 +61,7 @@ Create a ``playbook.ym`` file like this:
 Run the playbook:
 
 ```shell
-ansible-playbook playbook.yml -i inventory.yml
+ansible-playbook playbook.yml -i inventory.yml -e "@vars.yml"
 ```
 
 License
