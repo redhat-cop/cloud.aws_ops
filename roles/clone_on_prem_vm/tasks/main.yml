@@ -1,4 +1,9 @@
 ---
+- name: Fail when 'clone_on_prem_vm_source_vm_name' is undefined
+  ansible.builtin.fail:
+    msg: The name of the VM you want to clone must be defined as clone_on_prem_vm_source_vm_name
+  when: clone_on_prem_vm_source_vm_name is undefined
+
 - name: Gather package facts
   ansible.builtin.package_facts:
     manager: auto
