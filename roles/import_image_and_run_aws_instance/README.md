@@ -1,5 +1,5 @@
 import_image_and_run_aws_instance
-=========
+=================================
 
 A role that imports a local .raw image into an Amazon Machine Image (AMI) and run an AWS EC2 instance.
 
@@ -36,13 +36,13 @@ Role Variables
 
 * **import_image_and_run_aws_instance_import_image_task_name**: (Required) The name you want to assign to the AWS EC2 import image task.
 * **import_image_and_run_aws_instance_bucket_name**: (Required) The name of the S3 bucket name where you want to upload the .raw image.
-**import_image_and_run_aws_instance_image_path**: (Required) The path where the .raw image is stored.
+* **import_image_and_run_aws_instance_image_path**: (Required) The path where the .raw image is stored.
 * **import_image_and_run_aws_instance_instance_name**: (Required) The name of the EC2 instance you want to create using the imported AMI.
 * **import_image_and_run_aws_instance_instance_type**: The EC2 instance type you want to use. Default: "t2.micro".
 * **import_image_and_run_aws_instances_keypair_name**: The name of the SSH access key to assign to the EC2 instance. It must exist in the region the instance is created. If not set, your default AWS account keypair will be used.
 * **import_image_and_run_aws_instance_security_groups**: A list of security group IDs or names to associate to the EC2 instance.
 * **import_image_and_run_aws_instance_vpc_subnet_id**: The subnet ID in which to launch the EC2 instance (VPC). If none is provided, M(amazon.aws.ec2_instance) will choose the default zone of the default VPC.
-**import_image_and_run_aws_instance_volumes** (dict): (Optional) A dictionary of a block device mappings, by default this will always use the AMI root device so the **instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys:
+* **import_image_and_run_aws_instance_volumes** (dict): (Optional) A dictionary of a block device mappings, by default this will always use the AMI root device so the **instance_volumes** option is primarily for adding more storage. A mapping contains the (optional) keys:
     * **device_name** (str): The device name (for example, /dev/sdh or xvdh).
     * **ebs** (dict): Parameters used to automatically set up EBS volumes when the instance is launched.
         * **volume_type** (str): The volume type. Valid Values: standard, io1, io2, gp2, sc1, st1, gp3.
@@ -60,50 +60,60 @@ Example Playbook
 ----------------
 This role can be used together with the [cloud.aws_ops.clone_on_prem_vm](../clone_on_prem_vm/README.md) role as shown below.
 
-    - hosts: localhost
-      gather_facts: false
+Create an `inventory.yml` file with information about the host running the KVM hypervisor.
 
-      vars:
-        on_prem_source_vm_name: "ubuntu-guest"
-        on_prem_vm_image_name: "ubuntu-guest-image"
-        s3_bucket_name: "vm-s3-bucket"
-        instance_name: "vm-clone"
-        local_image_path: "~/images/"
-        kvm_host:
-          name: kvm
-          ansible_host: 192.168.1.117
-          ansible_user: vagrant
-          ansible_ssh_private_key_file: ~/.ssh/id_rsa.pub
-        instance_type: "t2.micro"
-        import_task_name: "import-clone"
+```yaml
+---
+all:
+  hosts:
+    kvm:
+      ansible_host: myhost
+      ansible_user: myuser
+      ansible_ssh_private_key_file: /path/to/private_key
+      groups: mygroup
+```
 
-      tasks:
-        - name: Add host to inventory
-          ansible.builtin.add_host:
-            name: "{{ kvm_host.name }}"
-            ansible_host: "{{ kvm_host.ansible_host }}"
-            ansible_user: "{{ kvm_host.ansible_user }}"
-            ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ kvm_host.ansible_ssh_private_key_file }}
-            groups: "libvirt"
+All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars.yml`` file.
 
-        - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
-          ansible.builtin.import_role:
-            name: cloud.aws_ops.clone_on_prem_vm
-          vars:
-            clone_on_prem_vm_source_vm_name: "{{ on_prem_source_vm_name }}"
-            clone_on_prem_vm_image_name: "{{ on_prem_vm_image_name }}"
-            clone_on_prem_vm_local_image_path: "{{ local_image_path }}"
-          delegate_to: kvm
+Create a ``playbook.ym`` file like this:
 
-        - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
-          ansible.builtin.import_role:
-            name: cloud.aws_ops.import_image_and_run_aws_instance
-          vars:
-            import_image_and_run_aws_instance_bucket_name: "{{ s3_bucket_name }}"
-            import_image_and_run_aws_instance_image_path: "{{ clone_on_prem_vm_local_image_path }}"
-            import_image_and_run_aws_instance_instance_name: "{{ instance_name }}"
-            import_image_and_run_aws_instance_instance_type: "{{ instance_type }}"
-            import_image_and_run_aws_instance_import_image_task_name: "{{ import_task_name }}"
+```
+---
+- hosts: localhost
+   gather_facts: false
+   
+   tasks:
+     - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
+       ansible.builtin.import_role:
+         name: cloud.aws_ops.clone_on_prem_vm
+       vars:
+         clone_on_prem_vm_source_vm_name: "{{ clone_on_prem_vm_source_vm_name }}"
+         clone_on_prem_vm_image_name: "{{ clone_on_prem_vm_image_name }}"
+         clone_on_prem_vm_local_image_path: "{{ clone_on_prem_vm_local_image_path }}"
+         clone_on_prem_vm_uri: "{{ clone_on_prem_vm_uri }}" 
+       delegate_to: kvm
+   
+     - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
+       ansible.builtin.import_role:
+         name: cloud.aws_ops.import_image_and_run_aws_instance
+       vars:
+         import_image_and_run_aws_instance_bucket_name: "{{ import_image_and_run_aws_instance_bucket_name }}"
+         import_image_and_run_aws_instance_image_path: "{{ import_image_and_run_aws_instance_image_path }}"
+         import_image_and_run_aws_instance_instance_name: "{{ import_image_and_run_aws_instance_instance_name }}"
+         import_image_and_run_aws_instance_instance_type: "{{ import_image_and_run_aws_instance_instance_type }}"
+         import_image_and_run_aws_instance_import_image_task_name: "{{ import_image_and_run_aws_instance_import_image_task_name }}"
+         import_image_and_run_aws_instances_keypair_name: "{{ import_image_and_run_aws_instances_keypair_name }}"
+         import_image_and_run_aws_instance_security_groups: "{{ import_image_and_run_aws_instance_security_groups }}"
+         import_image_and_run_aws_instance_vpc_subnet_id: "{{ import_image_and_run_aws_instance_vpc_subnet_id }}"
+         import_image_and_run_aws_instance_volumes: "{{ import_image_and_run_aws_instance_volumes }}"
+```
+
+Run the playbook:
+
+```shell
+ansible-playbook playbook.yml -i inventory.yml -e "@vars.yml"
+```
+
 
 License
 -------
