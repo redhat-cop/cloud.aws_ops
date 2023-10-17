@@ -34,10 +34,10 @@ all:
       groups: mygroup
 ```
 
-All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars/main.yml`` file.
+All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars.yml`` file.
 
 Run the playbook:
 
 ```shell
-ansible-playbook cloud.aws_ops.move_vm_from_on_prem_to_aws -e "@credentials.yml" -i inventory.yml
+ansible-playbook cloud.aws_ops.move_vm_from_on_prem_to_aws -e "@credentials.yml" -e "@vars.yml" -i inventory.yml
 ```
