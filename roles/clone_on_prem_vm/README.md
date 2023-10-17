@@ -25,36 +25,44 @@ N/A
 Example Playbook
 ----------------
 
-    - hosts: localhost
-      gather_facts: false
+Create an `inventory.yml` file with information about the host running the KVM hypervisor.
 
+```yaml
+---
+all:
+  hosts:
+    kvm:
+      ansible_host: myhost
+      ansible_user: myuser
+      ansible_ssh_private_key_file: /path/to/private_key
+      groups: mygroup
+```
+
+All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars/main.yml`` file.
+
+Create a ``playbook.ym`` file like this:
+
+```
+---
+- hosts: kvm
+  gather_facts: true
+
+  tasks:
+    - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
+      ansible.builtin.import_role:
+        name: cloud.aws_ops.clone_on_prem_vm
       vars:
-        on_prem_source_vm_name: "ubuntu-guest"
-        on_prem_vm_image_name: "ubuntu-guest-image"
-        local_image_path: "~/images/"
-        kvm_host:
-          name: kvm
-          ansible_host: 192.168.1.117
-          ansible_user: vagrant
-          ansible_ssh_private_key_file: ~/.ssh/id_rsa.pub
+        clone_on_prem_vm_source_vm_name: "{{ clone_on_prem_vm_source_vm_name }}"
+        clone_on_prem_vm_image_name: "{{ clone_on_prem_vm_image_name }}"
+        clone_on_prem_vm_local_image_path: "{{ clone_on_prem_vm_local_image_path }}"
+        clone_on_prem_vm_uri: "{{ clone_on_prem_vm_uri }}"
+```
 
-      tasks:
-        - name: Add host to inventory
-          ansible.builtin.add_host:
-            name: "{{ kvm_host.name }}"
-            ansible_host: "{{ kvm_host.ansible_host }}"
-            ansible_user: "{{ kvm_host.ansible_user }}"
-            ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ kvm_host.ansible_ssh_private_key_file }}
-            groups: "libvirt"
+Run the playbook:
 
-        - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
-          ansible.builtin.import_role:
-            name: cloud.aws_ops.clone_on_prem_vm
-          vars:
-            clone_on_prem_vm_source_vm_name: "{{ on_prem_source_vm_name }}"
-            clone_on_prem_vm_image_name: "{{ on_prem_vm_image_name }}"
-            clone_on_prem_vm_local_image_path: "{{ local_image_path }}"
-          delegate_to: kvm
+```shell
+ansible-playbook playbook.yml -i inventory.yml
+```
 
 License
 -------
