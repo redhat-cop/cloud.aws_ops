@@ -26,7 +26,7 @@
         name: cloud.aws_ops.import_image_and_run_aws_instance
       vars:
         import_image_and_run_aws_instance_bucket_name: "{{ import_image_and_run_aws_instance_bucket_name }}"
-        import_image_and_run_aws_instance_image_path: "{{ import_image_and_run_aws_instance_image_path }}"
+        import_image_and_run_aws_instance_image_path: "{{ clone_on_prem_vm_raw_image_path }}"
         import_image_and_run_aws_instance_instance_name: "{{ import_image_and_run_aws_instance_instance_name }}"
         import_image_and_run_aws_instance_instance_type: "{{ import_image_and_run_aws_instance_instance_type }}"
         import_image_and_run_aws_instance_import_image_task_name: "{{ import_image_and_run_aws_instance_import_image_task_name }}"

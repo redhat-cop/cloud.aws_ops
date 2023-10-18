@@ -78,8 +78,8 @@
             Values: ["completed", "active"]
       register: import_image_and_run_aws_instance__import_image_info
       until: import_image_and_run_aws_instance__import_image_info.import_image[0].status == "completed"
-      delay: 3
-      retries: 30
+      delay: 10
+      retries: 300
 
     - name: Set 'import_image_and_run_aws_instance__ami_id' and 'import_image_and_run_aws_instance__snapshot_id'
       ansible.builtin.set_fact:

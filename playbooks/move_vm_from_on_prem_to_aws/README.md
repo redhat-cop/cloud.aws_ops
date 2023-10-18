@@ -39,5 +39,5 @@ All the variables defined in section ``Playbook Variables`` can be defined insid
 Run the playbook:
 
 ```shell
-ansible-playbook cloud.aws_ops.move_vm_from_on_prem_to_aws -e "@credentials.yml" -e "@vars.yml" -i inventory.yml
+ansible-playbook cloud.aws_ops.move_vm_from_on_prem_to_aws.move_vm_from_on_prem_to_aws -e "@credentials.yml" -e "@vars.yml" -i inventory.yml
 ```

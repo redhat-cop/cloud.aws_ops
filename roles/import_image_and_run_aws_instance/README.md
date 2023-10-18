@@ -81,7 +81,7 @@ Create a ``playbook.ym`` file like this:
 ---
 - hosts: localhost
    gather_facts: false
-   
+
    tasks:
      - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
        ansible.builtin.import_role:
@@ -90,15 +90,15 @@ Create a ``playbook.ym`` file like this:
          clone_on_prem_vm_source_vm_name: "{{ clone_on_prem_vm_source_vm_name }}"
          clone_on_prem_vm_image_name: "{{ clone_on_prem_vm_image_name }}"
          clone_on_prem_vm_local_image_path: "{{ clone_on_prem_vm_local_image_path }}"
-         clone_on_prem_vm_uri: "{{ clone_on_prem_vm_uri }}" 
+         clone_on_prem_vm_uri: "{{ clone_on_prem_vm_uri }}"
        delegate_to: kvm
-   
+
      - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
        ansible.builtin.import_role:
          name: cloud.aws_ops.import_image_and_run_aws_instance
        vars:
          import_image_and_run_aws_instance_bucket_name: "{{ import_image_and_run_aws_instance_bucket_name }}"
-         import_image_and_run_aws_instance_image_path: "{{ import_image_and_run_aws_instance_image_path }}"
+         import_image_and_run_aws_instance_image_path: "{{ clone_on_prem_vm_raw_image_path }}"
          import_image_and_run_aws_instance_instance_name: "{{ import_image_and_run_aws_instance_instance_name }}"
          import_image_and_run_aws_instance_instance_type: "{{ import_image_and_run_aws_instance_instance_type }}"
          import_image_and_run_aws_instance_import_image_task_name: "{{ import_image_and_run_aws_instance_import_image_task_name }}"

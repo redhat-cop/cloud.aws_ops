@@ -1,7 +1,7 @@
 clone_on_prem_vm
 ================
 
-A role to clone an existing on prem VM using the KVM hypervisor. The role sets the **clone_on_prem_vm_local_image_path** variable containing the path where the image was saved on localhost. This role requires privilege escalation because the .qcow2 file created by ``virt-clone`` is owned by root and ``qemu-img convert`` requires access to convert it to .raw.
+A role to clone an existing on prem VM using the KVM hypervisor. The role sets the **clone_on_prem_vm_raw_image_path** variable containing the path where the image was saved on localhost. This role requires privilege escalation because the .qcow2 file created by ``virt-clone`` is owned by root and ``qemu-img convert`` requires access to convert it to .raw.
 
 Requirements
 ------------
