@@ -16,8 +16,10 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
+        backup_create_plan_vault_name: "{{ vault_name }}"
+        backup_create_plan_plan_name: "{{ plan_name }}"
         backup_create_plan_plan_rules:
-          - "{{ backup_create_plan_daily_backup }}"
+          - "{{ daily_backup }}"
 
     - name: Get backup plan info
       amazon.aws.backup_plan_info:
@@ -33,14 +35,12 @@
           - plan_create_result.backup_plans[0].backup_plan.rules[0].rule_name == "daily"
           - not plan_create_result.backup_plans[0].tags
 
-    - name: Set vault name variable
-      ansible.builtin.set_fact:
-        vault_name: "{{ resource_prefix }}-vault"
-
     - name: Include 'backup_create_plan' role to create vault and plan
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
+        backup_create_plan_plan_name: "{{ plan_name }}"
+        backup_create_plan_vault_name: "{{ vault_name }}"
         backup_create_plan_plan_rules:
           - "{{ weekly_backup }}"
 
@@ -74,10 +74,12 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_create_plan
       vars:
+        backup_create_plan_plan_name: "{{ plan_name }}"
+        backup_create_plan_vault_name: "{{ vault_name }}"
         backup_create_plan_vault_tags:
           environment: test
         backup_create_plan_plan_rules:
-          - "{{ backup_create_plan_hourly_backup }}"
+          - "{{ hourly_backup }}"
         backup_create_plan_plan_tags:
           environment: test
 
