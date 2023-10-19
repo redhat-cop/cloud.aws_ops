@@ -35,6 +35,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
+        customized_ami_name: "{{ custom_ami_name }}"
         customized_ami_packages:
           - libvirt
         customized_ami_recreate_if_exists: true
@@ -71,6 +72,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
+        customized_ami_name: "{{ custom_ami_name }}"
         customized_ami_operation: delete
 
     - name: Get custom AMI information
@@ -96,4 +98,5 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
+        customized_ami_name: "{{ custom_ami_name }}"
         customized_ami_operation: delete
