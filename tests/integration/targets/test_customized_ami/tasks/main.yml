@@ -15,7 +15,7 @@
       vars:
         customized_ami_packages:
           - podman
-        customized_ami_name: "{{ custom_ami_name }}"
+        customized_ami_name: "{{ customized_ami_name }}"
 
     - name: Validate settings for initial AMI
       vars:
