@@ -1,0 +1,8 @@
+---
+# defaults file for roles/create_rds_global_cluster
+create_rds_global_cluster_engine: "aurora-postgresql"
+create_rds_global_cluster_engine_version: 5.7
+create_rds_global_cluster_primary_cluster_name: "{{ create_rds_global_cluster_global_cluster_name }}-primary"
+create_rds_global_cluster_replica_cluster_name: "{{ create_rds_global_cluster_global_cluster_name }}-replica"
+create_rds_global_cluster_primary_cluster_instance_name: "{{ create_rds_global_cluster_global_cluster_name }}-primary-instance"
+create_rds_global_cluster_replica_cluster_instance_name: "{{ create_rds_global_cluster_global_cluster_name }}-replica-instance"

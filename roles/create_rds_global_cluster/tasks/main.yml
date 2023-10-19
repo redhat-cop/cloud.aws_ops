@@ -1,0 +1,5 @@
+---
+- name: Run 'create_rds_global_cluster' role
+  block:
+    - name: Include file
+      ansible.builtin.include_tasks: "{{ create_rds_global_cluster_operation }}.yml"
