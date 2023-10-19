@@ -78,7 +78,6 @@ jobs:
               "python-version": "3.9"
             }
           ]
-      collection_pre_install: '-r source/tests/sanity/requirements.yml'
   all_green:
     if: ${{ always() }}
     needs:

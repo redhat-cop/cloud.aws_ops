@@ -49,13 +49,13 @@ Example Playbook
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        manage_transit_action: "create"
-        manage_transit_transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
             asn: 4200000000
             description: "TGW for Cloud team"
             tags:
               "team": "cloud"
-        manage_transit_vpc_attachment:
+        manage_transit_gateway_vpc_attachment:
             - name: "vpc-attachment-001"
               tags:
                 "team": "cloud"
@@ -77,13 +77,13 @@ Example Playbook
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        manage_transit_action: "create"
-        manage_transit_transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
           asn: 4200000000
           description: "TGW for Cloud team"
           tags:
             "team": "cloud"
-        manage_transit_vpn_attachment:
+        manage_transit_gateway_vpn_attachment:
           - customer_gateway_id: "cgw-01b56884848a25446"
 
 License
