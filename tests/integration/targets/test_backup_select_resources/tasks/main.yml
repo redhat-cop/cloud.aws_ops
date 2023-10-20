@@ -85,7 +85,7 @@
       vars:
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_name: "{{ selection_two }}"
-        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_plan_name: "{{ plan_name }}"
         backup_select_resources_selection_resources:
           - "{{ backup_select_resources_all_resources }}"
         backup_select_resources_selection_excluded_resources:
