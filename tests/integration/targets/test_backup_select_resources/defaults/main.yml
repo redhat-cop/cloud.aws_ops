@@ -6,3 +6,7 @@ selection_two: "{{ resource_prefix }}-selection-2"
 test_iam_role_name: "{{ resource_prefix }}-iam-role"
 test_iam_role_name_new: "{{ resource_prefix }}-iam-role-new"
 test_vault_name: "{{ resource_prefix }}-vault"
+daily_backup:  # Daily backup at 5am UTC with Amazon defaults for all other settings
+  rule_name: daily
+  target_backup_vault_name: "{{ test_vault_name }}"
+  schedule_expression: "cron(0 5 ? * * *)"

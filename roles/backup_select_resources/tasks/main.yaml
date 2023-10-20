@@ -6,7 +6,7 @@
   loop:
     - backup_select_resources_backup_role_name
     - backup_select_resources_plan_name
-    - selection_name
+    - backup_select_resources_selection_name
     - backup_select_resources_selection_resources
 
 - name: Run backup_select_resources role

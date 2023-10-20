@@ -9,7 +9,7 @@ backup_create_plan_hourly_backup:  # Hourly continous backup at :15 with 7-day r
   lifecycle:
     delete_after_days: 7
 
-backup_create_plan_backup_create_plan_daily_backup:  # Daily backup at 5am UTC with Amazon defaults for all other settings
+backup_create_plan_daily_backup:  # Daily backup at 5am UTC with Amazon defaults for all other settings
   rule_name: daily
   target_backup_vault_name: "{{ vault_name }}"
   schedule_expression: "cron(0 5 ? * * *)"

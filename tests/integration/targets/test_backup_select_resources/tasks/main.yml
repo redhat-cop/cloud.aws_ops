@@ -15,6 +15,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
+        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name_new }}"
         backup_select_resources_selection_resources:
           - "{{ backup_select_resources_all_resources }}"
@@ -35,6 +37,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
+        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
           - "{{ backup_select_resources_all_resources }}"
@@ -55,10 +59,12 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
+        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
           - "{{ backup_select_resources_all_s3_buckets }}"
-        backup_select_resources_selection_tags: "{{ backup_select_resources_conditions_tagged_backup_and_prod }}"
+        backup_select_resources_selection_tags: "{{ backup_select_resources_tag_list_backup_or_prod }}"
 
     - name: Get updated backup selection info
       amazon.aws.backup_selection_info:
@@ -79,6 +85,7 @@
       vars:
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_name: "{{ selection_two }}"
+        backup_select_resources_plan_name: "{{ plan_name}}"
         backup_select_resources_selection_resources:
           - "{{ backup_select_resources_all_resources }}"
         backup_select_resources_selection_excluded_resources:
