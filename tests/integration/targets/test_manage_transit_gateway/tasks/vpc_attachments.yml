@@ -44,7 +44,7 @@
       delay: 5
       until: manage_transit_gateway_gw_available.transit_gateways[0].state == 'available'
 
-    - name: Describe attachments on a specific VPC
+    - name: Describe AWS Transit Gateway VPC attachments
       community.aws.ec2_transit_gateway_vpc_attachment_info:
         filters:
           transit-gateway-id: '{{ gw.transit_gateway_id }}'

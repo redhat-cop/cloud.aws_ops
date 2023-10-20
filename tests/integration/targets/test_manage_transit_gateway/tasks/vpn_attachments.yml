@@ -2,7 +2,7 @@
 - name: Test 'manage_transit_gateway' role
   block:
     # Creation
-    - name: Create Transit Gateway with VPC attachemnt
+    - name: Create Transit Gateway with VPC attachment
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:

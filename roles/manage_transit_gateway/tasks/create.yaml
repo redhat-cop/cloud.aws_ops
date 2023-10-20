@@ -20,16 +20,16 @@
       when: not manage_transit_gateway_tgw_result.changed
 
     - name: Create VPC attachment
-      when: vars["vpc_attachment"] is defined
+      when: vars["manage_transit_gateway_vpc_attachment"] is defined
       ansible.builtin.include_tasks: create_vpc_attachment.yaml
-      loop: "{{ vpc_attachment }}"
+      loop: "{{ manage_transit_gateway_vpc_attachment }}"
 
     - name: Create VPN attachment
-      when: vars["vpn_attachment"] is defined
+      when: vars["manage_transit_gateway_vpn_attachment"] is defined
       ansible.builtin.include_tasks: create_vpn_attachment.yaml
-      loop: "{{ vpn_attachment }}"
+      loop: "{{ manage_transit_gateway_vpn_attachment }}"
 
     - name: Create route table entries
-      when: vars["vpc_route_table"] is defined
+      when: vars["manage_transit_gateway_vpc_route_table"] is defined
       ansible.builtin.include_tasks: add_vpc_route_entries.yaml
-      loop: "{{ vpc_route_table }}"
+      loop: "{{ manage_transit_gateway_vpc_route_table }}"
