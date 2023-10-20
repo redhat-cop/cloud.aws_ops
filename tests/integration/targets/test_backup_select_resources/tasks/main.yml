@@ -15,7 +15,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_plan_name: "{{ plan_name }}"
         backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name_new }}"
         backup_select_resources_selection_resources:
@@ -37,7 +37,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_plan_name: "{{ plan_name }}"
         backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
@@ -59,7 +59,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.backup_select_resources
       vars:
-        backup_select_resources_plan_name: "{{ plan_name}}"
+        backup_select_resources_plan_name: "{{ plan_name }}"
         backup_select_resources_selection_name: "{{ selection_name }}"
         backup_select_resources_backup_role_name: "{{ test_iam_role_name }}"
         backup_select_resources_selection_resources:
