@@ -13,9 +13,6 @@
 
     - name: Run operation create/delete
       ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
-      vars:
-        bastion_host_type: t3.micro
-        deploy_flask_app_workers_instance_type: t3.micro
 
 - name: Deploy Flask App
   hosts: localhost
@@ -33,4 +30,3 @@
         deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
         deploy_flask_app_vm_info: "{{ vm_result }}"
         deploy_flask_app_rds_info: "{{ rds_result }}"
-        deploy_flask_app_workers_instance_type: t3.micro

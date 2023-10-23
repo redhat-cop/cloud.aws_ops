@@ -22,7 +22,6 @@
         - item.health_check_config.type == 'HTTP'
         - item.health_check_config.fully_qualified_domain_name | regex_search('.*elb.amazonaws.com')
       loop: "{{ health_check_info.health_checks }}"
-      ignore_errors: True
 
     - name: Get hosted zone details
       amazon.aws.route53_info:
@@ -50,7 +49,6 @@
         alias: True
         alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
         value: "{{ item.alias_target.dns_name[:-1] }}"
-      ignore_errors: True
       when:
         - item.set_identifier is defined
         - item.set_identifier == "primary-record"
@@ -67,7 +65,6 @@
         failover: "SECONDARY"
         alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
         value: "{{ item.alias_target.dns_name[:-1] }}"
-      ignore_errors: True
       when:
         - item.set_identifier is defined
         - item.set_identifier == "replica-record"
