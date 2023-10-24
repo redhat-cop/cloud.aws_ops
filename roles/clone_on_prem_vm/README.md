@@ -40,7 +40,7 @@ all:
 
 All the variables defined in section ``Playbook Variables`` can be defined inside the ``vars.yml`` file.
 
-Create a ``playbook.ym`` file like this:
+Create a ``playbook.yml`` file like this:
 
 ```
 ---
