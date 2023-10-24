@@ -38,7 +38,7 @@
         record: "{{ route53_subdomain }}.{{ route53_zone_name }}"
         type: A
         value: "{{ primary_lb.elb.dns_name }}"
-        alias: True
+        alias: true
         identifier: "primary-record"
         failover: "PRIMARY"
         health_check: "{{ healthchk_primary_result.health_check.id }}"
@@ -52,7 +52,7 @@
         record: "{{ route53_subdomain }}.{{ route53_zone_name }}"
         type: A
         value: "{{ replica_lb.elb.dns_name }}"
-        alias: True
+        alias: true
         identifier: "replica-record"
         failover: "SECONDARY"
         health_check: "{{ healthchk_replica_result.health_check.id }}"

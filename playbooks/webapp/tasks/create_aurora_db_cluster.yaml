@@ -62,6 +62,12 @@
         region: "{{ rds_replica_cluster_region }}"
       register: replica_cluster_info_result
 
+    - name: Get replica instance info
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ rds_replica_cluster_instance_name }}"
+        region: "{{ rds_replica_cluster_region }}"
+      register: replica_instance_info_result
+
     - name: Get global db info
       amazon.aws.rds_global_cluster_info:
         global_cluster_identifier: "{{ rds_global_cluster_name }}"

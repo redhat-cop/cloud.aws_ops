@@ -46,9 +46,12 @@
         zone: "{{ route53_zone_name }}"
         record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
         type: A
-        alias: True
+        alias: true
         alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
         value: "{{ item.alias_target.dns_name[:-1] }}"
+        identifier: "primary-record"
+        health_check: "{{ item.health_check_id }}"
+        failover: "PRIMARY"
       when:
         - item.set_identifier is defined
         - item.set_identifier == "primary-record"
@@ -60,11 +63,12 @@
         zone: "{{ route53_zone_name }}"
         record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
         type: A
-        alias: True
+        alias: true
         identifier: "replica-record"
         failover: "SECONDARY"
         alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
         value: "{{ item.alias_target.dns_name[:-1] }}"
+        health_check: "{{ item.health_check_id }}"
       when:
         - item.set_identifier is defined
         - item.set_identifier == "replica-record"

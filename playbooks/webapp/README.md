@@ -173,7 +173,7 @@ Along with the [above](https://github.com/redhat-cop/cloud.aws_ops/blob/main/pla
 * **rds_replica_cluster_instance_name** (str): Name of the replica db instance. Default: "{{ resource_prefix }}-replica-instance"
 
 #### vars for route53 records
-* **route53_zone_name** (str): Route53 Zone name. Default: "ansiblecloud.xyz"
+* **route53_zone_name** (str): (required) Route53 Zone name.
 * **route53_subdomain** (str): Sub domain name for the application url. Default: "flaskapp"
 
 ## Example Usage
