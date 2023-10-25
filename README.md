@@ -31,6 +31,8 @@ Name | Description
 [cloud.aws_ops.manage_transit_gateway](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/manage_transit_gateway/README.md)|A role to create/delete transit_gateway with vpc and vpn attachments.
 [cloud.aws_ops.deploy_flask_app](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/deploy_flask_app/README.md)|A role to deploy a flask web application on AWS.
 [cloud.aws_ops.create_rds_global_cluster](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/create_rds_global_cluster/README.md)|A role to create, delete aurora global cluster with a primary cluster and a replica cluster in different regions.
+[cloud.aws_ops.clone_on_prem_vm](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/clone_on_prem_vm/README.md)|A role to clone an existing on prem VM using the KVM hypervisor.
+[cloud.aws_ops.import_image_and_run_aws_instance](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/import_image_and_run_aws_instance/README.md)|A role that imports a local .raw image into an Amazon Machine Image (AMI) and run an AWS EC2 instance.
 
 ### Playbooks
 Name | Description
@@ -38,6 +40,7 @@ Name | Description
 [cloud.aws_ops.eda](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
 [cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
 [cloud.aws_ops.upload_file_to_s3](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
+[cloud.aws_ops.move_vm_from_on_prem_to_aws](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS.
 
 ### Rulebooks
 Name | Description

@@ -1,0 +1,5 @@
+---
+- name: Delete temporary directory
+  ansible.builtin.file:
+    state: absent
+    path: "{{ clone_on_prem_vm__tmpdir.path }}"

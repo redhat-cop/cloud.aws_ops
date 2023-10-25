@@ -1,0 +1,2 @@
+dependencies:
+  - role: cloud.aws_ops.aws_setup_credentials
