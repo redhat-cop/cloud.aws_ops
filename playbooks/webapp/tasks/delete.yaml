@@ -1,10 +1,13 @@
 ---
 - name: Delete resources playbook
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region | default(aws_region) }}"
 
   block:
-    - name: Set 'region' variable
-      ansible.builtin.set_fact:
-        region: "{{ region | default(aws_region) }}"
 
     - name: Get vpc information
       amazon.aws.ec2_vpc_net_info:
@@ -12,7 +15,7 @@
           tag:Name: "{{ vpc_name }}"
       register: vpc
 
-    - name: Deelete resources
+    - name: Delete resources
       when: vpc.vpcs | length == 1
       block:
         - name: Set 'vpc_id' variable
@@ -25,6 +28,7 @@
               instance-type: "{{ bastion_host_type }}"
               key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
               vpc-id: "{{ vpc_id }}"
+              instance-state-name: running
           register: bastion
 
         - name: Delete EC2 instances with dependant Resources
@@ -53,6 +57,7 @@
               register: running
 
             - name: Delete workers
+              when: running.instances | length != 0
               amazon.aws.ec2_instance:
                 instance_ids: "{{ running.instances | map(attribute='instance_id') | list }}"
                 wait: true
@@ -142,4 +147,3 @@
             name: "{{ vpc_name }}"
             cidr_block: "{{ vpc_cidr }}"
             state: absent
-          ignore_errors: true

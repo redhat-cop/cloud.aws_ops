@@ -1,15 +1,11 @@
 ---
-- name: Set 'region' variable
-  ansible.builtin.set_fact:
-    region: "{{ region | default(aws_region) }}"
-
 - name: Create resources playbook
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key | default(omit) }}"
       aws_secret_key: "{{ aws_secret_key | default(omit) }}"
       security_token: "{{ security_token | default(omit) }}"
-      region: "{{ region }}"
+      region: "{{ region | default(aws_region) }}"
   block:
     - name: Get image ID to create an instance
       amazon.aws.ec2_ami_info:
@@ -147,61 +143,64 @@
         state: present
       register: rds_sg
 
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_result
-
-    - name: Create RDS instance
-      when: rds_result.instances | length == 0
+    - name: RDS creation
+      when: not "aurora" in rds_engine
       block:
-        - name: Create RDS instance (PostGreSQL Database)
-          amazon.aws.rds_instance:
-            force_update_password: true
-            wait: true
-            allocated_storage: "{{ rds_allocated_storage_gb }}"
-            backup_retention_period: 0
-            db_instance_class: "{{ rds_instance_class }}"
+        - name: Get RDS instance info
+          amazon.aws.rds_instance_info:
             db_instance_identifier: "{{ rds_identifier }}"
-            db_name: "{{ rds_instance_name }}"
-            engine: "{{ rds_engine }}"
-            engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-            master_username: "{{ deploy_flask_app_rds_master_username }}"
-            monitoring_interval: 0
-            storage_type: standard
-            skip_final_snapshot: true
-            db_subnet_group_name: "{{ rds_subnet_group_name }}"
-            vpc_security_group_ids:
-              - "{{ rds_sg.group_id }}"
-          when: rds_snapshot_arn is not defined
+          register: rds_result
 
-        - name: Create RDS instance from snapshot (PostGreSQL Database)
-          amazon.aws.rds_instance:
-            force_update_password: true
-            wait: true
-            allocated_storage: "{{ rds_allocated_storage_gb }}"
-            backup_retention_period: 0
-            db_instance_class: "{{ rds_instance_class }}"
+        - name: Create RDS instance
+          when: rds_result.instances | length == 0
+          block:
+            - name: Create RDS instance (PostGreSQL Database)
+              amazon.aws.rds_instance:
+                force_update_password: true
+                wait: true
+                allocated_storage: "{{ rds_allocated_storage_gb }}"
+                backup_retention_period: 0
+                db_instance_class: "{{ rds_instance_class }}"
+                db_instance_identifier: "{{ rds_identifier }}"
+                db_name: "{{ rds_instance_name }}"
+                engine: "{{ rds_engine }}"
+                engine_version: "{{ rds_engine_version }}"
+                master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+                master_username: "{{ deploy_flask_app_rds_master_username }}"
+                monitoring_interval: 0
+                storage_type: standard
+                skip_final_snapshot: true
+                db_subnet_group_name: "{{ rds_subnet_group_name }}"
+                vpc_security_group_ids:
+                  - "{{ rds_sg.group_id }}"
+              when: rds_snapshot_arn is not defined
+
+            - name: Create RDS instance from snapshot (PostGreSQL Database)
+              amazon.aws.rds_instance:
+                force_update_password: true
+                wait: true
+                allocated_storage: "{{ rds_allocated_storage_gb }}"
+                backup_retention_period: 0
+                db_instance_class: "{{ rds_instance_class }}"
+                db_instance_identifier: "{{ rds_identifier }}"
+                engine: "{{ rds_engine }}"
+                engine_version: "{{ rds_engine_version }}"
+                master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+                master_username: "{{ deploy_flask_app_rds_master_username }}"
+                monitoring_interval: 0
+                storage_type: standard
+                skip_final_snapshot: true
+                db_subnet_group_name: "{{ rds_subnet_group_name }}"
+                vpc_security_group_ids:
+                  - "{{ rds_sg.group_id }}"
+                creation_source: snapshot
+                db_snapshot_identifier: "{{ rds_snapshot_arn }}"
+              when: rds_snapshot_arn is defined
+
+        - name: Get RDS instance info
+          amazon.aws.rds_instance_info:
             db_instance_identifier: "{{ rds_identifier }}"
-            engine: "{{ rds_engine }}"
-            engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-            master_username: "{{ deploy_flask_app_rds_master_username }}"
-            monitoring_interval: 0
-            storage_type: standard
-            skip_final_snapshot: true
-            db_subnet_group_name: "{{ rds_subnet_group_name }}"
-            vpc_security_group_ids:
-              - "{{ rds_sg.group_id }}"
-            creation_source: snapshot
-            db_snapshot_identifier: "{{ rds_snapshot_arn }}"
-          when: rds_snapshot_arn is defined
-
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_result
+          register: rds_result
 
     - name: Set 'sshkey_file' variable
       ansible.builtin.set_fact:
@@ -219,7 +218,17 @@
         mode: 0400
       when: rsa_key is changed
 
+    - name: Check if the vm exists
+      amazon.aws.ec2_instance_info:
+        filters:
+          instance-type: "{{ bastion_host_type }}"
+          key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
+          vpc-id: "{{ vpc.vpc.id }}"
+          instance-state-name: running
+      register: vm_result
+
     - name: Create a virtual machine
+      when: vm_result.instances | length == 0
       amazon.aws.ec2_instance:
         name: "{{ deploy_flask_app_bastion_host_name }}"
         instance_type: "{{ bastion_host_type }}"

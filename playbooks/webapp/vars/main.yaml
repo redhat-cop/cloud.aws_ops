@@ -1,8 +1,7 @@
 ---
 # Variables for create.yaml
-aws_region: us-east-1
+resource_prefix: "ansible-test"
 dest_region: us-east-2
-resource_prefix: "ansible-demo-test"
 vpc_name: "{{ resource_prefix }}-vpc"
 vpc_cidr: 10.1.0.0/16
 subnet_cidr:
@@ -13,7 +12,7 @@ resource_tags:
   prefix: "{{ resource_prefix }}"
 operation: create
 
-image_filter: Fedora-Cloud-Base-35-*
+image_filter: Fedora-Cloud-Base-35-*gp2-0
 public_secgroup_name: "{{ resource_prefix }}-sg"
 rds_subnet_group_name: "{{ resource_prefix }}-rds-sg"
 rds_secgroup_name: "{{ resource_prefix }}-rds-sec"
@@ -36,10 +35,11 @@ deploy_flask_app_bastion_host_required_packages:
   - python-virtualenv
   - sshpass
   - git
+  - gcc
   - podman
   - httpd-tools
-  - ansible
-deploy_flask_app_workers_instance_type: t3.micro
+  - ansible-core
+deploy_flask_app_workers_instance_type: t2.xlarge
 deploy_flask_app_workers_user_name: fedora
 deploy_flask_app_number_of_workers: 2
 deploy_flask_app_listening_port: 5000
@@ -55,3 +55,20 @@ deploy_flask_app_local_registry_pwd: testing123
 deploy_flask_app_local_registry_port: "{{ deploy_flask_app_listening_port }}"
 deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible
+
+# vars to create aurora db cluster
+# Global cluster parameters ================================
+rds_global_cluster_name: "{{ resource_prefix }}-global-cluster"
+
+# Primary cluster parameters ================================
+rds_primary_cluster_name: "{{ resource_prefix }}-primary-cluster"
+rds_primary_cluster_region: us-west-2
+rds_primary_cluster_instance_name: "{{ resource_prefix }}-primary-instance"
+
+# Replica cluster parameters ================================
+rds_replica_cluster_name: "{{ resource_prefix }}-replica-cluster"
+rds_replica_cluster_region: us-east-2
+rds_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"
+
+# vars for route53 records
+route53_subdomain: "flaskapp"

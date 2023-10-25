@@ -24,6 +24,9 @@
       ansible.builtin.yum:
         name:
           - podman
+        sslverify: false
+        validate_certs: false
+        update_cache: true
         state: present
 
     - name: Pull image from private registry

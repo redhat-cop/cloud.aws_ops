@@ -1,0 +1,75 @@
+---
+- name: Add Route53 configurations
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+  block:
+
+    - name: Get health check info
+      amazon.aws.route53_info:
+        query: health_check
+      register: health_check_info
+
+
+    - name: Delete route53 health check for the load balancer in primary region
+      amazon.aws.route53_health_check:
+        health_check_id: "{{ item.id }}"
+        state: absent
+      when:
+        - item.health_check_config.port == 5000
+        - item.health_check_config.type == 'HTTP'
+        - item.health_check_config.fully_qualified_domain_name | regex_search('.*elb.amazonaws.com')
+      loop: "{{ health_check_info.health_checks }}"
+
+    - name: Get hosted zone details
+      amazon.aws.route53_info:
+        query: hosted_zone
+      register: hosted_zone_info
+
+    - name: Set facts for deletion
+      ansible.builtin.set_fact:
+        hosted_zone_id: "{{ item.id }}"
+      when: item.name[:-1] ==  route53_zone_name
+      loop: "{{ hosted_zone_info.hosted_zones }}"
+
+    - name: Get alias hosted zone record record details
+      amazon.aws.route53_info:
+        query: record_sets
+        hosted_zone_id: "{{ hosted_zone_id }}"
+      register: record_info
+
+    - name: Delete  alias record that points to an aws ELB in the primary region
+      amazon.aws.route53:
+        state: absent
+        zone: "{{ route53_zone_name }}"
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
+        type: A
+        alias: true
+        alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
+        value: "{{ item.alias_target.dns_name[:-1] }}"
+        identifier: "primary-record"
+        health_check: "{{ item.health_check_id }}"
+        failover: "PRIMARY"
+      when:
+        - item.set_identifier is defined
+        - item.set_identifier == "primary-record"
+      loop: "{{ record_info.resource_record_sets }}"
+
+    - name: Delete  alias record that points to an aws ELB in the secondary region
+      amazon.aws.route53:
+        state: absent
+        zone: "{{ route53_zone_name }}"
+        record: "{{ route53_subdomain }}.{{ route53_zone_name }}."
+        type: A
+        alias: true
+        identifier: "replica-record"
+        failover: "SECONDARY"
+        alias_hosted_zone_id: "{{ item.alias_target.hosted_zone_id }}"
+        value: "{{ item.alias_target.dns_name[:-1] }}"
+        health_check: "{{ item.health_check_id }}"
+      when:
+        - item.set_identifier is defined
+        - item.set_identifier == "replica-record"
+      loop: "{{ record_info.resource_record_sets }}"

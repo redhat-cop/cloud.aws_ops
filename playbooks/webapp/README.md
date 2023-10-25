@@ -85,7 +85,7 @@ To delete the webapp:
 ### Common
 
 * **operation** (str): Operation for the webapp playbook to perform, either `create` or `delete`. Default: `create`
-* **resource_prefix** (str): (Required) A prefix to prepend to the name of all AWS resources created for the webapp
+* **resource_prefix** (str): A prefix to prepend to the name of all AWS resources created for the webapp. Default: `ansible-test`
 * **resource_tags** (dict, elements dict): Tags to apply to all AWS resources created for the webapp. Default: `prefix: "{{ resource_prefix }}"`
 * **aws_access_key** (str): (Required) AWS access key ID for user account with the above permissions
 * **aws_secret_key** (str): (Required) AWS secret access key for user account with the above permissions
@@ -157,6 +157,25 @@ To delete the webapp:
   ```
 * **deploy_flask_app_force_init** (bool): Whether to drop existing tables and create new ones when deploying the webapp database. Default: `false`
 
+### webapp deployment in HA architecture
+
+`webapp_ha_aurora.yaml` playbook deploys the flask app to a cross region high availability architecture. The playbook replicates the app deployment to a second region. The backend is an Aurora global cluster. For adding the write forwarding feature, aurora-mysql can be used. Default db engine is aurora-postgresql. The app in each region is configured to access the associated Aurora cluster. In front of the two regions, route53 records are added to provide cross region DNS (failover scenario).
+
+Along with the [above](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/webapp/README.md#playbook-variables) variables, following variables are needed for this playbook:
+
+* **rds_instance_class** (str): DB instance class for the aurora db instances. Default: `db.r5.large`
+* **rds_global_cluster_name** (str): Name of the global cluster. Default: "{{ resource_prefix }}-global-cluster"
+* **rds_primary_cluster_name** (str): Name of the primary cluster. Default: "{{ resource_prefix }}-primary-cluster"
+* **rds_primary_cluster_region** (str): Primary Region. Default: `us-west-2`
+* **rds_primary_cluster_instance_name** (str): Name of primary db instance. Default: "{{ resource_prefix }}-primary-instance"
+* **rds_replica_cluster_name** (str): Name of the replica cluster. Default: "{{ resource_prefix }}-replica-cluster"
+* **rds_replica_cluster_region** (str): Replica Region. Default: `us-east-2`
+* **rds_replica_cluster_instance_name** (str): Name of the replica db instance. Default: "{{ resource_prefix }}-replica-instance"
+
+#### vars for route53 records
+* **route53_zone_name** (str): (required) Route53 Zone name.
+* **route53_subdomain** (str): Sub domain name for the application url. Default: "flaskapp"
+
 ## Example Usage
 
 Create a `credentials.yaml` file with the folling contents:
@@ -187,3 +206,16 @@ ansible-playbook migrate_webapp.yaml -e "@credentials.yaml" -e "dest_region=my-n
 ```
 
 Note: migrating a webapp does not delete the app resources from the source region by default. To delete the source webapp, set var `delete_source: true`.
+
+To deploy the app in a high availability architecture, run:
+
+```bash
+ansible-playbook webapp_ha_aurora.yaml -e "@credentials.yaml" -e "operation=create"
+```
+
+To delete the webapp resources created by the above playbook, run:
+
+```bash
+ansible-playbook webapp_ha_aurora.yaml -e "@credentials.yaml" -e "operation=delete"
+```
+

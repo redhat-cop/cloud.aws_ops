@@ -24,6 +24,7 @@
       ansible.builtin.yum:
         name:
           - podman
+        update_cache: True
         state: present
 
     - name: Pull image from private registry

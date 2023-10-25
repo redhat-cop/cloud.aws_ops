@@ -3,6 +3,7 @@ registry_host_port: "{{ deploy_flask_app_setup.add_host.host_vars.host_config.pr
 registry_login:
     user: "{{ deploy_flask_app_local_registry_user }}"
     password: "{{ deploy_flask_app_local_registry_pwd }}"
+rds_listening_port: "{{ rds_listening_port }}"
 application_dir: "{{ deploy_flask_app_config.app_dir }}"
 application_env: "{{ deploy_flask_app_config.env }}"
 application_db:

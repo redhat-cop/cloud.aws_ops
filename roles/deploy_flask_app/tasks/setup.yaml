@@ -26,7 +26,7 @@
           vpc_id: "{{ deploy_flask_app_vpc_id }}"
           rds_info:
             host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
-            name: "{{ deploy_flask_app_rds_info.instances.0.dbname | default('mysampledb123') }}"
+            name: "{{ deploy_flask_app_rds_info.instances.0.db_name | default('mysampledb123') }}"
             master_user_password: "{{ deploy_flask_app_rds_master_password | default('L#5cH2mgy_') }}"
             master_username: "{{ deploy_flask_app_rds_master_username | default('ansible') }}"
       register: deploy_flask_app_setup
