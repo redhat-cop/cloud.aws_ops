@@ -71,5 +71,4 @@ rds_replica_cluster_region: us-east-2
 rds_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"
 
 # vars for route53 records
-route53_zone_name: "ansiblecloud.xyz"
 route53_subdomain: "flaskapp"
