@@ -25,7 +25,7 @@
       when: backup_select_resources_backup_plan_info.backup_plans | length == 0
 
     - name: Get provided IAM role info
-      community.aws.iam_role_info:
+      amazon.aws.iam_role_info:
         name: "{{ backup_select_resources_backup_role_name }}"
       register: backup_select_resources_role_info
 
@@ -33,7 +33,7 @@
       when: backup_select_resources_role_info.iam_roles | length == 0
       block:
         - name: Create role
-          community.aws.iam_role:
+          amazon.aws.iam_role:
             name: "{{ backup_select_resources_backup_role_name }}"
             state: present
             assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'

@@ -1,6 +1,6 @@
 ---
 - name: Create an IAM Role for backup
-  community.aws.iam_role:
+  amazon.aws.iam_role:
     name: "{{ test_iam_role_name }}"
     state: present
     assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'

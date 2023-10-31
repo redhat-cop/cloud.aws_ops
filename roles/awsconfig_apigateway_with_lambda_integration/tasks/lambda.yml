@@ -3,7 +3,7 @@
   when: awsconfig_apigateway_with_lambda_integration_operation == 'create'
   block:
     - name: Create role for lambda function
-      community.aws.iam_role:
+      amazon.aws.iam_role:
         name: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
         assume_role_policy_document: '{{ lookup("file", "lambda_trust_policy.json") }}'
         create_instance_profile: false
@@ -65,6 +65,6 @@
         state: absent
 
     - name: Delete IAM role name
-      community.aws.iam_role:
+      amazon.aws.iam_role:
         name: "{{ awsconfig_apigateway_with_lambda_integration__iam_role_name }}"
         state: absent
