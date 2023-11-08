@@ -8,4 +8,4 @@ skip_list:
   - no-handler  # Tasks that run when changed should likely be handlers.
   - no-changed-when  # Commands should not change things if nothing needs doing.
 exclude_paths:
-  - roles/aws_setup_credentials/  # Skip defaults/main.yml file
+  - tests/integration
