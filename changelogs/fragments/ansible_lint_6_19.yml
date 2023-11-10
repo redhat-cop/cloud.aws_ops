@@ -1,4 +1,5 @@
 breaking_changes:
+  - Remove support for ansible-core < 2.14
   - roles/awsconfig_multiregion_cloudtrail - ``operation`` option has been renamed to ``awsconfig_multiregion_cloudtrail_operation`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
   - roles/awsconfig_multiregion_cloudtrail - ``bucket_name`` option has been renamed to ``awsconfig_multiregion_cloudtrail_bucket_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
   - roles/awsconfig_multiregion_cloudtrail - ``key_prefix`` option has been renamed to ``awsconfig_multiregion_cloudtrail_key_prefix`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
