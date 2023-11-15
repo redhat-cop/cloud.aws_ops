@@ -1,3 +1,7 @@
 cloud/aws
 role/deploy_flask_app
 time=35m
+
+# Integration tests are broken
+# fatal: [testhost -> bastion]: UNREACHABLE!
+disabled

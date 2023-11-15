@@ -7,9 +7,9 @@ Instances with termination_protection enabled will not be terminated.
 To terminate instances with termination_protection enabled, please set `terminate_protected_instances` to `True`.
 
 ## Specify following values in role vars
-- tag_key_to_terminate_instances
-- tag_value_to_terminate_instances
-- terminate_protected_instances
+- ec2_instance_terminate_by_tag_tag_key_to_terminate_instances
+- ec2_instance_terminate_by_tag_tag_value_to_terminate_instances
+- ec2_instance_terminate_by_tag_terminate_protected_instances
 
 ## Role and instances in a AutoScalingGroup (ASG)
 
@@ -34,9 +34,9 @@ Dependencies
   roles:
     - role: cloud.aws_ops.ec2_instance_terminate_by_tag
       vars:
-          tag_key_to_terminate_instances: instances-to-terminate
-          tag_value_to_terminate_instances: "True"
-          terminate_protected_instances: True
+          ec2_instance_terminate_by_tag_tag_key_to_terminate_instances: instances-to-terminate
+          ec2_instance_terminate_by_tag_tag_value_to_terminate_instances: "True"
+          ec2_instance_terminate_by_tag_terminate_protected_instances: True
 ```
 
 License

@@ -4,10 +4,10 @@
     msg: "Required variable {{ item }} has not been defined"
   when: vars[item] is undefined
   loop:
-    - backup_role_name
-    - plan_name
-    - selection_name
-    - selection_resources
+    - backup_select_resources_backup_role_name
+    - backup_select_resources_plan_name
+    - backup_select_resources_selection_name
+    - backup_select_resources_selection_resources
 
 - name: Run backup_select_resources role
   module_defaults:
@@ -16,25 +16,25 @@
     - name: Get plan info
       amazon.aws.backup_plan_info:
         backup_plan_names:
-          - "{{ plan_name }}"
+          - "{{ backup_select_resources_plan_name }}"
       register: backup_select_resources_backup_plan_info
 
     - name: Fail when backup plan does not exist
       ansible.builtin.fail:
-        msg: Backup plan {{ plan_name }} does not exist, please create or confirm plan name is correct.
+        msg: Backup plan {{ backup_select_resources_plan_name }} does not exist, please create or confirm plan name is correct.
       when: backup_select_resources_backup_plan_info.backup_plans | length == 0
 
     - name: Get provided IAM role info
-      community.aws.iam_role_info:
-        name: "{{ backup_role_name }}"
+      amazon.aws.iam_role_info:
+        name: "{{ backup_select_resources_backup_role_name }}"
       register: backup_select_resources_role_info
 
     - name: Create new role when IAM role does not exist
       when: backup_select_resources_role_info.iam_roles | length == 0
       block:
         - name: Create role
-          community.aws.iam_role:
-            name: "{{ backup_role_name }}"
+          amazon.aws.iam_role:
+            name: "{{ backup_select_resources_backup_role_name }}"
             state: present
             assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'
             create_instance_profile: false
@@ -58,21 +58,21 @@
     - name: Create or update backup selection
       amazon.aws.backup_selection:
         state: present
-        backup_plan_name: "{{ plan_name }}"
-        selection_name: "{{ selection_name }}"
+        backup_plan_name: "{{ backup_select_resources_plan_name }}"
+        selection_name: "{{ backup_select_resources_selection_name }}"
         iam_role_arn: "{{ backup_select_resources_backup_role_arn }}"
-        resources: "{{ selection_resources }}"
-        list_of_tags: "{{ selection_tags | default(omit) }}"
-        not_resources: "{{ selection_excluded_resources | default(omit) }}"
-        conditions: "{{ selection_conditions | default(omit) }}"
+        resources: "{{ backup_select_resources_selection_resources }}"
+        list_of_tags: "{{ backup_select_resources_selection_tags | default(omit) }}"
+        not_resources: "{{ backup_select_resources_selection_excluded_resources | default(omit) }}"
+        conditions: "{{ backup_select_resources_selection_conditions | default(omit) }}"
       register: backup_select_resources_selection_result
 
     - name: Verify that selection has been created/updated
       ansible.builtin.debug:
-        msg: Backup selection '{{ selection_name }}' successfully created/updated.
+        msg: Backup selection '{{ backup_select_resources_selection_name }}' successfully created/updated.
       when: backup_select_resources_selection_result is changed
 
     - name: Verify that selection already exists
       ansible.builtin.debug:
-        msg: Backup selection '{{ selection_name }}' exists, no updates needed.
+        msg: Backup selection '{{ backup_select_resources_selection_name }}' exists, no updates needed.
       when: backup_select_resources_selection_result is not changed

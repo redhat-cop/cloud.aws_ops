@@ -25,7 +25,7 @@
       when: import_image_and_run_aws_instance_import_image_task_name is undefined
 
     - name: Get information about the S3 bucket
-      community.aws.s3_bucket_info:
+      amazon.aws.s3_bucket_info:
         name: "{{ import_image_and_run_aws_instance_bucket_name }}"
       register: import_image_and_run_aws_instance__bucket_info
 

@@ -2,17 +2,17 @@
 - name: Test 'manage_transit_gateway' role
   block:
     # Creation
-    - name: Create Transit Gateway with VPC attachemnt
+    - name: Create Transit Gateway with VPC attachment
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        action: "create"
-        transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
           asn: 4200000000
           description: "TGW for Cloud team"
           tags:
             "team": "cloud"
-        vpn_attachment:
+        manage_transit_gateway_vpn_attachment:
           - customer_gateway_id: "{{ customer_gw_id }}"
 
     - name: Get vpn connections info

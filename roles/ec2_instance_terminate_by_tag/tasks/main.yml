@@ -6,12 +6,12 @@
   block:
     - name: Verify that tag to terminate instances with was provided
       ansible.builtin.fail:
-        msg: -"Please set 'tag_key_to_terminate_instances' to a tag based on which instances should be terminated..."
-      when: tag_key_to_terminate_instances | length == 0
+        msg: -"Please set 'ec2_instance_terminate_by_tag_tag_key_to_terminate_instances' to a tag based on which instances should be terminated..."
+      when: ec2_instance_terminate_by_tag_tag_key_to_terminate_instances | length == 0
 
     - name: Prepare filters dict to filter running instances with specified tag
       ansible.builtin.set_fact:
-        ec2_instance_terminate_by_tag__filters: "{{ {'instance-state-name': 'running', 'tag:' + tag_key_to_terminate_instances: tag_value_to_terminate_instances} }}"
+        ec2_instance_terminate_by_tag__filters: "{{ {'instance-state-name': 'running', 'tag:' + ec2_instance_terminate_by_tag_tag_key_to_terminate_instances: ec2_instance_terminate_by_tag_tag_value_to_terminate_instances} }}"
 
     - name: Get instances to be terminated
       amazon.aws.ec2_instance_info:
@@ -23,16 +23,16 @@
         ec2_instance_terminate_by_tag__instance_ids: "{{ ec2_instance_terminate_by_tag__tagged_instances.instances | map(attribute='instance_id') | list }}"
 
     - name: Disable 'termination_protection'
-      when: terminate_protected_instances
+      when: ec2_instance_terminate_by_tag_terminate_protected_instances
       block:
-        - name: Verify that terminate_protected_instances=True
+        - name: Verify that ec2_instance_terminate_by_tag_terminate_protected_instances=True
           ansible.builtin.debug:
             msg:
-              - "'terminate_protected_instances' is set to True..."
+              - "'ec2_instance_terminate_by_tag_terminate_protected_instances' is set to True..."
               - Instances with termination protection enabled will also be terminated...
           when: ec2_instance_terminate_by_tag__instance_ids | length != 0
 
-        - name: Disable instance termination protection if terminate_protected_instances is true
+        - name: Disable instance termination protection if ec2_instance_terminate_by_tag_terminate_protected_instances is true
           amazon.aws.ec2_instance:
             instance_ids:
               - "{{ item }}"

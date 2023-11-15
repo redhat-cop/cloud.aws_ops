@@ -1,6 +1,6 @@
 ---
 - name: Create an IAM Role for backup
-  community.aws.iam_role:
+  amazon.aws.iam_role:
     name: "{{ test_iam_role_name }}"
     state: present
     assume_role_policy_document: '{{ lookup("file", "backup-policy.json") }}'
@@ -19,6 +19,7 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.backup_create_plan
   vars:
-    vault_name: "{{ test_vault_name }}"
-    plan_rules:
+    backup_create_plan_vault_name: "{{ test_vault_name }}"
+    backup_create_plan_plan_name: "{{ plan_name }}"
+    backup_create_plan_plan_rules:
       - "{{ daily_backup }}"

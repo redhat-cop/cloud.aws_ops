@@ -8,8 +8,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.ec2_instance_terminate_by_tag
       vars:
-        tag_key_to_terminate_instances: "{{ ec2_instances.0.tags.keys() | first }}"
-        tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
+        ec2_instance_terminate_by_tag_tag_key_to_terminate_instances: "{{ ec2_instances.0.tags.keys() | first }}"
+        ec2_instance_terminate_by_tag_tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
 
     - name: Validate that first instance was deleted and second still exists
       ansible.builtin.include_tasks: ensure_instance.yml
@@ -23,8 +23,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.ec2_instance_terminate_by_tag
       vars:
-        tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
-        tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
+        ec2_instance_terminate_by_tag_tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
+        ec2_instance_terminate_by_tag_tag_value_to_terminate_instances: "{{ ec2_instances.0.tags.values() | first }}"
 
     - name: Ensure second instance was not deleted
       ansible.builtin.include_tasks: ensure_instance.yml
@@ -36,8 +36,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.ec2_instance_terminate_by_tag
       vars:
-        tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
-        tag_value_to_terminate_instances: "{{ ec2_instances.1.tags.values() | first }}"
+        ec2_instance_terminate_by_tag_tag_key_to_terminate_instances: "{{ ec2_instances.1.tags.keys() | first }}"
+        ec2_instance_terminate_by_tag_tag_value_to_terminate_instances: "{{ ec2_instances.1.tags.values() | first }}"
 
     - name: Ensure second instance was not deleted
       ansible.builtin.include_tasks: ensure_instance.yml

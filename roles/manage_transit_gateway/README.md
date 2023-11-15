@@ -21,21 +21,17 @@ AWS User Account with the following permission:
 Role Variables
 --------------
 
-* **action** (str): Whether to create or delete the transit gateway. Choices: 'create', 'delete'.
-* **transit_gateway** (dict): A dict of parameters needed to create transit gateway.
-    **asn** (int): A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
-    **tags** (dict): A dict of tags for the transit gateway.
-    **description** (str): Description for the transit gateway.
-* **vpc_attachment** (list(dict)): A list of dict of parameters to create vpc attachments.
-    **name** (str): Name for the VPC attachment.
-    **tags** (dict): A dict of tags for the attachment.
-    **subnets** (list(str)): A list of subnets to be added to the attachment.
-* **vpn_attachment** list(dict): A list of dict of parameters to create vpn attachments.
-    **customer_gateway_id** (str): Id of the customer gateway.
-* **vpc_route_table** (list(dict)): Route table entries for the VPC.
-    **vpc_id** (str): VPC id for which the route should be added..
-    **cidr_block** (str): Destination CIDR block.
-    **tags** (dict): A dict of tags for the route table.
+* **manage_transit_gateway_action**: Whether to create or delete the transit gateway. Choices: 'create', 'delete'.
+* **manage_transit_gateway_transit_gateway**: A dict of parameters needed to create transit gateway.
+    **asn**: A private Autonomous System Number (ASN) for the Amazon side of a BGP session.
+    **tags**: A dict of tags for the transit gateway.
+    **description**: Description for the transit gateway.
+* **manage_transit_gateway_vpc_attachment**: A list of dict of parameters to create vpc attachments.
+    **name**: Name for the VPC attachment.
+    **tags**: A dict of tags for the attachment.
+    **subnets**: A list of subnets to be added to the attachment.
+* **manage_transit_gateway_vpn_attachment**: A list of dict of parameters to create vpn attachments.
+    **customer_gateway_id**: Id of the customer gateway.
 
 Dependencies
 ------------
@@ -53,13 +49,13 @@ Example Playbook
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        action: "create"
-        transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
             asn: 4200000000
             description: "TGW for Cloud team"
             tags:
               "team": "cloud"
-        vpc_attachment:
+        manage_transit_gateway_vpc_attachment:
             - name: "vpc-attachment-001"
               tags:
                 "team": "cloud"
@@ -81,13 +77,13 @@ Example Playbook
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        action: "create"
-        transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
           asn: 4200000000
           description: "TGW for Cloud team"
           tags:
             "team": "cloud"
-        vpn_attachment:
+        manage_transit_gateway_vpn_attachment:
           - customer_gateway_id: "cgw-01b56884848a25446"
 
 License

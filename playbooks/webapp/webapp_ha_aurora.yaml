@@ -1,5 +1,5 @@
 ---
-- name: webapp HA
+- name: Webapp HA
   hosts: localhost
   gather_facts: false
   vars_files:

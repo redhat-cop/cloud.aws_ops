@@ -1,5 +1,5 @@
 ---
-aws_connection_env:
+aws_setup_credentials__connection_env:
   aws_profile:
     env:
       - AWS_PROFILE

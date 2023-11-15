@@ -6,13 +6,13 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.manage_transit_gateway
       vars:
-        action: "create"
-        transit_gateway:
+        manage_transit_gateway_action: "create"
+        manage_transit_gateway_transit_gateway:
           asn: 4200000000
           description: "TGW for Cloud team"
           tags:
             "team": "cloud"
-        vpc_attachment:
+        manage_transit_gateway_vpc_attachment:
           - name: "vpc-attachment-001"
             tags:
               "team": "cloud"
@@ -24,7 +24,7 @@
             subnets:
               - "{{ subnet_id_b_1 }}"
 
-    - name: List all the transit gateway attachments
+    - name: List all the transit gateways
       community.aws.ec2_transit_gateway_info:
       register: manage_transit_gateway_gw_info
 
@@ -33,10 +33,18 @@
         gw: "{{ item }}"
       when:
         - item.description == "TGW for Cloud team"
-        - item.state == "available"
       loop: "{{ manage_transit_gateway_gw_info.transit_gateways }}"
 
-    - name: Describe attachments on a specific VPC
+    - name: Wait until the transit gateway becomes available
+      community.aws.ec2_transit_gateway_info:
+        filters:
+          transit-gateway-id: '{{ gw.transit_gateway_id }}'
+      register: manage_transit_gateway_gw_available
+      retries: 30
+      delay: 5
+      until: manage_transit_gateway_gw_available.transit_gateways[0].state == 'available'
+
+    - name: Describe AWS Transit Gateway VPC attachments
       community.aws.ec2_transit_gateway_vpc_attachment_info:
         filters:
           transit-gateway-id: '{{ gw.transit_gateway_id }}'

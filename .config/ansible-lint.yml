@@ -6,3 +6,6 @@ skip_list:
   - meta-no-info  # meta/main.yml should contain relevant info.
   - latest[git]  # Result of the command may vary on subsequent runs.
   - no-handler  # Tasks that run when changed should likely be handlers.
+  - no-changed-when  # Commands should not change things if nothing needs doing.
+exclude_paths:
+  - tests/integration

@@ -25,3 +25,5 @@ version: 1.0.3
 build_ignore:
   - .DS_Store
   - '*.tar.gz'
+  - '*cloud-config-aws.ini'
+  - '*cloud-config-aws.yml'

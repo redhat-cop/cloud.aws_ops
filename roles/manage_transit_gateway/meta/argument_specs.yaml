@@ -3,12 +3,12 @@ argument_specs:
   main:
     short_description: Creation/Deletion of transit gateway with vpc/vpn attachment
     options:
-      action:
+      manage_transit_gateway_action:
         description: Action to be done.
         type: "str"
         default: "create"
         choices: ["create", "delete"]
-      transit_gateway:
+      manage_transit_gateway_transit_gateway:
         description: Transit Gateway to be created.
         type: dict
         required: True
@@ -25,7 +25,7 @@ argument_specs:
           tags:
             description: A dict of tags for the transit gateway.
             type: dict
-      vpc_attachment:
+      manage_transit_gateway_vpc_attachment:
         description: VPC to be attached.
         type: list
         elements: dict
@@ -40,7 +40,7 @@ argument_specs:
           tags:
             description: A dict of tags for the attachment.
             type: dict
-      vpn_attachment:
+      manage_transit_gateway_vpn_attachment:
         description: VPC to be attached.
         type: list
         elements: dict
@@ -48,7 +48,7 @@ argument_specs:
           customer_gateway_id:
             description: id of the customer gateway for the vpn attachment.
             type: str
-      vpc_route_table:
+      manage_transit_gateway_vpc_route_table:
         description: Route table entries for the VPC
         type: list
         elements: dict

@@ -2,7 +2,7 @@
 - name: List existing AMI by name
   amazon.aws.ec2_ami_info:
     filters:
-      name: "{{ custom_ami_name }}"
+      name: "{{ customized_ami_name }}"
   register: customized_ami__existing_amis
 
 - name: Delete AMI
@@ -14,4 +14,4 @@
   with_items: "{{ customized_ami__existing_amis.images }}"
   when:
     - customized_ami__existing_amis.images | length > 0
-    - (custom_ami_operation == 'create') | ternary(custom_ami_recreate_if_exists, 'true') | bool
+    - (customized_ami_operation == 'create') | ternary(customized_ami_recreate_if_exists, 'true') | bool

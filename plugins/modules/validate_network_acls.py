@@ -56,37 +56,36 @@ EXAMPLES = r"""
 - name: Evaluate network ACLS from EC2 instance to RDS Instance
   cloud.aws_ops.validate_network_acls:
     dest_subnet_cidrs:
-        - 10.1.0.0/24
-        - 10.1.2.0/24
+      - 10.1.0.0/24
+      - 10.1.2.0/24
     dest_network_acl_rules:
-        - egress:
-            - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
-          ingress:
-            - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
-          is_default: true
-          nacl_id: "acl-01124846ef9f50ff2"
-          owner_id: "000000000000"
-          subnets:
-            - "subnet-0af56e0d353f88cb8"
-            - "subnet-032f1a2598b6318ed"
-          vpc_id: "vpc-0274c44deffd7368a"
+      - egress:
+          - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
+        ingress:
+          - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
+        is_default: true
+        nacl_id: "acl-01124846ef9f50ff2"
+        owner_id: "000000000000"
+        subnets:
+          - "subnet-0af56e0d353f88cb8"
+          - "subnet-032f1a2598b6318ed"
+        vpc_id: "vpc-0274c44deffd7368a"
     dest_port:
-        - 5432
+      - 5432
     src_network_acl_rules:
-        - egress:
-            - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
-          ingress:
-            - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
-          is_default: true
-          nacl_id: "acl-01124846ef9f50ff2"
-          owner_id: "000000000000"
-          subnets:
-            - subnet-0af56e0d353f88cb8
-            - subnet-032f1a2598b6318ed
-          vpc_id: "vpc-0274c44deffd7368a"
+      - egress:
+          - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
+        ingress:
+          - [100, "all", "allow", "0.0.0.0/0", null, null, 0, 65535]
+        is_default: true
+        nacl_id: "acl-01124846ef9f50ff2"
+        owner_id: "000000000000"
+        subnets:
+          - subnet-0af56e0d353f88cb8
+          - subnet-032f1a2598b6318ed
+        vpc_id: "vpc-0274c44deffd7368a"
     src_private_ip:
-        - 172.10.3.10
-
+      - 172.10.3.10
 """
 
 RETURN = r"""
@@ -136,7 +135,6 @@ def is_port_in_range(port, from_port, to_port):
 
 class ValidateNetworkACL(AnsibleModule):
     def __init__(self):
-
         argument_spec = dict(
             dest_subnet_cidrs=dict(type="list", elements="str", required=True),
             dest_network_acl_rules=dict(type="list", elements="dict", required=True),
@@ -221,7 +219,6 @@ class ValidateNetworkACL(AnsibleModule):
 
 
 def main():
-
     ValidateNetworkACL()
 
 

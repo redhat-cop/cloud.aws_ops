@@ -5,4 +5,4 @@
 
 - name: Create auth credentials
   ansible.builtin.include_tasks: read_option.yml
-  with_dict: "{{ aws_connection_env }}"
+  with_dict: "{{ aws_setup_credentials__connection_env }}"

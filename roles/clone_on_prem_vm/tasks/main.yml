@@ -9,13 +9,13 @@
     manager: auto
   register: package_facts
 
-- name: qemu is not installed
-  debug:
+- name: Qemu is not installed
+  ansible.builtin.debug:
     msg: "qemu is not installed"
   when: "'qemu' not in package_facts.ansible_facts.packages"
 
-- name: qemu-img is not installed
-  debug:
+- name: Qemu-img is not installed
+  ansible.builtin.debug:
     msg: "qemu-img is not installed"
   when: "'qemu-img' not in package_facts.ansible_facts.packages"
 
@@ -79,7 +79,7 @@
     clone_on_prem_vm__clone_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_image_name }}.qcow2"
     clone_on_prem_vm__raw_image_path: "{{ clone_on_prem_vm__tmpdir.path }}/{{ clone_on_prem_vm_image_name }}.raw"
 
-- name: Cloning {{ clone_on_prem_vm_source_vm_name }} on prem VM
+- name: Cloning on prem VM {{ clone_on_prem_vm_source_vm_name }}
   ansible.builtin.command: |
           virt-clone --original {{ clone_on_prem_vm_source_vm_name }} \
                     --name {{ clone_on_prem_vm_image_name }} \
@@ -100,7 +100,7 @@
                           {{ clone_on_prem_vm__clone_path }} \
                           {{ clone_on_prem_vm__raw_image_path }}
   become: true
-  become_method: sudo
+  become_method: ansible.builtin.sudo
   environment:
     LIBVIRT_DEFAULT_URI: "{{ clone_on_prem_vm_uri }}"
   when: clone_on_prem_vm__clone_info.stat.exists and clone_on_prem_vm__clone_info.stat.pw_name == "root"

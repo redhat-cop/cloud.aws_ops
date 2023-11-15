@@ -1,2 +1,24 @@
 ---
 aws_security_token: '{{ security_token | default(omit) }}'
+plan_name: "ansible-test-{{ tiny_prefix }}-plan"
+vault_name: "ansible-test-{{ tiny_prefix }}-vault"
+daily_backup:  # Daily backup at 5am UTC with Amazon defaults for all other settings
+  rule_name: daily
+  target_backup_vault_name: "{{ vault_name }}"
+  schedule_expression: "cron(0 5 ? * * *)"
+weekly_backup:  # Weekly backup on Mondays at 5am UTC with 90 day retention after quick transition to cold storage
+  rule_name: weekly
+  target_backup_vault_name: "{{ vault_name }}"
+  schedule_expression: "cron(0 5 ? * MON *)"
+  lifecycle:
+    delete_after_days: 91
+    move_to_cold_storage_after_days: 1
+hourly_backup:  # Hourly continous backup at :15 with 7-day retention
+  rule_name: hourly
+  target_backup_vault_name: "{{ vault_name }}"
+  schedule_expression: "cron(15 * ? * * *)"
+  start_window_minutes: 60
+  completion_window_minutes: 120
+  enable_continuous_backup: true
+  lifecycle:
+    delete_after_days: 7

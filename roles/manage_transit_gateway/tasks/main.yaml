@@ -5,4 +5,4 @@
 
   block:
     - name: Include file
-      ansible.builtin.include_tasks: "{{ action }}.yaml"
+      ansible.builtin.include_tasks: "{{ manage_transit_gateway_action }}.yaml"

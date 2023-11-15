@@ -59,55 +59,54 @@ EXAMPLES = r"""
 - name: Evaluate Security group rules from EC2 instance to RDS Instance
   cloud.aws_ops.validate_security_group_rules:
     dest_subnet_cidrs:
-        - 10.1.0.0/24
-        - 10.1.2.0/24
+      - 10.1.0.0/24
+      - 10.1.2.0/24
     dest_security_groups:
-        - description: "Security group for EC2 instance"
-          group_id: "sg-0bd2d9a14af754812"
-          group_name: "aubin-sg"
-          ip_permissions:
-            - from_port: 5432
-              to_port: 5432
-              ip_protocol: "tcp"
-              ip_ranges:
-                - cidr_ip: "0.0.0.0/0"
-              ipv6_ranges: []
-              prefix_list_ids: []
-              user_id_group_pairs: []
-          ip_permissions_egress:
-            - ip_protocol: -1
-              ip_ranges:
-                - cidr_ip: "0.0.0.0/0"
-              ipv6_ranges: []
-              prefix_list_ids: []
-              user_id_group_pairs: []
-          owner_id: "0000000000000"
-          vpc_id: "vpc-0bee28efef41e1de4"
+      - description: "Security group for EC2 instance"
+        group_id: "sg-0bd2d9a14af754812"
+        group_name: "aubin-sg"
+        ip_permissions:
+          - from_port: 5432
+            to_port: 5432
+            ip_protocol: "tcp"
+            ip_ranges:
+              - cidr_ip: "0.0.0.0/0"
+            ipv6_ranges: []
+            prefix_list_ids: []
+            user_id_group_pairs: []
+        ip_permissions_egress:
+          - ip_protocol: -1
+            ip_ranges:
+              - cidr_ip: "0.0.0.0/0"
+            ipv6_ranges: []
+            prefix_list_ids: []
+            user_id_group_pairs: []
+        owner_id: "0000000000000"
+        vpc_id: "vpc-0bee28efef41e1de4"
     dest_port: 5432
     src_security_groups:
-        - description: "Security group for EC2 instance"
-          group_id: "sg-0bd2d9a14af8a8998"
-          group_name: "aubin-sg"
-          ip_permissions:
-            - from_port: 22
-              to_port: 22
-              ip_protocol: "tcp"
-              ip_ranges:
-                - cidr_ip: "0.0.0.0/0"
-              ipv6_ranges: []
-              prefix_list_ids: []
-              user_id_group_pairs: []
-          ip_permissions_egress:
-            - ip_protocol: -1
-              ip_ranges:
-                - cidr_ip: "0.0.0.0/0"
-              ipv6_ranges: []
-              prefix_list_ids: []
-              user_id_group_pairs: []
-          owner_id: "0000000000000"
-          vpc_id: "vpc-0bee28efef41e1de4"
+      - description: "Security group for EC2 instance"
+        group_id: "sg-0bd2d9a14af8a8998"
+        group_name: "aubin-sg"
+        ip_permissions:
+          - from_port: 22
+            to_port: 22
+            ip_protocol: "tcp"
+            ip_ranges:
+              - cidr_ip: "0.0.0.0/0"
+            ipv6_ranges: []
+            prefix_list_ids: []
+            user_id_group_pairs: []
+        ip_permissions_egress:
+          - ip_protocol: -1
+            ip_ranges:
+              - cidr_ip: "0.0.0.0/0"
+            ipv6_ranges: []
+            prefix_list_ids: []
+            user_id_group_pairs: []
+        owner_id: "0000000000000"
+        vpc_id: "vpc-0bee28efef41e1de4"
     src_private_ip: "172.10.3.10"
-
 """
 
 RETURN = r"""
@@ -126,7 +125,6 @@ from ansible.module_utils.basic import AnsibleModule
 
 class ValidateSecurityGroupRules(AnsibleModule):
     def __init__(self):
-
         argument_spec = dict(
             dest_subnet_cidrs=dict(type="list", elements="str", required=True),
             dest_security_groups=dict(type="list", elements="dict", required=True),
@@ -197,7 +195,6 @@ class ValidateSecurityGroupRules(AnsibleModule):
         )
 
     def execute_module(self):
-
         try:
             dest_secgroup_ids = [
                 x["group_id"] for x in self.params.get("dest_security_groups")
@@ -250,7 +247,6 @@ class ValidateSecurityGroupRules(AnsibleModule):
 
 
 def main():
-
     ValidateSecurityGroupRules()
 
 

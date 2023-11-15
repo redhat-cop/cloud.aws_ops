@@ -1,17 +1,21 @@
 ---
 - name: Test role 'customized_ami'
+  collections:
+    - amazon.aws
+    - community.crypto
   vars:
-    custom_ami_ec2_instance_type: t2.micro
-    custom_ami_public_key_file: "{{ setup_rsa_keys__public_key_file }}"
-    custom_ami_private_key_file: "{{ setup_rsa_keys__private_key_file }}"
+    customized_ami_ec2_instance_type: t2.micro
+    customized_ami_public_key_file: "{{ setup_rsa_keys__public_key_file }}"
+    customized_ami_private_key_file: "{{ setup_rsa_keys__private_key_file }}"
   block:
     # Test: create custom AMI
     - name: Create AMI with initial settings
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
-        custom_ami_packages:
+        customized_ami_packages:
           - podman
+        customized_ami_name: "{{ custom_ami_name }}"
 
     - name: Validate settings for initial AMI
       vars:
@@ -31,9 +35,10 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
-        custom_ami_packages:
+        customized_ami_name: "{{ custom_ami_name }}"
+        customized_ami_packages:
           - libvirt
-        custom_ami_recreate_if_exists: true
+        customized_ami_recreate_if_exists: true
 
     - name: Validate settings for updated AMI
       vars:
@@ -67,7 +72,8 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
-        custom_ami_operation: delete
+        customized_ami_name: "{{ custom_ami_name }}"
+        customized_ami_operation: delete
 
     - name: Get custom AMI information
       amazon.aws.ec2_ami_info:
@@ -92,4 +98,5 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.customized_ami
       vars:
-        custom_ami_operation: delete
+        customized_ami_name: "{{ custom_ami_name }}"
+        customized_ami_operation: delete
