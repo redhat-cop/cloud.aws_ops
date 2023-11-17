@@ -1,0 +1,38 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to create/delete an API gateway with lambda function integration.
+    description:
+      - A role to create/delete an API gateway with lambda function integration.
+    options:
+      awsconfig_apigateway_with_lambda_integration_operation:
+        description:
+          - Whether to create or delete the API gateway.
+        choices:
+          - create
+          - delete
+        default: create
+      awsconfig_apigateway_with_lambda_integration_api_name:
+        description:
+          - The name of the API gateway to create/delete.
+        required: true
+      awsconfig_apigateway_with_lambda_integration_id:
+        description:
+          - The API gateway Identifier to update/delete
+      awsconfig_apigateway_with_lambda_integration_tags:
+        description:
+          - collection of tags associated to the API gateway, this is used to ensure unique API gateway is created/deleted while running multiple times.
+      awsconfig_apigateway_with_lambda_integration_lambda_runtime:
+        description:
+          - The lambda function runtime.
+      awsconfig_apigateway_with_lambda_integration_lambda_function_file:
+        description:
+          - The path to a valid file containing the code of the lambda function.
+      awsconfig_apigateway_with_lambda_integration_lambda_handler:
+        description:
+          - The lambda function handler.
+      awsconfig_apigateway_with_lambda_integration_stage_name:
+        description:
+          - The name for the Stage resource.
+          - Stage names can only contain alphanumeric characters, hyphens, and underscores. Maximum length is 128 characters.

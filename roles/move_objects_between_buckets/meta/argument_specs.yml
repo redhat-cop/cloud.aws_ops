@@ -1,0 +1,29 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to move objects from one S3 Bucket to another.
+    description:
+      - A role to move objects from one S3 Bucket to another.
+      - "Objects have two options: all objects can be transferred or specific objects are transferred through key prefix. "
+      - "If the source bucket is empty, the user has two options: source bucket is deleted or source bucket is kept as an empty bucket."
+    options:
+      move_objects_between_buckets_source_bucket:
+        description:
+          - The name of the Amazon S3 bucket that will have its objects retrieved and then emptied.
+        required: true
+        type: str
+      move_objects_between_buckets_dest_bucket:
+        description:
+          - The name of the Amazon S3 bucket that will receive the objects.
+        required: true
+        type: str
+      move_objects_between_buckets_key_prefix:
+        description:
+          - limits objects that begin with the specified prefix.
+        default: ""
+      move_objects_between_buckets_delete_empty_source_bucket:
+        description:
+          - deletes source bucket after all objects have been transferred to destination bucket.
+        type: bool
+        default: false

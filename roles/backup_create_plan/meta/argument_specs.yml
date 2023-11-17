@@ -1,0 +1,34 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to create a backup plan and optionally a vault.
+    description:
+      - A role to create a backup plan and optionally a vault.
+      - A set of variables for plan rules is included for use as-is or as examples for modification.
+      - This role can be combined with the `cloud.aws_ops.backup_select_resources` role to back up a selection of resources.
+    options:
+      backup_create_plan_plan_name:
+        description:
+          - The name of the backup plan you want to create
+        required: true
+      backup_create_plan_plan_rules:
+        description:
+          - A set of rules for the backup, as a list of dicts.
+        required: true
+      backup_create_plan_plan_windows_vss_settings:
+        description:
+          - Settings for Windows VSS backup, see [AdvancedBackupSetting object in the AWS Backup API documentation](https://docs.aws.amazon.com/aws-backup/latest/devguide/API_AdvancedBackupSetting.html) for details
+      backup_create_plan_plan_tags:
+        description:
+          - tags to apply to all backups created with the plan
+      backup_create_plan_vault_name:
+        description:
+          - The name of the vault you want to use or create.
+          - If not provided, the role will use (and create if needed) the AWS default vault for the account, named Default.
+      backup_create_plan_vault_encryption_key_arn:
+        description:
+          - ARN of key to use for vault encryption
+      backup_create_plan_vault_tags:
+        description:
+          - tags to apply to the vault
