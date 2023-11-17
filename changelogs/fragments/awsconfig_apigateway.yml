@@ -1,3 +1,0 @@
----
-minor_changes:
-  - awsconfig_apigateway_with_lambda_integration - new role to create API gateway with Lambda integration

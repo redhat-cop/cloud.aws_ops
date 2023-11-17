@@ -23,3 +23,144 @@ releases:
     fragments:
     - summary.yml
     release_date: '2023-03-17'
+  2.0.0:
+    changes:
+      breaking_changes:
+      - Remove support for ansible-core < 2.14
+      - playbooks/webapp/deploy_flask_app - convert playbook to role (https://github.com/redhat-cop/cloud.aws_ops/pull/85).
+      - playbooks/webapp/migrate_webapp - replace variable name `do_not_delete_source`
+        with `delete_source` to make intent clearer and fix reversed default value
+        logic (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - playbooks/webapp/webapp - Rename the playbook vars with role name prefix.
+        'sshkey_pair_name' changed to 'deploy_flask_app_sshkey_pair_name' 'bastion_host_name'
+        changed to 'deploy_flask_app_bastion_host_name' 'bastion_host_username' changed
+        to 'deploy_flask_app_bastion_host_username' 'bastion_host_required_packages'
+        changed to 'deploy_flask_app_bastion_host_required_packages' 'app_listening_port'
+        changed to 'deploy_flask_app_listening_port' 'rds_master_user' changed to
+        'deploy_flask_app_rds_master_username' 'rds_master_password' changed to 'deploy_flask_app_rds_master_password'
+        'app_git_repository' changed to 'deploy_flask_app_git_repository' 'number_of_workers'
+        changed to 'deploy_flask_app_number_of_workers' 'workers_instance_type' changed
+        to 'deploy_flask_app_workers_instance_type' 'local_registry_user' changed
+        to 'deploy_flask_app_local_registry_user' 'local_registry_pwd' changed to
+        'deploy_flask_app_local_registry_pwd' 'local_registry_port' changed to 'deploy_flask_app_local_registry_port'
+        'app_config' changed to 'deploy_flask_app_config' 'app_force_init' changed
+        to 'deploy_flask_app_force_init' (https://github.com/redhat-cop/cloud.aws_ops/pull/85).
+      - role/aws_setup_credentials - Due to ansible-lint issue, the AWS generated
+        credentials are now stored into variable `aws_setup_credentials__output` instead
+        of `aws_role_credentials`  (https://github.com/redhat-cop/cloud.aws_ops/pull/39).
+      - roles/awsconfig_multiregion_cloudtrail - ``bucket_name`` option has been renamed
+        to ``awsconfig_multiregion_cloudtrail_bucket_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/awsconfig_multiregion_cloudtrail - ``key_prefix`` option has been renamed
+        to ``awsconfig_multiregion_cloudtrail_key_prefix`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/awsconfig_multiregion_cloudtrail - ``operation`` option has been renamed
+        to ``awsconfig_multiregion_cloudtrail_operation`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/awsconfig_multiregion_cloudtrail - ``trail_name`` option has been renamed
+        to ``awsconfig_multiregion_cloudtrail_trail_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``plan_name`` option has been renamed to ``backup_create_plan_plan_name``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``plan_rules`` option has been renamed to ``backup_create_plan_plan_rules``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``plan_tags`` option has been renamed to ``backup_create_plan_plan_tags``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``plan_windows_vss_settings`` option has been renamed
+        to ``backup_create_plan_plan_windows_vss_settings`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``vault_encryption_key_arn`` option has been renamed
+        to ``backup_create_plan_vault_encryption_key_arn`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``vault_name`` option has been renamed to ``backup_create_plan_vault_name``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_create_plan - ``vault_tags`` option has been renamed to ``backup_create_planvault_tags``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_select_resources - ``backup_role_name`` option has been renamed
+        to ``backup_select_resources_backup_role_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_select_resources - ``plan_name`` option has been renamed to ``backup_select_resources_plan_name``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_select_resources - ``selection_conditions`` option has been renamed
+        to ``backup_select_resources_selection_conditions`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_select_resources - ``selection_name`` option has been renamed
+        to ``backup_select_resources_selection_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/backup_select_resources - ``selection_tags`` option has been renamed
+        to ``backup_select_resources_selection_tags`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``custom_ami_name`` option has been renamed to ``customized_ami_name``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``custom_ami_operation`` option has been renamed to
+        ``customized_ami_operation`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``custom_ami_packages`` option has been renamed to
+        ``customized_ami_packages`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``custom_ami_recreate_if_exists`` option has been renamed
+        to ``customized_ami_recreate_if_exists`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``source_ami_filters`` option has been renamed to ``customized_ami_source_ami_filters``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``source_ami_image_id`` option has been renamed to
+        ``customized_ami_source_ami_image_id`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/customized_ami - ``source_ami_user_name`` option has been renamed to
+        ``customized_ami_source_ami_user_name`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/ec2_instance_terminate_by_tag - ``tag_key_to_terminate_instances`` option
+        has been renamed to `` ec2_instance_terminate_by_tag_tag_key_to_terminate_instances``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/ec2_instance_terminate_by_tag - ``tag_value_to_terminate_instances``
+        option has been renamed to `` ec2_instance_terminate_by_tag_tag_value_to_terminate_instances``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/ec2_instance_terminate_by_tag - ``terminate_protected_instances`` option
+        has been renamed to `` ec2_instance_terminate_by_tag_terminate_protected_instances``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/manage_transit_gateway - ``action`` option has been renamed to `` manage_transit_gateway_action``
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/manage_transit_gateway - ``transit_gateway`` option has been renamed
+        to `` manage_transit_gateway_transit_gateway`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/manage_transit_gateway - ``vpc_attachment`` option has been renamed
+        to `` manage_transit_gateway_vpc_attachment`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      - roles/manage_transit_gateway - ``vpn_attachment`` option has been renamed
+        to `` manage_transit_gateway_vpn_attachment`` (https://github.com/redhat-cop/cloud.aws_ops/pull/84).
+      bugfixes:
+      - fix and update integration tests target test_manage_vpc_peering (https://github.com/redhat-cop/cloud.aws_ops/pull/61).
+      - playbooks/webapp/webapp - Update playbooks that include credentials to be
+        able to be used with Automation Controller (not just the command line) (https://github.com/redhat-cop/cloud.aws_ops/pull/64).
+      - playbooks/webapp/webapp - update RDS engine from deprecated version (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - playbooks/webapp/webapp - update webapp create task to use provided variables
+        instead of hard-coding values in some places (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - roles/aws_manage_cloudtrail_encryption - fix condition logic to match expected
+        Cloudtrail events and add extra_vars to pass rulebook variables to playbooks
+        called in actions (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - roles/aws_restore_cloudtrail - provide `key_prefix` default so it doesn't
+        error if not present (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - roles/aws_restore_kms_key - fix conditional value to properly retrieve KMS
+        key ARN from ansible-rulebook event variable (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      - roles/aws_setup_credentials - add no_log to prevent credentials leak (https://github.com/redhat-cop/cloud.aws_ops/pull/92).
+      - roles/backup_select_resources - Add all necessary IAM service role policies
+        for backup when creating a new IAM role (https://github.com/redhat-cop/cloud.aws_ops/pull/81).
+      - roles/enable_cloudtrail_encryption_with_kms - fix incorrect fact name for
+        retrieved trail info and provide `s3_key_prefix` default so it doesn't error
+        if not present (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+      minor_changes:
+      - Add a playbook to deploy a simple flask web app into high availability architecture
+        (https://github.com/redhat-cop/cloud.aws_ops/pull/97).
+      - awsconfig_apigateway_with_lambda_integration - new role to create API gateway
+        with Lambda integration
+      - roles/create_rds_global_cluster - new role to create aurora global cluster with
+        a primary and a replica cluster in different regions.
+      - playbooks/upload_file_to_s3 - A playbook to upload file from local filesystem
+        into S3 bucket (https://github.com/redhat-cop/cloud.aws_ops/pull/88).
+      release_summary: This release fixes bug on roles, remove support for ansible-core
+        < 2.14 and introduces new features.
+    fragments:
+    - 2.0.0.yml
+    - 20230426-update_readme_and_runtime.yml
+    - 20230804-backup-role-bugfixes.yaml
+    - 20230817-update_for_controller.yml
+    - 20230821-upload_file_to_s3.yaml
+    - 20230822-docs_and_bugfixes.yml
+    - 20230823-update-ci-sanity-test-matrix.yaml
+    - add_deploy_flask_app_role.yaml
+    - ansible_lint_6_19.yml
+    - ansible_lint_updates.yml
+    - automation_hub_update_readme.yaml
+    - aws_setup_credentials_add_no_log.yml
+    - awsconfig_apigateway.yml
+    - create_rds_global_cluster_role.yml
+    - customized_ami_doc_update.yaml
+    - fix_manage_vpc_peering_integration_test.yml
+    - fix_sanity_issues.yaml
+    - transit_gateway_doc_update.yaml
+    - update_ansible_lint_action.yml
+    - webapp_in_HA.yaml
+    release_date: '2023-11-17'
