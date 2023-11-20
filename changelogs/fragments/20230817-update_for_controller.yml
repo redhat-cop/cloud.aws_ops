@@ -1,4 +1,0 @@
-trivial:
-  - "Update playbooks that include credentials to be able to be used with Automation Controller (not just the command line)"
-bugfixes:
-  - playbooks/webapp/webapp - Update playbooks that include credentials to be able to be used with Automation Controller (not just the command line) (https://github.com/redhat-cop/cloud.aws_ops/pull/64).

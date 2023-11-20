@@ -1,5 +1,0 @@
----
-trivial:
-  - "Add integration test workflow to GHA and add new integration tests targets (https://github.com/redhat-cop/cloud.aws_ops/pull/39)."
-breaking_changes:
-  - role/aws_setup_credentials - Due to ansible-lint issue, the AWS generated credentials are now stored into variable `aws_setup_credentials__output` instead of `aws_role_credentials`  (https://github.com/redhat-cop/cloud.aws_ops/pull/39).
