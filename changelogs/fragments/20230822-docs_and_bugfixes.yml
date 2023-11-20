@@ -1,0 +1,17 @@
+---
+breaking_changes:
+  - playbooks/webapp/migrate_webapp - replace variable name `do_not_delete_source` with `delete_source` to make intent clearer and fix reversed default value logic (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+
+bugfixes:
+  - roles/aws_restore_cloudtrail - provide `key_prefix` default so it doesn't error if not present (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - roles/aws_restore_kms_key - fix conditional value to properly retrieve KMS key ARN from ansible-rulebook event variable (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - playbooks/webapp/webapp - update webapp create task to use provided variables instead of hard-coding values in some places (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - playbooks/webapp/webapp - update RDS engine from deprecated version (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - roles/enable_cloudtrail_encryption_with_kms - fix incorrect fact name for retrieved trail info and provide `s3_key_prefix` default so it doesn't error if not present (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - roles/aws_manage_cloudtrail_encryption - fix condition logic to match expected Cloudtrail events and add extra_vars to pass rulebook variables to playbooks called in actions (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+
+trivial:
+  - Move EDA rulebook to recommended extensions/eda/rulebooks folder (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - Move EDA playbooks to top-level playbooks directory so they can be called from ansible-rulebook by FQCN (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - Add documentation for playbooks and rulebooks (https://github.com/redhat-cop/cloud.aws_ops/pull/86).
+  - Add AWS account permissions to enable_cloudtrail_encryption_with_kms role README (https://github.com/redhat-cop/cloud.aws_ops/pull/86).

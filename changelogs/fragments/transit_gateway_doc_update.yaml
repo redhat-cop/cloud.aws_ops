@@ -1,0 +1,3 @@
+---
+trivial:
+- "Update the README of manage_transit_gateway role to match the argument specs."

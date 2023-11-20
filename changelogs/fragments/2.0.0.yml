@@ -1,0 +1,2 @@
+---
+release_summary: "This release fixes bug on roles, remove support for ansible-core < 2.14 and introduces new features."
