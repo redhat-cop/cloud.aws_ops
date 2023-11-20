@@ -14,7 +14,6 @@ argument_specs:
       manage_vpc_peering_requeter_vpc:
         description:
           - ID of the VPC requesting the peering connection.
-        required: true
         type: str
       manage_vpc_peering_accepter_vpc:
         description:
