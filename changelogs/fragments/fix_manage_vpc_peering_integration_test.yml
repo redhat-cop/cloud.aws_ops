@@ -1,3 +1,0 @@
----
-bugfixes:
-  - fix and update integration tests target test_manage_vpc_peering (https://github.com/redhat-cop/cloud.aws_ops/pull/61).

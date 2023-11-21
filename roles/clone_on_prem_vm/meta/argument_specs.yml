@@ -1,0 +1,30 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to clone an existing on prem VM using the KVM hypervisor.
+    description:
+      - A role to clone an existing on prem VM using the KVM hypervisor.
+    options:
+      clone_on_prem_vm_source_vm_name:
+        description:
+          - The name of the on-prem VM you want to clone.
+        required: true
+      clone_on_prem_vm_image_name:
+        description:
+          - The name you want to call the cloned image.
+          - If not set, the I(clone_on_prem_vm_source_vm_name) will be used with a ``-clone`` suffix.
+      clone_on_prem_vm_overwrite:
+        description:
+          - Whether to overwrite or not an already existing on prem VM clone.
+        type: bool
+        default: true
+      clone_on_prem_vm_local_image_path:
+        description:
+          - The path where you would like to save the image.
+          - If the path does not exists on localhost, the role will create it.
+          - If this parameter is not set, the role will save the image in a _~/tmp_ folder.
+      clone_on_prem_vm_uri:
+        description:
+          - Libvirt connection uri.
+        default: "qemu:///system"

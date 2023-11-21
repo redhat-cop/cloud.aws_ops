@@ -1,6 +1,7 @@
 ---
 argument_specs:
   main:
+    version_added: 2.0.0
     short_description: Creation/Deletion of transit gateway with vpc/vpn attachment
     options:
       manage_transit_gateway_action:
