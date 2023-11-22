@@ -1,6 +1,7 @@
 ---
 argument_specs:
   main:
+    version_added: 2.0.0
     short_description: Deploy flask app in AWS.
     options:
       deploy_flask_app_region:

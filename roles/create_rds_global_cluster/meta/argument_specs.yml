@@ -1,0 +1,77 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to create an Amazon Aurora global cluster with two different region rds clusters.
+    description:
+      - A role to create an Amazon Aurora global cluster with two different region rds clusters.
+    options:
+      create_rds_global_cluster_global_cluster_name:
+        description:
+          - Name of the Amazon Aurora global cluster.
+        required: true
+      create_rds_global_cluster_engine:
+        description:
+          - Engine of the Amazon Aurora global and rds clusters.
+        default: "aurora-postgresql"
+      create_rds_global_cluster_engine_version:
+        description:
+          - Engine version of the Amazon Aurora global and rds clusters.
+      create_rds_global_cluster_instance_class:
+        description:
+          - Instance class of instance in primary and replica cluster.
+        required: true
+      create_rds_global_cluster_master_username:
+        description:
+          - Username of the rds clusters master user.
+        required: true
+      create_rds_global_cluster_master_user_password:
+        description:
+          - Password of the rds clusters master user.
+        required: true
+      create_rds_global_cluster_primary_cluster_name:
+        description:
+          - Name of the primary cluster.
+          - Default to I(create_rds_global_cluster_global_cluster_name).
+      create_rds_global_cluster_primary_cluster_region:
+        description:
+          - Region of the primary cluster.
+        required: true
+      create_rds_global_cluster_primary_cluster_instance_name:
+        description:
+          - Name of the instance in primary cluster.
+        required: true
+      create_rds_global_cluster_primary_cluster_db_name:
+        description:
+          - The name for your database of up to 64 alphanumeric characters.
+          - If not provided, database is not created in the cluster.
+      create_rds_global_cluster_primary_cluster_vpc_security_group_ids:
+        description:
+          - A list of EC2 VPC security groups to associate with the primary DB cluster.
+      create_rds_global_cluster_db_subnet_group_name:
+        description:
+          - A DB subnet group to associate with this DB cluster if not using the default.
+      create_rds_global_cluster_replica_cluster_name:
+        description:
+          - Name of the replica (secondary) cluster.
+          - Default to I(create_rds_global_cluster_global_cluster_name).
+      create_rds_global_cluster_replica_cluster_region:
+        description:
+          - Region of the replica (secondary) cluster.
+        required: true
+      create_rds_global_cluster_replica_cluster_instance_name:
+        description:
+          - Name of the instance in secondary cluster. **required**
+      create_rds_global_cluster_replica_enable_global_write_forwarding:
+        description:
+          - Whether to enable replica cluster to forward write operations to the primary cluster of an Amazon Aurora global database.
+        default: false
+      create_rds_global_cluster_replica_cluster_vpc_security_group_ids:
+        description:
+          - A list of EC2 VPC security groups to associate with the replica DB cluster.
+      create_rds_global_cluster_operation:
+        description:
+          - operation to perform.
+        choices:
+          - create
+          - delete

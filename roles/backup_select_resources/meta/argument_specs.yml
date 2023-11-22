@@ -1,0 +1,37 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: A role to configure backups for selected resources.
+    description:
+      - The role requires an existing backup vault and plan, and adds selected resources to the provided plan.
+      - A set of variables for resource selections is included for use as-is or as examples for modification.
+    options:
+      backup_select_resources_plan_name:
+        description:
+          - The name of the backup plan you want to use for the selected resources.
+        required: true
+      backup_select_resources_selection_name:
+        description:
+          - The display name of the resource selection you want to back up.
+        required: true
+      backup_select_resources_selection_resources:
+        description:
+          - List of resources selected for backup.
+          - Can use wild cards and/or combine with selection options below to precisely restrict resources based on various conditions.
+        required: true
+      backup_select_resources_selection_excluded_resources:
+        description:
+          - List of resources to exclude from backup
+      backup_select_resources_selection_tags:
+        description:
+          - List of resource tags selected for backup
+      backup_select_resources_selection_conditions:
+        description:
+          - Conditions for resources to back up
+      backup_select_resources_backup_role_name:
+        description:
+          - The name of an IAM role with permissions to perform all needed backup actions for the selected resources.
+          - "Alternatively, provide a name for a new IAM role which will be created with the same permissions as
+            the AWSBackupDefaultServiceRole (note: these permissions allow backups and restores for all resources)."
+        required: true

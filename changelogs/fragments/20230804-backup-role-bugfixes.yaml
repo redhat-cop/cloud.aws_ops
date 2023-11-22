@@ -1,5 +1,0 @@
----
-trivial:
-  - Update README in backup_create_plan role and backup_select_resources role (https://github.com/redhat-cop/cloud.aws_ops/pull/81).
-bugfixes:
-  - Add all necessary IAM service role policies for backup when creating a new IAM role in backup_select_resources role (https://github.com/redhat-cop/cloud.aws_ops/pull/81).

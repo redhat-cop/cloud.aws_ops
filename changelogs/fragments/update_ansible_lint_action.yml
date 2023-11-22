@@ -1,2 +1,0 @@
-trivial:
-  - "Use ansible/ansible-lint since ansible/ansible-lint-action has been archived."
