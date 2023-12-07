@@ -101,7 +101,7 @@
       ansible.builtin.assert:
         that:
           - result.backup_selections | length == 2
-          - result.backup_selections[1].selection_name == "{{ selection_two }}"
+          - result.backup_selections[1].selection_name == selection_two
           - result.backup_selections[1].resources == ["*"]
           - result.backup_selections[1].not_resources == ["arn:aws:rds:*:*:db:*"]
           - result.backup_selections[1].list_of_tags | length == 0

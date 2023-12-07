@@ -57,12 +57,12 @@
     - name: Verify resources are created successfully
       ansible.builtin.assert:
         that:
-          - global_cluster_info.result.identifier == "{{ test_global_cluster_name }}"
+          - global_cluster_info.result.identifier == test_global_cluster_name
           - global_cluster_info.result.properties.source_db_cluster_identifier == primary_cluster_info.clusters[0].db_cluster_arn
-          - primary_cluster_info.clusters[0].db_cluster_identifier == "{{ test_primary_cluster_name }}"
-          - "'{{ test_primary_cluster_region }}' in primary_cluster_info.clusters[0].availability_zones[0]"
-          - replica_cluster_info.clusters[0].db_cluster_identifier == "{{ test_replica_cluster_name }}"
-          - "'{{ test_replica_cluster_region }}' in replica_cluster_info.clusters[0].availability_zones[0]"
+          - primary_cluster_info.clusters[0].db_cluster_identifier == test_primary_cluster_name
+          - test_primary_cluster_region in primary_cluster_info.clusters[0].availability_zones[0]
+          - replica_cluster_info.clusters[0].db_cluster_identifier == test_replica_cluster_name
+          - test_replica_cluster_region in replica_cluster_info.clusters[0].availability_zones[0]
           - replica_cluster_info.clusters[0].replication_source_identifier == primary_cluster_info.clusters[0].db_cluster_arn
 
   always:
