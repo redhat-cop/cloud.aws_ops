@@ -45,7 +45,7 @@
     - name: Ensure result is as expected
       ansible.builtin.assert:
         that:
-          - __uri_result.json == "Running ansible-test with Resource prefix {{ resource_prefix }}"
+          - __uri_result.json == "Running ansible-test with Resource prefix "+resource_prefix
 
     # Test: Delete API gateway
     - name: Delete API Gateway
