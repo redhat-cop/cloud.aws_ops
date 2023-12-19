@@ -160,6 +160,10 @@
         db_subnet_group_name: "{{ rds_subnet_group_name }}"
         vpc_security_group_ids:
           - "{{ rds_sg.group_id }}"
+
+    - name: Get RDS instance info
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ rds_identifier }}"
       register: rds_result
 
     - name: Create temporary directory to save private key in
