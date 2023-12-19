@@ -3,4 +3,4 @@ breaking_changes:
   - >-
     roles/deploy_flask_app - Remove parameter ``deploy_flask_app_sshkey_pair_name`` that was previously required to create
     ssh connection to the bastion host in favor of the new parameter ``deploy_flask_app_bastion_ssh_private_key`` defining
-    the path to the ssh private key file to use instead ().
+    the path to the ssh private key file to use instead (https://github.com/redhat-cop/cloud.aws_ops/issues/103).
