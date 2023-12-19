@@ -5,16 +5,12 @@
 
 - name: Create resources playbook
   block:
-    - name: Set 'sshkey_file' variable
-      ansible.builtin.set_fact:
-        deploy_flask_app_sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ deploy_flask_app_region | default(aws_region) }}
-
     - name: Add host to inventory
       ansible.builtin.add_host:
         hostname: bastion
         ansible_ssh_user: "{{ deploy_flask_app_bastion_host_username }}"
         ansible_host: "{{ deploy_flask_app_vm_info.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_sshkey_file }}
+        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_bastion_ssh_private_key }}
         ansible_python_interpreter: auto
         ansible_host_name: "{{ deploy_flask_app_vm_info.instances.0.public_dns_name | split('.') | first }}"
         host_config:
@@ -26,7 +22,7 @@
           vpc_id: "{{ deploy_flask_app_vpc_id }}"
           rds_info:
             host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
-            name: "{{ deploy_flask_app_rds_info.instances.0.db_name | default('mysampledb123') }}"
-            master_user_password: "{{ deploy_flask_app_rds_master_password | default('L#5cH2mgy_') }}"
-            master_username: "{{ deploy_flask_app_rds_master_username | default('ansible') }}"
+            name: "{{ deploy_flask_app_rds_info.instances.0.db_name }}"
+            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+            master_username: "{{ deploy_flask_app_rds_master_username }}"
       register: deploy_flask_app_setup

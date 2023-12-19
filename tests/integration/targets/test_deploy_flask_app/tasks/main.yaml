@@ -8,11 +8,6 @@
       region: "{{ aws_region }}"
 
   block:
-    - name: Fail when 'resource_prefix' is not defined
-      ansible.builtin.fail:
-        msg: resource prefix should be defined as resource_prefix
-      when: resource_prefix is not defined
-
     - name: Run operation create
       ansible.builtin.include_tasks: "create.yaml"
 
@@ -24,6 +19,7 @@
         deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
         deploy_flask_app_vm_info: "{{ vm_result }}"
         deploy_flask_app_rds_info: "{{ rds_result }}"
+        deploy_flask_app_bastion_ssh_private_key: "{{ test_deploy_flask_app__tmpdir.path }}/id_rsa"
 
     - name: Check that a page returns successfully
       ansible.builtin.uri:

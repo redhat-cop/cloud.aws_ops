@@ -16,6 +16,11 @@ argument_specs:
         description: Name for the EC2 instance.
         type: str
         required: True
+      deploy_flask_app_bastion_ssh_private_key:
+        description: The path to ssh private key file to use to connect to the bastion host.
+        type: path
+        required: True
+        version_added: 2.1.0
       deploy_flask_app_bastion_host_required_packages:
         description: Packages to be installed on the bastion host.
         type: list
@@ -27,10 +32,6 @@ argument_specs:
         required: True
       deploy_flask_app_vpc_id:
         description: vpc id for the host.
-        type: str
-        required: True
-      deploy_flask_app_sshkey_pair_name:
-        description: Name for the EC2 key pair.
         type: str
         required: True
       deploy_flask_app_rds_info:

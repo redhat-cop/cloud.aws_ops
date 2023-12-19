@@ -70,7 +70,7 @@
         state: present
       register: internet_gw
 
-    - name: Create NAT gateway (allow access to internet for instances in private subnet)
+    - name: Create NAT gateway attached to the public subnet (allow access to internet for instances in private subnet)
       amazon.aws.ec2_vpc_nat_gateway:
         subnet_id: "{{ subnet.subnet.id }}"
         if_exist_do_not_create: true
@@ -141,65 +141,33 @@
         state: present
       register: rds_sg
 
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
+    - name: Create RDS instance (PostGreSQL Database)
+      amazon.aws.rds_instance:
+        force_update_password: true
+        wait: true
+        allocated_storage: "{{ rds_allocated_storage_gb }}"
+        backup_retention_period: 0
+        db_instance_class: "{{ rds_instance_class }}"
         db_instance_identifier: "{{ rds_identifier }}"
+        db_name: "{{ rds_instance_name }}"
+        engine: "{{ rds_engine }}"
+        engine_version: "{{ rds_engine_version }}"
+        master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+        master_username: "{{ deploy_flask_app_rds_master_username }}"
+        monitoring_interval: 0
+        storage_type: standard
+        skip_final_snapshot: true
+        db_subnet_group_name: "{{ rds_subnet_group_name }}"
+        vpc_security_group_ids:
+          - "{{ rds_sg.group_id }}"
       register: rds_result
 
-    - name: Create RDS instance
-      when: rds_result.instances | length == 0
-      block:
-        - name: Create RDS instance (PostGreSQL Database)
-          amazon.aws.rds_instance:
-            force_update_password: true
-            wait: true
-            allocated_storage: "{{ rds_allocated_storage_gb }}"
-            backup_retention_period: 0
-            db_instance_class: "{{ rds_instance_class }}"
-            db_instance_identifier: "{{ rds_identifier }}"
-            db_name: "{{ rds_instance_name }}"
-            engine: "{{ rds_engine }}"
-            engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-            master_username: "{{ deploy_flask_app_rds_master_username }}"
-            monitoring_interval: 0
-            storage_type: standard
-            skip_final_snapshot: true
-            db_subnet_group_name: "{{ rds_subnet_group_name }}"
-            vpc_security_group_ids:
-              - "{{ rds_sg.group_id }}"
-          when: rds_snapshot_arn is not defined
-
-        - name: Create RDS instance from snapshot (PostGreSQL Database)
-          amazon.aws.rds_instance:
-            force_update_password: true
-            wait: true
-            allocated_storage: "{{ rds_allocated_storage_gb }}"
-            backup_retention_period: 0
-            db_instance_class: "{{ rds_instance_class }}"
-            db_instance_identifier: "{{ rds_identifier }}"
-            engine: "{{ rds_engine }}"
-            engine_version: "{{ rds_engine_version }}"
-            master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-            master_username: "{{ deploy_flask_app_rds_master_user }}"
-            monitoring_interval: 0
-            storage_type: standard
-            skip_final_snapshot: true
-            db_subnet_group_name: "{{ rds_subnet_group_name }}"
-            vpc_security_group_ids:
-              - "{{ rds_sg.group_id }}"
-            creation_source: snapshot
-            db_snapshot_identifier: "{{ rds_snapshot_arn }}"
-          when: rds_snapshot_arn is defined
-
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_result
-
-    - name: Set 'sshkey_file' variable
-      ansible.builtin.set_fact:
-        sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ region | default(aws_region) }}
+    - name: Create temporary directory to save private key in
+      ansible.builtin.tempfile:
+        suffix: .key
+        state: directory
+      register: test_deploy_flask_app__tmpdir
+      notify: 'Delete temporary key pair directory'
 
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
@@ -209,9 +177,8 @@
     - name: Save private key into file
       ansible.builtin.copy:
         content: "{{ rsa_key.key.private_key }}"
-        dest: "{{ sshkey_file }}"
+        dest: "{{ test_deploy_flask_app__tmpdir.path }}/id_rsa"
         mode: 0400
-      when: rsa_key is changed
 
     - name: Create a virtual machine
       amazon.aws.ec2_instance:
