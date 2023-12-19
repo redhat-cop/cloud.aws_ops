@@ -34,6 +34,10 @@ argument_specs:
         description: vpc id for the host.
         type: str
         required: True
+      deploy_flask_app_sshkey_pair_name:
+        description: Name for the EC2 key pair.
+        type: str
+        required: True
       deploy_flask_app_rds_info:
         description: A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info module.
         type: dict

@@ -37,6 +37,7 @@ Role Variables
 * **deploy_flask_app_bastion_host_name** (str): Name for the EC2 instance.
 * **deploy_flask_app_bastion_host_username** (str): Username for the bastion host SSH user.
 * **deploy_flask_app_bastion_host_required_packages** (list): Packages to be installed on the bastion host.
+* **deploy_flask_app_sshkey_pair_name** (str): Name for the EC2 key pair.
 * **deploy_flask_app_bastion_ssh_private_key** (path): The path to the ssh private key file to use to connect to the bastion host.
 * **deploy_flask_app_number_of_workers** (int): Number of instances to create.
 * **deploy_flask_app_workers_instance_type** (str): RC2 instance type for workers.

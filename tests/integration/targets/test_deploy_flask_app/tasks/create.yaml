@@ -183,6 +183,7 @@
         content: "{{ rsa_key.key.private_key }}"
         dest: "{{ test_deploy_flask_app__tmpdir.path }}/id_rsa"
         mode: 0400
+      when: rsa_key is changed
 
     - name: Create a virtual machine
       amazon.aws.ec2_instance:

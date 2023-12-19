@@ -26,13 +26,7 @@
         state: present
       become: true
 
-    - name: Generate ssh key for existing user
-      ansible.builtin.user:
-        name: "{{ deploy_flask_app_bastion_host_username }}"
-        state: present
-        generate_ssh_key: true
-
-    - name: Get content of public key
-      ansible.builtin.slurp:
-        src: ~/.ssh/id_rsa.pub
-      register: deploy_flask_app_sshkey
+    - name: Copy remote ssh private key file into bastion
+      ansible.builtin.copy:
+        src: "{{ deploy_flask_app_bastion_ssh_private_key }}"
+        dest: "{{ deploy_flask_app_workers_ssh_private_key }}"
