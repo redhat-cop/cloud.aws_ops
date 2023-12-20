@@ -5,14 +5,14 @@
     dest: "{{ item.dest }}"
     mode: 0644
   with_items:
-    - src: inventory.yml.j2
-      dest: ~/inventory.yml
+    - src: inventory.j2
+      dest: ~/inventory.ini
     # - src: vars.yaml.j2
     #   dest: vars.yaml
 
 - name: Ensure workers are reachable from bastion host
   ansible.builtin.command:
-    cmd: "ansible -m ping -i ~/inventory.yml all"
+    cmd: "ansible -m ping -i ~/inventory.ini all"
 
 # - name: Create private registry and store webapp container image
 #   delegate_to: bastion
