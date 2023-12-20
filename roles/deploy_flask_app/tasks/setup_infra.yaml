@@ -63,24 +63,24 @@
         deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
         deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
 
-    # - name: Create load balancer
-    #   amazon.aws.elb_classic_lb:
-    #     state: present
-    #     name: "{{ deploy_flask_app__resource_prefix }}-lb"
-    #     listeners:
-    #       - load_balancer_port: "{{ deploy_flask_app_listening_port }}"
-    #         instance_port: 5000
-    #         protocol: HTTP
-    #         instance_protocol: HTTP
-    #     instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
-    #     security_group_ids:
-    #       - "{{ deploy_flask_app__group_id }}"
-    #     subnets:
-    #       - "{{ deploy_flask_app__group_id }}"
-    #     scheme: internet-facing
-    #     wait: true
-    #     wait_timeout: 360
-    #   retries: 5
-    #   delay: 10
-    #   until: deploy_flask_app_lb_result is successful
-    #   register: deploy_flask_app_lb_result
+    - name: Create load balancer
+      amazon.aws.elb_classic_lb:
+        state: present
+        name: "{{ deploy_flask_app__resource_prefix }}-lb"
+        listeners:
+          - load_balancer_port: "{{ deploy_flask_app_listening_port }}"
+            instance_port: 5000
+            protocol: HTTP
+            instance_protocol: HTTP
+        instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+        security_group_ids:
+          - "{{ deploy_flask_app__group_id }}"
+        subnets:
+          - "{{ deploy_flask_app__public_subnet_id }}"
+        scheme: internet-facing
+        wait: true
+        wait_timeout: 360
+      retries: 5
+      delay: 10
+      until: deploy_flask_app_lb_result is successful
+      register: deploy_flask_app_lb_result
