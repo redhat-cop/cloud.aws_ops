@@ -1,0 +1,4 @@
+[all]
+{% for item in deploy_flask_app_workers_instances %}
+{{ item.instance_id }} workers_hosts="{{ deploy_flask_app_workers_join }}" ansible_ssh_user="{{ deploy_flask_app_workers_user_name }}" ansible_ssh_common_args='-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no' ansible_host="{{ item.private_ip_address }}"
+{% endfor %}
