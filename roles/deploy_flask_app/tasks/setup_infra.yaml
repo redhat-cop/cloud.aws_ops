@@ -1,0 +1,86 @@
+---
+- name: Create Cloud Resources (workers, load balancer, etc)
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ deploy_flask_app_region | default(aws_region) }}"
+
+  block:
+    - name: Set variables
+      ansible.builtin.set_fact:
+        deploy_flask_app_instance_name: "{{ deploy_flask_app__resource_prefix }}-workers"
+
+    - name: List running instances
+      amazon.aws.ec2_instance_info:
+        filters:
+          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Compute number of instances to create/delete
+      ansible.builtin.set_fact:
+        deploy_flask_app_expected_instances: "{{ deploy_flask_app_number_of_workers | int - deploy_flask_app_vms.instances | length }}"
+
+    - name: Create list of targets hosts
+      amazon.aws.ec2_instance:
+        name: "{{ deploy_flask_app_instance_name }}"
+        instance_type: "{{ deploy_flask_app_workers_instance_type }}"
+        image_id: "{{ deploy_flask_app__vm_image_id }}"
+        key_name: "{{ deploy_flask_app_sshkey_pair_name }}"
+        subnet_id: "{{ deploy_flask_app_private_subnet_id }}"
+        network:
+          assign_public_ip: false
+          delete_on_termination: true
+          groups:
+            - "{{ deploy_flask_app__group_id }}"
+        security_groups:
+          - "{{ deploy_flask_app__group_id }}"
+        wait: true
+        count: "{{ deploy_flask_app_expected_instances }}"
+        state: started
+      register: deploy_flask_app_workers
+      when: deploy_flask_app_expected_instances | int > 0
+
+    - name: List running instances (once again)
+      amazon.aws.ec2_instance_info:
+        filters:
+          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Create list of instances (join)
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances_list: []
+    - name: Update join_instances
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances_list: "{{ deploy_flask_app_instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
+      with_items: "{{ deploy_flask_app_vms.instances }}"
+
+    - name: Set variables
+      ansible.builtin.set_fact:
+        deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
+        deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
+
+    - name: Create load balancer
+      amazon.aws.elb_classic_lb:
+        state: present
+        name: "{{ deploy_flask_app__resource_prefix }}-lb"
+        listeners:
+          - load_balancer_port: "{{ deploy_flask_app_listening_port }}"
+            instance_port: 5000
+            protocol: HTTP
+            instance_protocol: HTTP
+        instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+        security_group_ids:
+          - "{{ deploy_flask_app__group_id }}"
+        subnets:
+          - "{{ deploy_flask_app__group_id }}"
+        scheme: internet-facing
+        wait: true
+        wait_timeout: 360
+      retries: 5
+      delay: 10
+      until: deploy_flask_app_lb_result is successful
+      register: deploy_flask_app_lb_result

@@ -30,12 +30,12 @@ image_filter: Fedora-Cloud-Base-37-*
 deploy_flask_app_bastion_host_name: "{{ resource_prefix }}-bastion"
 deploy_flask_app_bastion_host_username: fedora
 deploy_flask_app_bastion_host_required_packages:
-  - python3
-  - python-virtualenv
-  - sshpass
-  - git
-  - podman
-  - httpd-tools
+  # - python3
+  # - python-virtualenv
+  # - sshpass
+  # - git
+  # - podman
+  # - httpd-tools
   - ansible
 deploy_flask_app_sshkey_pair_name: "{{ resource_prefix }}-key"
 deploy_flask_app_workers_user_name: fedora

@@ -48,21 +48,21 @@
         az: "{{ shared_az }}"
       register: private_subnet
 
-    - name: Create another private subnet for RDS
-      amazon.aws.ec2_vpc_subnet:
-        vpc_id: "{{ vpc.vpc.id }}"
-        cidr: "{{ subnet_cidr[2] }}"
-        az: "{{ region_av_zones[1] }}"
-      register: rds_subnet
+    # - name: Create another private subnet for RDS
+    #   amazon.aws.ec2_vpc_subnet:
+    #     vpc_id: "{{ vpc.vpc.id }}"
+    #     cidr: "{{ subnet_cidr[2] }}"
+    #     az: "{{ region_av_zones[1] }}"
+    #   register: rds_subnet
 
-    - name: Create subnet group for RDS instance
-      amazon.aws.rds_subnet_group:
-        name: "{{ rds_subnet_group_name }}"
-        description: subnet group for RDS instance to be hidden
-        subnets:
-          - "{{ rds_subnet.subnet.id }}"
-          - "{{ private_subnet.subnet.id }}"
-        state: present
+    # - name: Create subnet group for RDS instance
+    #   amazon.aws.rds_subnet_group:
+    #     name: "{{ rds_subnet_group_name }}"
+    #     description: subnet group for RDS instance to be hidden
+    #     subnets:
+    #       - "{{ rds_subnet.subnet.id }}"
+    #       - "{{ private_subnet.subnet.id }}"
+    #     state: present
 
     - name: Create internet gateway attached to the VPC
       amazon.aws.ec2_vpc_igw:
@@ -127,39 +127,39 @@
         state: present
       register: secgroup
 
-    - name: Create security group for RDS instance
-      amazon.aws.ec2_security_group:
-        name: "{{ rds_secgroup_name }}"
-        vpc_id: "{{ vpc.vpc.id }}"
-        description: Security group to allow RDS instance port
-        rules:
-          - cidr_ip: 0.0.0.0/0
-            proto: tcp
-            from_port: "{{ rds_listening_port }}"
-            to_port: "{{ rds_listening_port }}"
-        tags: "{{ resource_tags }}"
-        state: present
-      register: rds_sg
+    # - name: Create security group for RDS instance
+    #   amazon.aws.ec2_security_group:
+    #     name: "{{ rds_secgroup_name }}"
+    #     vpc_id: "{{ vpc.vpc.id }}"
+    #     description: Security group to allow RDS instance port
+    #     rules:
+    #       - cidr_ip: 0.0.0.0/0
+    #         proto: tcp
+    #         from_port: "{{ rds_listening_port }}"
+    #         to_port: "{{ rds_listening_port }}"
+    #     tags: "{{ resource_tags }}"
+    #     state: present
+    #   register: rds_sg
 
-    - name: Create RDS instance (PostGreSQL Database)
-      amazon.aws.rds_instance:
-        force_update_password: true
-        wait: true
-        allocated_storage: "{{ rds_allocated_storage_gb }}"
-        backup_retention_period: 0
-        db_instance_class: "{{ rds_instance_class }}"
-        db_instance_identifier: "{{ rds_identifier }}"
-        db_name: "{{ rds_instance_name }}"
-        engine: "{{ rds_engine }}"
-        engine_version: "{{ rds_engine_version }}"
-        master_user_password: "{{ deploy_flask_app_rds_master_password }}"
-        master_username: "{{ deploy_flask_app_rds_master_username }}"
-        monitoring_interval: 0
-        storage_type: standard
-        skip_final_snapshot: true
-        db_subnet_group_name: "{{ rds_subnet_group_name }}"
-        vpc_security_group_ids:
-          - "{{ rds_sg.group_id }}"
+    # - name: Create RDS instance (PostGreSQL Database)
+    #   amazon.aws.rds_instance:
+    #     force_update_password: true
+    #     wait: true
+    #     allocated_storage: "{{ rds_allocated_storage_gb }}"
+    #     backup_retention_period: 0
+    #     db_instance_class: "{{ rds_instance_class }}"
+    #     db_instance_identifier: "{{ rds_identifier }}"
+    #     db_name: "{{ rds_instance_name }}"
+    #     engine: "{{ rds_engine }}"
+    #     engine_version: "{{ rds_engine_version }}"
+    #     master_user_password: "{{ deploy_flask_app_rds_master_password }}"
+    #     master_username: "{{ deploy_flask_app_rds_master_username }}"
+    #     monitoring_interval: 0
+    #     storage_type: standard
+    #     skip_final_snapshot: true
+    #     db_subnet_group_name: "{{ rds_subnet_group_name }}"
+    #     vpc_security_group_ids:
+    #       - "{{ rds_sg.group_id }}"
 
     - name: Get RDS instance info
       amazon.aws.rds_instance_info:
