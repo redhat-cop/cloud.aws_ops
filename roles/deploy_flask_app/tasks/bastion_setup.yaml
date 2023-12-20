@@ -30,3 +30,4 @@
       ansible.builtin.copy:
         src: "{{ deploy_flask_app_bastion_ssh_private_key }}"
         dest: "{{ deploy_flask_app_workers_ssh_private_key }}"
+        mode: 0400
