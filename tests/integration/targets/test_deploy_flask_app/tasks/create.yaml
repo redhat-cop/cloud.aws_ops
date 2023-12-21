@@ -198,6 +198,11 @@
             - "{{ secgroup.group_id }}"
         security_groups:
           - "{{ secgroup.group_id }}"
+        user_data: |
+          #cloud-config
+          package_upgrade: true
+          package_update: true
+          packages: "{{ deploy_flask_app_bastion_cloud_config_packages }}"
         wait: true
         state: started
       register: vm_result

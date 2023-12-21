@@ -39,6 +39,12 @@
           - "{{ deploy_flask_app__group_id }}"
         wait: true
         count: "{{ deploy_flask_app_expected_instances }}"
+        user_data: |
+          #cloud-config
+          package_upgrade: true
+          package_update: true
+          packages:
+            - podman
         state: started
       register: deploy_flask_app_workers
       when: deploy_flask_app_expected_instances | int > 0

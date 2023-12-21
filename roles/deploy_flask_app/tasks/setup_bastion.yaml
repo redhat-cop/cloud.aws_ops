@@ -16,6 +16,7 @@
     name: "{{ deploy_flask_app_bastion_host_required_packages }}"
     state: present
   become: true
+  when: deploy_flask_app_bastion_host_required_packages | length > 0
 
 - name: Generate ssh configuration for current user
   ansible.builtin.user:

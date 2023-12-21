@@ -29,7 +29,8 @@ image_filter: Fedora-Cloud-Base-37-*
 
 deploy_flask_app_bastion_host_name: "{{ resource_prefix }}-bastion"
 deploy_flask_app_bastion_host_username: fedora
-deploy_flask_app_bastion_host_required_packages:
+deploy_flask_app_bastion_host_required_packages: []
+deploy_flask_app_bastion_cloud_config_packages:
   - python3
   - python-virtualenv
   - sshpass
