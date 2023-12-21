@@ -7,122 +7,47 @@
   with_items:
     - src: inventory.j2
       dest: ~/inventory.ini
-    # - src: vars.yaml.j2
-    #   dest: vars.yaml
+    - src: vars.yaml.j2
+      dest: vars.yaml
 
 - name: Ensure workers are reachable from bastion host
   ansible.builtin.command:
     cmd: "ansible -m ping -i ~/inventory.ini all"
 
-# - name: Create private registry and store webapp container image
-#   delegate_to: bastion
-#   block:
-#     - name: Clone git repository for web application
-#       ansible.builtin.git:
-#         repo: "{{ deploy_flask_app_git_repository }}"
-#         dest: ~/webapp
+- name: Initialize database tables
+  ansible.builtin.shell:
+    cmd: >
+      podman run --rm
+      -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
+      -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
+      -e DATABASE_HOST="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.host }}"
+      -e DATABASE_INSTANCE="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.name }}"
+      -e DATABASE_USER="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_username }}"
+      -e DATABASE_PASSWORD="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_user_password }}"
+      -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"
+      -e ADMIN_PASSWORD="{{ deploy_flask_app_config.admin_password }}"
+      -e WORKER_HOSTNAME="{{ inventory_hostname }}"
+      -e WORKERS_HOSTS="bastion"
+      webapp flask {{ deploy_flask_app_force_init | bool | ternary('force-init-db', 'init-db') }}
+  run_once: true
+  changed_when: false
 
-#     - name: Build webapp container image
-#       ansible.builtin.command:
-#         cmd: podman build -t webapp .
-#       args:
-#         chdir: ~/webapp
-#       changed_when: false
+- name: Copy playbook into bastion host
+  ansible.builtin.copy:
+    src: run_app.yaml
+    dest: ~/playbook.yaml
+    mode: 0644
 
-#     - name: Check running registry
-#       ansible.builtin.shell:
-#         cmd: >
-#           podman container
-#           ps -a
-#           -f name=registry500x
-#           --format=.Names
-#       register: deploy_flask_app_container
-#       become: true
-#       changed_when: false
+- name: Deploy application into workers
+  ansible.builtin.shell:
+    cmd: >
+      ansible-playbook playbook.yaml -i inventory.ini -vvv
+      -e '@vars.yaml'
+      -e registry_host_port='{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_ip }}:{{ deploy_flask_app_listening_port }}'
+  args:
+    chdir: ~/
+  changed_when: false
 
-#     - name: Create private registry
-#       become: true
-#       when:
-#         - deploy_flask_app_container.stdout == ""
-#       block:
-#         - name: Create folders for the registry
-#           ansible.builtin.file:
-#             path: /opt/registry/{{ item }}
-#             state: directory
-#             mode: 0644
-#           with_items:
-#             - auth
-#             - certs
-#             - data
-
-#         - name: Generate credentials for accessing the registry
-#           ansible.builtin.shell:
-#             cmd: >
-#               htpasswd -bBc /opt/registry/auth/htpasswd
-#               {{ deploy_flask_app_local_registry_user }}
-#               {{ deploy_flask_app_local_registry_pwd }}
-#           changed_when: false
-
-#         - name: Start the registry
-#           ansible.builtin.shell:
-#             cmd: >
-#               podman run --name registry500x
-#               -p {{ deploy_flask_app_listening_port }}:5000
-#               -v /opt/registry/data:/var/lib/registry:z
-#               -v /opt/registry/auth:/auth:z
-#               -e "REGISTRY_AUTH=htpasswd"
-#               -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
-#               -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
-#               -e REGISTRY_COMPATIBILITY_SCHEMA1_ENABLED=true
-#               -d
-#               docker.io/library/registry:latest
-#           changed_when: false
-
-#     - name: Push image into private registry
-#       ansible.builtin.shell:
-#         cmd: >
-#           podman login 127.0.0.1:{{ deploy_flask_app_listening_port }} -u '{{ deploy_flask_app_local_registry_user }}' -p '{{ deploy_flask_app_local_registry_pwd }}' --tls-verify=false &&
-#           podman tag webapp 127.0.0.1:{{ deploy_flask_app_listening_port }}/ansible-webapp &&
-#           podman push 127.0.0.1:{{ deploy_flask_app_listening_port }}/ansible-webapp --tls-verify=false
-#       changed_when: false
-
-# - name: Initialize database tables
-#   ansible.builtin.shell:
-#     cmd: >
-#       podman run --rm
-#       -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
-#       -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
-#       -e DATABASE_HOST="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.host }}"
-#       -e DATABASE_INSTANCE="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.name }}"
-#       -e DATABASE_USER="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_username }}"
-#       -e DATABASE_PASSWORD="{{ deploy_flask_app_setup.add_host.host_vars.host_config.rds_info.master_user_password }}"
-#       -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"
-#       -e ADMIN_PASSWORD="{{ deploy_flask_app_config.admin_password }}"
-#       -e WORKER_HOSTNAME="{{ inventory_hostname }}"
-#       -e WORKERS_HOSTS="bastion"
-#       webapp flask {{ deploy_flask_app_force_init | bool | ternary('force-init-db', 'init-db') }}
-#   run_once: true
-#   changed_when: false
-#   delegate_to: bastion
-
-# - name: Copy playbook into bastion host
-#   ansible.builtin.copy:
-#     src: run_app.yaml
-#     dest: ~/playbook.yaml
-#     mode: 0644
-#   delegate_to: bastion
-
-# - name: Deploy application into workers
-#   ansible.builtin.shell:
-#     cmd: >
-#       ansible-playbook playbook.yaml -i inventory.ini -vvv
-#       -e '@vars.yaml'
-#       -e registry_host_port='{{ deploy_flask_app_setup.add_host.host_vars.host_config.private_ip }}:{{ deploy_flask_app_listening_port }}'
-#   args:
-#     chdir: ~/
-#   changed_when: false
-#   delegate_to: bastion
-
-# - name: Debug application url
-#   ansible.builtin.debug:
-#     msg: "Application url: {{ deploy_flask_app_lb_result.elb.dns_name }}:{{ deploy_flask_app_listening_port }}"
+- name: Debug application url
+  ansible.builtin.debug:
+    msg: "Application url: {{ deploy_flask_app_lb_result.elb.dns_name }}:{{ deploy_flask_app_listening_port }}"

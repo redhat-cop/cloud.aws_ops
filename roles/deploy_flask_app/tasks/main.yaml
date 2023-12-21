@@ -10,8 +10,8 @@
     deploy_flask_app__bastion_private_ip: "{{ deploy_flask_app_vm_info.instances.0.private_ip_address }}"
     deploy_flask_app__public_subnet_id: "{{ deploy_flask_app_vm_info.instances.0.subnet_id }}"
     deploy_flask_app__private_subnet_id: "{{ deploy_flask_app_vm_info.instances.0.subnet_id }}"
-    # deploy_flask_app__rds_host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
-    # deploy_flask_app__rds_dbname: "{{ deploy_flask_app_rds_info.instances.0.db_name }}"
+    deploy_flask_app__rds_host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
+    deploy_flask_app__rds_dbname: "{{ deploy_flask_app_rds_info.instances.0.db_name }}"
   block:
     - name: Create infrastructure - workers and load balancer
       ansible.builtin.include_tasks: setup_infra.yaml
@@ -24,6 +24,9 @@
       block:
         - name: Deploy resource from Bastion
           ansible.builtin.include_tasks: setup_bastion.yaml
+
+        - name: Build application and push container image into private registry
+          ansible.builtin.include_tasks: build_app.yaml
 
         - name: Deploy App
           ansible.builtin.include_tasks: deploy_app.yaml
