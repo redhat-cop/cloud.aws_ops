@@ -185,6 +185,15 @@
         mode: 0400
       when: rsa_key is changed
 
+    - name: Ensure IAM instance role exists
+      amazon.aws.iam_role:
+        name: "{{ bastion_host_iam_role }}"
+        assume_role_policy_document: "{{ lookup('file', 'ec2-trust-policy.json') }}"
+        state: present
+        create_instance_profile: true
+        wait: true
+      register: role_output
+
     - name: Create a virtual machine
       amazon.aws.ec2_instance:
         name: "{{ deploy_flask_app_bastion_host_name }}"
@@ -192,6 +201,8 @@
         image_id: "{{ images.images.0.image_id }}"
         key_name: "{{ deploy_flask_app_sshkey_pair_name }}"
         subnet_id: "{{ subnet.subnet.id }}"
+        ebs_optimized: true
+        instance_role: "{{ role_output.iam_role.role_name }}"
         network:
           assign_public_ip: true
           groups:
@@ -199,10 +210,8 @@
         security_groups:
           - "{{ secgroup.group_id }}"
         user_data: |
-          #cloud-config
-          package_upgrade: true
-          package_update: true
-          packages: "{{ deploy_flask_app_bastion_cloud_config_packages }}"
+          #!/bin/bash
+          yum install -y python3 python-virtualenv sshpass git podman httpd-tools ansible
         wait: true
         state: started
       register: vm_result

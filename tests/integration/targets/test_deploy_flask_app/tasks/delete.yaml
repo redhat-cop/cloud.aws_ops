@@ -130,3 +130,10 @@
             cidr_block: "{{ vpc_cidr }}"
             state: absent
           ignore_errors: true
+
+        # Delete IAM Role
+        - name: Delete IAM role
+          amazon.aws.iam_role:
+            name: "{{ bastion_host_iam_role }}"
+            state: absent
+            wait: true

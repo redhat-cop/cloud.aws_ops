@@ -20,6 +20,13 @@
         - regex: ^(# *)?ClientAliveCountMax
           line: ClientAliveCountMax 3
 
+    - name: Install Podman
+      ansible.builtin.yum:
+        name:
+          - podman
+        update_cache: True
+        state: present
+
     - name: Pull image from private registry
       ansible.builtin.shell:
         cmd: >
