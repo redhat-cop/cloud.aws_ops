@@ -2,10 +2,12 @@
 - name: "Run deploy_flask_app integration tests"
   module_defaults:
     group/aws:
-      aws_access_key: "{{ aws_access_key }}"
-      aws_secret_key: "{{ aws_secret_key }}"
-      security_token: "{{ aws_security_token }}"
-      region: "{{ aws_region }}"
+      # aws_access_key: "{{ aws_access_key }}"
+      # aws_secret_key: "{{ aws_secret_key }}"
+      # security_token: "{{ aws_security_token }}"
+      # region: "{{ aws_region }}"
+      aws_profile: eu_london
+      region: eu-west-2
 
   block:
     - name: Run operation create
@@ -19,7 +21,8 @@
         deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
         deploy_flask_app_vm_info: "{{ vm_result }}"
         deploy_flask_app_rds_info: "{{ rds_result }}"
-        deploy_flask_app_bastion_ssh_private_key: "{{ test_deploy_flask_app__tmpdir.path }}/id_rsa"
+        # deploy_flask_app_bastion_ssh_private_key: "{{ test_deploy_flask_app__sshkey.path }}"
+        deploy_flask_app_bastion_ssh_private_key: /tmp/ansible.db0gt4_6.id_rsa
 
     - name: Check that a page returns successfully
       ansible.builtin.uri:
@@ -29,7 +32,7 @@
       retries: 5
       delay: 10
 
-  always:
-    # Cleanup after ourselves
-    - name: Cleanup
-      ansible.builtin.include_tasks: "delete.yaml"
+  # always:
+  #   # Cleanup after ourselves
+  #   - name: Cleanup
+  #     ansible.builtin.include_tasks: "delete.yaml"

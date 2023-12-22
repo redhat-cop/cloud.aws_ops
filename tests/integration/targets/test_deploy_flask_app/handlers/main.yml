@@ -1,6 +1,6 @@
 ---
-- name: Delete temporary key pair directory
+- name: Delete temporary key pair file
   ansible.builtin.file:
     state: absent
-    path: "{{ test_deploy_flask_app__tmpdir.path }}"
-  when: test_deploy_flask_app__tmpdir is defined
+    path: "{{ test_deploy_flask_app__sshkey.path }}"
+  when: test_deploy_flask_app__sshkey is defined

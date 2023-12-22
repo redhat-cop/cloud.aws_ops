@@ -227,6 +227,15 @@
           instance-state-name: running
       register: vm_result
 
+    - name: Ensure IAM instance role exists
+      amazon.aws.iam_role:
+        name: "{{ ec2_iam_role_name }}"
+        assume_role_policy_document: "{{ lookup('file', 'ec2-trust-policy.json') }}"
+        state: present
+        create_instance_profile: true
+        wait: true
+      register: role_output
+
     - name: Create a virtual machine
       when: vm_result.instances | length == 0
       amazon.aws.ec2_instance:
@@ -235,12 +244,17 @@
         image_id: "{{ images.images.0.image_id }}"
         key_name: "{{ deploy_flask_app_sshkey_pair_name }}"
         subnet_id: "{{ subnet.subnet.id }}"
+        ebs_optimized: true
+        instance_role: "{{ role_output.iam_role.role_name }}"
         network:
           assign_public_ip: true
           groups:
             - "{{ secgroup.group_id }}"
         security_groups:
           - "{{ secgroup.group_id }}"
+        user_data: |
+          #!/bin/bash
+          yum install -y python3 python-virtualenv sshpass netcat
         wait: true
         state: started
       register: vm_result

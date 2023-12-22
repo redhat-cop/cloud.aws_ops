@@ -1,1 +1,3 @@
 aws_security_token: '{{ security_token | default(omit) }}'
+aws_region: eu-west-2
+resource_prefix: "asnbible-test-user-data-20231221"
