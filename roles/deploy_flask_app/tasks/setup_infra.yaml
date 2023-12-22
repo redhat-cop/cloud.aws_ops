@@ -52,16 +52,11 @@
 
     - name: Create list of instances (join)
       ansible.builtin.set_fact:
-        deploy_flask_app_instances_list: []
+        deploy_flask_app_instances: []
     - name: Update join_instances
       ansible.builtin.set_fact:
-        deploy_flask_app_instances_list: "{{ deploy_flask_app_instances_list + [item.instance_id + ':' + item.private_ip_address] }}"
+        deploy_flask_app_instances: "{{ deploy_flask_app_instances + [item.instance_id + ':' + item.private_ip_address] }}"
       with_items: "{{ deploy_flask_app_vms.instances }}"
-
-    - name: Set variables
-      ansible.builtin.set_fact:
-        deploy_flask_app_workers_instances: "{{ deploy_flask_app_vms.instances }}"
-        deploy_flask_app_workers_join: "{{ deploy_flask_app_instances_list | join(',') }}"
 
     - name: Create load balancer
       amazon.aws.elb_classic_lb:

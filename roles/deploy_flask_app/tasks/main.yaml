@@ -19,14 +19,8 @@
     - name: Add bastion host to inventory
       ansible.builtin.include_tasks: update_inventory.yaml
 
-    - name: Running from bastion host
-      delegate_to: bastion
-      block:
-        - name: Deploy resource from Bastion
-          ansible.builtin.include_tasks: setup_bastion.yaml
-
-        - name: Build application and push container image into private registry
-          ansible.builtin.include_tasks: build_app.yaml
-
-        - name: Deploy App
-          ansible.builtin.include_tasks: deploy_app.yaml
+    - name: Deploy application into workers
+      ansible.builtin.include_tasks: deploy_app.yaml
+      with_items: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+      loop_control:
+        loop_var: worker_id

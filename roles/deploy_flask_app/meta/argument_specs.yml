@@ -21,11 +21,6 @@ argument_specs:
         type: path
         required: True
         version_added: 2.1.0
-      deploy_flask_app_bastion_host_required_packages:
-        description: Packages to be installed on the bastion host.
-        type: list
-        elements: str
-        required: True
       deploy_flask_app_private_subnet_id:
         description: Private subnet id of the bastion host.
         type: str
@@ -65,10 +60,6 @@ argument_specs:
         description: Username for the workers.
         type: str
         required: True
-      deploy_flask_app_git_repository:
-        description: Git repository to be cloned for the webapp.
-        type: str
-        required: True
       deploy_flask_app_listening_port:
         description: Load balancer port.
         type: int
@@ -76,18 +67,6 @@ argument_specs:
       deploy_flask_app_force_init:
         description: A boolean value True to force init the app and False to not force init.
         type: bool
-        required: True
-      deploy_flask_app_local_registry_user:
-        description: Registry user name.
-        type: str
-        required: True
-      deploy_flask_app_local_registry_pwd:
-        description: Registry password.
-        type: str
-        required: True
-      deploy_flask_app_local_registry_port:
-        description: Registry port.
-        type: int
         required: True
       deploy_flask_app_config:
         description: A dict of config parameterys for the app.
