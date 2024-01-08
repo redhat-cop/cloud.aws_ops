@@ -166,17 +166,10 @@
         db_instance_identifier: "{{ rds_identifier }}"
       register: rds_result
 
-    - name: Create temporary file for ssh private key
-      ansible.builtin.tempfile:
-        suffix: .id_rsa
-      register: test_deploy_flask_app__sshkey
-      # notify: 'Delete temporary key pair file'
-
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
         name: "{{ deploy_flask_app_sshkey_pair_name }}"
-        file_name: "{{ test_deploy_flask_app__sshkey.path }}"
-      register: rsa_key
+        key_material: "{{ lookup('file', setup_rsa_keys__public_key_file) }}"
 
     - name: Ensure IAM instance role exists
       amazon.aws.iam_role:
@@ -204,7 +197,7 @@
           - "{{ secgroup.group_id }}"
         user_data: |
           #!/bin/bash
-          yum install -y python3 python-virtualenv sshpass netcat
+          yum install -y python3 python-virtualenv sshpass netcat ansible
         wait: true
         state: started
       register: vm_result

@@ -22,7 +22,7 @@ rds_engine: postgres
 rds_engine_version: "14.8"
 bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
-image_filter: Fedora-Cloud-Base-37-*
+image_filter: Fedora-Cloud-Base-38-*
 bastion_host_iam_role: "{{ resource_prefix }}-role"
 
 # vars for the deploy_flask_app role and create task

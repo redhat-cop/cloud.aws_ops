@@ -1,4 +1,4 @@
 ---
-dependencies:
-  - role: cloud.aws_ops.aws_setup_credentials
-allow_duplicates: true
+# dependencies:
+#   - role: cloud.aws_ops.aws_setup_credentials
+# allow_duplicates: true

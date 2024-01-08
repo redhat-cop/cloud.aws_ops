@@ -1,0 +1,2 @@
+---
+setup_rsa_keys__path: "~/.ssh-{{ resource_prefix }}"

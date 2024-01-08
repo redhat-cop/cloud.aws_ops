@@ -1,12 +1,5 @@
 ---
 - name: Create Cloud Resources (workers, load balancer, etc)
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ deploy_flask_app_region | default(aws_region) }}"
-
   block:
     - name: Set variables
       ansible.builtin.set_fact:
@@ -15,7 +8,9 @@
     - name: List running instances
       amazon.aws.ec2_instance_info:
         filters:
-          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          network-interface.subnet-id: "{{ deploy_flask_app_private_subnet_id }}"
+          key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
+          image-id: "{{ deploy_flask_app__vm_image_id }}"
           instance-state-name: running
       register: deploy_flask_app_vms
 
@@ -46,7 +41,9 @@
     - name: List running instances (once again)
       amazon.aws.ec2_instance_info:
         filters:
-          tag:Name: "{{ deploy_flask_app_instance_name }}"
+          network-interface.subnet-id: "{{ deploy_flask_app_private_subnet_id }}"
+          key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
+          image-id: "{{ deploy_flask_app__vm_image_id }}"
           instance-state-name: running
       register: deploy_flask_app_vms
 

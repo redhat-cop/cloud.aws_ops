@@ -16,11 +16,5 @@
     - name: Create infrastructure - workers and load balancer
       ansible.builtin.include_tasks: setup_infra.yaml
 
-    - name: Add bastion host to inventory
-      ansible.builtin.include_tasks: update_inventory.yaml
-
-    - name: Deploy application into workers
-      ansible.builtin.include_tasks: deploy_app.yaml
-      with_items: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
-      loop_control:
-        loop_var: worker_id
+    - name: Start application container into workers
+      ansible.builtin.include_tasks: start_containers.yaml

@@ -1,0 +1,6 @@
+all:
+  hosts:
+{% for item in deploy_flask_app_vms.instances %}
+    {{ item.instance_id }}:
+      ansible_python_interpreter: auto
+{% endfor %}

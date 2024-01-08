@@ -1,0 +1,6 @@
+Host bastion
+  HostName {{ deploy_flask_app__bastion_public_ip }}
+  User {{ deploy_flask_app_bastion_host_username }}
+  IdentityFile {{ deploy_flask_app_bastion_ssh_private_key }}
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
