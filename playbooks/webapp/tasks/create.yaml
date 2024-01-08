@@ -218,15 +218,6 @@
         mode: 0400
       when: rsa_key is changed
 
-    - name: Check if the vm exists
-      amazon.aws.ec2_instance_info:
-        filters:
-          instance-type: "{{ bastion_host_type }}"
-          key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
-          vpc-id: "{{ vpc.vpc.id }}"
-          instance-state-name: running
-      register: vm_result
-
     - name: Ensure IAM instance role exists
       amazon.aws.iam_role:
         name: "{{ ec2_iam_role_name }}"
@@ -237,7 +228,6 @@
       register: role_output
 
     - name: Create a virtual machine
-      when: vm_result.instances | length == 0
       amazon.aws.ec2_instance:
         name: "{{ deploy_flask_app_bastion_host_name }}"
         instance_type: "{{ bastion_host_type }}"
@@ -254,7 +244,7 @@
           - "{{ secgroup.group_id }}"
         user_data: |
           #!/bin/bash
-          yum install -y python3 python-virtualenv sshpass netcat
+          yum install -y python3 python-virtualenv sshpass netcat ansible
         wait: true
         state: started
       register: vm_result

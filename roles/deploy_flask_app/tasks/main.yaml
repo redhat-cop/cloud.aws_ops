@@ -18,3 +18,7 @@
 
     - name: Start application container into workers
       ansible.builtin.include_tasks: start_containers.yaml
+
+    - name: Display application URL
+      ansible.builtin.debug:
+        msg: "Application accessible at http://{{ deploy_flask_app_lb_result.elb.dns_name }}:{{ deploy_flask_app_listening_port }}"

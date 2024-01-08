@@ -1,3 +1,4 @@
 cloud/aws
 role/deploy_flask_app
 time=35m
+unstable

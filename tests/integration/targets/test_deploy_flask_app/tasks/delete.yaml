@@ -76,7 +76,7 @@
             state: absent
           with_items: "{{ route_table.route_tables | map(attribute='id') | list }}"
 
-        # Delete VPC route table
+        # Delete NAT Gateway
         - name: Get NAT gateway
           amazon.aws.ec2_vpc_nat_gateway_info:
             filters:

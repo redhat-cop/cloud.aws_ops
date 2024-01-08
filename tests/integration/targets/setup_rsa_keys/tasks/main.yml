@@ -19,6 +19,7 @@
       ansible.builtin.file:
         path: "{{ setup_rsa_keys__path }}"
         state: directory
+      notify: 'Delete RSA key directory'
 
     - name: Generate RSA keys
       community.crypto.openssh_keypair:
