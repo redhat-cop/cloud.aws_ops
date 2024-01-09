@@ -70,4 +70,4 @@
         subnets:
           - "{{ deploy_flask_app__public_subnet_id }}"
         scheme: internet-facing
-        wait: false
+        wait: true

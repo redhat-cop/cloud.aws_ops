@@ -44,10 +44,6 @@
           path: "~/.ssh"
         - state: touch
           path: "~/.ssh/config"
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Update local .ssh/config
       ansible.builtin.blockinfile:
@@ -55,30 +51,18 @@
         insertafter: EOF
         dest: "~/.ssh/config"
         content: "{{ lookup('template', 'bastion_ssh_config.j2') }}"
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Copy remote ssh private key file into bastion
       ansible.builtin.copy:
         src: "{{ deploy_flask_app_bastion_ssh_private_key }}"
         dest: "{{ deploy_flask_app_workers_ssh_private_key }}"
         mode: 0400
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Generate workers inventory file
       ansible.builtin.copy:
         content: "{{ lookup('template', 'workers_inventory.yaml.j2') }}"
         dest: "{{ deploy_flask_app_workers_inventory_file }}"
         mode: 0755
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Generate playbook to deploy application
       ansible.builtin.copy:
@@ -88,10 +72,6 @@
       vars:
         deploy_flask_app_instances_list: "{{ deploy_flask_app_instances | join(',') }}"
         deploy_flask_app_worker_hostname: "{{ '{{' }} inventory_hostname {{ '}}' }}"
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Deploy application into workers
       ansible.builtin.command: >-
@@ -99,14 +79,3 @@
         --inventory {{ deploy_flask_app_workers_inventory_file }}
         {{ deploy_flask_app_workers_playbook_file }}
         -v
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
-
-    - name: "Ensure application is reachable on worker {{ worker.instance_id }}"
-      ansible.builtin.uri:
-        url: "http://{{ worker.private_ip_address }}:{{ deploy_flask_app_listening_port }}"
-      with_items: "{{ deploy_flask_app_vms.instances }}"
-      loop_control:
-        loop_var: worker
