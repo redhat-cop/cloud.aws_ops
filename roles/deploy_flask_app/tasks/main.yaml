@@ -1,7 +1,11 @@
 ---
 - name: Deploy flask app.
   module_defaults:
-    group/aws: "{{ aws_setup_credentials__output }}"
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region | default(aws_region) }}"
   vars:
     deploy_flask_app__resource_prefix: "{{ deploy_flask_app_vm_info.instances.0.public_dns_name | split('.') | first }}"
     deploy_flask_app__group_id: "{{ deploy_flask_app_vm_info.instances.0.security_groups[0].group_id }}"
