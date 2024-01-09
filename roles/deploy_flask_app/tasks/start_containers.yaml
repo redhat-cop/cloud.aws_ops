@@ -103,3 +103,10 @@
       delay: 5
       until: result is successful
       register: result
+
+    - name: "Ensure application is reachable on worker {{ worker.instance_id }}"
+      ansible.builtin.uri:
+        url: "http://{{ worker.private_ip_address }}:{{ deploy_flask_app_listening_port }}"
+      with_items: "{{ deploy_flask_app_vms.instances }}"
+      loop_control:
+        loop_var: worker

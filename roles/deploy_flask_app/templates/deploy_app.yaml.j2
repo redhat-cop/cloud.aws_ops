@@ -12,31 +12,19 @@
         block: |
           ClientAliveInterval  1200
           ClientAliveCountMax 3
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Install Podman
       ansible.builtin.yum:
         name:
           - podman
-        update_cache: True
+        update_cache: false
         state: present
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Check running container
       ansible.builtin.shell:
         cmd: "podman container ps -a -f name=webapp-container-1 --format=.Names"
       register: container
       changed_when: false
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result
 
     - name: Run application instance
       ansible.builtin.shell:
@@ -59,7 +47,3 @@
       when:
         - container.stdout == ""
       changed_when: true
-      retries: 5
-      delay: 5
-      until: result is successful
-      register: result

@@ -74,9 +74,8 @@
       amazon.aws.ec2_vpc_nat_gateway:
         subnet_id: "{{ subnet.subnet.id }}"
         if_exist_do_not_create: true
-        wait: true
+        wait: false  # Long running tasks, the availability will checked later
         state: present
-      register: nat_gw
 
     - name: Create Route table for internet gateway (public subnet)
       amazon.aws.ec2_vpc_route_table:
@@ -90,20 +89,6 @@
         resource_tags:
           subnet: public
           route: internet
-        state: present
-
-    - name: Create Route table for NAT gateway (private subnet)
-      amazon.aws.ec2_vpc_route_table:
-        vpc_id: "{{ vpc.vpc.id }}"
-        subnets:
-          - "{{ private_subnet.subnet.id }}"
-        routes:
-          - dest: 0.0.0.0/0
-            gateway_id: "{{ nat_gw.nat_gateway_id }}"
-        lookup: tag
-        resource_tags:
-          subnet: private
-          route: nat-gateway
         state: present
 
     - name: Create security group for bastion
@@ -144,7 +129,6 @@
     - name: Create RDS instance (PostGreSQL Database)
       amazon.aws.rds_instance:
         force_update_password: true
-        wait: true
         allocated_storage: "{{ rds_allocated_storage_gb }}"
         backup_retention_period: 0
         db_instance_class: "{{ rds_instance_class }}"
@@ -160,11 +144,7 @@
         db_subnet_group_name: "{{ rds_subnet_group_name }}"
         vpc_security_group_ids:
           - "{{ rds_sg.group_id }}"
-
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_result
+        wait: false
 
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
@@ -201,3 +181,35 @@
         wait: true
         state: started
       register: vm_result
+
+    - name: Wait for the NAT gateway to be available
+      amazon.aws.ec2_vpc_nat_gateway_info:
+        filters:
+          subnet-id: "{{ subnet.subnet.id }}"
+          state: "available"
+      register: nat_gateway
+      retries: 60
+      delay: 5
+      until: nat_gateway.result | length > 0
+
+    - name: Create Route table for NAT gateway (private subnet)
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ vpc.vpc.id }}"
+        subnets:
+          - "{{ private_subnet.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ nat_gateway.result.0.nat_gateway_id }}"
+        lookup: tag
+        resource_tags:
+          subnet: private
+          route: nat-gateway
+        state: present
+
+    - name: Wait for the RDS instance to be available
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ rds_identifier }}"
+      retries: 60
+      delay: 5
+      until: rds_result.instances.0.db_instance_status == "available",
+      register: rds_result
