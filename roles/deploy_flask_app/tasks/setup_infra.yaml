@@ -71,3 +71,4 @@
           - "{{ deploy_flask_app__public_subnet_id }}"
         scheme: internet-facing
         wait: true
+        wait_timeout: 360
