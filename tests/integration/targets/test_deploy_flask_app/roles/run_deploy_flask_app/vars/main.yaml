@@ -45,3 +45,4 @@ deploy_flask_app_force_init: false
 
 deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible
+deploy_flask_app_bastion_rsa_key_dir: "~/.ssh-{{ resource_prefix }}"

@@ -1,1 +1,0 @@
-aws_security_token: '{{ security_token | default(omit) }}'

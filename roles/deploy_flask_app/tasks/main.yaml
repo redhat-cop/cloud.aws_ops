@@ -1,11 +1,5 @@
 ---
 - name: Deploy flask app.
-  module_defaults:
-    group/aws:
-      aws_access_key: "{{ aws_access_key | default(omit) }}"
-      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      security_token: "{{ security_token | default(omit) }}"
-      region: "{{ region | default(aws_region) }}"
   vars:
     deploy_flask_app__resource_prefix: "{{ deploy_flask_app_vm_info.instances.0.public_dns_name | split('.') | first }}"
     deploy_flask_app__group_id: "{{ deploy_flask_app_vm_info.instances.0.security_groups[0].group_id }}"
@@ -22,6 +16,25 @@
 
     - name: Start application container into workers
       ansible.builtin.include_tasks: start_containers.yaml
+
+    - name: Create load balancer
+      amazon.aws.elb_classic_lb:
+        state: present
+        name: "{{ deploy_flask_app__resource_prefix }}-lb"
+        listeners:
+          - load_balancer_port: "{{ deploy_flask_app_listening_port }}"
+            instance_port: 5000
+            protocol: HTTP
+            instance_protocol: HTTP
+        instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+        security_group_ids:
+          - "{{ deploy_flask_app__group_id }}"
+        subnets:
+          - "{{ deploy_flask_app__public_subnet_id }}"
+        scheme: internet-facing
+        wait: true
+        wait_timeout: 600
+      register: deploy_flask_app_lb_result
 
     - name: Display application URL
       ansible.builtin.debug:

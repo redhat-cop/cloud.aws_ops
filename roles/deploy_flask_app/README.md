@@ -23,7 +23,6 @@ Role Variables
 
 ## variables to create new hosts and groups in inventory of in memory playbook.
 
-* **deploy_flask_app_region** (str): Region where the app is to be deployed.
 * **deploy_flask_app_private_subnet_id** (str): Private subnet id of the bastion host
 * **deploy_flask_app_vpc_id** (str): vpc id for the host.
 * **deploy_flask_app_rds_info** (dict): A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info mode.

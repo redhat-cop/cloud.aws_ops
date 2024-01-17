@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    version_added: 2.0.0
+    short_description: Test role cloud.aws_ops.deploy_flask_app
+    options:
+      resource_prefix:
+        description: A resource prefix for AWS resources to be created.
+        type: str
+        required: true
+      run_deploy_flask_app_operation:
+        description: The operation to perform.
+        type: str
+        default: create
+        choices:
+          - create
+          - delete

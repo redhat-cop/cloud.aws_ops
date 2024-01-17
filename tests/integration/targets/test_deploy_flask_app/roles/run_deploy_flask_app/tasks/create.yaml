@@ -1,8 +1,4 @@
 ---
-- name: Set 'region' variable
-  ansible.builtin.set_fact:
-    region: "{{ deploy_flask_app_region | default(aws_region) }}"
-
 - name: Create resources playbook
   block:
     - name: Get image ID to create an instance
@@ -146,10 +142,20 @@
           - "{{ rds_sg.group_id }}"
         wait: false
 
+    # Create key pair to connect to the VM
+    - name: Create directory to generate keys in
+      ansible.builtin.file:
+        path: "{{ deploy_flask_app_bastion_rsa_key_dir }}"
+        state: directory
+
+    - name: Generate RSA keys
+      community.crypto.openssh_keypair:
+        path: "{{ deploy_flask_app_bastion_rsa_key_dir }}/id_rsa"
+
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
         name: "{{ deploy_flask_app_sshkey_pair_name }}"
-        key_material: "{{ lookup('file', setup_rsa_keys__public_key_file) }}"
+        key_material: "{{ lookup('file', deploy_flask_app_bastion_rsa_key_dir + '/id_rsa.pub') }}"
 
     - name: Ensure IAM instance role exists
       amazon.aws.iam_role:
