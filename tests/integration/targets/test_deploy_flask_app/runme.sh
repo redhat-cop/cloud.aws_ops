@@ -10,7 +10,7 @@ function cleanup() {
 trap 'cleanup "${@}"'  ERR
 
 # Create web application
-ansible-playbook run.yaml "$@"
+ansible-playbook run.yaml -e "run_deploy_flask_app_operation=create" "$@"
 
 # Delete web application
 ansible-playbook run.yaml -e "run_deploy_flask_app_operation=delete" "$@"
