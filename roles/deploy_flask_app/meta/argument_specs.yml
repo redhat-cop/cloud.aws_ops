@@ -4,6 +4,10 @@ argument_specs:
     version_added: 2.0.0
     short_description: Deploy flask app in AWS.
     options:
+      deploy_flask_app_region:
+        description: (Optional) Region where the app has to be deployed.
+        type: str
+        required: False
       deploy_flask_app_bastion_host_username:
         description: Username for the bastion host SSH user.
         type: str

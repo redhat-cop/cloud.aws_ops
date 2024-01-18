@@ -24,3 +24,10 @@
         deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
         deploy_flask_app_vm_info: "{{ vm_result }}"
         deploy_flask_app_rds_info: "{{ rds_result }}"
+        deploy_flask_app_region: "{{ aws_region }}"
+
+    - name: Delete temporary ssh private key file
+      ansible.builtin.file:
+        state: absent
+        path: "{{ sshkey_file }}"
+      ignore_errors: true
