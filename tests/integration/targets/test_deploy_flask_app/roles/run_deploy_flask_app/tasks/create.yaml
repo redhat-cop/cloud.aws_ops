@@ -141,6 +141,7 @@
         vpc_security_group_ids:
           - "{{ rds_sg.group_id }}"
         wait: false
+      register: rds_result
 
     # Create key pair to connect to the VM
     - name: Create directory to generate keys in
@@ -211,11 +212,3 @@
           subnet: private
           route: nat-gateway
         state: present
-
-    - name: Wait for the RDS instance to be available
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      retries: 60
-      delay: 5
-      until: rds_result.instances.0.db_instance_status == "available",
-      register: rds_result
