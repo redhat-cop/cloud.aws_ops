@@ -60,3 +60,6 @@ rds_replica_cluster_instance_name: "{{ resource_prefix }}-replica-instance"
 
 # vars for route53 records
 route53_subdomain: "flaskapp"
+
+# A bucket to save RSA key into
+bucket_name: "bucket-rsa-{{ resource_prefix }}"

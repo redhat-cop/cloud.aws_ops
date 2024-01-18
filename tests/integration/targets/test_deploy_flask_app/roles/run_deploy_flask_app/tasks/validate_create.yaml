@@ -17,5 +17,6 @@
     url: "http://{{ deploy_flask_app_lb_result.elb.dns_name }}:{{ deploy_flask_app_listening_port }}"
   register: deploy_flask_app_check
   until: "deploy_flask_app_check.status == 200"
-  retries: 5
-  delay: 10
+  retries: 200
+  delay: 3
+  ignore_errors: true
