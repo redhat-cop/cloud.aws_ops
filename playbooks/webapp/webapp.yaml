@@ -30,4 +30,5 @@
       ansible.builtin.file:
         state: absent
         path: "{{ sshkey_file }}"
+      when: sshkey_file is defined
       ignore_errors: true
