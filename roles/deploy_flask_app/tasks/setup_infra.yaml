@@ -12,7 +12,6 @@
           key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
           image-id: "{{ deploy_flask_app__vm_image_id }}"
           instance-state-name: running
-        region: "{{ deploy_flask_app_region | default(omit) }}"
       register: deploy_flask_app_vms
 
     - name: Compute number of instances to create/delete
@@ -36,7 +35,6 @@
         wait: true
         count: "{{ deploy_flask_app_expected_instances }}"
         state: started
-        region: "{{ deploy_flask_app_region | default(omit) }}"
       register: deploy_flask_app_workers
       when: deploy_flask_app_expected_instances | int > 0
 
@@ -47,7 +45,6 @@
           key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
           image-id: "{{ deploy_flask_app__vm_image_id }}"
           instance-state-name: running
-        region: "{{ deploy_flask_app_region | default(omit) }}"
       register: deploy_flask_app_vms
 
     - name: Create list of instances (join)

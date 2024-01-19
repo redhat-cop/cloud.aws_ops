@@ -5,6 +5,13 @@
   vars_files:
     - vars/main.yaml
 
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region | default(aws_region) }}"
+
   tasks:
     - name: Create resources and Deploy App
       when: operation == "create"
@@ -62,7 +69,6 @@
             deploy_flask_app_vpc_id: "{{ primary_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ primary_vm_result }}"
             deploy_flask_app_rds_info: "{{ primary_instance_info_result }}"
-            deploy_flask_app_region: "{{ rds_primary_cluster_region }}"
 
         - name: Get load balancer name from the primary region
           ansible.builtin.set_fact:
@@ -102,7 +108,6 @@
             deploy_flask_app_vpc_id: "{{ replica_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ replica_vm_result }}"
             deploy_flask_app_rds_info: "{{ replica_instance_info_result }}"
-            deploy_flask_app_region: "{{ rds_replica_cluster_region }}"
 
         - name: Get load balancer name from the replica region
           ansible.builtin.set_fact:

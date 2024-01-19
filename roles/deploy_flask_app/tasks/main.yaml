@@ -34,7 +34,6 @@
         scheme: internet-facing
         wait: true
         wait_timeout: 600
-        region: "{{ deploy_flask_app_region | default(omit) }}"
       register: deploy_flask_app_lb_result
 
     - name: Display application URL

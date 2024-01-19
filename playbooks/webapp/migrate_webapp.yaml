@@ -53,17 +53,24 @@
         rds_snapshot_arn: "{{ result.db_snapshot_arn }}"
         region: "{{ dest_region }}"
 
-    - name: Deploy app
+    - name: Create workers and deploy application
       when: operation == "create"
-      ansible.builtin.import_role:
-        name: cloud.aws_ops.deploy_flask_app
-      vars:
-        deploy_flask_app_bastion_ssh_private_key: "{{ sshkey_file }}"
-        deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
-        deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
-        deploy_flask_app_vm_info: "{{ vm_result }}"
-        deploy_flask_app_rds_info: "{{ rds_result }}"
-        deploy_flask_app_region: "{{ dest_region }}"
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key | default(omit) }}"
+          aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ dest_region }}"
+      block:
+        - name: Deploy app
+          ansible.builtin.import_role:
+            name: cloud.aws_ops.deploy_flask_app
+          vars:
+            deploy_flask_app_bastion_ssh_private_key: "{{ sshkey_file }}"
+            deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
+            deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
+            deploy_flask_app_vm_info: "{{ vm_result }}"
+            deploy_flask_app_rds_info: "{{ rds_result }}"
 
     - name: Delete RDS snapshots from different regions
       amazon.aws.rds_instance_snapshot:

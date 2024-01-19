@@ -14,17 +14,24 @@
     - name: Run operation create/delete
       ansible.builtin.import_tasks: tasks/{{ operation }}.yaml
 
-    - name: Deploy app
+    - name: Create workers and deploy application
       when: operation == "create"
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.deploy_flask_app
-      vars:
-        deploy_flask_app_bastion_ssh_private_key: "{{ sshkey_file }}"
-        deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
-        deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
-        deploy_flask_app_vm_info: "{{ vm_result }}"
-        deploy_flask_app_rds_info: "{{ rds_result }}"
-        deploy_flask_app_region: "{{ aws_region }}"
+      module_defaults:
+        group/aws:
+          aws_access_key: "{{ aws_access_key | default(omit) }}"
+          aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+          security_token: "{{ security_token | default(omit) }}"
+          region: "{{ region | default(aws_region) }}"
+      block:
+        - name: Deploy app
+          ansible.builtin.include_role:
+            name: cloud.aws_ops.deploy_flask_app
+          vars:
+            deploy_flask_app_bastion_ssh_private_key: "{{ sshkey_file }}"
+            deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
+            deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
+            deploy_flask_app_vm_info: "{{ vm_result }}"
+            deploy_flask_app_rds_info: "{{ rds_result }}"
 
     - name: Delete temporary ssh private key file
       ansible.builtin.file:
