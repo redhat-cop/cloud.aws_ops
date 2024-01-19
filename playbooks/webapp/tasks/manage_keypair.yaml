@@ -32,7 +32,7 @@
     bucket: "{{ bucket_name }}"
     mode: getstr
     object: "id_rsa"
-  register: downloadObj
+  register: download_obj
 
 # Download RSA Key
 - name: Create temporary file for Private RSA key
@@ -42,7 +42,7 @@
 
 - name: Save private key into file
   ansible.builtin.copy:
-    content: "{{ downloadObj.contents }}"
+    content: "{{ download_obj.contents }}"
     dest: "{{ private_key.path }}"
     mode: 0400
 
