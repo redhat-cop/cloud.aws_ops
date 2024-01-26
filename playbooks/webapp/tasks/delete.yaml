@@ -32,12 +32,16 @@
           community.aws.elb_classic_lb_info:
           register: load_balancers
 
+        - name: Set fact for list of load balancers to delete
+          ansible.builtin.set_fact:
+            load_balancers_to_delete: "{{ load_balancers.elbs | selectattr('vpc_id', 'equalto', vpc_id) | map(attribute='load_balancer_name') | list }}"
+
         - name: Delete load balancer(s)
           amazon.aws.elb_classic_lb:
             name: "{{ item }}"
             wait: true
             state: absent
-          with_items: "{{ load_balancers.elbs | selectattr('vpc_id', 'equalto', vpc_id) | map(attribute='load_balancer_name') | list }}"
+          with_items: "{{ load_balancers_to_delete }}"
 
         # Delete EC2 instances
         - name: Get EC2 instance info

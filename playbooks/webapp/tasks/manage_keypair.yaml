@@ -48,4 +48,4 @@
 
 - name: Set variable for SSH private key file
   ansible.builtin.set_fact:
-    sshkey_file: "{{ private_key.path }}"
+    ssh_key_file_path: "{{ private_key.path }}"
