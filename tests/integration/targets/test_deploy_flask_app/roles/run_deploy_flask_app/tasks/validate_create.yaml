@@ -8,9 +8,10 @@
   vars:
     deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
     deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
-    deploy_flask_app_vm_info: "{{ vm_result }}"
-    deploy_flask_app_rds_info: "{{ rds_result }}"
-    deploy_flask_app_bastion_ssh_private_key: "{{ deploy_flask_app_bastion_rsa_key_dir }}/id_rsa"
+    deploy_flask_app_bastion_instance_id: "{{ vm_result.instance_ids.0 }}"
+    deploy_flask_app_rds_host: "{{ rds_result.instances.0.endpoint.address }}"
+    deploy_flask_app_rds_dbname: "{{ rds_result.instances.0.db_name }}"
+    deploy_flask_app_bastion_ssh_private_key_path: "{{ deploy_flask_app_bastion_rsa_key_dir }}/id_rsa"
 
 - name: Check that a page returns successfully
   ansible.builtin.uri:

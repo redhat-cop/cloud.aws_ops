@@ -27,15 +27,8 @@
           ansible.builtin.include_role:
             name: cloud.aws_ops.deploy_flask_app
           vars:
-            deploy_flask_app_bastion_ssh_private_key: "{{ ssh_key_file_path }}"
             deploy_flask_app_private_subnet_id: "{{ private_subnet.subnet.id }}"
             deploy_flask_app_vpc_id: "{{ vpc.vpc.id }}"
-            deploy_flask_app_vm_info: "{{ vm_result }}"
-            deploy_flask_app_rds_info: "{{ rds_result }}"
-
-    - name: Delete temporary ssh private key file
-      ansible.builtin.file:
-        state: absent
-        path: "{{ ssh_key_file_path }}"
-      when: ssh_key_file_path is defined
-      ignore_errors: true
+            deploy_flask_app_bastion_instance_id: "{{ vm_result.instance_ids.0 }}"
+            deploy_flask_app_rds_host: "{{ rds_result.instances.0.endpoint.address }}"
+            deploy_flask_app_rds_dbname: "{{ rds_result.instances.0.db_name }}"

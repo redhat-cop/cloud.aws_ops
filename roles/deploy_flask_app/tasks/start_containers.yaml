@@ -1,36 +1,4 @@
 ---
-# Configure local ssh config
-- name: Create ssh configuration files
-  ansible.builtin.file:
-    state: "{{ item.state }}"
-    path: "{{ item.path }}"
-    mode: '0755'
-  with_items:
-    - state: directory
-      path: "~/.ssh"
-    - state: touch
-      path: "~/.ssh/config"
-
-- name: Update local .ssh/config
-  ansible.builtin.blockinfile:
-    state: present
-    insertafter: EOF
-    dest: "~/.ssh/config"
-    content: "{{ lookup('template', 'local_ssh_config.j2') }}"
-
-- name: Add bastion host into inventory
-  ansible.builtin.add_host:
-    hostname: bastion
-    ansible_python_interpreter: auto
-    ansible_host_name: bastion
-
-- name: Update local .ssh/config
-  ansible.builtin.blockinfile:
-    state: present
-    insertafter: EOF
-    dest: "~/.ssh/config"
-    content: "{{ lookup('template', 'local_ssh_config.j2') }}"
-
 - name: Configure bastion
   delegate_to: bastion
   block:
@@ -51,12 +19,6 @@
         insertafter: EOF
         dest: "~/.ssh/config"
         content: "{{ lookup('template', 'bastion_ssh_config.j2') }}"
-
-    - name: Copy remote ssh private key file into bastion
-      ansible.builtin.copy:
-        src: "{{ deploy_flask_app_bastion_ssh_private_key }}"
-        dest: "{{ deploy_flask_app_workers_ssh_private_key }}"
-        mode: 0400
 
     - name: Generate workers inventory file
       ansible.builtin.copy:

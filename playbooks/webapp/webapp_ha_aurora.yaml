@@ -64,7 +64,6 @@
           ansible.builtin.include_role:
             name: cloud.aws_ops.deploy_flask_app
           vars:
-            deploy_flask_app_bastion_ssh_private_key: "{{ ssh_key_file_path }}"
             deploy_flask_app_private_subnet_id: "{{ primary_private_subnet.subnets[0].id }}"
             deploy_flask_app_vpc_id: "{{ primary_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ primary_vm_result }}"
@@ -103,7 +102,6 @@
           ansible.builtin.include_role:
             name: cloud.aws_ops.deploy_flask_app
           vars:
-            deploy_flask_app_bastion_ssh_private_key: "{{ ssh_key_file_path }}"
             deploy_flask_app_private_subnet_id: "{{ replica_private_subnet.subnets[0].id }}"
             deploy_flask_app_vpc_id: "{{ replica_vpc.vpcs[0].id }}"
             deploy_flask_app_vm_info: "{{ replica_vm_result }}"

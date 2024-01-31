@@ -10,4 +10,4 @@
 		"Action": "sts:AssumeRole"
 	  }
 	]
-  }
+}

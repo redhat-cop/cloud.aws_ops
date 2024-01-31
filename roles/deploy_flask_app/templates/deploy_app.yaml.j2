@@ -32,8 +32,8 @@
           podman run --rm
           -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
           -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
-          -e DATABASE_HOST="{{ deploy_flask_app__rds_host }}"
-          -e DATABASE_INSTANCE="{{ deploy_flask_app__rds_dbname }}"
+          -e DATABASE_HOST="{{ deploy_flask_app_rds_host }}"
+          -e DATABASE_INSTANCE="{{ deploy_flask_app_rds_dbname }}"
           -e DATABASE_USER="{{ deploy_flask_app_rds_master_username }}"
           -e DATABASE_PASSWORD="{{ deploy_flask_app_rds_master_password }}"
           -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"
@@ -50,8 +50,8 @@
           --rm
           -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
           -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
-          -e DATABASE_HOST="{{ deploy_flask_app__rds_host }}"
-          -e DATABASE_INSTANCE="{{ deploy_flask_app__rds_dbname }}"
+          -e DATABASE_HOST="{{ deploy_flask_app_rds_host }}"
+          -e DATABASE_INSTANCE="{{ deploy_flask_app_rds_dbname }}"
           -e DATABASE_USER="{{ deploy_flask_app_rds_master_username }}"
           -e DATABASE_PASSWORD="{{ deploy_flask_app_rds_master_password }}"
           -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"

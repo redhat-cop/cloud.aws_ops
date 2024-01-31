@@ -25,21 +25,18 @@ Role Variables
 
 * **deploy_flask_app_private_subnet_id** (str): Private subnet id of the bastion host
 * **deploy_flask_app_vpc_id** (str): vpc id for the host.
-* **deploy_flask_app_rds_info** (dict): A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info mode.
+* **deploy_flask_app_rds_host** (str): The RDS endpoint address.
+* **deploy_flask_app_rds_dbname** (str): The RDS database name.
 * **deploy_flask_app_rds_master_username** (str): Username for the RDS instance.
 * **deploy_flask_app_rds_master_password** (str): password for the RDS instance.
-* **deploy_flask_app_vm_info** (dict): A dict of information for the vm to use. This dict has the output of amazon.aws.ec2_instance_info module.
 
 ## variables needed for the deployment
 
 # Bastion host
-* **deploy_flask_app_bastion_host_name** (str): Name for the EC2 instance.
 * **deploy_flask_app_bastion_host_username** (str): Username for the bastion host SSH user.
-* **deploy_flask_app_sshkey_pair_name** (str): Name for the EC2 key pair.
-* **deploy_flask_app_bastion_ssh_private_key** (path): The path to the ssh private key file to use to connect to the bastion host.
+* **deploy_flask_app_bastion_instance_id** (str): The instance id of the virtual machine used as bastion.
+* **deploy_flask_app_bastion_ssh_private_key_path** (path): The path to the ssh private key file to use to connect to the bastion host.
 * **deploy_flask_app_number_of_workers** (int): Number of instances to create.
-* **deploy_flask_app_workers_instance_type** (str): RC2 instance type for workers.
-* **deploy_flask_app_workers_user_name** (str): Username for the workers.
 
 # App
 * **deploy_flask_app_listening_port** (int): Load balancer port.

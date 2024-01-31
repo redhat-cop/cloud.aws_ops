@@ -1,15 +1,5 @@
 ---
-- name: Deploy flask app.
-  vars:
-    deploy_flask_app__resource_prefix: "{{ deploy_flask_app_vm_info.instances.0.public_dns_name | split('.') | first }}"
-    deploy_flask_app__group_id: "{{ deploy_flask_app_vm_info.instances.0.security_groups[0].group_id }}"
-    deploy_flask_app__vm_image_id: "{{ deploy_flask_app_vm_info.instances.0.image_id }}"
-    deploy_flask_app__bastion_public_ip: "{{ deploy_flask_app_vm_info.instances.0.public_ip_address }}"
-    deploy_flask_app__bastion_private_ip: "{{ deploy_flask_app_vm_info.instances.0.private_ip_address }}"
-    deploy_flask_app__public_subnet_id: "{{ deploy_flask_app_vm_info.instances.0.subnet_id }}"
-    deploy_flask_app__private_subnet_id: "{{ deploy_flask_app_vm_info.instances.0.subnet_id }}"
-    deploy_flask_app__rds_host: "{{ deploy_flask_app_rds_info.instances.0.endpoint.address }}"
-    deploy_flask_app__rds_dbname: "{{ deploy_flask_app_rds_info.instances.0.db_name }}"
+- name: Deploy flask application
   block:
     - name: Create infrastructure - workers and load balancer
       ansible.builtin.include_tasks: setup_infra.yaml
