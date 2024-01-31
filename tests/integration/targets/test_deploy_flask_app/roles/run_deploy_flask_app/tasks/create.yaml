@@ -140,7 +140,8 @@
         db_subnet_group_name: "{{ rds_subnet_group_name }}"
         vpc_security_group_ids:
           - "{{ rds_sg.group_id }}"
-        wait: false
+        wait: true
+      register: rds_result
 
     # Create key pair to connect to the VM
     - name: Create directory to generate keys in
@@ -211,8 +212,3 @@
           subnet: private
           route: nat-gateway
         state: present
-
-    - name: Get RDS instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_identifier }}"
-      register: rds_result
