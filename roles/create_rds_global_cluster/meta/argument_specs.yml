@@ -20,15 +20,15 @@ argument_specs:
       create_rds_global_cluster_instance_class:
         description:
           - Instance class of instance in primary and replica cluster.
-        required: true
+          - Required when I(create_rds_global_cluster_operation=create).
       create_rds_global_cluster_master_username:
         description:
           - Username of the rds clusters master user.
-        required: true
+          - Required when I(create_rds_global_cluster_operation=create).
       create_rds_global_cluster_master_user_password:
         description:
           - Password of the rds clusters master user.
-        required: true
+          - Required when I(create_rds_global_cluster_operation=create).
       create_rds_global_cluster_primary_cluster_name:
         description:
           - Name of the primary cluster.

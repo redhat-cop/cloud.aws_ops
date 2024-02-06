@@ -1,6 +1,6 @@
 ---
 - name: Configure bastion
-  delegate_to: bastion
+  delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
   block:
     - name: Create ssh configuration files
       ansible.builtin.file:

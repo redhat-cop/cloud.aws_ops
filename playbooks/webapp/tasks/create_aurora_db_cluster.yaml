@@ -44,12 +44,6 @@
         create_rds_global_cluster_replica_cluster_vpc_security_group_ids:
           - "{{ rds_replica_sg.security_groups[0].group_id }}"
 
-    - name: Get primary instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_primary_cluster_instance_name }}"
-        region: "{{ rds_primary_cluster_region }}"
-      register: primary_instance_info_result
-
     - name: Get primary cluster info
       amazon.aws.rds_cluster_info:
         db_cluster_identifier: "{{ rds_primary_cluster_name }}"
@@ -61,12 +55,6 @@
         db_cluster_identifier: "{{ rds_replica_cluster_name }}"
         region: "{{ rds_replica_cluster_region }}"
       register: replica_cluster_info_result
-
-    - name: Get replica instance info
-      amazon.aws.rds_instance_info:
-        db_instance_identifier: "{{ rds_replica_cluster_instance_name }}"
-        region: "{{ rds_replica_cluster_region }}"
-      register: replica_instance_info_result
 
     - name: Get global db info
       amazon.aws.rds_global_cluster_info:
