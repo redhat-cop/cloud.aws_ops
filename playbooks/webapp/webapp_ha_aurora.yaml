@@ -61,7 +61,7 @@
     - vars/main.yaml
 
   tasks:
-    - name: Deplou application and add Route53 records
+    - name: Deploy application and add Route53 records
       when: operation == "create"
       block:
         - name: Deploy application into primary region
