@@ -106,6 +106,7 @@
     - name: Delete Aurora DB
       ansible.builtin.include_role:
         name: cloud.aws_ops.create_rds_global_cluster
+      when: operation == "delete"
       vars:
         create_rds_global_cluster_operation: delete
         create_rds_global_cluster_global_cluster_name: "{{ rds_global_cluster_name }}"
