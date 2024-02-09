@@ -101,16 +101,6 @@ To delete the webapp:
 * **deploy_flask_app_bastion_host_name** (str): Name for the EC2 instance. Default: `"{{ resource_prefix }}-bastion"`
 * **bastion_host_type** (str): Instance type for the EC2 instance. Default: `t2.xlarge`
 * **deploy_flask_app_bastion_host_username** (str): Username for the bastion host SSH user. Default: `fedora`
-* **deploy_flask_app_bastion_host_required_packages** (list, elements str): Packages to be installed on the bastion host. Default:
-  ```yaml
-  - python3
-  - python-virtualenv
-  - sshpass
-  - git
-  - podman
-  - httpd-tools
-  - ansible
-  ```
 
 ### Networking
 
@@ -142,12 +132,8 @@ To delete the webapp:
 
 ### Webapp
 
-* **deploy_flask_app_git_repository** (str): Git repository for the webapp. Default: `https://github.com/abikouo/webapp_pyflask_demo.git`
 * **deploy_flask_app_number_of_workers** (int): Number of worker instances to create. Default: `2`
 * **deploy_flask_app_workers_instance_type** (str): EC2 instance type for workers. Default: `t2.xlarge`
-* **deploy_flask_app_local_registry_user** (str): Username for local Podman registry. Default: `ansible`
-* **deploy_flask_app_local_registry_pwd** (str): Password for local Podman registry. Default: `testing123`
-* **deploy_flask_app_local_registry_port** (int): Port for the local Podman registery. Default: `"{{ app_listening_port }}"`
 * **deploy_flask_app_config** (dict, elements dict): Configuration values for the webapp, passed as corresponding env variables FLASK_APP, FLASK_ENV, ADMIN_USER, and ADMIN_PASSWORD when the app is deployed. Default:
   ```yaml
   app_dir: /app/pyapp

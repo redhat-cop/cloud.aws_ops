@@ -1,0 +1,43 @@
+---
+- name: Configure bastion
+  delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
+  block:
+    - name: Create ssh configuration files
+      ansible.builtin.file:
+        state: "{{ item.state }}"
+        path: "{{ item.path }}"
+        mode: '0755'
+      with_items:
+        - state: directory
+          path: "~/.ssh"
+        - state: touch
+          path: "~/.ssh/config"
+
+    - name: Update local .ssh/config
+      ansible.builtin.blockinfile:
+        state: present
+        insertafter: EOF
+        dest: "~/.ssh/config"
+        content: "{{ lookup('template', 'bastion_ssh_config.j2') }}"
+
+    - name: Generate workers inventory file
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'workers_inventory.yaml.j2') }}"
+        dest: "{{ deploy_flask_app_workers_inventory_file }}"
+        mode: 0755
+
+    - name: Generate playbook to deploy application
+      ansible.builtin.copy:
+        content: "{{ lookup('template', 'deploy_app.yaml.j2') }}"
+        dest: "{{ deploy_flask_app_workers_playbook_file }}"
+        mode: 0755
+      vars:
+        deploy_flask_app_instances_list: "{{ deploy_flask_app_instances | join(',') }}"
+        deploy_flask_app_worker_hostname: "{{ '{{' }} inventory_hostname {{ '}}' }}"
+
+    - name: Deploy application into workers
+      ansible.builtin.command: >-
+        ansible-playbook
+        --inventory {{ deploy_flask_app_workers_inventory_file }}
+        {{ deploy_flask_app_workers_playbook_file }}
+        -v

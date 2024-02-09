@@ -5,6 +5,21 @@
     group/amazon.cloud.aws: "{{ aws_setup_credentials__output }}"
 
   block:
+    - name: Fail when 'create_rds_global_cluster_instance_class' is not defined
+      ansible.builtin.fail:
+        msg: "'create_rds_global_cluster_instance_class' is required to create the global cluster."
+      when: create_rds_global_cluster_instance_class is undefined
+
+    - name: Fail when 'create_rds_global_cluster_master_username' is not defined
+      ansible.builtin.fail:
+        msg: "'create_rds_global_cluster_master_username' is required to create the global cluster."
+      when: create_rds_global_cluster_master_username is undefined
+
+    - name: Fail when 'create_rds_global_cluster_master_user_password' is not defined
+      ansible.builtin.fail:
+        msg: "'create_rds_global_cluster_master_user_password' is required to create the global cluster."
+      when: create_rds_global_cluster_master_user_password is undefined
+
     - name: Create rds global database
       amazon.cloud.rds_global_cluster:
         global_cluster_identifier: "{{ create_rds_global_cluster_global_cluster_name }}"

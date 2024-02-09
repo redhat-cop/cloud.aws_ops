@@ -1,0 +1,8 @@
+{% for item in deploy_flask_app_vms.instances %}
+Host {{ item.instance_id }}
+  User {{ deploy_flask_app_workers_user_name }}
+  HostName {{ item.private_ip_address }}
+  IdentityFile {{ deploy_flask_app_workers_ssh_private_key }}
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+{% endfor %}

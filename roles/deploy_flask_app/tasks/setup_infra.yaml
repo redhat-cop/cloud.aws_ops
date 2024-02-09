@@ -1,0 +1,96 @@
+---
+- name: Describe bastion instance
+  amazon.aws.ec2_instance_info:
+    instance_ids:
+      - "{{ deploy_flask_app_bastion_instance_id }}"
+  register: bastion_info
+
+- name: Set common variables to be used later
+  ansible.builtin.set_fact:
+    deploy_flask_app__resource_prefix: "{{ bastion_info.instances.0.public_dns_name | split('.') | first }}"
+    deploy_flask_app__group_id: "{{ bastion_info.instances.0.security_groups[0].group_id }}"
+    deploy_flask_app__vm_image_id: "{{ bastion_info.instances.0.image_id }}"
+    deploy_flask_app__bastion_public_ip: "{{ bastion_info.instances.0.public_ip_address }}"
+    deploy_flask_app__public_subnet_id: "{{ bastion_info.instances.0.subnet_id }}"
+
+- name: Set variable for key pair and bastion hostname
+  ansible.builtin.set_fact:
+    deploy_flask_app__workers_keypair_name: "{{ deploy_flask_app__resource_prefix }}-key"
+    deploy_flask_app__bastion_hostname: "{{ deploy_flask_app__resource_prefix }}-bastion"
+
+- name: Add bastion host to inventory
+  ansible.builtin.add_host:
+    hostname: "{{ deploy_flask_app__bastion_hostname }}"
+    ansible_ssh_user: "{{ deploy_flask_app_bastion_host_username }}"
+    ansible_host: "{{ deploy_flask_app__bastion_public_ip }}"
+    ansible_python_interpreter: auto
+    ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_bastion_ssh_private_key_path }}'
+
+- name: Create key pair to connect to the workers
+  amazon.aws.ec2_key:
+    name: "{{ deploy_flask_app__workers_keypair_name }}"
+  register: keypair_result
+
+- name: Save key pair content into file on bastion host
+  ansible.builtin.copy:
+    content: "{{ keypair_result.key.private_key }}"
+    dest: "{{ deploy_flask_app_workers_ssh_private_key }}"
+    mode: 0600
+  when: keypair_result is changed
+  delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
+
+- name: Create workers instances
+  block:
+    - name: Set variables
+      ansible.builtin.set_fact:
+        deploy_flask_app_instance_name: "{{ deploy_flask_app__resource_prefix }}-workers"
+
+    - name: List running instances
+      amazon.aws.ec2_instance_info:
+        filters:
+          network-interface.subnet-id: "{{ deploy_flask_app_private_subnet_id }}"
+          key-name: "{{ deploy_flask_app__workers_keypair_name }}"
+          image-id: "{{ deploy_flask_app__vm_image_id }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Compute number of instances to create/delete
+      ansible.builtin.set_fact:
+        deploy_flask_app_expected_instances: "{{ deploy_flask_app_number_of_workers | int - deploy_flask_app_vms.instances | length }}"
+
+    - name: Create list of targets hosts
+      amazon.aws.ec2_instance:
+        name: "{{ deploy_flask_app_instance_name }}"
+        instance_type: "{{ deploy_flask_app_workers_instance_type }}"
+        image_id: "{{ deploy_flask_app__vm_image_id }}"
+        key_name: "{{ deploy_flask_app__workers_keypair_name }}"
+        subnet_id: "{{ deploy_flask_app_private_subnet_id }}"
+        network:
+          assign_public_ip: false
+          delete_on_termination: true
+          groups:
+            - "{{ deploy_flask_app__group_id }}"
+        security_groups:
+          - "{{ deploy_flask_app__group_id }}"
+        wait: true
+        count: "{{ deploy_flask_app_expected_instances }}"
+        state: started
+      register: deploy_flask_app_workers
+      when: deploy_flask_app_expected_instances | int > 0
+
+    - name: List running instances (once again)
+      amazon.aws.ec2_instance_info:
+        filters:
+          network-interface.subnet-id: "{{ deploy_flask_app_private_subnet_id }}"
+          key-name: "{{ deploy_flask_app__workers_keypair_name }}"
+          image-id: "{{ deploy_flask_app__vm_image_id }}"
+          instance-state-name: running
+      register: deploy_flask_app_vms
+
+    - name: Create list of instances (join)
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances: []
+    - name: Update join_instances
+      ansible.builtin.set_fact:
+        deploy_flask_app_instances: "{{ deploy_flask_app_instances + [item.instance_id + ':' + item.private_ip_address] }}"
+      with_items: "{{ deploy_flask_app_vms.instances }}"

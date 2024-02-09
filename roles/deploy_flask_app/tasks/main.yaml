@@ -1,13 +1,31 @@
 ---
-- name: Deploy flask app.
-  module_defaults:
-    group/aws: "{{ aws_setup_credentials__output }}"
+- name: Deploy flask application
   block:
-    - name: Create new host in inventory for use in later plays.
-      ansible.builtin.include_tasks: setup.yaml
+    - name: Create infrastructure - workers and load balancer
+      ansible.builtin.include_tasks: setup_infra.yaml
 
-    - name: Deploy resource from Bastion
-      ansible.builtin.include_tasks: bastion_setup.yaml
+    - name: Start application container into workers
+      ansible.builtin.include_tasks: start_containers.yaml
 
-    - name: Deploy App
-      ansible.builtin.include_tasks: deploy_app.yaml
+    - name: Create load balancer
+      amazon.aws.elb_classic_lb:
+        state: present
+        name: "{{ deploy_flask_app__resource_prefix }}-lb"
+        listeners:
+          - load_balancer_port: "{{ deploy_flask_app_listening_port }}"
+            instance_port: 5000
+            protocol: HTTP
+            instance_protocol: HTTP
+        instance_ids: "{{ deploy_flask_app_vms.instances | map(attribute='instance_id') | list }}"
+        security_group_ids:
+          - "{{ deploy_flask_app__group_id }}"
+        subnets:
+          - "{{ deploy_flask_app__public_subnet_id }}"
+        scheme: internet-facing
+        wait: true
+        wait_timeout: 600
+      register: deploy_flask_app_lb_result
+
+    - name: Display application URL
+      ansible.builtin.debug:
+        msg: "Application accessible at http://{{ deploy_flask_app_lb_result.elb.dns_name }}:{{ deploy_flask_app_listening_port }}"

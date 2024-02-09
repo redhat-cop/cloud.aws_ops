@@ -1,0 +1,3 @@
+---
+- name: "Run test_deploy_flask_app"
+  ansible.builtin.include_tasks: "validate_{{ run_deploy_flask_app_operation }}.yaml"

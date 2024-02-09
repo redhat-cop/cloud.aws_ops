@@ -202,45 +202,50 @@
             db_instance_identifier: "{{ rds_identifier }}"
           register: rds_result
 
-    - name: Set 'sshkey_file' variable
+    - name: Set variable for SSH private key file path
       ansible.builtin.set_fact:
-        sshkey_file: ~/private-key-{{ deploy_flask_app_sshkey_pair_name }}-{{ region | default(aws_region) }}
+        deploy_flask_app_bastion_ssh_private_key_path: "~/.{{ resource_prefix }}_id_rsa"
+      when: deploy_flask_app_bastion_ssh_private_key_path is undefined
 
-    - name: Create key pair to connect to the VM
+    - name: Create key pair to connect to the workers
       amazon.aws.ec2_key:
         name: "{{ deploy_flask_app_sshkey_pair_name }}"
-      register: rsa_key
+      register: keypair_result
 
-    - name: Save private key into file
+    - name: Save private key into a file
       ansible.builtin.copy:
-        content: "{{ rsa_key.key.private_key }}"
-        dest: "{{ sshkey_file }}"
-        mode: 0400
-      when: rsa_key is changed
+        content: "{{ keypair_result.key.private_key }}"
+        dest: "{{ deploy_flask_app_bastion_ssh_private_key_path }}"
+        mode: 0600
+      when: keypair_result is changed
 
-    - name: Check if the vm exists
-      amazon.aws.ec2_instance_info:
-        filters:
-          instance-type: "{{ bastion_host_type }}"
-          key-name: "{{ deploy_flask_app_sshkey_pair_name }}"
-          vpc-id: "{{ vpc.vpc.id }}"
-          instance-state-name: running
-      register: vm_result
+    - name: Ensure IAM instance role exists
+      amazon.aws.iam_role:
+        name: "{{ ec2_iam_role_name }}"
+        assume_role_policy_document: "{{ lookup('file', 'ec2-trust-policy.json') }}"
+        state: present
+        create_instance_profile: true
+        wait: true
+      register: role_output
 
     - name: Create a virtual machine
-      when: vm_result.instances | length == 0
       amazon.aws.ec2_instance:
         name: "{{ deploy_flask_app_bastion_host_name }}"
         instance_type: "{{ bastion_host_type }}"
         image_id: "{{ images.images.0.image_id }}"
         key_name: "{{ deploy_flask_app_sshkey_pair_name }}"
         subnet_id: "{{ subnet.subnet.id }}"
+        ebs_optimized: true
+        instance_role: "{{ role_output.iam_role.role_name }}"
         network:
           assign_public_ip: true
           groups:
             - "{{ secgroup.group_id }}"
         security_groups:
           - "{{ secgroup.group_id }}"
+        user_data: |
+          #!/bin/bash
+          yum install -y python3 python-virtualenv sshpass netcat ansible
         wait: true
         state: started
       register: vm_result

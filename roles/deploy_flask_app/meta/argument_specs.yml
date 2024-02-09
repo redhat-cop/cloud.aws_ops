@@ -4,23 +4,20 @@ argument_specs:
     version_added: 2.0.0
     short_description: Deploy flask app in AWS.
     options:
-      deploy_flask_app_region:
-        description: (Optional) Region where the app has to be deployed.
-        type: str
-        required: False
       deploy_flask_app_bastion_host_username:
         description: Username for the bastion host SSH user.
         type: str
         required: True
-      deploy_flask_app_bastion_host_name:
-        description: Name for the EC2 instance.
+      deploy_flask_app_bastion_instance_id:
+        description: The instance Id of the EC2 bastion virtual machine.
         type: str
         required: True
-      deploy_flask_app_bastion_host_required_packages:
-        description: Packages to be installed on the bastion host.
-        type: list
-        elements: str
+        version_added: 2.1.0
+      deploy_flask_app_bastion_ssh_private_key_path:
+        description: The path to ssh private key file to use to connect to the bastion host.
+        type: path
         required: True
+        version_added: 2.1.0
       deploy_flask_app_private_subnet_id:
         description: Private subnet id of the bastion host.
         type: str
@@ -29,13 +26,13 @@ argument_specs:
         description: vpc id for the host.
         type: str
         required: True
-      deploy_flask_app_sshkey_pair_name:
-        description: Name for the EC2 key pair.
+      deploy_flask_app_rds_host:
+        description: The RDS endpoint address.
         type: str
         required: True
-      deploy_flask_app_rds_info:
-        description: A dict of information for the backend RDS. This dict has the output of amazon.aws.rds_instance_info module.
-        type: dict
+      deploy_flask_app_rds_dbname:
+        description: The RDS Database name.
+        type: str
         required: True
       deploy_flask_app_rds_master_username:
         description: Master username of the RDS backend.
@@ -44,10 +41,6 @@ argument_specs:
       deploy_flask_app_rds_master_password:
         description: Master password of the RDS backend.
         type: str
-        required: True
-      deploy_flask_app_vm_info:
-        description: A dict of information for the vm to use. This dict has the output of amazon.aws.ec2_instance_info module.
-        type: dict
         required: True
       deploy_flask_app_number_of_workers:
         description: Number of instances to create.
@@ -60,10 +53,6 @@ argument_specs:
         description: Username for the workers.
         type: str
         required: True
-      deploy_flask_app_git_repository:
-        description: Git repository to be cloned for the webapp.
-        type: str
-        required: True
       deploy_flask_app_listening_port:
         description: Load balancer port.
         type: int
@@ -71,18 +60,6 @@ argument_specs:
       deploy_flask_app_force_init:
         description: A boolean value True to force init the app and False to not force init.
         type: bool
-        required: True
-      deploy_flask_app_local_registry_user:
-        description: Registry user name.
-        type: str
-        required: True
-      deploy_flask_app_local_registry_pwd:
-        description: Registry password.
-        type: str
-        required: True
-      deploy_flask_app_local_registry_port:
-        description: Registry port.
-        type: int
         required: True
       deploy_flask_app_config:
         description: A dict of config parameterys for the app.

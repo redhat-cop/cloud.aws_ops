@@ -1,0 +1,66 @@
+---
+- name: Run app
+  hosts: all
+  gather_facts: false
+  strategy: free
+  become: true
+
+  tasks:
+    - name: Update ssh_config to increase ssh session lifetime
+      ansible.builtin.blockinfile:
+        path: /etc/ssh/sshd_config
+        block: |
+          ClientAliveInterval  1200
+          ClientAliveCountMax 3
+
+    - name: Install Podman
+      ansible.builtin.yum:
+        name:
+          - podman
+        update_cache: false
+        state: present
+
+    - name: Check running container
+      ansible.builtin.shell:
+        cmd: "podman container ps -a -f name=webapp-container-1 --format=.Names"
+      register: container
+      changed_when: false
+
+    - name: Initialize database tables
+      ansible.builtin.shell:
+        cmd: >
+          podman run --rm
+          -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
+          -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
+          -e DATABASE_HOST="{{ deploy_flask_app_rds_host }}"
+          -e DATABASE_INSTANCE="{{ deploy_flask_app_rds_dbname }}"
+          -e DATABASE_USER="{{ deploy_flask_app_rds_master_username }}"
+          -e DATABASE_PASSWORD="{{ deploy_flask_app_rds_master_password }}"
+          -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"
+          -e ADMIN_PASSWORD="{{ deploy_flask_app_config.admin_password }}"
+          -e WORKER_HOSTNAME="{{ deploy_flask_app_worker_hostname }}"
+          -e WORKERS_HOSTS="{{ deploy_flask_app_instances_list }}"
+          {{ deploy_flask_app_container_image }} flask {{ (deploy_flask_app_force_init | bool) | ternary('force-init-db', 'init-db') }}
+      run_once: true
+
+    - name: Run application instance
+      ansible.builtin.shell:
+        cmd: >-
+          podman run
+          --rm
+          -e FLASK_APP="{{ deploy_flask_app_config.app_dir }}"
+          -e FLASK_ENV="{{ deploy_flask_app_config.env }}"
+          -e DATABASE_HOST="{{ deploy_flask_app_rds_host }}"
+          -e DATABASE_INSTANCE="{{ deploy_flask_app_rds_dbname }}"
+          -e DATABASE_USER="{{ deploy_flask_app_rds_master_username }}"
+          -e DATABASE_PASSWORD="{{ deploy_flask_app_rds_master_password }}"
+          -e ADMIN_USER="{{ deploy_flask_app_config.admin_user }}"
+          -e ADMIN_PASSWORD="{{ deploy_flask_app_config.admin_password }}"
+          -e WORKER_HOSTNAME='{{ deploy_flask_app_worker_hostname }}'
+          -e WORKERS_HOSTS="{{ deploy_flask_app_instances_list }}"
+          -p 5000:5000
+          --name webapp-container-1
+          -d {{ deploy_flask_app_container_image }}
+      when:
+        - container.stdout == ""
+      changed_when: true

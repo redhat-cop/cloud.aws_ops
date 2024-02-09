@@ -1,0 +1,43 @@
+---
+- name: Deploy application into regions
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key | default(omit) }}"
+      aws_secret_key: "{{ aws_secret_key | default(omit) }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ region }}"
+  block:
+    - name: Get VPC info
+      amazon.aws.ec2_vpc_net_info:
+        filters:
+          "tag:Name": "{{ vpc_name }}"
+      register: vpc_result
+
+    - name: Get Private Subnet for Workers
+      amazon.aws.ec2_vpc_subnet_info:
+        filters:
+          vpc-id: "{{ vpc_result.vpcs[0].id }}"
+          cidr: "{{ subnet_cidr[1] }}"
+      register: _subnets
+
+    - name: Get VM info
+      amazon.aws.ec2_instance_info:
+        filters:
+          "tag:Name": "{{ deploy_flask_app_bastion_host_name }}"
+          instance-state-name: ["running"]
+      register: vm_result
+
+    - name: Get RDS instance info
+      amazon.aws.rds_instance_info:
+        db_instance_identifier: "{{ rds_cluster_name }}"
+      register: rds_result
+
+    - name: Deploy app into region
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.deploy_flask_app
+      vars:
+        deploy_flask_app_private_subnet_id: "{{ _subnets.subnets[0].id }}"
+        deploy_flask_app_vpc_id: "{{ vpc_result.vpcs[0].id }}"
+        deploy_flask_app_bastion_instance_id: "{{ vm_result.instances.0.instance_id }}"
+        deploy_flask_app_rds_host: "{{ rds_result.instances.0.endpoint.address }}"
+        deploy_flask_app_rds_dbname: "{{ rds_result.instances.0.db_name }}"
