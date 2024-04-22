@@ -37,7 +37,7 @@ Name | Description
 ### Playbooks
 Name | Description
 --- | ---
-[cloud.aws_ops.eda](playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
+[cloud.aws_ops.eda](playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
 [cloud.aws_ops.webapp](playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
 [cloud.aws_ops.upload_file_to_s3](playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
 [cloud.aws_ops.move_vm_from_on_prem_to_aws](playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS.
@@ -45,7 +45,7 @@ Name | Description
 ### Rulebooks
 Name | Description
 --- | ---
-[cloud.aws_ops.aws_manage_cloudtrail_encryption](extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
+[cloud.aws_ops.aws_manage_cloudtrail_encryption](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
 <!--end collection content-->
 
 ## Installation and Usage
