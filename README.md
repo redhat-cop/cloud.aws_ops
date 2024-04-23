@@ -20,13 +20,13 @@ Name | Description
 [cloud.aws_ops.aws_setup_credentials](roles/aws_setup_credentials/README.md)|A role to define credentials for aws modules.
 [cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from virtual private cloud.
 [cloud.aws_ops.awsconfig_multiregion_cloudtrail](roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a Trail for multiple regions.
-[cloud.backup_create_plan](roles/backup_create_plan/README.md)|A role to create an AWS backup plan.
-[cloud.backup_select_resources](roles/backup_create_plan/README.md)|A role to select resources to back up with an existing backup plan.
+[cloud.aws_ops.backup_create_plan](roles/backup_create_plan/README.md)|A role to create an AWS backup plan.
+[cloud.aws_ops.backup_select_resources](roles/backup_select_resources/README.md)|A role to select resources to back up with an existing backup plan.
 [cloud.aws_ops.customized_ami](roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
 [cloud.aws_ops.ec2_instance_terminate_by_tag](roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate the EC2 instances based on a specific tag you specify.
 [cloud.aws_ops.enable_cloudtrail_encryption_with_kms](roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
 [cloud.aws_ops.manage_vpc_peering](roles/manage_vpc_peering/README.md)|A role to create, delete and accept existing VPC peering connections.
-[cloud.aws_ops.moving_objects_between_buckets](roles/moving_objects_between_buckets/README.md)|A role to move objects from one bucket to another bucket.
+[cloud.aws_ops.move_objects_between_buckets](roles/move_objects_between_buckets/README.md)|A role to move objects from one bucket to another bucket.
 [cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API gateway with lambda function integration.
 [cloud.aws_ops.manage_transit_gateway](roles/manage_transit_gateway/README.md)|A role to create/delete transit_gateway with vpc and vpn attachments.
 [cloud.aws_ops.deploy_flask_app](roles/deploy_flask_app/README.md)|A role to deploy a flask web application on AWS.

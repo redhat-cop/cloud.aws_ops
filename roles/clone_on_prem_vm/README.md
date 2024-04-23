@@ -69,7 +69,7 @@ License
 
 GNU General Public License v3.0 or later
 
-See [LICENCE](../../LICENSE) to see the full text.
+See [LICENSE](../../LICENSE) to see the full text.
 
 Author Information
 ------------------
