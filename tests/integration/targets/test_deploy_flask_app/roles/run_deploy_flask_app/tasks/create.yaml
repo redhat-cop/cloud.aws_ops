@@ -184,7 +184,7 @@
           - "{{ secgroup.group_id }}"
         user_data: |
           #!/bin/bash
-          yum install -y python3 python-virtualenv sshpass netcat ansible-core
+          yum install -y python3 python3-virtualenv sshpass netcat ansible-core
         wait: true
         state: started
       register: vm_result
