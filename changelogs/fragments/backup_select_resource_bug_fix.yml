@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - Fix incorrect dict attribute in backup_select_resources role.

@@ -22,7 +22,7 @@ rds_allocated_storage_gb: 20
 rds_instance_class: db.m6g.large
 rds_instance_name: mysampledb123
 rds_engine: postgres
-rds_engine_version: "14.8"
+rds_engine_version: "16.2"
 bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
 rds_listening_port: 5432
