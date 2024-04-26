@@ -53,7 +53,7 @@
 
     - name: Set backup role ARN
       ansible.builtin.set_fact:
-        backup_select_resources_backup_role_arn: "{{ backup_select_resources_role_info.iam_roles[0].arn if backup_select_resources_new_role_info is skipped else backup_select_resources_new_role_info.arn }}"
+        backup_select_resources_backup_role_arn: "{{ backup_select_resources_role_info.iam_roles[0].arn if backup_select_resources_new_role_info is skipped else backup_select_resources_new_role_info.iam_role.arn }}"
 
     - name: Create or update backup selection
       amazon.aws.backup_selection:

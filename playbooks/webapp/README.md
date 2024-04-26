@@ -126,7 +126,7 @@ To delete the webapp:
 * **rds_instance_class** (str): DB instance class for the RDS instance. Default: `db.m6g.large`
 * **rds_instance_name** (str): Name for the database. Default: `mysampledb123`
 * **rds_engine** (str): Engine to use for the database. Default: `postgres`
-* **rds_engine_version** (str): Version number of the database engine to use. Default: `"14.8"`
+* **rds_engine_version** (str): Version number of the database engine to use. Default: `"16.2"`
 * **deploy_flask_app_rds_master_username** (str): Name of the master user for the database instance. Default: `ansible`
 * **deploy_flask_app_rds_master_password** (str): Password for the master database user. Default: `L#5cH2mgy_`
 

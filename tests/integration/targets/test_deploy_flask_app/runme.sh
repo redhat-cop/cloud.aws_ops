@@ -13,4 +13,4 @@ trap 'cleanup "${@}"'  ERR
 ansible-playbook run.yaml -e "run_deploy_flask_app_operation=create" "$@"
 
 # Delete web application
-ansible-playbook run.yaml -e "run_deploy_flask_app_operation=delete" "$@"
+ ansible-playbook run.yaml -e "run_deploy_flask_app_operation=delete" "$@"
