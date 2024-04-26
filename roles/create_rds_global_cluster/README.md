@@ -104,4 +104,12 @@ Example Playbook
 
 License
 -------
+
 GNU General Public License v3.0 or later
+
+See [LICENSE](../../LICENSE) to see the full text.
+
+Author Information
+------------------ 
+
+- Ansible Cloud Content Team

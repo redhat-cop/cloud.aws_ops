@@ -147,7 +147,7 @@ To delete the webapp:
 
 `webapp_ha_aurora.yaml` playbook deploys the flask app to a cross region high availability architecture. The playbook replicates the app deployment to a second region. The backend is an Aurora global cluster. For adding the write forwarding feature, aurora-mysql can be used. Default db engine is aurora-postgresql. The app in each region is configured to access the associated Aurora cluster. In front of the two regions, route53 records are added to provide cross region DNS (failover scenario).
 
-Along with the [above](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/webapp/README.md#playbook-variables) variables, following variables are needed for this playbook:
+Along with the [above](README.md#playbook-variables) variables, following variables are needed for this playbook:
 
 * **rds_instance_class** (str): DB instance class for the aurora db instances. Default: `db.r5.large`
 * **rds_global_cluster_name** (str): Name of the global cluster. Default: "{{ resource_prefix }}-global-cluster"

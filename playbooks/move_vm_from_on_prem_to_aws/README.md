@@ -4,12 +4,12 @@ A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS.
 
 ## Requirements
 
-This playbook uses the ``cloud.aws_ops.clone_on_prem_vm`` role to clone an existing VM on prem using the KVM hypervisor and the ``cloud.aws_ops.import_image_and_run_aws_instance`` role to import a local .raw image into an Amazon machine image (AMI) and run an AWS EC2 instance. For a complete list of requirements, see [clone_on_prem_vm](../clone_on_prem_vm/README.md#Requirements) and [import_image_and_run_aws_instance](../roles/import_image_and_run_aws_instance/REAME.md#Requirements), respectively.
+This playbook uses the ``cloud.aws_ops.clone_on_prem_vm`` role to clone an existing VM on prem using the KVM hypervisor and the ``cloud.aws_ops.import_image_and_run_aws_instance`` role to import a local .raw image into an Amazon machine image (AMI) and run an AWS EC2 instance. For a complete list of requirements, see [clone_on_prem_vm](../../roles/clone_on_prem_vm/README.md#Requirements) and [import_image_and_run_aws_instance](../../roles/import_image_and_run_aws_instance/README.md#Requirements), respectively.
 
 
 ## Playbook Variables
 
-For a full list of accepted variables see: [clone_on_prem_vm](../clone_on_prem_vm/README.md#Role-Variables) and respectively [import_image_and_run_aws_instance](../roles/import_image_and_run_aws_instance/REAME.md#Role-Variables).
+For a full list of accepted variables see: [clone_on_prem_vm](../../roles/clone_on_prem_vm/README.md#Role-Variables) and respectively [import_image_and_run_aws_instance](../../roles/import_image_and_run_aws_instance/README.md#Role-Variables).
 
 ## Example Usage
 

@@ -17,35 +17,35 @@ Click on the name of a role, playbook, or rulebook to view that content's docume
 ### Roles
 Name | Description
 --- | ---
-[cloud.aws_ops.aws_setup_credentials](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/aws_setup_credentials/README.md)|A role to define credentials for aws modules.
-[cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from virtual private cloud.
-[cloud.aws_ops.awsconfig_multiregion_cloudtrail](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a Trail for multiple regions.
-[cloud.backup_create_plan](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/backup_create_plan/README.md)|A role to create an AWS backup plan.
-[cloud.backup_select_resources](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/backup_create_plan/README.md)|A role to select resources to back up with an existing backup plan.
-[cloud.aws_ops.customized_ami](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
-[cloud.aws_ops.ec2_instance_terminate_by_tag](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate the EC2 instances based on a specific tag you specify.
-[cloud.aws_ops.enable_cloudtrail_encryption_with_kms](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
-[cloud.aws_ops.manage_vpc_peering](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/manage_vpc_peering/README.md)|A role to create, delete and accept existing VPC peering connections.
-[cloud.aws_ops.moving_objects_between_buckets](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/moving_objects_between_buckets/README.md)|A role to move objects from one bucket to another bucket.
-[cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API gateway with lambda function integration.
-[cloud.aws_ops.manage_transit_gateway](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/manage_transit_gateway/README.md)|A role to create/delete transit_gateway with vpc and vpn attachments.
-[cloud.aws_ops.deploy_flask_app](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/deploy_flask_app/README.md)|A role to deploy a flask web application on AWS.
-[cloud.aws_ops.create_rds_global_cluster](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/create_rds_global_cluster/README.md)|A role to create, delete aurora global cluster with a primary cluster and a replica cluster in different regions.
-[cloud.aws_ops.clone_on_prem_vm](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/clone_on_prem_vm/README.md)|A role to clone an existing on prem VM using the KVM hypervisor.
-[cloud.aws_ops.import_image_and_run_aws_instance](https://github.com/ansible-collections/cloud.aws_ops/blob/main/roles/import_image_and_run_aws_instance/README.md)|A role that imports a local .raw image into an Amazon Machine Image (AMI) and run an AWS EC2 instance.
+[cloud.aws_ops.aws_setup_credentials](roles/aws_setup_credentials/README.md)|A role to define credentials for aws modules.
+[cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from virtual private cloud.
+[cloud.aws_ops.awsconfig_multiregion_cloudtrail](roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a Trail for multiple regions.
+[cloud.aws_ops.backup_create_plan](roles/backup_create_plan/README.md)|A role to create an AWS backup plan.
+[cloud.aws_ops.backup_select_resources](roles/backup_select_resources/README.md)|A role to select resources to back up with an existing backup plan.
+[cloud.aws_ops.customized_ami](roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
+[cloud.aws_ops.ec2_instance_terminate_by_tag](roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate the EC2 instances based on a specific tag you specify.
+[cloud.aws_ops.enable_cloudtrail_encryption_with_kms](roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
+[cloud.aws_ops.manage_vpc_peering](roles/manage_vpc_peering/README.md)|A role to create, delete and accept existing VPC peering connections.
+[cloud.aws_ops.move_objects_between_buckets](roles/move_objects_between_buckets/README.md)|A role to move objects from one bucket to another bucket.
+[cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API gateway with lambda function integration.
+[cloud.aws_ops.manage_transit_gateway](roles/manage_transit_gateway/README.md)|A role to create/delete transit_gateway with vpc and vpn attachments.
+[cloud.aws_ops.deploy_flask_app](roles/deploy_flask_app/README.md)|A role to deploy a flask web application on AWS.
+[cloud.aws_ops.create_rds_global_cluster](roles/create_rds_global_cluster/README.md)|A role to create, delete aurora global cluster with a primary cluster and a replica cluster in different regions.
+[cloud.aws_ops.clone_on_prem_vm](roles/clone_on_prem_vm/README.md)|A role to clone an existing on prem VM using the KVM hypervisor.
+[cloud.aws_ops.import_image_and_run_aws_instance](roles/import_image_and_run_aws_instance/README.md)|A role that imports a local .raw image into an Amazon Machine Image (AMI) and run an AWS EC2 instance.
 
 ### Playbooks
 Name | Description
 --- | ---
-[cloud.aws_ops.eda](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
-[cloud.aws_ops.webapp](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
-[cloud.aws_ops.upload_file_to_s3](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
-[cloud.aws_ops.move_vm_from_on_prem_to_aws](https://github.com/ansible-collections/cloud.aws_ops/blob/main/playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS.
+[cloud.aws_ops.eda](playbooks/README.md)|A set of playbooks to restore AWS Cloudtrail configurations, created for use with the [cloud.aws_manage_cloudtrail_encryption rulebook](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md).
+[cloud.aws_ops.webapp](playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a webapp on AWS.
+[cloud.aws_ops.upload_file_to_s3](playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
+[cloud.aws_ops.move_vm_from_on_prem_to_aws](playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on prem VM running on KVM hypervisor to AWS.
 
 ### Rulebooks
 Name | Description
 --- | ---
-[cloud.aws_ops.aws_manage_cloudtrail_encryption](https://github.com/ansible-collections/cloud.aws_ops/blob/main/extensions/eda/rulebooks/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
+[cloud.aws_ops.aws_manage_cloudtrail_encryption](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
 <!--end collection content-->
 
 ## Installation and Usage
@@ -134,4 +134,4 @@ This collection is tested using GitHub Actions. To know more about CI, refer to 
 
 GNU General Public License v3.0 or later
 
-See [LICENSE](https://github.com/ansible-collections/cloud.aws_ops/blob/main/LICENSE) to see the full text.
+See [LICENSE](LICENSE) to see the full text.
