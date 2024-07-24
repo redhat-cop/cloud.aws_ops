@@ -1,15 +1,23 @@
-# cloud.aws_ops roles/playbooks/rulebooks to demo Ansible on AWS
+# cloud.aws_ops Validated Content Collection
 
 This repository hosts the `cloud.aws_ops` Ansible Collection.
 
-The collection includes a variety of Ansible roles, playbooks, and rulebooks to help automate the management of resources on AWS.
+## Description
+
+This collection is curated to provide users with a robust set of roles, playbooks, and rulebooks that simplify and streamline various AWS operations.
+
+## Requirements
+
+The [amazon.aws](https://github.com/ansible-collections/amazon.aws) and [community.aws](https://github.com/ansible-collections/amazon.aws) collections MUST be installed in order for this collection to work.
+
+To run rulebooks, [ansible-rulebook](https://ansible.readthedocs.io/projects/rulebook/en/latest/) must be installed.
 
 <!--start requires_ansible-->
-## Ansible version compatibility
+### Ansible version compatibility
 
 This collection has been tested against following Ansible versions: **>=2.15.0**.
 
-## Included content
+### Included content
 
 Click on the name of a role, playbook, or rulebook to view that content's documentation:
 
@@ -48,15 +56,7 @@ Name | Description
 [cloud.aws_ops.aws_manage_cloudtrail_encryption](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS Cloudtrail trail will not be deleted or have its encryption removed.
 <!--end collection content-->
 
-## Installation and Usage
-
-### Requirements
-
-The [amazon.aws](https://github.com/ansible-collections/amazon.aws) and [community.aws](https://github.com/ansible-collections/amazon.aws) collections MUST be installed in order for this collection to work.
-
-To run rulebooks, [ansible-rulebook](https://ansible.readthedocs.io/projects/rulebook/en/latest/) must be installed.
-
-### Installation
+## Installation
 
 To consume this Validated Content from Automation Hub, please ensure that you add the following lines to your ansible.cfg file.
 
@@ -77,7 +77,7 @@ Once the above steps are done, you can run the following command to install the 
 ansible-galaxy collection install cloud.aws_ops
 ```
 
-### Using this collection
+## Use Cases
 
 Once installed, you can reference the cloud.aws_ops collection content by its fully qualified collection name (FQCN), for example:
 
@@ -101,7 +101,7 @@ Once installed, you can reference the cloud.aws_ops collection content by its fu
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
 
-### Testing and Development
+## Testing and Development
 
 The project uses `ansible-lint` and `black`.
 Assuming this repository is checked out in the proper structure,
@@ -129,6 +129,27 @@ If you want to run cloud integration tests, ensure you log in to the cloud:
 ```
 
 This collection is tested using GitHub Actions. To know more about CI, refer to [CI.md](https://github.com/https://github.com/redhat-cop/cloud.aws_ops/blob/main/CI.md).
+
+## Contributing to this collection
+
+We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
+
+## Support
+
+You can also join us on:
+
+- Libera.Chat IRC - the ``#ansible-aws`` [irc.libera.chat](https://libera.chat/) channel
+
+## Release Notes
+
+See the [raw generated changelog](https://github.com/redhat-cop/cloud.aws_ops/blob/main/CHANGELOG.rst).
+
+
+## Related Information
+
+ - [Ansible User guide](https://docs.ansible.com/ansible/latest/user_guide/index.html).
+ -  [Ansible Rulebook documentation](https://ansible.readthedocs.io/projects/rulebook/en/stable/index.html).
+ - [Ansible Community code of conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html)
 
 ## License
 
