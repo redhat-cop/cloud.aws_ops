@@ -92,11 +92,6 @@ Once installed, you can reference the cloud.aws_ops collection content by its fu
           enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
 ```
 
-### See Also
-
-* [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
-* [Ansible Rulebook documentation](https://ansible.readthedocs.io/projects/rulebook/en/stable/index.html) for information on using rulebooks.
-
 ## Contributing to this collection
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
