@@ -4,6 +4,29 @@ CHANGE THIS IN changelogs/config.yaml! Release Notes
 
 .. contents:: Topics
 
+v3.0.0
+======
+
+Release Summary
+---------------
+
+This release fixes bug on roles, remove support for ansible-core < 2.15.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- roles/deploy_flask_app - Add parameter ``deploy_flask_app_bastion_ssh_private_key`` to define the path to the ssh private key file to use to connect to the bastion host (https://github.com/redhat-cop/cloud.aws_ops/issues/109).
+- roles/deploy_flask_app - The following parameters no longer required have been removed ``deploy_flask_app_bastion_host_required_packages``, ``deploy_flask_app_local_registry_port``, ``deploy_flask_app_local_registry_pwd``, ``deploy_flask_app_local_registry_user``, ``deploy_flask_app_git_repository`` (https://github.com/redhat-cop/cloud.aws_ops/issues/103).
+
+Minor Changes
+-------------
+
+- Replace the postgres db engine version from 14.8 to 16.2
+
+Bugfixes
+--------
+
+- Fix incorrect dict attribute in backup_select_resources role.
 
 v2.0.0
 ======
