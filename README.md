@@ -82,6 +82,7 @@ ansible-galaxy collection install cloud.aws_ops
 Once installed, you can reference the cloud.aws_ops collection content by its fully qualified collection name (FQCN), for example:
 
 ```yaml
+  # The following example restores encryption to an existing AWS Cloudtrail trail using the enable_cloudtrail_encryption_with_kms role
   - hosts: all
     tasks:
       - name: Include 'enable_cloudtrail_encryption_with_kms' role
@@ -90,13 +91,35 @@ Once installed, you can reference the cloud.aws_ops collection content by its fu
         vars:
           enable_cloudtrail_encryption_with_kms_trail_name: "{{ cloudtrail_name }}"
           enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
+
+  # The following example uses the ``cloud.aws_ops.clone_on_prem_vm`` role to clone an existing VM on prem using the KVM hypervisor and the ``cloud.aws_ops.import_image_and_run_aws_instance`` role to import a local .raw image into an Amazon machine image (AMI) and run an AWS EC2 instance.
+
+  - hosts: all
+    tasks:
+    - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
+      ansible.builtin.import_role:
+        name: cloud.aws_ops.clone_on_prem_vm
+      vars:
+        clone_on_prem_vm_source_vm_name: "{{ source_vm_name }}"
+        clone_on_prem_vm_image_name: "{{ image_name }}"
+        clone_on_prem_vm_uri: "{{ uri }}"
+        clone_on_prem_vm_local_image_path: "{{ local_image_path }}"
+        clone_on_prem_vm_overwrite: "{{ overwrite }}"
+      delegate_to: kvm
+
+    - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
+      ansible.builtin.import_role:
+        name: cloud.aws_ops.import_image_and_run_aws_instance
+      vars:
+        import_image_and_run_aws_instance_bucket_name: "{{ bucket_name }}"
+        import_image_and_run_aws_instance_image_path: "{{ raw_image_path }}"
+        import_image_and_run_aws_instance_instance_name: "{{ instance_name }}"
+        import_image_and_run_aws_instance_instance_type: "{{ instance_type }}"
+        import_image_and_run_aws_instance_import_image_task_name: "{{ import_image_task_name }}"
+        import_image_and_run_aws_instance_keypair_name: "{{ keypair_name }}"
 ```
 
-## Contributing to this collection
-
-We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
-
-## Testing and Development
+## Testing
 
 The project uses `ansible-lint` and `black`.
 Assuming this repository is checked out in the proper structure,
@@ -128,12 +151,15 @@ This collection is tested using GitHub Actions. To know more about CI, refer to 
 ## Contributing to this collection
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
+See [CONTRIBUTING.md](https://github.com/redhat-cop/cloud.aws_ops/blob/main/CONTRIBUTING.md) for more details.
 
 ## Support
 
-You can also join us on:
+For the latest supported versions, refer to the release notes below.
 
-- Libera.Chat IRC - the ``#ansible-aws`` [irc.libera.chat](https://libera.chat/) channel
+If you encounter issues or have questions, you can submit a support request through the following channels:
+ - GitHub Issues: Report bugs, request features, or ask questions by opening an issue in the [GitHub repository](https://github.com/redhat-cop/cloud.aws_ops/).
+ - Ansible Community: Engage with the Ansible community on the Ansible Project Mailing List or [Ansible Forum](https://forum.ansible.com/g/AWS).You can also join us on:
 
 ## Release Notes
 
