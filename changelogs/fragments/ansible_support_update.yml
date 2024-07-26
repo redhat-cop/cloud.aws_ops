@@ -1,3 +1,0 @@
----
-breaking_changes:
-  - cloud.aws_ops collection - Support for ansible-core < 2.15 has been dropped.
