@@ -146,12 +146,12 @@ If you want to run cloud integration tests, ensure you log in to the cloud:
   ansible-test integration [target]
 ```
 
-This collection is tested using GitHub Actions. To know more about CI, refer to [CI.md](https://github.com/https://github.com/redhat-cop/cloud.aws_ops/stable-3/main/CI.md).
+This collection is tested using GitHub Actions. To know more about CI, refer to [CI.md](https://github.com/https://github.com/redhat-cop//cloud.aws_ops/blob/stable-3/CI.md).
 
 ## Contributing to this collection
 
 We welcome community contributions to this collection. If you find problems, please open an issue or create a PR against this collection repository.
-See [CONTRIBUTING.md](https://github.com/redhat-cop/cloud.aws_ops/stable-3/main/CONTRIBUTING.md) for more details.
+See [CONTRIBUTING.md](https://github.com/redhat-cop//cloud.aws_ops/blob/stable-3/CONTRIBUTING.md) for more details.
 
 ## Support
 
@@ -163,7 +163,7 @@ If you encounter issues or have questions, you can submit a support request thro
 
 ## Release Notes
 
-See the [raw generated changelog](https://github.com/redhat-cop/cloud.aws_ops/stable-3/main/CHANGELOG.rst).
+See the [raw generated changelog](https://github.com/redhat-cop//cloud.aws_ops/blob/stable-3/CHANGELOG.rst).
 
 
 ## Related Information
