@@ -224,4 +224,4 @@ releases:
     - doc_link_update.yml
     - fix_rds_db_version.yml
     - readme_template_update.yml
-    release_date: '2024-07-29'
+    release_date: '2024-07-30'
