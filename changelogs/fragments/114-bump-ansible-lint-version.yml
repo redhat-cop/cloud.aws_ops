@@ -1,5 +1,0 @@
----
-minor_changes:
-  - Bump version of ansible-lint to minimum 24.7.0 (https://github.com/redhat-cop/cloud.aws_ops/pull/114).
-breaking_changes:
-  - Bump minimum version requirement for ansible-core to 2.15 (https://github.com/redhat-cop/cloud.aws_ops/pull/114).
