@@ -23,7 +23,7 @@
 
         # Delete Load balancer
         - name: List Load balancer(s) from VPC
-          community.aws.elb_classic_lb_info:
+          amazon.aws.elb_classic_lb_info:
           register: load_balancers
 
         - name: Set fact for list of load balancers to delete
