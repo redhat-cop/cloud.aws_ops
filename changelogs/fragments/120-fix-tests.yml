@@ -1,0 +1,2 @@
+minor_changes:
+  - update FQCN for modules that were migrated from community.aws to amazon.aws (https://github.com/redhat-cop/cloud.aws_ops/pull/120).

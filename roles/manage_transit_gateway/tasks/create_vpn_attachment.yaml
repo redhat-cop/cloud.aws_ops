@@ -1,6 +1,6 @@
 ---
 - name: Create vpn connection, with customer gateway and transit_gateway
-  community.aws.ec2_vpc_vpn:
+  amazon.aws.ec2_vpc_vpn:
     customer_gateway_id: '{{ item.customer_gateway_id }}'
     transit_gateway_id: '{{ manage_transit_gateway_tgw_result.transit_gateway.transit_gateway_id }}'
     state: present
