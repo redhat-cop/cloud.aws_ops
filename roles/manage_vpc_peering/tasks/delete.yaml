@@ -7,7 +7,7 @@
 - name: Delete vpc peering connection request
   block:
     - name: Delete a local VPC peering connection
-      community.aws.ec2_vpc_peer:
+      amazon.aws.ec2_vpc_peering:
         region: "{{ manage_vpc_peering_region }}"
         peering_id: "{{ manage_vpc_peering_vpc_peering_conn_id }}"
         state: absent
