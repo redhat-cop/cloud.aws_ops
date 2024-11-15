@@ -1,0 +1,49 @@
+---
+argument_specs:
+  main:
+    short_description: A role to create a basic networking environment for an EC2 instance.
+    description:
+      - A role to create a basic networking environment for an EC2 instance.
+      - Creates a VPC, subnet, route table and security groups.
+    options:
+      ec2_networking_resources_vpc_name:
+        description:
+          - The name of the VPC to create.
+        required: true
+      ec2_networking_resources_vpc_cidr_block:
+        description:
+          - The CIDR block for the VPC being created.
+        required: true
+      ec2_networking_resources_subnet_cidr_block:
+        description:
+          - The CIDR block for the subnet being created.
+        required: true
+      ec2_networking_resources_sg_internal_name:
+        description:
+          - The name of the security group to create for internal access to the EC2 instance.
+        required: true
+      ec2_networking_resources_sg_internal_description:
+        description:
+          - The description of the security group for internal access to the EC2 instance.
+        required: true
+      ec2_networking_resources_sg_internal_rules:
+        description:
+          - A list of security group rules to apply to the security group for internal access.
+          - By default, will add a rule to allow SSH access from within the VPC created by the role.
+        required: false
+        default:
+          - proto: tcp
+            ports: 22
+            cidr_ip: "{{ ec2_networking_resources_vpc_cidr_block }}"
+        options:
+          proto:
+            description: The IP protocol name.
+            default: tcp
+          ports:
+            description:
+              - A list of ports the traffic is going to.
+              - Elements can be a single port, or a range of ports (for example, 8000-8100).
+            type: list
+            elements: str
+          cidr_ip:
+            description: The CIDR range traffic is coming from.
