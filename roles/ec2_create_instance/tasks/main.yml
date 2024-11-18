@@ -1,0 +1,24 @@
+---
+- name: Run 'ec2_create_instance' role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+
+  block:
+    - name: Ensure the EC2 instance is created
+      amazon.aws.ec2_instance:
+        region: "{{ ec2_create_instance_aws_region }}"
+        name: "{{ ec2_create_instance_instance_name }}"
+        instance_type: "{{ ec2_create_instance_instance_type }}"
+        image_id: "{{ ec2_create_instance_ami_id }}"
+        key_name: "{{ ec2_create_instance_key_name }}"
+        vpc_subnet_id: "{{ ec2_create_instance_vpc_subnet_id }}"
+        tags: "{{ ec2_create_instance_tags }}"
+        wait: "{{ ec2_create_instance_wait_for_boot }}"
+      register: ec2_instance
+
+    - name: Print EC2 instance details
+      debug:
+        msg:
+          - "EC2 Instance {{ ec2_instance.instances[0].instance_id }} created successfully"
+          - "Instance Details: "
+          - "{{ ec2_instance.instances[0] }}"
