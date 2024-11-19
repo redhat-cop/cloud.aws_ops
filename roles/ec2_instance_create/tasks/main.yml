@@ -1,0 +1,40 @@
+---
+- name: Run 'ec2_instance_create' role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+
+  block:
+    - name: Ensure the EC2 instance is created
+      amazon.aws.ec2_instance:
+        region: "{{ ec2_instance_create_aws_region }}"
+        name: "{{ ec2_instance_create_instance_name }}"
+        instance_type: "{{ ec2_instance_create_instance_type }}"
+        image_id: "{{ ec2_instance_create_ami_id }}"
+        key_name: "{{ ec2_instance_create_key_name }}"
+        vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
+        tags: "{{ ec2_instance_create_tags | default(omit) }}"
+        wait: "{{ ec2_instance_create_wait_for_boot }}"
+      register: ec2_instance
+
+    - name: Create and associate Elastic IP to instance
+      when: ec2_instance_create_associate_eip is true
+      block:
+        - name: Attach EIP to an EC2 instance
+          amazon.aws.ec2_eip:
+            device_id: "{{ ec2_instance.instance_ids[0] }}"
+            state: present
+            release_on_disassociation: true
+            tags: "{{ ec2_instance_create_tags | default(omit) }}"
+          register: instance_eip
+
+        - name: Print EIP details
+          ansible.builtin.debug:
+            msg:
+              - "Elastic IP {{ instance_eip.public_ip }} created and associated with the EC2 instance {{ ec2_instance.instance_ids[0] }}"
+              - "Details: {{ instance_eip }}"
+
+    - name: Print EC2 instance details
+      ansible.builtin.debug:
+        msg:
+          - "EC2 Instance {{ ec2_instance.instance_ids[0] }} created successfully"
+          - "Instance Details: {{ ec2_instance.instances[0] }}"

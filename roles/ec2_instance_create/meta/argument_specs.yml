@@ -7,42 +7,42 @@ argument_specs:
       - Optionally can create a VPC, subnet, security group, and Elastic IP.
       - Supports custom configurations for instance settings, including instance type, AMI, key pair, tags, etc.
     options:
-      ec2_create_instance_aws_region:
+      ec2_instance_create_aws_region:
         description:
           - The AWS region in which to create the EC2 instance.
         required: true
         type: str
-      ec2_create_instance_instance_name:
+      ec2_instance_create_instance_name:
         description:
           - The name of the EC2 instance to be created.
         required: true
         type: str
-      ec2_create_instance_instance_type:
+      ec2_instance_create_instance_type:
         description:
           - The instance type for the EC2 instance.
         required: true
         type: str
-      ec2_create_instance_ami_id:
+      ec2_instance_create_ami_id:
         description:
           - The AMI ID for the EC2 instance.
         required: true
         type: str
-      ec2_create_instance_key_name:
+      ec2_instance_create_key_name:
         description:
           - The name of the key pair to use for SSH access to the EC2 instance.
         required: true
         type: str
-      ec2_create_instance_vpc_subnet_id:
+      ec2_instance_create_vpc_subnet_id:
         description:
           - The ID of the VPC subnet in which the instance will be launched.
         required: true
         type: str
-      ec2_create_instance_tags:
+      ec2_instance_create_tags:
         description:
           - A dictionary of tags to assign to the EC2 instance.
         required: false
         type: dict
-      ec2_create_instance_wait_for_boot:
+      ec2_instance_create_wait_for_boot:
         description:
           - Whether to wait for the instance to be in the running state before continuing.
         required: false
