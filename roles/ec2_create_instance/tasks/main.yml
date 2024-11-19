@@ -12,13 +12,29 @@
         image_id: "{{ ec2_create_instance_ami_id }}"
         key_name: "{{ ec2_create_instance_key_name }}"
         vpc_subnet_id: "{{ ec2_create_instance_vpc_subnet_id }}"
-        tags: "{{ ec2_create_instance_tags }}"
+        tags: "{{ ec2_create_instance_tags | default(omit) }}"
         wait: "{{ ec2_create_instance_wait_for_boot }}"
       register: ec2_instance
+
+    - name: Create and associate Elastic IP to instance
+      when: ec2_create_instance_associate_eip is true
+      block:
+        - name: Attach EIP to an EC2 instance
+          amazon.aws.ec2_eip:
+            device_id: "{{ ec2_instance.instance_ids[0] }}"
+            state: present
+            release_on_disassociation: true
+            tags: "{{ ec2_create_instance_tags | default(omit) }}"
+          register: instance_eip
+
+        - name: Print EIP details
+          debug:
+            msg:
+              - "Elastic IP {{instance_eip.public_ip}} created and associated with the EC2 instance {{ ec2_instance.instance_ids[0] }}"
+              - "Details: {{ instance_eip }}"
 
     - name: Print EC2 instance details
       debug:
         msg:
-          - "EC2 Instance {{ ec2_instance.instances[0].instance_id }} created successfully"
-          - "Instance Details: "
-          - "{{ ec2_instance.instances[0] }}"
+          - "EC2 Instance {{ ec2_instance.instance_ids[0] }} created successfully"
+          - "Instance Details: {{ ec2_instance.instances[0] }}"

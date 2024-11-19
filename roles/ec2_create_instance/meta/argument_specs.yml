@@ -40,8 +40,7 @@ argument_specs:
       ec2_create_instance_tags:
         description:
           - A dictionary of tags to assign to the EC2 instance.
-        required: true
-        default: {}
+        required: false
         type: dict
       ec2_create_instance_wait_for_boot:
         description:

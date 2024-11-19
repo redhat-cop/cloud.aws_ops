@@ -29,11 +29,15 @@ This role also supports the creation of optional networking resources, such as a
 * **ec2_create_instance_vpc_subnet_id**: (Required)
   The ID of the VPC subnet in which the instance will be launched.
 
-* **ec2_create_instance_tags**: (Required)
-  A dictionary of tags to assign to the EC2 instance. Default is an empty dictionary (`{}`).
+* **ec2_create_instance_tags**: (Optional)
+  A dictionary of tags to assign to the EC2 instance.
 
 * **ec2_create_instance_wait_for_boot**: (Optional)
   Whether to wait for the EC2 instance to be in the "running" state before continuing. Default is `true`.
+
+* **ec2_create_instance_associate_eip**: (Optional)
+  Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
+
 
 Dependencies
 ------------

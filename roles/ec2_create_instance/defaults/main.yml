@@ -1,1 +1,2 @@
 ---
+ec2_create_instance_associate_eip: false
