@@ -31,6 +31,8 @@ argument_specs:
           - A list of security group rules to apply to the security group for internal access.
           - By default, will add a rule to allow SSH access from within the VPC created by the role.
         required: false
+        type: list
+        elements: dict
         default:
           - proto: tcp
             ports: 22
