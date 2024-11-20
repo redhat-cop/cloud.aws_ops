@@ -95,3 +95,9 @@ argument_specs:
           - Tags to assign to the security group.
         required: false
         type: dict
+      ec2_instance_create_associate_igw:
+        description:
+          - Whether to create and associate a internal gateway.
+        required: false
+        default: false
+        type: bool

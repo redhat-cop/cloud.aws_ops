@@ -41,6 +41,10 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
 
+* **ec2_instance_create_associate_igw**: (Optional)
+  Whether to create and associate a internet gateway with the EC2 instance. Default is `false`.
+  If set to `true`, a internet gateway will be created or associated with the instance.
+
 * **ec2_instance_create_associate_sg**: (Optional)
   Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
   If set to `true`, a security group will be created or associated with the instance.
