@@ -1,0 +1,41 @@
+---
+# Labels
+#
+controller_labels:
+  - name: cloud.aws_ops
+    organization: "{{ organization }}"
+  - name: confgiure_ec2_experience
+    organization: "{{ organization }}"
+  - name: run_configure_ec2
+    organization: "{{ organization }}"
+
+# Projects
+#
+controller_projects:
+  - name: AWS Operations / Configure EC2 Experience Project
+    organization: "{{ organization }}"
+    scm_branch: main
+    scm_clean: 'no'
+    scm_delete_on_update: 'no'
+    scm_type: git
+    scm_update_on_launch: 'no'
+    scm_credential: "{{ scm_credential }}"
+    scm_url: https://github.com/GomathiselviS/cloud.aws_ops.git
+
+
+# Job Templates
+#
+controller_templates:
+  - name: AWS Operations / Configure EC2 instance
+    description: This job template creates an EC2 instance with the necessary network infrastructure
+    project: AWS Operations / Configure EC2 Experience Project
+    playbook: extensions/experiences/configure_ec2/playbooks/run_configure_ec2.yaml
+    job_type: "run"
+    organization: "{{ organization | default('Default') }}"
+    labels:
+      - cloud.aws_ops
+      - configure_ec2_experience
+      - run_configure_ec2 
+    credentials: aws-instance
+    survey_enabled: true
+    survey_spec: "{{ lookup('file', experience.path.replace('setup.yml', '') + 'template_surveys/configure_ec2.yaml') | from_yaml }}"

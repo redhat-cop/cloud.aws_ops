@@ -1,0 +1,28 @@
+---
+- name: Create AWS EC2 instance with the necessary network configurations
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Configure Network resources
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_networking_resources
+      vars:
+        ec2_networking_resources_vpc_name: "{{ vpc_name }}"
+        ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr }}"
+        ec2_networking_resources_subnet_cidr_block: "{{ subnet }}"
+        ec2_networking_resources_sg_internal_name: "{{ security_group_internal }}"
+        ec2_networking_resources_sg_internal_description: "{{ security_group_internal_description }}"
+
+    - name: Configure AWS EC2 instance
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_create
+      vars:
+        ec2_instance_create_aws_region: "{{ region }}"
+        ec2_instance_create_instance_name: "{{ instance_name }}"
+        ec2_instance_create_instance_type: "{{ instance_type }}"
+        ec2_instance_create_ami_id: "{{ ami_id }}"
+        ec2_instance_create_vpc_subnet_id: subnet-071443aa123456789
+        ec2_instance_create_tags:
+          Component: my-test-instance
+          Environment: Testing
+        ec2_instance_create_wait_for_boot: true

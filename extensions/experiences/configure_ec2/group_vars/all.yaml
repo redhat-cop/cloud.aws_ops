@@ -1,0 +1,4 @@
+---
+organization: Default
+# Github PAT
+scm_credential: "UserGHPAT"
