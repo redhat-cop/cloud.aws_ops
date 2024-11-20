@@ -4,7 +4,7 @@
     group/aws: "{{ aws_setup_credentials__output }}"
 
   block:
-    - name: Ensure the EC2 instance is created
+    - name: Create EC2 instance with provided configuration
       amazon.aws.ec2_instance:
         region: "{{ ec2_instance_create_aws_region }}"
         name: "{{ ec2_instance_create_instance_name }}"
@@ -16,10 +16,41 @@
         wait: "{{ ec2_instance_create_wait_for_boot }}"
       register: ec2_instance
 
-    - name: Create and associate Elastic IP to instance
+    - name: Create security group if enabled
+      when: ec2_instance_create_associate_sg is true
+      block:
+        - name: Define security group with access rules
+          amazon.aws.ec2_group:
+            name: "{{ ec2_instance_create_sg_name | default('default-external-sg') }}"
+            description: "{{ ec2_instance_create_sg_description | default('Security group for external access') }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            rules:
+              - proto: tcp
+                ports:
+                  - "{{ ec2_instance_create_sg_ssh_port | default(22) }}"
+                cidr_ip: "0.0.0.0/0"
+              - proto: tcp
+                ports:
+                  - "{{ ec2_instance_create_sg_http_port | default(80) }}"
+                cidr_ip: "0.0.0.0/0"
+              - proto: tcp
+                ports:
+                  - "{{ ec2_instance_create_sg_https_port | default(443) }}"
+                cidr_ip: "0.0.0.0/0"
+            tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
+
+        - name: Associate security group with EC2 instance
+          amazon.aws.ec2_instance:
+            instance_ids:
+              - "{{ ec2_instance.instance_ids[0] }}"
+            security_groups:
+              - "{{ ec2_instance_create_sg_name | default('default-external-sg') }}"
+          register: ec2_instance_associate_sg
+
+    - name: Create and associate Elastic IP if enabled
       when: ec2_instance_create_associate_eip is true
       block:
-        - name: Attach EIP to an EC2 instance
+        - name: Allocate and associate Elastic IP
           amazon.aws.ec2_eip:
             device_id: "{{ ec2_instance.instance_ids[0] }}"
             state: present
@@ -27,14 +58,14 @@
             tags: "{{ ec2_instance_create_tags | default(omit) }}"
           register: instance_eip
 
-        - name: Print EIP details
+        - name: Output details of associated Elastic IP
           ansible.builtin.debug:
             msg:
-              - "Elastic IP {{ instance_eip.public_ip }} created and associated with the EC2 instance {{ ec2_instance.instance_ids[0] }}"
+              - "Elastic IP {{ instance_eip.public_ip }} created and associated with EC2 instance {{ ec2_instance.instance_ids[0] }}"
               - "Details: {{ instance_eip }}"
 
-    - name: Print EC2 instance details
+    - name: Output details of the created EC2 instance
       ansible.builtin.debug:
         msg:
-          - "EC2 Instance {{ ec2_instance.instance_ids[0] }} created successfully"
-          - "Instance Details: {{ ec2_instance.instances[0] }}"
+          - "EC2 instance {{ ec2_instance.instance_ids[0] }} created successfully"
+          - "Instance details: {{ ec2_instance.instances[0] }}"
