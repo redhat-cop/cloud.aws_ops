@@ -64,6 +64,32 @@
               - "Elastic IP {{ instance_eip.public_ip }} created and associated with EC2 instance {{ ec2_instance.instance_ids[0] }}"
               - "Details: {{ instance_eip }}"
 
+    - name: Create and Attach Internet Gateway if required
+      when: ec2_instance_create_associate_igw is true
+      block:
+        - name: Create an Internet Gateway
+          amazon.aws.ec2_internet_gateway:
+            region: "{{ ec2_instance_create_aws_region }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            state: present
+          register: internet_gateway
+
+        - name: Attach Internet Gateway to VPC
+          amazon.aws.ec2_internet_gateway:
+            region: "{{ ec2_instance_create_aws_region }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            internet_gateway_id: "{{ internet_gateway.id }}"
+            state: attached
+
+        - name: Modify the route table to route internet traffic to Internet Gateway
+          amazon.aws.ec2_vpc_route_table:
+            region: "{{ ec2_instance_create_aws_region }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            routes:
+              - dest: "0.0.0.0/0"
+                gateway_id: "{{ internet_gateway.id }}"
+            state: present
+
     - name: Output details of the created EC2 instance
       ansible.builtin.debug:
         msg:
