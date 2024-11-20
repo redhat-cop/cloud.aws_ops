@@ -20,7 +20,7 @@
       when: ec2_instance_create_associate_external_sg is true
       block:
         - name: Define security group with default SSH access rule
-          amazon.aws.ec2_group:
+          amazon.aws.ec2_security_group:
             name: "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
             description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
@@ -56,14 +56,14 @@
       when: ec2_instance_create_associate_igw is true
       block:
         - name: Create an Internet Gateway
-          amazon.aws.ec2_internet_gateway:
+          amazon.aws.ec2_vpc_igw:
             region: "{{ ec2_instance_create_aws_region }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
             state: present
           register: internet_gateway
 
         - name: Attach Internet Gateway to VPC
-          amazon.aws.ec2_internet_gateway:
+          amazon.aws.ec2_vpc_igw:
             region: "{{ ec2_instance_create_aws_region }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
             internet_gateway_id: "{{ internet_gateway.id }}"
