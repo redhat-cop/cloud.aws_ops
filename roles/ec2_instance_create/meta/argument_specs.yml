@@ -54,41 +54,29 @@ argument_specs:
         required: false
         default: false
         type: bool
-      ec2_instance_create_associate_sg:
+      ec2_instance_create_associate_external_sg:
         description:
           - Whether to create and associate a security group for external access.
         required: false
         default: false
         type: bool
-      ec2_instance_create_sg_name:
+      ec2_instance_create_external_sg_name:
         description:
           - The name of the security group to create.
         required: false
         default: "default-external-sg"
         type: str
-      ec2_instance_create_sg_description:
+      ec2_instance_create_external_sg_description:
         description:
           - A description of the security group.
         required: false
         default: "Security group for external access"
         type: str
-      ec2_instance_create_sg_ssh_port:
+      ec2_instance_create_external_sg_port:
         description:
           - The SSH port to open in the security group.
         required: false
         default: 22
-        type: int
-      ec2_instance_create_sg_http_port:
-        description:
-          - The HTTP port to open in the security group.
-        required: false
-        default: 80
-        type: int
-      ec2_instance_create_sg_https_port:
-        description:
-          - The HTTPS port to open in the security group.
-        required: false
-        default: 443
         type: int
       ec2_instance_create_sg_tags:
         description:

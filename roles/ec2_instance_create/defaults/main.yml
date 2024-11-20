@@ -1,2 +1,8 @@
 ---
 ec2_instance_create_associate_eip: false
+ec2_instance_create_associate_external_sg: false
+ec2_instance_create_associate_igw: false
+ec2_instance_create_external_sg_description: "Security group for external access"
+ec2_instance_create_external_sg_name: "default-external-sg"
+ec2_instance_create_external_sg_port: 22
+ec2_instance_create_wait_for_boot: true

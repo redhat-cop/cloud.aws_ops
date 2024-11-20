@@ -17,25 +17,17 @@
       register: ec2_instance
 
     - name: Create security group if enabled
-      when: ec2_instance_create_associate_sg is true
+      when: ec2_instance_create_associate_external_sg is true
       block:
         - name: Define security group with access rules
           amazon.aws.ec2_group:
-            name: "{{ ec2_instance_create_sg_name | default('default-external-sg') }}"
-            description: "{{ ec2_instance_create_sg_description | default('Security group for external access') }}"
+            name: "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
+            description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
             rules:
               - proto: tcp
                 ports:
-                  - "{{ ec2_instance_create_sg_ssh_port | default(22) }}"
-                cidr_ip: "0.0.0.0/0"
-              - proto: tcp
-                ports:
-                  - "{{ ec2_instance_create_sg_http_port | default(80) }}"
-                cidr_ip: "0.0.0.0/0"
-              - proto: tcp
-                ports:
-                  - "{{ ec2_instance_create_sg_https_port | default(443) }}"
+                  - "{{ ec2_instance_create_external_sg_port | default(22) }}"
                 cidr_ip: "0.0.0.0/0"
             tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
 
@@ -44,8 +36,8 @@
             instance_ids:
               - "{{ ec2_instance.instance_ids[0] }}"
             security_groups:
-              - "{{ ec2_instance_create_sg_name | default('default-external-sg') }}"
-          register: ec2_instance_associate_sg
+              - "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
+          register: ec2_instance_associate_external_sg
 
     - name: Create and associate Elastic IP if enabled
       when: ec2_instance_create_associate_eip is true

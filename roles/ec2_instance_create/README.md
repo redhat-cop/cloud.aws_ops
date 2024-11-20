@@ -45,24 +45,18 @@ The following variables can be set in the role to customize EC2 instance creatio
   Whether to create and associate a internet gateway with the EC2 instance. Default is `false`.
   If set to `true`, a internet gateway will be created or associated with the instance.
 
-* **ec2_instance_create_associate_sg**: (Optional)
+* **ec2_instance_create_associate_external_sg**: (Optional)
   Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
   If set to `true`, a security group will be created or associated with the instance.
 
-* **ec2_instance_create_sg_name**: (Optional)
+* **ec2_instance_create_external_sg_name**: (Optional)
   The name of the security group to create. Default is `default-external-sg`.
 
-* **ec2_instance_create_sg_description**: (Optional)
+* **ec2_instance_create_external_sg_description**: (Optional)
   A description for the security group. Default is `Security group for external access`.
 
-* **ec2_instance_create_sg_ssh_port**: (Optional)
-  The SSH port to open in the security group. Default is `22`.
-
-* **ec2_instance_create_sg_http_port**: (Optional)
-  The HTTP port to open in the security group. Default is `80`.
-
-* **ec2_instance_create_sg_https_port**: (Optional)
-  The HTTPS port to open in the security group. Default is `443`.
+* **ec2_instance_create_external_sg_port**: (Optional)
+  The port to open in the security group. Default is `22`.
 
 * **ec2_instance_create_sg_tags**: (Optional)
   Tags to assign to the security group.
@@ -89,18 +83,15 @@ Here’s an example of how to use the role in a playbook.
             Environment: Testing
           ec2_instance_create_wait_for_boot: true
           # Optionally, enable security group creation
-          ec2_instance_create_associate_sg: true
-          ec2_instance_create_sg_name: my-custom-sg
-          ec2_instance_create_sg_description: Security group for my custom access
-          ec2_instance_create_sg_ssh_port: 22
-          ec2_instance_create_sg_http_port: 80
-          ec2_instance_create_sg_https_port: 443
+          ec2_instance_create_associate_external_sg: true
+          ec2_instance_create_external_sg_name: my-custom-sg
+          ec2_instance_create_external_sg_description: Security group for my custom access
+          ec2_instance_create_external_sg_port: 22
           ec2_instance_create_sg_tags:
             Component: my-custom-sg
             Environment: Testing
           # Optionally, enable Elastic IP association
           ec2_instance_create_associate_eip: true
-          ec2_instance_create_eip_release_on_disassociation: true
               ec2_instance_create_eip_tags:
                 Component: my-test-eip
                 Environment: Testing
