@@ -19,17 +19,13 @@
     - name: Create security group if enabled
       when: ec2_instance_create_associate_external_sg is true
       block:
-        - name: Define security group with access rules
+        - name: Define security group with default SSH access rule
           amazon.aws.ec2_group:
             name: "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
             description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
-            rules:
-              - proto: tcp
-                ports:
-                  - "{{ ec2_instance_create_external_sg_port | default(22) }}"
-                cidr_ip: "0.0.0.0/0"
-            tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
+            rules: "{{ ec2_instance_create_external_sg_rules }}"
+          register: ec2_group_creation
 
         - name: Associate security group with EC2 instance
           amazon.aws.ec2_instance:

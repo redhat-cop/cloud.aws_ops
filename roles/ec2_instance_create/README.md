@@ -42,8 +42,8 @@ The following variables can be set in the role to customize EC2 instance creatio
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
 
 * **ec2_instance_create_associate_igw**: (Optional)
-  Whether to create and associate a internet gateway with the EC2 instance. Default is `false`.
-  If set to `true`, a internet gateway will be created or associated with the instance.
+  Whether to create and associate an internet gateway with the EC2 instance. Default is `false`.
+  If set to `true`, an internet gateway will be created or associated with the instance.
 
 * **ec2_instance_create_associate_external_sg**: (Optional)
   Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
@@ -57,6 +57,9 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 * **ec2_instance_create_external_sg_port**: (Optional)
   The port to open in the security group. Default is `22`.
+
+* **ec2_instance_create_external_sg_rules**: (Optional)
+  A list of custom rules to add to the security group. Each rule is a dictionary with `proto`, `ports`, and `cidr_ip` keys. Default is to allow SSH (port 22) from `0.0.0.0/0`.
 
 * **ec2_instance_create_sg_tags**: (Optional)
   Tags to assign to the security group.
@@ -87,14 +90,19 @@ Here’s an example of how to use the role in a playbook.
           ec2_instance_create_external_sg_name: my-custom-sg
           ec2_instance_create_external_sg_description: Security group for my custom access
           ec2_instance_create_external_sg_port: 22
+          ec2_instance_create_external_sg_rules:
+            - proto: tcp
+              ports:
+                - 80
+              cidr_ip: "0.0.0.0/0"
           ec2_instance_create_sg_tags:
             Component: my-custom-sg
             Environment: Testing
           # Optionally, enable Elastic IP association
           ec2_instance_create_associate_eip: true
-              ec2_instance_create_eip_tags:
-                Component: my-test-eip
-                Environment: Testing
+          ec2_instance_create_eip_tags:
+            Component: my-test-eip
+            Environment: Testing
 
 License
 -------
