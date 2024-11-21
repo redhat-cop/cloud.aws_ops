@@ -38,6 +38,8 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 ### Optional Networking Resources
 
+#### Elastic IP
+
 * **ec2_instance_create_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
   If set to `true` and provided VPC doesn't have an Internet Gateway (IGW) attached, please set `ec2_instance_create_associate_igw` to true to avoid failure due to VPC not having IGW attached.
@@ -45,12 +47,16 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_eip_tags**: (Optional)
   Tags to assign to the elastic IP.
 
+#### Internet Gateway
+
 * **ec2_instance_create_associate_igw**: (Optional)
   Whether to create and associate an internet gateway with the EC2 instance. Default is `false`.
   If set to `true`, an internet gateway will be created or associated with the instance.
 
 * **ec2_instance_create_igw_tags**: (Optional)
   Tags to assign to the internet gateway.
+
+#### External Security Group
 
 * **ec2_instance_create_associate_external_sg**: (Optional)
   Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
