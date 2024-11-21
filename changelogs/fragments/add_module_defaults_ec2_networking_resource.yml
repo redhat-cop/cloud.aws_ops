@@ -1,2 +1,0 @@
-minor_changes:
-  - Add module_defaults to ec2_networking_resources role which is necessary for correctly setting the aws_setup_credentials (https://github.com/redhat-cop/cloud.aws_ops/pull/124).
