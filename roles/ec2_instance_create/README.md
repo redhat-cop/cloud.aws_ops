@@ -30,8 +30,8 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_vpc_subnet_id**: (Required)
   The ID of the VPC subnet in which the instance will be launched.
 
-* **ec2_instance_create_external_sg**: (Optional)
-  The ID of the security group to be associated with EC2 instance.
+* **ec2_instance_create_external_sg_id**: (Optional)
+  The ID or name of the security group to be associated with EC2 instance.
 
 * **ec2_instance_create_tags**: (Optional)
   A dictionary of tags to assign to the EC2 instance.

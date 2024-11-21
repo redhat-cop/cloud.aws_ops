@@ -11,8 +11,7 @@
         image_id: "{{ ec2_instance_create_ami_id }}"
         key_name: "{{ ec2_instance_create_key_name }}"
         vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
-        security_groups:
-              - "{{ ec2_instance_create_external_sg | default(omit) }}"
+        security_group: "{{ ec2_instance_create_external_sg_id | default(omit) }}"
         tags: "{{ ec2_instance_create_tags | default(omit) }}"
         wait: "{{ ec2_instance_create_wait_for_boot }}"
       register: ec2_instance
