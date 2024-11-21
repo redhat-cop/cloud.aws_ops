@@ -11,6 +11,8 @@
         image_id: "{{ ec2_instance_create_ami_id }}"
         key_name: "{{ ec2_instance_create_key_name }}"
         vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
+        security_groups:
+              - "{{ ec2_instance_create_external_sg | default(omit) }}"
         tags: "{{ ec2_instance_create_tags | default(omit) }}"
         wait: "{{ ec2_instance_create_wait_for_boot }}"
       register: ec2_instance
@@ -20,7 +22,7 @@
       block:
         - name: Define security group
           amazon.aws.ec2_security_group:
-            name: "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
+            name: "{{ ec2_instance_create_external_sg_name | default('ec2_instance_create-default-external-sg') }}"
             description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
             rules: "{{ ec2_instance_create_external_sg_rules }}"
@@ -32,7 +34,7 @@
             instance_ids:
               - "{{ ec2_instance.instance_ids[0] }}"
             security_groups:
-              - "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
+              - "{{ ec2_instance_create_external_sg_name | default('ec2_instance_create-default-external-sg') }}"
             vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
           register: ec2_instance_associate_external_sg
 

@@ -64,7 +64,7 @@ argument_specs:
         description:
           - The name of the security group to create.
         required: false
-        default: "default-external-sg"
+        default: "ec2_instance_create-default-external-sg"
         type: str
       ec2_instance_create_external_sg_description:
         description:
