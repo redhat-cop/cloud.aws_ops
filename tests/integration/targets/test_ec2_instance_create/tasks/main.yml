@@ -1,0 +1,21 @@
+---
+- name: Integration tests for ec2_networking_resources role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Create resources required for test
+      include_tasks: setup.yml
+
+    - name: Run tests for case 1 - EC2 with no external sg, igw, eip
+      include_tasks: tasks/test_ec2_only.yml
+
+    - name: Run tests for case 2 - EC2 with external sg, igw, eip
+      include_tasks: tasks/test_ec2_with_igw_sg_eip.yml
+
+  always:
+    - name: Delete resources required for test
+      ansible.builtin.include_tasks: teardown.yml

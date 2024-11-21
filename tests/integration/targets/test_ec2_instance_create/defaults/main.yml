@@ -1,0 +1,17 @@
+---
+aws_security_token: "{{ security_token | default(omit) }}"
+resource_prefix: mandkulkt1
+
+# VPC and Subnet Configuration
+vpc_name: "{{ resource_prefix }}-vpc"
+test_vpc_name: 'vpc-{{ resource_prefix }}'
+test_vpc_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/16'
+test_subnet_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/24'
+
+# EC2 Instance Configuration
+ec2_instance_type: t2.micro
+ec2_key_name: "{{ resource_prefix }}-ec2-key"  # SSH key name for EC2 instances
+
+# External Security Group Configuration
+external_sg_name: "{{ resource_prefix }}-external-sg"
+external_sg_description: "External Security Group for EC2"

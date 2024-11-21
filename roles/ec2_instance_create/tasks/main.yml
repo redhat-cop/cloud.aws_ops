@@ -2,7 +2,6 @@
 - name: Run 'ec2_instance_create' role
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
-
   block:
     - name: Create EC2 instance with provided configuration
       amazon.aws.ec2_instance:
@@ -19,12 +18,13 @@
     - name: Create security group if enabled
       when: ec2_instance_create_associate_external_sg is true
       block:
-        - name: Define security group with default SSH access rule
+        - name: Define security group
           amazon.aws.ec2_security_group:
             name: "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
             description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
             vpc_id: "{{ ec2_instance_create_vpc_id }}"
             rules: "{{ ec2_instance_create_external_sg_rules }}"
+            tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
           register: ec2_group_creation
 
         - name: Associate security group with EC2 instance
@@ -33,7 +33,28 @@
               - "{{ ec2_instance.instance_ids[0] }}"
             security_groups:
               - "{{ ec2_instance_create_external_sg_name | default('default-external-sg') }}"
+            vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
           register: ec2_instance_associate_external_sg
+
+    - name: Create and Attach Internet Gateway if enabled
+      when: ec2_instance_create_associate_igw is true
+      block:
+        - name: Create an Internet Gateway
+          amazon.aws.ec2_vpc_igw:
+            region: "{{ ec2_instance_create_aws_region }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            state: present
+            tags: "{{ ec2_instance_create_igw_tags | default(omit) }}"
+          register: internet_gateway
+
+        - name: Modify the route table to route internet traffic to Internet Gateway
+          amazon.aws.ec2_vpc_route_table:
+            region: "{{ ec2_instance_create_aws_region }}"
+            vpc_id: "{{ ec2_instance_create_vpc_id }}"
+            routes:
+              - dest: "0.0.0.0/0"
+                gateway_id: "{{ internet_gateway.gateway_id }}"
+            state: present
 
     - name: Create and associate Elastic IP if enabled
       when: ec2_instance_create_associate_eip is true
@@ -43,43 +64,17 @@
             device_id: "{{ ec2_instance.instance_ids[0] }}"
             state: present
             release_on_disassociation: true
-            tags: "{{ ec2_instance_create_tags | default(omit) }}"
+            tags: "{{ ec2_instance_create_eip_tags | default(omit) }}"
           register: instance_eip
 
-        - name: Output details of associated Elastic IP
-          ansible.builtin.debug:
-            msg:
-              - "Elastic IP {{ instance_eip.public_ip }} created and associated with EC2 instance {{ ec2_instance.instance_ids[0] }}"
-              - "Details: {{ instance_eip }}"
-
-    - name: Create and Attach Internet Gateway if required
-      when: ec2_instance_create_associate_igw is true
-      block:
-        - name: Create an Internet Gateway
-          amazon.aws.ec2_vpc_igw:
-            region: "{{ ec2_instance_create_aws_region }}"
-            vpc_id: "{{ ec2_instance_create_vpc_id }}"
-            state: present
-          register: internet_gateway
-
-        - name: Attach Internet Gateway to VPC
-          amazon.aws.ec2_vpc_igw:
-            region: "{{ ec2_instance_create_aws_region }}"
-            vpc_id: "{{ ec2_instance_create_vpc_id }}"
-            internet_gateway_id: "{{ internet_gateway.id }}"
-            state: attached
-
-        - name: Modify the route table to route internet traffic to Internet Gateway
-          amazon.aws.ec2_vpc_route_table:
-            region: "{{ ec2_instance_create_aws_region }}"
-            vpc_id: "{{ ec2_instance_create_vpc_id }}"
-            routes:
-              - dest: "0.0.0.0/0"
-                gateway_id: "{{ internet_gateway.id }}"
-            state: present
+    - name: Get EC2 instance info
+      amazon.aws.ec2_instance_info:
+        instance_ids: "{{ ec2_instance.instance_ids[0] }}"
+        region: "{{ ec2_instance_create_aws_region }}"
+      register: _ec2_instance
 
     - name: Output details of the created EC2 instance
       ansible.builtin.debug:
         msg:
           - "EC2 instance {{ ec2_instance.instance_ids[0] }} created successfully"
-          - "Instance details: {{ ec2_instance.instances[0] }}"
+          - "Instance details: {{ _ec2_instance.instances[0] }}"
