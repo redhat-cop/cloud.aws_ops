@@ -1,0 +1,103 @@
+ec2_networking_resources_vpc_name: "{{ vpc_name }}"
+        ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr }}"
+        ec2_networking_resources_subnet_cidr_block: "{{ subnet }}"
+        ec2_networking_resources_sg_internal_name: "{{ security_group_internal }}"
+        ec2_networking_resources_sg_internal_description: "{{ security_group_internal_description }}"
+
+---
+name: "AWS Network Configuration Survey"
+description: "Survey to configure aws network Rresources to create an EC2 instance"
+spec:
+  - type: "multiplechoice"
+    question_name: "Backup Type"
+    question_description: "Select the type of backup"
+    variable: "backup_type"
+    choices:
+      - "full"
+      - "diff"
+    required: true
+    default: "full"
+
+  - type: "text"
+    question_name: "VPC name"
+    question_description: "The name of the VPC to create."
+    variable: "vpc_name"
+    required: true
+
+  - type: "text"
+    question_name: "VPC CIDR block"
+    question_description: "The CIDR block to use for the VPC being created."
+    variable: "vpc_cidr"
+    required: true
+
+  - type: "text"
+    question_name: "Subnet CIDR block"
+    question_description: "The CIDR block to use for subnet being created."
+    variable: "subnet"
+    required: true
+
+  - type: "text"
+    question_name: "Internal Security Group name"
+    question_description: "The name of the security group to create."
+    variable: "security_group_internal"
+    required: true
+
+  - type: "text"
+    question_name: "Internal Security Group description"
+    question_description: "The name of the security group to create."
+    variable: "security_group_internal"
+    required: true
+
+  - type: "text"
+    question_name: "Internal Security Group rule 1 protocol"
+    question_description: "The IP protocol name. If not provided, ssh will be used"
+    variable: "security_group_1_proto"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 1 port"
+    question_description: "Port numbers the traffic is going to. Can be a single port, or a range of ports, for example, 8000-8010. If not provided 22 will be used"
+    variable: "security_group_1_port"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 1 cidr block"
+    question_description: "The CIDR block traffic is coming from. If not provided, cidr block of the vpc created will be used."
+    variable: "security_group_1_cidr"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 2 protocol"
+    question_description: "The IP protocol name."
+    variable: "security_group_2_proto"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 2 port"
+    question_description: "Port numbers the traffic is going to. Can be a single port, or a range of ports, for example, 8000-8010."
+    variable: "security_group_2_port"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 2 cidr block"
+    question_description: "The CIDR block traffic is coming from."
+    variable: "security_group_2_cidr"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 3 protocol"
+    question_description: "The IP protocol name."
+    variable: "security_group_3_proto"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 3 port"
+    question_description: "Port numbers the traffic is going to. Can be a single port, or a range of ports, for example, 8000-8010."
+    variable: "security_group_3_port"
+    required: false
+
+  - type: "text"
+    question_name: "Internal Security Group rule 3 cidr block"
+    question_description: "The CIDR block traffic is coming from."
+    variable: "security_group_3_cidr"
+    required: false
