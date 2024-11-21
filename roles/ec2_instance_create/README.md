@@ -73,7 +73,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 ### Example:
 
-Here’s an example of how to use the role in a playbook.
+Here's an example of how to use the role in a playbook.
 
 ```yaml
 ---

@@ -1,4 +1,3 @@
----
 - name: Integration tests for ec2_networking_resources role
   module_defaults:
     group/aws:

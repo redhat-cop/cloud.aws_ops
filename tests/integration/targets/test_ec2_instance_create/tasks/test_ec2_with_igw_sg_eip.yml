@@ -20,12 +20,12 @@
       ec2_instance_create_external_sg_name: "{{ external_sg_name }}"
       ec2_instance_create_external_sg_description: "{{ external_sg_description }}"
       ec2_instance_create_external_sg_rules:
-          - proto: tcp
-            ports: 22
-            cidr_ip: 10.0.1.0/16
-          - proto: tcp
-            ports: 8000
-            cidr_ip: 10.0.1.0/16
+      - proto: tcp
+        ports: 22
+        cidr_ip: 10.0.1.0/16
+      - proto: tcp
+        ports: 8000
+        cidr_ip: 10.0.1.0/16
       ec2_instance_create_sg_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-sg"
@@ -72,36 +72,37 @@
   - name: Validate EC2 creation (SG, IGW, EIP)
     ansible.builtin.assert:
       that:
-        - _ec2_instance.instances | length == 1
-        - _ec2_instance.instances[0].state.name == 'running'
-        - _ec2_instance.instances[0].tags.Name == "ec2-all-enabled-{{ resource_prefix }}"
-        - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "{{ external_sg_name }}"
-        - _ec2_instance.instances[0].key_name == ec2_key_name
+      - _ec2_instance.instances | length == 1
+      - _ec2_instance.instances[0].state.name == 'running'
+      - _ec2_instance.instances[0].tags.Name == "ec2-all-enabled-{{ resource_prefix }}"
+      - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "{{ external_sg_name }}"
+      - _ec2_instance.instances[0].key_name == ec2_key_name
 
   always:
-    - name: Terminate EC2 instance
-      amazon.aws.ec2_instance:
-        state: absent
-        instance_ids: "{{ _ec2_instance.instances[0].instance_id }}"
-        wait: true
-      ignore_errors: true
+  - name: Terminate EC2 instance
+    amazon.aws.ec2_instance:
+      state: absent
+      instance_ids: "{{ _ec2_instance.instances[0].instance_id }}"
+      wait: true
+    ignore_errors: true
 
-    - name: Delete Internet gateway ensuring attached VPC is correct
-      amazon.aws.ec2_vpc_igw:
-        state: absent
-        internet_gateway_id: "{{ igw_info.internet_gateways[0].internet_gateway_id }}"
-        vpc_id: "{{ vpc_id }}"
-      ignore_errors: true
+  - name: Delete Internet gateway ensuring attached VPC is correct
+    amazon.aws.ec2_vpc_igw:
+      state: absent
+      internet_gateway_id: "{{ igw_info.internet_gateways[0].internet_gateway_id }}"
+      vpc_id: "{{ vpc_id }}"
+    ignore_errors: true
 
-    - name: Delete security group
-      amazon.aws.ec2_security_group:
-        group_id: "{{ sg_info.security_groups[0].group_id }}"
-        state: absent
-      ignore_errors: true
+  - name: Delete security group
+    amazon.aws.ec2_security_group:
+      group_id: "{{ sg_info.security_groups[0].group_id }}"
+      state: absent
+    ignore_errors: true
 
-    - name: Delete route table
-      amazon.aws.ec2_vpc_route_table:
-        vpc_id: "{{ vpc_id }}"
-        route_table_id: "{{ rtb_info.route_tables[0].id }}"
-        lookup: id
-        state: absent
+  - name: Delete route table
+    amazon.aws.ec2_vpc_route_table:
+      vpc_id: "{{ vpc_id }}"
+      route_table_id: "{{ rtb_info.route_tables[0].id }}"
+      lookup: id
+      state: absent
+    ignore_errors: true

@@ -44,6 +44,6 @@
 
     - name: Set facts for test resources
       ansible.builtin.set_fact:
-        image_id: "ami-0bcda2433f3dabc41" #"{{ images.images.0.image_id }}"
+        image_id: "{{ images.images.0.image_id }}"
         subnet_id: "{{ subnet.subnet.id }}"
         vpc_id: "{{ vpc.vpc.id }}"

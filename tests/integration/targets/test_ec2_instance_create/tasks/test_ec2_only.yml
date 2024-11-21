@@ -26,19 +26,33 @@
     retries: 12
     delay: 5
 
+  - name: Gather information about route table
+    amazon.aws.ec2_vpc_route_table_info:
+      filters:
+        vpc-id: "{{ vpc_id }}"
+    register: rtb_info
+
   - name: Validate EC2 creation (no SG, no IGW, no EIP)
     ansible.builtin.assert:
       that:
-        - _ec2_instance.instances | length == 1
-        - _ec2_instance.instances[0].state.name == 'running'
-        - _ec2_instance.instances[0].tags.Name == "only-ec2-{{ resource_prefix }}"
-        - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "default"
-        - _ec2_instance.instances[0].key_name == ec2_key_name
+      - _ec2_instance.instances | length == 1
+      - _ec2_instance.instances[0].state.name == 'running'
+      - _ec2_instance.instances[0].tags.Name == "only-ec2-{{ resource_prefix }}"
+      - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "default"
+      - _ec2_instance.instances[0].key_name == ec2_key_name
 
   always:
-    - name: Terminate EC2 instance
-      amazon.aws.ec2_instance:
-        state: absent
-        instance_ids: "{{ _ec2_instance.instances[0].instance_id }}"
-        wait: true
-      ignore_errors: true
+  - name: Terminate EC2 instance
+    amazon.aws.ec2_instance:
+      state: absent
+      instance_ids: "{{ _ec2_instance.instances[0].instance_id }}"
+      wait: true
+    ignore_errors: true
+
+  - name: Delete route table
+    amazon.aws.ec2_vpc_route_table:
+      vpc_id: "{{ vpc_id }}"
+      route_table_id: "{{ rtb_info.route_tables[0].id }}"
+      lookup: id
+      state: absent
+    ignore_errors: true
