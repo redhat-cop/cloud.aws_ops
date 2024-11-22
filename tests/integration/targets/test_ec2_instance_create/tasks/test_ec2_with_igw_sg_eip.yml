@@ -1,6 +1,6 @@
 ---
 - block:
-  - name: Create EC2 instance with no external SG, no IGW, no EIP
+  - name: Create EC2 instance with external SG, IGW, EIP
     ansible.builtin.include_role:
       name: cloud.aws_ops.ec2_instance_create
     vars:

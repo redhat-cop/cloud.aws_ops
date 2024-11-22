@@ -86,7 +86,7 @@ argument_specs:
         type: dict
       ec2_instance_create_associate_igw:
         description:
-          - Whether to create and associate a internal gateway.
+          - Whether to create and associate an internal gateway.
         required: false
         default: false
         type: bool

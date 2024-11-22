@@ -12,7 +12,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 ### Role operation
 
-* **ec2_instance_create_operation**: (Required)
+* **ec2_instance_create_operation**: (Optional)
   Whether to create or delete resources using the role. Default is `create`.
   Choices are `create` and `delete`.
 
@@ -32,6 +32,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 * **ec2_instance_create_key_name**: (Required)
   The name of the key pair to use for SSH access to the EC2 instance.
+  If the key does not exist, a key pair will be created with the name.
 
 * **ec2_instance_create_vpc_subnet_id**: (Required)
   The ID of the VPC subnet in which the instance will be launched.

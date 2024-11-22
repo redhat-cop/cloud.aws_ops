@@ -23,6 +23,21 @@
               Please provide different name to avoid updating instance."
       when: ec2_info_result.instances | length >= 1
 
+- name: Create a key pair if required
+  block:
+    - name: Get key pair info
+      amazon.aws.ec2_key_info:
+        names:
+          - "{{ ec2_instance_create_key_name }}"
+      register: key_info_result
+
+    - name: Create new key pair
+      amazon.aws.ec2_key:
+        name: "{{ ec2_instance_create_key_name }}"
+        state: present
+        region: "{{ ec2_instance_create_aws_region }}"
+      when: key_info_result.keypairs | length == 0
+
 - name: Create EC2 instance with provided configuration
   amazon.aws.ec2_instance:
     region: "{{ ec2_instance_create_aws_region }}"
