@@ -2,7 +2,6 @@
 - name: EC2 Instance creation or deletion based on operation
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
-
   block:
     - name: Include create operations
       include_tasks: ec2_instance_create_operations.yml

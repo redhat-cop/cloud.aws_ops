@@ -1,3 +1,4 @@
+---
 - name: Integration tests for ec2_networking_resources role
   module_defaults:
     group/aws:
@@ -16,5 +17,5 @@
       include_tasks: tasks/test_ec2_with_igw_sg_eip.yml
 
   always:
-    - name: Delete resources required for test
+    - name: Delete any leftover resources used in tests
       ansible.builtin.include_tasks: teardown.yml

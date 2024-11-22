@@ -9,13 +9,33 @@
         state: absent
       ignore_errors: true
 
+    - name: Get list of route tables in VPC
+      amazon.aws.ec2_vpc_route_table_info:
+        region: "{{ aws_region }}"
+        filters:
+          vpc-id: "{{ vpc_id }}"
+      register: route_tables
+
+    - name: Delete route tables associated with VPC
+      amazon.aws.ec2_vpc_route_table:
+        region: "{{ region }}"
+        route_table_id: "{{ item.route_table_id }}"
+        state: absent
+      loop: "{{ route_tables.route_tables }}"
+      when: route_tables.route_tables | length > 0
+      ignore_errors: true
+
     - name: Delete a VPC
       amazon.aws.ec2_vpc_net:
         cidr_block: "{{ test_vpc_cidr }}"
         vpc_id: "{{ test_vpc_id }}"
         region: "{{ aws_region }}"
         state: absent
+      register: delete_result
       ignore_errors: true
+      retries: 5
+      delay: 5
+      until: delete_result.changed
 
     - name: Delete a key
       amazon.aws.ec2_key:

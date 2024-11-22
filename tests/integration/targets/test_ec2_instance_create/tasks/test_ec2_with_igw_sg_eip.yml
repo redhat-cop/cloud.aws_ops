@@ -58,17 +58,29 @@
         "tag:Name": "{{ resource_prefix }}-igw"
     register: igw_info
 
+  - name: print internet gateway info
+    debug:
+      var: igw_info
+
   - name: Gather information about security group
     amazon.aws.ec2_security_group_info:
       filters:
         "tag:Name": "{{ resource_prefix }}-sg"
     register: sg_info
 
+  - name: print security group info
+    debug:
+      var: sg_info
+
   - name: Gather information about route table
     amazon.aws.ec2_vpc_route_table_info:
       filters:
         vpc-id: "{{ vpc_id }}"
     register: rtb_info
+
+  - name: print route table info
+    debug:
+      var: rtb_info
 
   - name: Validate EC2 creation (SG, IGW, EIP)
     ansible.builtin.assert:
@@ -78,7 +90,13 @@
       - _ec2_instance.instances[0].tags.Name == "ec2-all-enabled-{{ resource_prefix }}"
       - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "{{ external_sg_name }}"
       - _ec2_instance.instances[0].key_name == ec2_key_name
+      - igw_info.internet_gateways[0].attachments[0].vpc_id == "{{ vpc_id }}"
+      - sg_info.security_groups[0].description == "{{ external_sg_description }}"
+      - sg_info.security_groups[0].vpc_id == "{{ vpc_id }}"
+      - rtb_info.route_tables[0].vpc_id == "{{ vpc_id }}"
 
+
+  # cleanup leftover resources created by role
   always:
   - name: Terminate EC2 instance
     amazon.aws.ec2_instance:
@@ -97,13 +115,5 @@
   - name: Delete security group
     amazon.aws.ec2_security_group:
       group_id: "{{ sg_info.security_groups[0].group_id }}"
-      state: absent
-    ignore_errors: true
-
-  - name: Delete route table
-    amazon.aws.ec2_vpc_route_table:
-      vpc_id: "{{ vpc_id }}"
-      route_table_id: "{{ rtb_info.route_tables[0].id }}"
-      lookup: id
       state: absent
     ignore_errors: true
