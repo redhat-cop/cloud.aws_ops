@@ -10,6 +10,12 @@ This role also supports the creation of optional networking resources, such as a
 
 The following variables can be set in the role to customize EC2 instance creation and networking configurations:
 
+### Role operation
+
+* **ec2_instance_create_operation**: (Required)
+  Whether to create or delete resources using the role. Default is `create`.
+  Choices are `create` and `delete`.
+
 ### EC2 Instance Configuration
 
 * **ec2_instance_create_aws_region**: (Required)

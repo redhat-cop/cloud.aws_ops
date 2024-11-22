@@ -7,6 +7,13 @@ argument_specs:
       - Optionally can create a security group and associate an Elastic IP with the instance.
       - Supports custom configurations for instance settings, including instance type, AMI, key pair, tags, VPC/subnet, and networking configurations.
     options:
+      ec2_instance_create_operation:
+        description:
+          - Whether to create or delete resources using the role.
+        required: false
+        type: str
+        default: create
+        choices: [create, delete]
       ec2_instance_create_aws_region:
         description:
           - The AWS region in which to create the EC2 instance.

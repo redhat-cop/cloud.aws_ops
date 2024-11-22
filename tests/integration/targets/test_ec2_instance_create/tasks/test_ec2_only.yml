@@ -4,6 +4,7 @@
     ansible.builtin.include_role:
       name: cloud.aws_ops.ec2_instance_create
     vars:
+      ec2_instance_create_operation: create
       ec2_instance_create_aws_region: "{{ aws_region }}"
       ec2_instance_create_instance_name: "only-ec2-{{ resource_prefix }}"
       ec2_instance_create_instance_type: "{{ ec2_instance_type }}"
