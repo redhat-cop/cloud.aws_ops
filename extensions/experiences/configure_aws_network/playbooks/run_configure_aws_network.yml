@@ -36,6 +36,7 @@
       ansible.builtin.include_role:
         name: cloud.aws_ops.ec2_networking_resources
       vars:
+        aws_region: "{{ region }}"
         ec2_networking_resources_vpc_name: "{{ vpc_name }}"
         ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr }}"
         ec2_networking_resources_subnet_cidr_block: "{{ subnet }}"

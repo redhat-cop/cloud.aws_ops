@@ -13,6 +13,12 @@ spec:
     default: "full"
 
   - type: "text"
+    question_name: "AWS region"
+    question_description: "The AWS region where the resources should be created."
+    variable: "region"
+    required: true
+
+  - type: "text"
     question_name: "VPC name"
     question_description: "The name of the VPC to create."
     variable: "vpc_name"
