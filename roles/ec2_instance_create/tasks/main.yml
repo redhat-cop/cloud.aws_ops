@@ -3,6 +3,21 @@
   module_defaults:
     group/aws: "{{ aws_setup_credentials__output }}"
   block:
+    - name: Verify that the instance and security group with same name does not exist
+      block:
+        - name: Get instane info with provided name
+          amazon.aws.ec2_instance_info:
+            region: "{{ ec2_instance_create_aws_region }}"
+            filters:
+              tag:Name: "{{ ec2_instance_create_instance_name }}"
+          register: ec2_info_result
+
+        - name: Print warning and exit
+          ansible.builtin.fail:
+            msg: "Instance with name {{ ec2_instance_create_instance_name }} already exists in {{ ec2_instance_create_aws_region }}. 
+                  Please provide different name to avoid updating instance."
+          when: ec2_info_result.instances | length >= 1
+
     - name: Create EC2 instance with provided configuration
       amazon.aws.ec2_instance:
         region: "{{ ec2_instance_create_aws_region }}"
