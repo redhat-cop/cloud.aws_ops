@@ -19,7 +19,7 @@
 
     - name: Print warning and exit
       ansible.builtin.fail:
-        msg: "Instance with name {{ ec2_instance_create_instance_name }} already exists in {{ ec2_instance_create_aws_region }}. 
+        msg: "Instance with name {{ ec2_instance_create_instance_name }} already exists in {{ ec2_instance_create_aws_region }}.
               Please provide different name to avoid updating instance."
       when: ec2_info_result.instances | length >= 1
 

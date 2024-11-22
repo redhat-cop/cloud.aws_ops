@@ -8,13 +8,13 @@
       region: "{{ aws_region }}"
   block:
     - name: Create resources required for test
-      include_tasks: setup.yml
+      ansible.builtin.include_tasks: setup.yml
 
     - name: Run tests for case 1 - EC2 with no external sg, igw, eip
-      include_tasks: tasks/test_ec2_only.yml
+      ansible.builtin.include_tasks: tasks/test_ec2_only.yml
 
     - name: Run tests for case 2 - EC2 with external sg, igw, eip
-      include_tasks: tasks/test_ec2_with_igw_sg_eip.yml
+      ansible.builtin.include_tasks: tasks/test_ec2_with_igw_sg_eip.yml
 
   always:
     - name: Delete any leftover resources used in tests
