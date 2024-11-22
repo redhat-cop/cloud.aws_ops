@@ -19,7 +19,6 @@ controller_projects:
     scm_delete_on_update: 'no'
     scm_type: git
     scm_update_on_launch: 'no'
-    scm_credential: "{{ scm_credential }}"
     scm_url: https://github.com/GomathiselviS/cloud.aws_ops.git
 
 
