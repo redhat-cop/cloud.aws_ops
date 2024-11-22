@@ -1,4 +1,12 @@
 ---
+- name: Verify exclusive parameters
+  block:
+    - name: Check for security group ID
+      ansible.builtin.fail:
+        msg: "ec2_instance_create_external_sg_id and ec2_instance_create_associate_external_sg are mutually exlcusive.
+              Please provide only one to either associate existing or create new sg."
+      when: ec2_instance_create_external_sg_id != None and ec2_instance_create_associate_external_sg is true
+
 - name: Verify that the instance and security group with same name does not exist
   block:
     - name: Get instane info with provided name

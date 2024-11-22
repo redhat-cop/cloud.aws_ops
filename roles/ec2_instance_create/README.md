@@ -41,7 +41,8 @@ The following variables can be set in the role to customize EC2 instance creatio
   Required if `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
 
 * **ec2_instance_create_external_sg_id**: (Optional)
-  The ID or name of the security group to be associated with EC2 instance.
+  The ID or name of the existing security group to be associated with EC2 instance.
+  Mutually exclusive with `ec2_instance_create_associate_external_sg`.
 
 * **ec2_instance_create_tags**: (Optional)
   A dictionary of tags to assign to the EC2 instance.
@@ -74,6 +75,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_associate_external_sg**: (Optional)
   Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
   If set to `true`, a security group will be created or associated with the instance.
+  Mutually exclusive with `ec2_instance_create_external_sg_id`.
 
 * **ec2_instance_create_external_sg_name**: (Optional)
   The name of the security group to create. Default is `ec2_instance_create-default-external-sg`.
@@ -99,6 +101,7 @@ Here's an example of how to use the role in a playbook.
   roles:
     - role: cloud.aws_ops.ec2_instance_create
       vars:
+          ec2_instance_create_operation: create
           ec2_instance_create_aws_region: us-west-2
           ec2_instance_create_instance_name: my-test-instance
           ec2_instance_create_instance_type: t2.micro
