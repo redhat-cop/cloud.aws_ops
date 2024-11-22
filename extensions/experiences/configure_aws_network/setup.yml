@@ -4,7 +4,7 @@
 controller_labels:
   - name: cloud.aws_ops
     organization: "{{ organization }}"
-  - name: confgiure_aws_network_experience
+  - name: configure_aws_network_experience
     organization: "{{ organization }}"
   - name: run_configure_aws_network
     organization: "{{ organization }}"
