@@ -14,7 +14,7 @@ controller_labels:
 controller_projects:
   - name: AWS Operations / Configure AWS Network Experience Project
     organization: "{{ organization }}"
-    scm_branch: main
+    scm_branch: experience
     scm_clean: 'no'
     scm_delete_on_update: 'no'
     scm_type: git
