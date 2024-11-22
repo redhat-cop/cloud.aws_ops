@@ -1,9 +1,3 @@
-ec2_networking_resources_vpc_name: "{{ vpc_name }}"
-        ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr }}"
-        ec2_networking_resources_subnet_cidr_block: "{{ subnet }}"
-        ec2_networking_resources_sg_internal_name: "{{ security_group_internal }}"
-        ec2_networking_resources_sg_internal_description: "{{ security_group_internal_description }}"
-
 ---
 name: "AWS Network Configuration Survey"
 description: "Survey to configure aws network Rresources to create an EC2 instance"
