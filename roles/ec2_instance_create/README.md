@@ -38,7 +38,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 
   * **ec2_instance_create_vpc_id**: (Optional)
   The ID of the VPC used for security group and internet gateway.
-  Required is `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
+  Required if `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
 
 * **ec2_instance_create_external_sg_id**: (Optional)
   The ID or name of the security group to be associated with EC2 instance.
