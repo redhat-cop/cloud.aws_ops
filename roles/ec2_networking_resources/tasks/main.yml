@@ -1,25 +1,29 @@
 ---
-- name: Create VPC
-  amazon.aws.ec2_vpc_net:
-    name: "{{ ec2_networking_resources_vpc_name }}"
-    cidr_block: "{{ ec2_networking_resources_vpc_cidr_block }}"
-  register: ec2_networking_resources_vpc_result
+- name: Run ec2_networking_resources role
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+  block:
+    - name: Create VPC
+      amazon.aws.ec2_vpc_net:
+        name: "{{ ec2_networking_resources_vpc_name }}"
+        cidr_block: "{{ ec2_networking_resources_vpc_cidr_block }}"
+      register: ec2_networking_resources_vpc_result
 
-- name: Create VPC subnet
-  amazon.aws.ec2_vpc_subnet:
-    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-    cidr: "{{ ec2_networking_resources_subnet_cidr_block }}"
-  register: ec2_networking_resources_subnet_result
+    - name: Create VPC subnet
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+        cidr: "{{ ec2_networking_resources_subnet_cidr_block }}"
+      register: ec2_networking_resources_subnet_result
 
-- name: Create route table
-  amazon.aws.ec2_vpc_route_table:
-    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-    subnets:
-      - "{{ ec2_networking_resources_subnet_result.subnet.id }}"
+    - name: Create route table
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+        subnets:
+          - "{{ ec2_networking_resources_subnet_result.subnet.id }}"
 
-- name: Create security group for internal access
-  amazon.aws.ec2_security_group:
-    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-    name: "{{ ec2_networking_resources_sg_internal_name }}"
-    description: "{{ ec2_networking_resources_sg_internal_description }}"
-    rules: "{{ ec2_networking_resources_sg_internal_rules }}"
+    - name: Create security group for internal access
+      amazon.aws.ec2_security_group:
+        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+        name: "{{ ec2_networking_resources_sg_internal_name }}"
+        description: "{{ ec2_networking_resources_sg_internal_description }}"
+        rules: "{{ ec2_networking_resources_sg_internal_rules }}"
