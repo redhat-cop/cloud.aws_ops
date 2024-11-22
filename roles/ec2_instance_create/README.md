@@ -37,10 +37,6 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_vpc_subnet_id**: (Required)
   The ID of the VPC subnet in which the instance will be launched.
 
-  * **ec2_instance_create_vpc_id**: (Optional)
-  The ID of the VPC used for security group and internet gateway.
-  Required if `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
-
 * **ec2_instance_create_external_sg_id**: (Optional)
   The ID or name of the existing security group to be associated with EC2 instance.
   Mutually exclusive with `ec2_instance_create_associate_external_sg`.
@@ -49,11 +45,15 @@ The following variables can be set in the role to customize EC2 instance creatio
   A dictionary of tags to assign to the EC2 instance.
 
 * **ec2_instance_create_wait_for_boot**: (Optional)
-  Whether to wait for the EC2 instance to be in the "running" state before continuing. Default is `true`.
+  Whether to wait for the EC2 instance to be in the "running" or "terminated" state before continuing. Default is `true`.
 
 ### Optional Networking Resources
 
 #### Elastic IP
+
+* **ec2_instance_create_vpc_id**: (Optional)
+  The ID of the VPC used for security group and internet gateway.
+  Required if `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
 
 * **ec2_instance_create_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.

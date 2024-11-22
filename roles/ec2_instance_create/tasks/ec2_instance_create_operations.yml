@@ -7,7 +7,7 @@
               Please provide only one to either associate existing or create new sg."
       when: ec2_instance_create_external_sg_id is defined and ec2_instance_create_associate_external_sg is defined and ec2_instance_create_external_sg_id != None and ec2_instance_create_associate_external_sg is true
 
-- name: Verify that the instance and security group with same name does not exist
+- name: Verify that an instance with same name does not exist
   block:
     - name: Get instane info with provided name
       amazon.aws.ec2_instance_info:
@@ -56,8 +56,8 @@
   block:
     - name: Define security group
       amazon.aws.ec2_security_group:
-        name: "{{ ec2_instance_create_external_sg_name | default('ec2_instance_create-default-external-sg') }}"
-        description: "{{ ec2_instance_create_external_sg_description | default('Security group for external access') }}"
+        name: "{{ ec2_instance_create_external_sg_name }}"
+        description: "{{ ec2_instance_create_external_sg_description }}"
         vpc_id: "{{ ec2_instance_create_vpc_id }}"
         rules: "{{ ec2_instance_create_external_sg_rules }}"
         tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
@@ -68,7 +68,7 @@
         instance_ids:
           - "{{ ec2_instance.instance_ids[0] }}"
         security_groups:
-          - "{{ ec2_instance_create_external_sg_name | default('ec2_instance_create-default-external-sg') }}"
+          - "{{ ec2_instance_create_external_sg_name }}"
         vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
       register: ec2_instance_associate_external_sg
 
