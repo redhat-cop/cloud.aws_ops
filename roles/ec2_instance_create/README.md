@@ -80,7 +80,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_external_sg_rules**: (Optional)
   A list of custom rules to add to the security group. Each rule is a dictionary with `proto`, `ports`, and `cidr_ip` keys. Default is to allow SSH (port 22) from `0.0.0.0/0`.
 
-* **ec2_instance_create_sg_tags**: (Optional)
+* **ec2_instance_create_external_sg_tags**: (Optional)
   Tags to assign to the security group.
 
 ### Example:
@@ -114,7 +114,7 @@ Here's an example of how to use the role in a playbook.
             - proto: tcp
               ports: "80"
               cidr_ip: "0.0.0.0/0"
-          ec2_instance_create_sg_tags:
+          ec2_instance_create_external_sg_tags:
             Component: my-custom-sg
             Environment: Testing
           # Optionally, enable Elastic IP association

@@ -49,16 +49,16 @@
       amazon.aws.ec2_security_group_info:
         region: "{{ ec2_instance_create_aws_region }}"
         filters:
-          group-name: "{{ ec2_instance_create_sg_name }}"
+          group-name: "{{ ec2_instance_create_external_sg_name }}"
       register: sg_info_result
 
     - name: Create a new SG if it does not exist
       amazon.aws.ec2_security_group:
-        name: "{{ ec2_instance_create_sg_name }}"
-        description: "{{ ec2_instance_create_sg_description }}"
+        name: "{{ ec2_instance_create_external_sg_name }}"
+        description: "{{ ec2_instance_create_external_sg_description }}"
         vpc_id: "{{ ec2_instance_create_vpc_id }}"
-        rules: "{{ ec2_instance_create_sg_rules }}"
-        tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
+        rules: "{{ ec2_instance_create_external_sg_rules }}"
+        tags: "{{ ec2_instance_create_external_sg_tags | default(omit) }}"
       when: sg_info_result.security_groups | length == 0
       register: sg_creation
 
@@ -67,7 +67,7 @@
         instance_ids:
           - "{{ ec2_instance.instance_ids[0] }}"
         security_groups:
-          - "{{ ec2_instance_create_sg_name }}"
+          - "{{ ec2_instance_create_external_sg_name }}"
         vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
       register: ec2_instance_associate_sg
 

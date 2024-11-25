@@ -18,7 +18,7 @@
     - name: Create vpc to work in
       amazon.aws.ec2_vpc_net:
         cidr_block: "{{ test_vpc_cidr }}"
-        name: "{{ test_vpc_name }}"
+        name: "{{ vpc_name }}"
         state: present
         region: "{{ aws_region }}"
       register: vpc
