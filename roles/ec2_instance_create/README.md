@@ -10,7 +10,7 @@ This role also supports the creation of optional networking resources, such as a
 
 The following variables can be set in the role to customize EC2 instance creation and networking configurations:
 
-### Role operation
+### Role Operation
 
 * **ec2_instance_create_operation**: (Optional)
   Whether to create or delete resources using the role. Default is `create`.
@@ -49,11 +49,11 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 * **ec2_instance_create_vpc_id**: (Optional)
   The ID of the VPC used for security group and internet gateway.
-  Required if `ec2_instance_create_associate_external_sg` is `true` or `ec2_instance_create_associate_igw` is `true`.
+  Required if `ec2_instance_create_associate_igw` or `ec2_instance_create_associate_eip` is `true`.
 
 * **ec2_instance_create_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
-  If set to `true` and provided VPC doesn't have an Internet Gateway (IGW) attached, please set `ec2_instance_create_associate_igw` to true to avoid failure due to VPC not having IGW attached.
+  If set to `true` and the provided VPC doesn’t have an Internet Gateway (IGW) attached, set `ec2_instance_create_associate_igw` to `true` to avoid failure.
 
 * **ec2_instance_create_eip_tags**: (Optional)
   Tags to assign to the elastic IP.
@@ -69,12 +69,10 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 #### External Security Group
 
-* **ec2_instance_create_associate_external_sg**: (Optional)
-  Whether to associate existing or a new security group with the EC2 instance for external access. Default is `false`.
-  If set to `true`, existing security group provided with `ec2_instance_create_external_sg_name` or a new security group created by role will be associated with the instance.
-
-* **ec2_instance_create_external_sg_name**: (Optional)
-  The name of the security group to create. Default is `ec2_instance_create-default-external-sg`.
+* **ec2_instance_create_external_sg_name**: (Required)
+  The name of the security group to use for the EC2 instance.
+  The role will check if an SG with this name exists. If not, it will create a new one.
+  Default is `ec2_instance_create-default-external-sg`.
 
 * **ec2_instance_create_external_sg_description**: (Optional)
   A description for the security group. Default is `Security group for external access`.
