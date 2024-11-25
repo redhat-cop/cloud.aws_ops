@@ -53,7 +53,7 @@ The following variables can be set in the role to customize EC2 instance creatio
 
 * **ec2_instance_create_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
-  If set to `true` and the provided VPC doesn’t have an Internet Gateway (IGW) attached, set `ec2_instance_create_associate_igw` to `true` to avoid failure.
+  If set to `true` and the provided VPC doesn't have an Internet Gateway (IGW) attached, set `ec2_instance_create_associate_igw` to `true` to avoid failure.
 
 * **ec2_instance_create_eip_tags**: (Optional)
   Tags to assign to the elastic IP.
