@@ -37,10 +37,6 @@ The following variables can be set in the role to customize EC2 instance creatio
 * **ec2_instance_create_vpc_subnet_id**: (Required)
   The ID of the VPC subnet in which the instance will be launched.
 
-* **ec2_instance_create_external_sg_id**: (Optional)
-  The ID or name of the existing security group to be associated with EC2 instance.
-  Mutually exclusive with `ec2_instance_create_associate_external_sg`.
-
 * **ec2_instance_create_tags**: (Optional)
   A dictionary of tags to assign to the EC2 instance.
 
@@ -74,9 +70,8 @@ The following variables can be set in the role to customize EC2 instance creatio
 #### External Security Group
 
 * **ec2_instance_create_associate_external_sg**: (Optional)
-  Whether to create and associate a security group with the EC2 instance for external access. Default is `false`.
-  If set to `true`, a security group will be created or associated with the instance.
-  Mutually exclusive with `ec2_instance_create_external_sg_id`.
+  Whether to associate existing or a new security group with the EC2 instance for external access. Default is `false`.
+  If set to `true`, existing security group provided with `ec2_instance_create_external_sg_name` or a new security group created by role will be associated with the instance.
 
 * **ec2_instance_create_external_sg_name**: (Optional)
   The name of the security group to create. Default is `ec2_instance_create-default-external-sg`.

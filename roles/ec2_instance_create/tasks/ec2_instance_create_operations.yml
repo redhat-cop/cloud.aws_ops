@@ -1,12 +1,4 @@
 ---
-- name: Verify exclusive parameters
-  block:
-    - name: Check for security group ID
-      ansible.builtin.fail:
-        msg: "ec2_instance_create_external_sg_id and ec2_instance_create_associate_external_sg are mutually exlcusive.
-              Please provide only one to either associate existing or create new sg."
-      when: ec2_instance_create_external_sg_id is defined and ec2_instance_create_associate_external_sg is defined and ec2_instance_create_external_sg_id != None and ec2_instance_create_associate_external_sg is true
-
 - name: Verify that an instance with same name does not exist
   block:
     - name: Get instane info with provided name
@@ -46,7 +38,6 @@
     image_id: "{{ ec2_instance_create_ami_id }}"
     key_name: "{{ ec2_instance_create_key_name }}"
     vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
-    security_group: "{{ ec2_instance_create_external_sg_id | default(omit) }}"
     tags: "{{ ec2_instance_create_tags | default(omit) }}"
     wait: "{{ ec2_instance_create_wait_for_boot }}"
   register: ec2_instance
@@ -54,23 +45,31 @@
 - name: Create security group if enabled
   when: ec2_instance_create_associate_external_sg is true
   block:
-    - name: Define security group
-      amazon.aws.ec2_security_group:
-        name: "{{ ec2_instance_create_external_sg_name }}"
-        description: "{{ ec2_instance_create_external_sg_description }}"
-        vpc_id: "{{ ec2_instance_create_vpc_id }}"
-        rules: "{{ ec2_instance_create_external_sg_rules }}"
-        tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
-      register: ec2_group_creation
+    - name: Get SG info
+      amazon.aws.ec2_security_group_info:
+        region: "{{ ec2_instance_create_aws_region }}"
+        filters:
+          group-name: "{{ ec2_instance_create_sg_name }}"
+      register: sg_info_result
 
-    - name: Associate security group with EC2 instance
+    - name: Create a new SG if it does not exist
+      amazon.aws.ec2_security_group:
+        name: "{{ ec2_instance_create_sg_name }}"
+        description: "{{ ec2_instance_create_sg_description }}"
+        vpc_id: "{{ ec2_instance_create_vpc_id }}"
+        rules: "{{ ec2_instance_create_sg_rules }}"
+        tags: "{{ ec2_instance_create_sg_tags | default(omit) }}"
+      when: sg_info_result.security_groups | length == 0
+      register: sg_creation
+
+    - name: Associate the SG to EC2 Instance(existing or newly created)
       amazon.aws.ec2_instance:
         instance_ids:
           - "{{ ec2_instance.instance_ids[0] }}"
         security_groups:
-          - "{{ ec2_instance_create_external_sg_name }}"
+          - "{{ ec2_instance_create_sg_name }}"
         vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
-      register: ec2_instance_associate_external_sg
+      register: ec2_instance_associate_sg
 
 - name: Create and Attach Internet Gateway if enabled
   when: ec2_instance_create_associate_igw is true
