@@ -112,6 +112,7 @@ Here's an example of how to use the role in a playbook.
             Component: my-test-instance
             Environment: Testing
           ec2_instance_create_wait_for_boot: true
+          ec2_instance_create_vpc_id: vpc-xxxx
           # Optionally, enable security group creation
           ec2_instance_create_associate_external_sg: true
           ec2_instance_create_external_sg_name: my-custom-sg
@@ -128,6 +129,27 @@ Here's an example of how to use the role in a playbook.
           ec2_instance_create_eip_tags:
             Component: my-custom-eip
             Environment: Testing
+          # Optionally, enable Internet Gateway association
+          ec2_instance_create_associate_igw: true
+          ec2_instance_create_igw_tags:
+            Environment: Testing
+            Name: "{{ resource_prefix }}-igw"
+
+---
+- name: Playbook for deleting EC2 instance and other role resources using cloud.aws_ops.ec2_instance_create role
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: cloud.aws_ops.ec2_instance_create
+      vars:
+          ec2_instance_create_operation: delete
+          ec2_instance_create_aws_region: us-west-2
+          ec2_instance_create_instance_name: my-test-instance
+          ec2_instance_create_wait_for_boot: true
+          ec2_instance_create_associate_external_sg: true
+          ec2_instance_create_external_sg_name: my-custom-sg
+          ec2_instance_create_associate_igw: true
+          ec2_instance_create_vpc_id: vpc-xxxx
 
 License
 -------

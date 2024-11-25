@@ -1,16 +1,12 @@
 ---
-- name: Terminate EC2 instance
+- name: Terminate EC2 Instance
   amazon.aws.ec2_instance:
     region: "{{ ec2_instance_create_aws_region }}"
-    name: "{{ ec2_instance_create_instance_name }}"
-    instance_type: "{{ ec2_instance_create_instance_type }}"
-    image_id: "{{ ec2_instance_create_ami_id }}"
-    key_name: "{{ ec2_instance_create_key_name }}"
-    vpc_subnet_id: "{{ ec2_instance_create_vpc_subnet_id }}"
-    security_group: "{{ ec2_instance_create_external_sg_id | default(omit) }}"
-    tags: "{{ ec2_instance_create_tags | default(omit) }}"
-    wait: "{{ ec2_instance_create_wait_for_boot }}"
     state: absent
+    wait: "{{ ec2_instance_create_wait_for_boot }}"
+    filters:
+      tag:Name: "{{ ec2_instance_create_instance_name }}"
+      instance-state-name: ["running"]
   when: ec2_instance_create_instance_name is defined and ec2_instance_create_instance_name | length > 0
 
 - name: Delete security group if created
