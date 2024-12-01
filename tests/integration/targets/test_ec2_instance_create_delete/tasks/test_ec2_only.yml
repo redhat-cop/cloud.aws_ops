@@ -4,17 +4,17 @@
     ansible.builtin.include_role:
       name: cloud.aws_ops.ec2_instance_create
     vars:
-      ec2_instance_create_operation: create
-      ec2_instance_create_aws_region: "{{ aws_region }}"
-      ec2_instance_create_instance_name: "only-ec2-{{ resource_prefix }}"
-      ec2_instance_create_instance_type: "{{ ec2_instance_type }}"
-      ec2_instance_create_ami_id: "{{ image_id }}"
-      ec2_instance_create_vpc_subnet_id: "{{ subnet_id }}"
-      ec2_instance_create_key_name: "{{ ec2_key_name }}"
-      ec2_instance_create_associate_external_sg: false
-      ec2_instance_create_associate_eip: false
-      ec2_instance_create_associate_igw: false
-      ec2_instance_create_tags:
+      ec2_instance_create_delete_operation: present
+      ec2_instance_create_delete_aws_region: "{{ aws_region }}"
+      ec2_instance_create_delete_instance_name: "only-ec2-{{ resource_prefix }}"
+      ec2_instance_create_delete_instance_type: "{{ ec2_instance_type }}"
+      ec2_instance_create_delete_ami_id: "{{ image_id }}"
+      ec2_instance_create_delete_vpc_subnet_id: "{{ subnet_id }}"
+      ec2_instance_create_delete_key_name: "{{ ec2_key_name }}"
+      ec2_instance_create_delete_associate_external_sg: false
+      ec2_instance_create_delete_associate_eip: false
+      ec2_instance_create_delete_associate_igw: false
+      ec2_instance_create_delete_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-instance"
 

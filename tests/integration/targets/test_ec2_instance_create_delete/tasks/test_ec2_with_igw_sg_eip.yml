@@ -4,42 +4,42 @@
     ansible.builtin.include_role:
       name: cloud.aws_ops.ec2_instance_create
     vars:
-      ec2_instance_create_operation: create
-      ec2_instance_create_aws_region: "{{ aws_region }}"
-      ec2_instance_create_instance_name: "ec2-all-enabled-{{ resource_prefix }}"
-      ec2_instance_create_instance_type: "{{ ec2_instance_type }}"
-      ec2_instance_create_ami_id: "{{ image_id }}"
-      ec2_instance_create_vpc_subnet_id: "{{ subnet_id }}"
-      ec2_instance_create_key_name: "{{ ec2_key_name }}"
-      ec2_instance_create_vpc_id: "{{ vpc_id }}"
-      ec2_instance_create_tags:
+      ec2_instance_create_delete_operation: present
+      ec2_instance_create_delete_aws_region: "{{ aws_region }}"
+      ec2_instance_create_delete_instance_name: "ec2-all-enabled-{{ resource_prefix }}"
+      ec2_instance_create_delete_instance_type: "{{ ec2_instance_type }}"
+      ec2_instance_create_delete_ami_id: "{{ image_id }}"
+      ec2_instance_create_delete_vpc_subnet_id: "{{ subnet_id }}"
+      ec2_instance_create_delete_key_name: "{{ ec2_key_name }}"
+      ec2_instance_create_delete_vpc_id: "{{ vpc_id }}"
+      ec2_instance_create_delete_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-instance"
 
       # Optional: external security group
-      ec2_instance_create_associate_external_sg: true
-      ec2_instance_create_external_sg_name: "{{ external_sg_name }}"
-      ec2_instance_create_external_sg_description: "{{ external_sg_description }}"
-      ec2_instance_create_external_sg_rules:
+      ec2_instance_create_delete_associate_external_sg: true
+      ec2_instance_create_delete_external_sg_name: "{{ external_sg_name }}"
+      ec2_instance_create_delete_external_sg_description: "{{ external_sg_description }}"
+      ec2_instance_create_delete_external_sg_rules:
       - proto: tcp
         ports: 22
         cidr_ip: 10.0.1.0/16
       - proto: tcp
         ports: 8000
         cidr_ip: 10.0.1.0/16
-      ec2_instance_create_external_sg_tags:
+      ec2_instance_create_delete_external_sg_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-sg"
 
       # Optional: EIP
-      ec2_instance_create_associate_eip: true
-      ec2_instance_create_eip_tags:
+      ec2_instance_create_delete_associate_eip: true
+      ec2_instance_create_delete_eip_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-eip"
 
       # Optional: Internet Gateway
-      ec2_instance_create_associate_igw: true
-      ec2_instance_create_igw_tags:
+      ec2_instance_create_delete_associate_igw: true
+      ec2_instance_create_delete_igw_tags:
         Environment: Testing
         Name: "{{ resource_prefix }}-igw"
 
