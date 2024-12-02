@@ -28,6 +28,8 @@ controller_templates:
   - name: AWS Operations / Configure AWS Network for EC2
     ask_inventory_on_launch: true
     ask_execution_environment_on_launch: true
+    ask_credential_on_launch: true
+    ask_verbosity_on_launch: true
     description: This job template creates the necessary network infrastructure needed to configure AWS EC2 instance
     project: AWS Operations / Configure AWS Network Pattern Project
     playbook: extensions/patterns/configure_aws_network/playbooks/run_configure_aws_network.yaml
@@ -39,4 +41,4 @@ controller_templates:
       - run_configure_aws_network 
     credentials: aws-instance
     survey_enabled: true
-    survey_spec: "{{ lookup('file', pattern.path.replace('setup.yml', '') + 'template_surveys/configure_aws_network.yaml') | from_yaml }}"
+    survey_spec: "{{ lookup('file', pattern.path.replace('setup.yml', '') + 'template_surveys/configure_aws_network.yml') | from_yaml }}"

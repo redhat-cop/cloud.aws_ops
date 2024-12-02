@@ -2,16 +2,6 @@
 name: "AWS Network Configuration Survey"
 description: "Survey to configure aws network Rresources to create an EC2 instance"
 spec:
-  - type: "multiplechoice"
-    question_name: "Backup Type"
-    question_description: "Select the type of backup"
-    variable: "backup_type"
-    choices:
-      - "full"
-      - "diff"
-    required: true
-    default: "full"
-
   - type: "text"
     question_name: "AWS region"
     question_description: "The AWS region where the resources should be created."
