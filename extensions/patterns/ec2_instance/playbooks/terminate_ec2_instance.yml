@@ -1,0 +1,12 @@
+---
+- name: Terminate EC2 instance
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Run ec2_instance_create role
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_create
+      vars:
+        ec2_instance_create_operation: delete
+        ec2_instance_create_aws_region: "{{ aws_region }}"
+        ec2_instance_create_instance_name: "{{ instance_name }}"
