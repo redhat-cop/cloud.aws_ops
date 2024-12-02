@@ -4,7 +4,7 @@
 controller_labels:
   - name: cloud.aws_ops
     organization: "{{ organization }}"
-  - name: configure_aws_network_experience
+  - name: configure_aws_network_pattern
     organization: "{{ organization }}"
   - name: run_configure_aws_network
     organization: "{{ organization }}"
@@ -12,7 +12,7 @@ controller_labels:
 # Projects
 #
 controller_projects:
-  - name: AWS Operations / Configure AWS Network Experience Project
+  - name: AWS Operations / Configure AWS Network Pattern Project
     organization: "{{ organization }}"
     scm_branch: experience
     scm_clean: 'no'
@@ -29,14 +29,14 @@ controller_templates:
     ask_inventory_on_launch: true
     ask_execution_environment_on_launch: true
     description: This job template creates the necessary network infrastructure needed to configure AWS EC2 instance
-    project: AWS Operations / Configure AWS Network Experience Project
-    playbook: extensions/experiences/configure_aws_network/playbooks/run_configure_aws_network.yaml
+    project: AWS Operations / Configure AWS Network Pattern Project
+    playbook: extensions/patterns/configure_aws_network/playbooks/run_configure_aws_network.yaml
     job_type: "run"
-    organization: "{{ organization | default('Default') }}"
+    organization: "{{ organization }}"
     labels:
       - cloud.aws_ops
-      - configure_aws_network_experience
+      - configure_aws_network_pattern
       - run_configure_aws_network 
     credentials: aws-instance
     survey_enabled: true
-    survey_spec: "{{ lookup('file', experience.path.replace('setup.yml', '') + 'template_surveys/configure_aws_network.yaml') | from_yaml }}"
+    survey_spec: "{{ lookup('file', pattern.path.replace('setup.yml', '') + 'template_surveys/configure_aws_network.yaml') | from_yaml }}"
