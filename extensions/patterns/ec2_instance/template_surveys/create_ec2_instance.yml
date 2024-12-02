@@ -124,18 +124,16 @@ spec:
     question_description: Rules for the security group
     variable: sg_rules
     required: false
-    default: 'ssh: Allow inbound SSH access from all IPv4 IP addresses (specify Security Group SSH Rule IP Range to limit to your network)'
     choices:
       - 'http: Allow inbound HTTP traffic from all IPv4 addresses'
       - 'https: Allow inbound HTTPS access from all IPv4 addresses'
-      - 'ssh: Allow inbound SSH access from all IPv4 IP addresses (specify Security Group SSH Rule IP Range to limit to your network)'
+      - 'ssh: Allow inbound SSH access from an IPv4 IP address range (must specify Security Group SSH Rule IP Range)'
 
   - type: text
     question_name: Security Group SSH Rule IP Range
     question_description: IPv4 address range from which to allow inbound SSH traffic
     variable: sg_ssh_ip
     required: false
-    default: 0.0.0.0/0
 
   - type: text
     question_name: Security Group Tags
