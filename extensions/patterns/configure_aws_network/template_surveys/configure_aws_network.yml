@@ -39,9 +39,9 @@ spec:
     required: true
 
   - type: "text"
-    question_name: "Internal Security Group rule 1 protocol"
-    question_description: "The IP protocol name. If not provided, ssh will be used"
-    variable: "security_group_1_proto"
+    question_name: "Dict of Internal Security Group rules, seperated by semi colon"
+    question_description: 'Dictionaries of Security Group Rules. e.g. {"proto": "tcp", "ports": "22", "cidr_ip": "10.1.1.0/16"}; {"proto": "tcp", "ports": "8000-8010", "cidr_ip": "10.1.1.0/16"}'
+    variable: "security_group_rules"
     required: false
 
   - type: "text"

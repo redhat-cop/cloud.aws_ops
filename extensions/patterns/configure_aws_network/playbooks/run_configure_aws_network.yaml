@@ -3,32 +3,13 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Create a list of dictionaries for security group rules
+    - name: Get list of internal sg rules
       ansible.builtin.set_fact:
-        sg_internal_rules: >-
-          {{
-            [
-              {
-                'proto': security_group_1_proto,
-                'ports': security_group_1_port,
-                'cidr_ip': security_group_1_cidr
-              },
-              {
-                'proto': security_group_2_proto,
-                'ports': security_group_2_port,
-                'cidr_ip': security_group_2_cidr
-              },
-              {
-                'proto': security_group_3_proto,
-                'ports': security_group_3_port,
-                'cidr_ip': security_group_3_cidr
-              }
-            ] | selectattr('proto', 'defined') | selectattr('ports', 'defined') | selectattr('cidr_ip', 'defined') | list
-          }}
+        sg_rules: "{{ security_group_rules | split(';') | list }}"
 
     - name: Set default value for the security group rules if nothing is passed.
       ansible.builtin.set_fact:
-        sg_internal_rules: "{{ sg_internal_rules | default([
+        sg_internal_rules: "{{ sg_rules | default([
           {'proto': 'tcp', 'port': '22', 'cidr_ip': vpc_cidr}
         ]) }}"
 
