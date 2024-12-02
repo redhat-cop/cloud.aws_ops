@@ -38,7 +38,7 @@ controller_templates:
     labels:
       - cloud.aws_ops
       - configure_aws_network_pattern
-      - run_configure_aws_network 
+      - run_configure_aws_network
     credentials: aws-instance
     survey_enabled: true
     survey_spec: "{{ lookup('file', pattern.path.replace('setup.yml', '') + 'template_surveys/configure_aws_network.yml') | from_yaml }}"
