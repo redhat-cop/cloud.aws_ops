@@ -4,28 +4,36 @@ argument_specs:
     short_description: A role to create a basic networking environment for an EC2 instance.
     description:
       - A role to create a basic networking environment for an EC2 instance.
-      - Creates a VPC, subnet, route table and security groups.
+      - Creates a VPC, subnet, route table, security groups.
+      - Can optionally create an external security group and/or internet gateway to allow external access.
+      - Can also delete networking resources created by this role using the "delete" operation.
     options:
+      ec2_networking_resources_operation:
+        description:
+          - Whether to create or delete the resources.
+        choices: [create, delete]
+        default: create
       ec2_networking_resources_vpc_name:
         description:
-          - The name of the VPC to create.
+          - The name of the VPC to create or delete.
         required: true
       ec2_networking_resources_vpc_cidr_block:
         description:
-          - The CIDR block for the VPC being created.
-        required: true
+          - The CIDR block for the VPC being created. Required when creating resources.
+        required: false
       ec2_networking_resources_subnet_cidr_block:
         description:
-          - The CIDR block for the subnet being created.
-        required: true
+          - The CIDR block for the subnet being created. Required when creating resources.
+        required: false
       ec2_networking_resources_sg_internal_name:
         description:
-          - The name of the security group to create for internal access to the EC2 instance.
-        required: true
+          - The name of the security group to create for internal access to the EC2 instance. Required when creating resources.
+        required: false
       ec2_networking_resources_sg_internal_description:
         description:
           - The description of the security group for internal access to the EC2 instance.
-        required: true
+        required: false
+        default: Security group for internal access
       ec2_networking_resources_sg_internal_rules:
         description:
           - A list of security group rules to apply to the security group for internal access.
@@ -49,3 +57,43 @@ argument_specs:
             elements: str
           cidr_ip:
             description: The CIDR range traffic is coming from.
+      ec2_networking_resources_sg_external_name:
+        description:
+          - The name of the security group to create for external access to the EC2 instance.
+        required: false
+      ec2_networking_resources_sg_external_description:
+        description:
+          - The description of the security group for external access to the EC2 instance.
+        required: false
+        default: Security group for external access
+      ec2_networking_resources_sg_external_rules:
+        description:
+          - A list of security group rules to apply to the security group for external access.
+          - By default, will add rules to allow all HTTP and HTTPS traffic.
+        required: false
+        type: list
+        elements: dict
+        default:
+          - proto: tcp
+            ports: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports: 443
+            cidr_ip: 0.0.0.0/0
+        options:
+          proto:
+            description: The IP protocol name.
+          ports:
+            description:
+              - A list of ports the traffic is going to.
+              - Elements can be a single port, or a range of ports (for example, 8000-8100).
+            type: list
+            elements: str
+          cidr_ip:
+            description: The CIDR range traffic is coming from.
+      ec2_networking_resources_create_igw:
+        description:
+          - Whether to create an internet gateway and route traffic to internet.
+        required: false
+        type: bool
+        default: false

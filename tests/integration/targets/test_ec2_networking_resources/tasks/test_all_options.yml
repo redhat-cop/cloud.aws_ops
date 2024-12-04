@@ -1,0 +1,172 @@
+---
+- name: Create networking infrastructure with ansible.builtin.set_fact: options
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.ec2_networking_resources
+  vars:
+    ec2_networking_resources_operation: create
+    ec2_networking_resources_vpc_name: "{{ vpc_name }}"
+    ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr_block }}"
+    ec2_networking_resources_subnet_cidr_block: "{{ subnet_cidr_block }}"
+    ec2_networking_resources_sg_internal_name: "{{ internal_sg_name }}"
+    ec2_networking_resources_sg_internal_description: "Test internal sg"
+    ec2_networking_resources_sg_internal_rules:
+      - proto: tcp
+        ports: 22
+        cidr_ip: "{{ vpc_cidr_block }}"
+    ec2_networking_resources_sg_external_name: "{{ external_sg_name }}"
+    ec2_networking_resources_sg_external_description: "Test external sg"
+    ec2_networking_resources_sg_external_rules:
+      - proto: tcp
+        ports: 443
+        cidr_ip: 0.0.0.0/0
+    ec2_networking_resources_create_igw: true
+
+- name: Get the created VPC
+  amazon.aws.ec2_vpc_net_info:
+    filters:
+      "tag:Name": "{{ vpc_name }}"
+      cidr: "{{ vpc_cidr_block }}"
+  register: _vpc
+
+- name: Assert the VPC exists
+  ansible.builtin.assert:
+    that:
+      - _vpc.vpcs | length == 1
+      - _vpc.vpcs[0].cidr_block == vpc_cidr_block
+
+- name: Get the created subnet
+  amazon.aws.ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ _vpc.vpcs[0].id }}"
+      cidr-block: "{{ subnet_cidr_block }}"
+  register: _subnet
+
+- name: Assert subnet has been created
+  ansible.builtin.assert:
+    that:
+      - _subnet.subnets | length == 1
+      - _subnet.subnets[0].cidr_block == subnet_cidr_block
+
+- name: Get internal security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-name: "{{ internal_sg_name }}"
+  register: _internal_security_group
+
+- name: Assert internal security group has been created
+  ansible.builtin.assert:
+    that:
+      - _internal_security_group.security_groups | length == 1
+      - _sg_rule.from_port == 22
+      - _sg_rule.to_port == 22
+      - _sg_rule.ip_protocol == "tcp"
+      - _sg_rule.ip_ranges[0].cidr_ip == vpc_cidr_block
+  vars:
+    _sg_rule: "{{ _internal_security_group.security_groups[0].ip_permissions[0] }}"
+
+- name: Get external security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-name: "{{ external_sg_name }}"
+  register: _external_security_group
+
+- name: Assert external security group has been created
+  ansible.builtin.assert:
+    that:
+      - _external_security_group.security_groups | length == 1
+      - _sg_rule.from_port == 443
+      - _sg_rule.to_port == 443
+      - _sg_rule.ip_protocol == "tcp"
+      - _sg_rule.ip_ranges[0].cidr_ip == "0.0.0.0/0"
+  vars:
+    _sg_rule: "{{ _external_security_group.security_groups[0].ip_permissions[0] }}"
+
+- name: Get internet gateway
+  amazon.aws.ec2_vpc_igw_info:
+    filters:
+      "attachment.vpc-id": "{{ _vpc.vpcs[0].id }}"
+  register: _internet_gateway
+
+- name: Assert internet gateway has been created
+  ansible.builtin.assert:
+    that:
+      - _internet_gateway.internet_gateways | length == 1
+
+- name: Get route tables for VPC
+  amazon.aws.ec2_vpc_route_table_info:
+    filters:
+      vpc-id: "{{ _vpc.vpcs[0].id }}"
+  register: _route_tables
+
+- name: Assert route table has been created
+  ansible.builtin.assert:
+    that:
+      - item.associations[0].subnet_id == _subnet.subnets[0].id
+      - _internet_gateway.internet_gateways[0].internet_gateway_id in item.routes | map(attribute="gateway_id")
+      - '"0.0.0.0/0" in item.routes | map(attribute="destination_cidr_block")'
+  loop: "{{ _route_tables.route_tables }}"
+  when: true not in item.associations | map(attribute="main")
+
+- name: Delete created networking infrastructure
+  ansible.builtin.include_role:
+    name: cloud.aws_ops.ec2_networking_resources
+  vars:
+    ec2_networking_resources_operation: delete
+    ec2_networking_resources_vpc_name: "{{ vpc_name }}"
+
+- name: Get the deleted VPC
+  amazon.aws.ec2_vpc_net_info:
+    filters:
+      "tag:Name": "{{ vpc_name }}"
+      cidr: "{{ vpc_cidr_block }}"
+  register: _deleted_vpc
+
+- name: Assert the VPC does not exist
+  ansible.builtin.assert:
+    that:
+      - _deleted_vpc.vpcs | length == 0
+
+- name: Get the deleted subnet
+  amazon.aws.ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ _vpc.vpcs[0].id }}"
+      cidr-block: "{{ subnet_cidr_block }}"
+  register: _deleted_subnet
+
+- name: Assert subnet does not exists
+  ansible.builtin.assert:
+    that:
+      - _deleted_subnet.subnets | length == 0
+
+- name: Get the deleted internal security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-name: "{{ internal_sg_name }}"
+  register: _deleted_internal_security_group
+
+- name: Assert internal security group has been deleted
+  ansible.builtin.assert:
+    that:
+      - _deleted_internal_security_group.security_groups | length == 0
+
+- name: Get the deleted external security group
+  amazon.aws.ec2_security_group_info:
+    filters:
+      group-name: "{{ external_sg_name }}"
+  register: _deleted_external_security_group
+
+- name: Assert external security group has been deleted
+  ansible.builtin.assert:
+    that:
+      - _deleted_external_security_group.security_groups | length == 0
+
+- name: Get the deleted internet gateway
+  amazon.aws.ec2_vpc_igw_info:
+    filters:
+      "attachment.vpc-id": "{{ _vpc.vpcs[0].id }}"
+  register: _deleted_internet_gateway
+
+- name: Assert internet gateway has been deleted
+  ansible.builtin.assert:
+    that:
+      - _deleted_internet_gateway.internet_gateways | length == 0

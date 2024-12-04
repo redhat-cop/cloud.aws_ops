@@ -1,5 +1,17 @@
 ---
+ec2_networking_resources_operation: create
+ec2_networking_resources_vpc_cidr_block: "{{ ec2_networking_resources_operation == 'delete' | ternary('', omit) }}"
+ec2_networking_resources_sg_internal_description: Security group for internal access
 ec2_networking_resources_sg_internal_rules:
   - proto: tcp
     ports: 22
     cidr_ip: "{{ ec2_networking_resources_vpc_cidr_block }}"
+ec2_networking_resources_sg_external_description: Security group for external access
+ec2_networking_resources_sg_external_rules:
+  - proto: tcp
+    ports: 80
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    ports: 443
+    cidr_ip: 0.0.0.0/0
+ec2_networking_resources_create_igw: false
