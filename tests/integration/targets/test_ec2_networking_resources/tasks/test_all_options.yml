@@ -1,5 +1,5 @@
 ---
-- name: Create networking infrastructure with ansible.builtin.set_fact: options
+- name: Create networking infrastructure with all options
   ansible.builtin.include_role:
     name: cloud.aws_ops.ec2_networking_resources
   vars:
