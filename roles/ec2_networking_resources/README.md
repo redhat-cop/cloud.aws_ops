@@ -30,18 +30,12 @@ Role Variables
 * **ec2_networking_resources_vpc_name**: (Required) The name of the VPC to create or delete.
 * **ec2_networking_resources_vpc_cidr_block**: (Optional) The CIDR block to use for the VPC being created. Required if `ec2_networking_resources_operation` is "create".
 * **ec2_networking_resources_subnet_cidr_block**: (Optional) The CIDR block to use for subnet being created. Required if `ec2_networking_resources_operation` is "create".
-* **ec2_networking_resources_sg_internal_name**: (Optional) The name of the internal security group to create. Required if `ec2_networking_resources_operation` is "create".
-* **ec2_networking_resources_sg_internal_description**: (Optional) The description of the internal security group being created. Defaults to "Security group for internal access".
-* **ec2_networking_resources_sg_internal_rules**: (Optional) List of rules to apply to the internal security group being created. By default, a rule allowing SSH access from within the VPC will be added. A rule should contain the following keys:
-    * **proto** (str): The IP protocol name.
-    * **ports** (str): A list of ports traffic is going to. Can be a single port, or a range of ports, for example, 8000-8010.
-    * **cidr_ip** (str): The CIDR block traffic is coming from.
-* **ec2_networking_resources_sg_external_name**: (Optional) The name of the external security group to create.
-* **ec2_networking_resources_sg_external_description**: (Optional) The description of the external security group being created. Defaults to "Security group for external access". Ignored if ec2_networking_resources_sg_external_name is not provided.
-* **ec2_networking_resources_sg_external_rules**: (Optional) List of rules to apply to the external security group being created. By default, allows all inbound http and https traffic. Ignored if ec2_networking_resources_sg_external_name is not provided. A rule should contain the following keys:
-    * **proto** (str): The IP protocol name.
-    * **ports** (str): A list of ports traffic is going to. Can be a single port, or a range of ports, for example, 8000-8010.
-    * **cidr_ip** (str): The CIDR block traffic is coming from.
+* **ec2_networking_resources_sg_name**: (Optional) The name of the security group to create. Required if `ec2_networking_resources_operation` is "create".
+* **ec2_networking_resources_sg_description**: (Optional) The description of the security group being created. Defaults to "Security group for EC2 instance".
+* **ec2_networking_resources_sg_rules**: (Optional) List of rules to apply to the security group being created. By default, a rule allowing SSH access from within the VPC will be added. A rule should contain the following keys:
+  * **proto** (str): The IP protocol name.
+  * **ports** (list): A list of ports traffic is going to. Can be a single port or a range of ports, for example 8000-8010.
+  * **cidr_ip** (str): The CIDR block traffic is coming from.
 * **ec2_networking_resources_create_igw**: (Optional) Whether to create an internet gateway and route traffic to it. Defaults to `false`.
 
 Dependencies
@@ -52,7 +46,7 @@ Dependencies
 Examples
 ----------------
 
-Create networking resources:
+Create networking resources with an internet gateway and allow HTTP/HTTPS traffic:
 
 ```yaml
 - hosts: localhost
@@ -62,19 +56,13 @@ Create networking resources:
         ec2_networking_resources_vpc_name: my-vpn
         ec2_networking_resources_vpc_cidr_block: 10.0.1.0/16
         ec2_networking_resources_subnet_cidr_block: 10.0.1.0/26
-        ec2_networking_resources_sg_internal_name: my-internal-sg
-        ec2_networking_resources_sg_internal_description: My internal security group
-        ec2_networking_resources_sg_internal_rules:
+        ec2_networking_resources_sg_name: my-sg
+        ec2_networking_resources_sg_description: My security group
+        ec2_networking_resources_sg_rules:
           - proto: tcp
             ports: 22
             cidr_ip: 10.0.1.0/16
           - ports: tcp
-            ports: 8000-8010
-            cidr_ip: 10.0.1.0/16
-        ec2_networking_resources_sg_external_name: my-external-sg
-        ec2_networking_resources_sg_external_description: My external security group
-        ec2_networking_resources_sg_external_rules:
-          - proto: tcp
             ports: 80
             cidr_ip: 0.0.0.0/0
           - proto: tcp

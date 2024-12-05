@@ -6,7 +6,7 @@
     ec2_networking_resources_vpc_name: "{{ vpc_name }}"
     ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr_block }}"
     ec2_networking_resources_subnet_cidr_block: "{{ subnet_cidr_block }}"
-    ec2_networking_resources_sg_internal_name: "{{ internal_sg_name }}"
+    ec2_networking_resources_sg_name: "{{ sg_name }}"
 
 - name: Get the created VPC
   amazon.aws.ec2_vpc_net_info:
@@ -34,22 +34,22 @@
       - _subnet.subnets | length == 1
       - _subnet.subnets[0].cidr_block == subnet_cidr_block
 
-- name: Get internal security group
+- name: Get security group
   amazon.aws.ec2_security_group_info:
     filters:
-      group-name: "{{ internal_sg_name }}"
-  register: _internal_security_group
+      group-name: "{{ sg_name }}"
+  register: _security_group
 
-- name: Assert internal security group has been created
+- name: Assert security group has been created
   ansible.builtin.assert:
     that:
-      - _internal_security_group.security_groups | length == 1
+      - _security_group.security_groups | length == 1
       - _sg_rule.from_port == 22
       - _sg_rule.to_port == 22
       - _sg_rule.ip_protocol == "tcp"
       - _sg_rule.ip_ranges[0].cidr_ip == vpc_cidr_block
   vars:
-    _sg_rule: "{{ _internal_security_group.security_groups[0].ip_permissions[0] }}"
+    _sg_rule: "{{ _security_group.security_groups[0].ip_permissions[0] }}"
 
 - name: Delete created networking infrastructure
   ansible.builtin.include_role:
@@ -82,13 +82,13 @@
     that:
       - _deleted_subnet.subnets | length == 0
 
-- name: Get the deleted internal security group
+- name: Get the deleted security group
   amazon.aws.ec2_security_group_info:
     filters:
-      group-name: "{{ internal_sg_name }}"
-  register: _deleted_internal_security_group
+      group-name: "{{ sg_name }}"
+  register: _deleted_security_group
 
-- name: Assert internal security group has been deleted
+- name: Assert security group has been deleted
   ansible.builtin.assert:
     that:
-      - _deleted_internal_security_group.security_groups | length == 0
+      - _deleted_security_group.security_groups | length == 0

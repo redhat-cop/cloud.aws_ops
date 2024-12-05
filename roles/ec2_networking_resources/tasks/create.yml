@@ -1,10 +1,10 @@
 ---
 - name: Validate options
   ansible.builtin.fail:
-    msg: "When creating resources, all of the following options must be provided: ec2_networking_resources_vpc_cidr_block, ec2_networking_resources_subnet_cidr_block, ec2_networking_resources_sg_internal_name"
+    msg: "When creating resources, all of the following options must be provided: ec2_networking_resources_vpc_cidr_block, ec2_networking_resources_subnet_cidr_block, ec2_networking_resources_sg_name"
   when: ec2_networking_resources_vpc_cidr_block | default("", true) == "" or
     ec2_networking_resources_subnet_cidr_block | default("", true) == "" or
-    ec2_networking_resources_sg_internal_name | default("", true) == ""
+    ec2_networking_resources_sg_name | default("", true) == ""
 
 - name: Create VPC
   amazon.aws.ec2_vpc_net:
@@ -12,53 +12,19 @@
     cidr_block: "{{ ec2_networking_resources_vpc_cidr_block }}"
   register: ec2_networking_resources_vpc_result
 
-- name: Set VPC ID
-  ansible.builtin.set_fact:
-    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-
 - name: Create VPC subnet
   amazon.aws.ec2_vpc_subnet:
     vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
     cidr: "{{ ec2_networking_resources_subnet_cidr_block }}"
   register: ec2_networking_resources_subnet_result
 
-- name: Set subnet ID
-  ansible.builtin.set_fact:
-    subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
-
-- name: Create custom route table for subnet
-  amazon.aws.ec2_vpc_route_table:
-    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-    subnets:
-      - "{{ ec2_networking_resources_subnet_result.subnet.id }}"
-  register: ec2_networking_resources_route_table_result
-
-- name: Create security group for internal access
+- name: Create security group
   amazon.aws.ec2_security_group:
     vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-    name: "{{ ec2_networking_resources_sg_internal_name }}"
-    description: "{{ ec2_networking_resources_sg_internal_description }}"
-    rules: "{{ ec2_networking_resources_sg_internal_rules }}"
-  register: ec2_networking_resources_internal_sg_result
-
-- name: Set internal security group ID
-  ansible.builtin.set_fact:
-    internal_sg_id: "{{ ec2_networking_resources_internal_sg_result.group_id }}"
-
-- name: Create security group for external access if provided
-  when: ec2_networking_resources_sg_external_name | default("", true) != ""
-  block:
-    - name: Create security group for external access
-      amazon.aws.ec2_security_group:
-        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
-        name: "{{ ec2_networking_resources_sg_external_name }}"
-        description: "{{ ec2_networking_resources_sg_external_description }}"
-        rules: "{{ ec2_networking_resources_sg_external_rules }}"
-      register: ec2_networking_resources_external_sg_result
-
-    - name: Set external security group ID
-      ansible.builtin.set_fact:
-        external_sg_id: "{{ ec2_networking_resources_external_sg_result.group_id }}"
+    name: "{{ ec2_networking_resources_sg_name }}"
+    description: "{{ ec2_networking_resources_sg_description }}"
+    rules: "{{ ec2_networking_resources_sg_rules }}"
+  register: ec2_networking_resources_sg_result
 
 - name: Create internet gateway and route traffic to it
   when: ec2_networking_resources_create_igw is true
@@ -69,12 +35,13 @@
         vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
       register: ec2_networking_resources_internet_gateway_result
 
-    - name: Update route table
+    - name: Create route table
       amazon.aws.ec2_vpc_route_table:
         state: present
-        lookup: id
-        route_table_id: "{{ ec2_networking_resources_route_table_result.route_table.id }}"
         vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+        subnets:
+          - "{{ ec2_networking_resources_subnet_result.subnet.id }}"
         routes:
           - dest: "0.0.0.0/0"
             gateway_id: "{{ ec2_networking_resources_internet_gateway_result.gateway_id }}"
+      register: ec2_networking_resources_route_table_result

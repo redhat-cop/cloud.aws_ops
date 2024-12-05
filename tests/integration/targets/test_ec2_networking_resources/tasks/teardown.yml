@@ -1,16 +1,10 @@
 ---
 - name: Teardown
   block:
-    - name: Delete the internal security group
+    - name: Delete the security group
       amazon.aws.ec2_security_group:
         state: absent
-        name: "{{ internal_sg_name }}"
-      ignore_errors: true
-
-    - name: Delete the external security group
-      amazon.aws.ec2_security_group:
-        state: absent
-        name: "{{ external_sg_name }}"
+        name: "{{ sg_name }}"
       ignore_errors: true
 
     - name: Get the VPC
