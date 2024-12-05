@@ -1,0 +1,47 @@
+---
+- name: Validate options
+  ansible.builtin.fail:
+    msg: "When creating resources, all of the following options must be provided: ec2_networking_resources_vpc_cidr_block, ec2_networking_resources_subnet_cidr_block, ec2_networking_resources_sg_name"
+  when: ec2_networking_resources_vpc_cidr_block | default("", true) == "" or
+    ec2_networking_resources_subnet_cidr_block | default("", true) == "" or
+    ec2_networking_resources_sg_name | default("", true) == ""
+
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: "{{ ec2_networking_resources_vpc_name }}"
+    cidr_block: "{{ ec2_networking_resources_vpc_cidr_block }}"
+  register: ec2_networking_resources_vpc_result
+
+- name: Create VPC subnet
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+    cidr: "{{ ec2_networking_resources_subnet_cidr_block }}"
+  register: ec2_networking_resources_subnet_result
+
+- name: Create security group
+  amazon.aws.ec2_security_group:
+    vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+    name: "{{ ec2_networking_resources_sg_name }}"
+    description: "{{ ec2_networking_resources_sg_description }}"
+    rules: "{{ ec2_networking_resources_sg_rules }}"
+  register: ec2_networking_resources_sg_result
+
+- name: Create internet gateway and route traffic to it
+  when: ec2_networking_resources_create_igw is true
+  block:
+    - name: Create internet gateway
+      amazon.aws.ec2_vpc_igw:
+        state: present
+        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+      register: ec2_networking_resources_internet_gateway_result
+
+    - name: Create route table
+      amazon.aws.ec2_vpc_route_table:
+        state: present
+        vpc_id: "{{ ec2_networking_resources_vpc_result.vpc.id }}"
+        subnets:
+          - "{{ ec2_networking_resources_subnet_result.subnet.id }}"
+        routes:
+          - dest: "0.0.0.0/0"
+            gateway_id: "{{ ec2_networking_resources_internet_gateway_result.gateway_id }}"
+      register: ec2_networking_resources_route_table_result

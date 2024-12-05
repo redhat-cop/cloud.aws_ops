@@ -1,0 +1,2 @@
+minor_changes:
+- ec2_networking_resources - Add optional networking resources and ability to delete resources created by role. (https://github.com/redhat-cop/cloud.aws_ops/pull/126)

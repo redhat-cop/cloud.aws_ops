@@ -1,5 +1,9 @@
 ---
-ec2_networking_resources_sg_internal_rules:
+ec2_networking_resources_operation: create
+ec2_networking_resources_vpc_cidr_block: "{{ ec2_networking_resources_operation == 'delete' | ternary('', omit) }}"
+ec2_networking_resources_sg_description: Security group for EC2 instance
+ec2_networking_resources_sg_rules:
   - proto: tcp
     ports: 22
     cidr_ip: "{{ ec2_networking_resources_vpc_cidr_block }}"
+ec2_networking_resources_create_igw: false
