@@ -31,7 +31,7 @@ argument_specs:
         type: str
       ec2_instance_create_delete_key_name:
         description:
-          - The name of the key pair to use for SSH access to the EC2 instance. If the key does not exist, a key pair will be created with the name. If not provided, instance will not be accessible via SSH.
+          - The name of the key pair to use for SSH access to the EC2 instance. If the key does not exist, a key pair will be created with the name. If not provided, instance will not be accessible via SSH. If provided when `ec2_instance_create_delete_operation` is `delete`, the keypair will also be deleted.
         required: false
         type: str
       ec2_instance_create_delete_vpc_subnet_id:

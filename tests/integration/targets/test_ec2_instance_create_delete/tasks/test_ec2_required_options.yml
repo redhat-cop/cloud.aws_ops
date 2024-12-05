@@ -9,6 +9,7 @@
         ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
         ec2_instance_create_delete_instance_type: "{{ test_ec2_instance_type }}"
         ec2_instance_create_delete_ami_id: "{{ image_id }}"
+        ec2_instance_create_delete_wait_for_state: false
 
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:
@@ -22,7 +23,7 @@
           - _ec2_instance.instances | length == 1
           - _ec2_instance.instances[0].instance_type == test_ec2_instance_type
           - _ec2_instance.instances[0].image_id == image_id
-          - _ec2_instance.instances[0].state.name  == "running"
+          - _ec2_instance.instances[0].state.name in ["pending", "running"]
           - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == "default"
 
     - name: Delete created instance

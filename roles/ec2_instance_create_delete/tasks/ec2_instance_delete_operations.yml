@@ -21,3 +21,9 @@
     wait: "{{ ec2_instance_create_delete_wait_for_state }}"
     instance_ids:
       - "{{ ec2_info_result.instances[0].instance_id }}"
+
+- name: Delete keypair if provided
+  when: ec2_instance_create_delete_key_name is defined and ec2_instance_create_delete_key_name | length > 0
+  amazon.aws.ec2_key:
+    name: "{{ ec2_instance_create_delete_key_name }}"
+    state: absent

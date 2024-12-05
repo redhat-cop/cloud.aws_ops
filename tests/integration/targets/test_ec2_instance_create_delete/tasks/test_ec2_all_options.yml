@@ -13,7 +13,7 @@
         ec2_instance_create_delete_vpc_subnet_id: "{{ subnet_id }}"
         ec2_instance_create_delete_tags:
           Environment: Testing
-        ec2_instance_create_delete_wait_for_state: false
+        ec2_instance_create_delete_wait_for_state: true
         ec2_instance_create_delete_associate_security_groups:
           - "{{ test_security_group_name }}"
         ec2_instance_create_delete_associate_eip: true
@@ -36,7 +36,7 @@
           - _ec2_instance.instances[0].key_name == test_ec2_key_name
           - _ec2_instance.instances[0].subnet_id == subnet_id
           - _ec2_instance.instances[0].tags.Environment == "Testing"
-          - _ec2_instance.instances[0].state.name in ["running", "pending"]
+          - _ec2_instance.instances[0].state.name == "running"
           - _ec2_instance.instances[0].network_interfaces[0].groups[0].group_name == test_security_group_name
           - _ec2_instance.instances[0].network_interfaces[0].association.public_ip is defined
 
@@ -46,6 +46,7 @@
       vars:
         ec2_instance_create_delete_operation: delete
         ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
+        ec2_instance_create_delete_key_name: "{{ test_ec2_key_name }}"
 
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:
@@ -58,6 +59,16 @@
         that:
           - _deleted_ec2_instance.instances | length == 1
           - _deleted_ec2_instance.instances[0].state.name == "terminated"
+
+    - name: Get key info
+      amazon.aws.ec2_key_info:
+        names:
+          - "{{ test_ec2_key_name }}"
+      register: _deleted_key
+
+    - name: Verify that key pair was deleted
+      ansible.builtin.assert:
+        that: _deleted_key.keypairs | length == 0
 
   # cleanup leftover resources created by role
   always:

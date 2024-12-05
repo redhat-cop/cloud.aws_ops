@@ -39,15 +39,16 @@ The following variables can be set in the role to customize EC2 instance creatio
   The name of the EC2 instance to be created.
 
 * **ec2_instance_create_delete_instance_type**: (Optional)
-  The instance type for the EC2 instance (e.g., `t2.micro`, `m5.large`). Required when `ec2_instance_create_delete_operation` is `true`
+  The instance type for the EC2 instance (e.g., `t2.micro`, `m5.large`). Required when `ec2_instance_create_delete_operation` is `create`
 
 * **ec2_instance_create_delete_ami_id**: (Optional)
-  The AMI ID for the EC2 instance. Required when `ec2_instance_create_delete_operation` is `true`
+  The AMI ID for the EC2 instance. Required when `ec2_instance_create_delete_operation` is `create`
 
 * **ec2_instance_create_delete_key_name**: (Optional)
   The name of the key pair to use for SSH access to the EC2 instance.
   If the key does not exist, a key pair will be created with the name.
   If not provided, instance will not be accessible via SSH.
+  If provided when `ec2_instance_create_delete_operation` is `delete`, the keypair will also be deleted.
 
 * **ec2_instance_create_delete_vpc_subnet_id**: (Optional)
   The ID of the VPC subnet in which the instance will be launched.
