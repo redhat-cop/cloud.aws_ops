@@ -1,15 +1,13 @@
 ---
 aws_security_token: "{{ security_token | default(omit) }}"
 
-# VPC and Subnet Configuration
-vpc_name: "{{ resource_prefix }}-vpc"
+# Network Configuration
+test_vpc_name: "{{ resource_prefix }}-vpc"
 test_vpc_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/16'
 test_subnet_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/24'
+test_security_group_name: "{{ resource_prefix }}-sg"
 
 # EC2 Instance Configuration
-ec2_instance_type: t2.micro
-ec2_key_name: "{{ resource_prefix }}-ec2-key"
-
-# External Security Group Configuration
-external_sg_name: "{{ resource_prefix }}-external-sg"
-external_sg_description: "External Security Group for EC2"
+test_ec2_instance_name: "{{ resource_prefix }}-ec2-instance"
+test_ec2_instance_type: t2.micro
+test_ec2_key_name: "{{ resource_prefix }}-ec2-key"

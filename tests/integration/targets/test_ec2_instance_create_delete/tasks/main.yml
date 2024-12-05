@@ -10,11 +10,11 @@
     - name: Create resources required for test
       ansible.builtin.include_tasks: setup.yml
 
-    - name: Run tests for case 1 - EC2 with no external sg, igw, eip
-      ansible.builtin.include_tasks: tasks/test_ec2_only.yml
+    - name: Run tests for case 1 - EC2 instance with required options only
+      ansible.builtin.include_tasks: tasks/test_ec2_required_options.yml
 
-    - name: Run tests for case 2 - EC2 with external sg, igw, eip
-      ansible.builtin.include_tasks: tasks/test_ec2_with_igw_sg_eip.yml
+    - name: Run tests for case 2 - EC2 instance with all options
+      ansible.builtin.include_tasks: tasks/test_ec2_all_options.yml
 
   always:
     - name: Delete any leftover resources used in tests

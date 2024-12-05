@@ -1,21 +1,20 @@
 ---
 - name: Verify that an instance with same name does not exist
   block:
-    - name: Get instane info with provided name
+    - name: Get instance info with provided name
       amazon.aws.ec2_instance_info:
-        region: "{{ ec2_instance_create_delete_aws_region }}"
         filters:
           tag:Name: "{{ ec2_instance_create_delete_instance_name }}"
+          instance-state-name: ["pending", "running", "stopping", "stopped"]
       register: ec2_info_result
 
-    - name: Print warning and exit
+    - name: Print warning and exit if instance exists
       ansible.builtin.fail:
-        msg: "Instance with name {{ ec2_instance_create_delete_instance_name }} already exists in {{ ec2_instance_create_delete_aws_region }}.
-              Please provide different name to avoid updating instance."
-      when: ec2_info_result.instances | length >= 1
+        msg: "Instance with name {{ ec2_instance_create_delete_instance_name }} already exists in {{ aws_region }}. Please provide a different name to avoid updating the existing instance."
+      when: ec2_info_result.instances | length > 0
 
 - name: Create a key pair if required
-  when: ec2_instance_create_key_name is defined and ec2_instance_create_key_name | length > 0
+  when: ec2_instance_create_delete_key_name is defined and ec2_instance_create_delete_key_name | length > 0
   block:
     - name: Get key pair info
       amazon.aws.ec2_key_info:
@@ -27,85 +26,33 @@
       amazon.aws.ec2_key:
         name: "{{ ec2_instance_create_delete_key_name }}"
         state: present
-        region: "{{ ec2_instance_create_delete_aws_region }}"
       when: key_info_result.keypairs | length == 0
+      register: new_key_pair_result
 
 - name: Create EC2 instance with provided configuration
   amazon.aws.ec2_instance:
-    region: "{{ ec2_instance_create_delete_aws_region }}"
+    state: running
     name: "{{ ec2_instance_create_delete_instance_name }}"
     instance_type: "{{ ec2_instance_create_delete_instance_type }}"
     image_id: "{{ ec2_instance_create_delete_ami_id }}"
-    key_name: "{{ ec2_instance_create_delete_key_name }}"
+    key_name: "{{ ec2_instance_create_delete_key_name | default(omit) }}"
+    security_groups: "{{ ec2_instance_create_delete_associate_security_groups | default(omit, true) }}"
     vpc_subnet_id: "{{ ec2_instance_create_delete_vpc_subnet_id | default(omit) }}"
     tags: "{{ ec2_instance_create_delete_tags | default(omit) }}"
-    wait: "{{ ec2_instance_create_delete_wait_for_boot }}"
+    wait: "{{ ec2_instance_create_delete_wait_for_state }}"
   register: ec2_instance
 
-- name: Create security group if enabled
-  when: ec2_instance_create_delete_associate_external_sg is true
-  block:
-    - name: Get SG info
-      amazon.aws.ec2_security_group_info:
-        region: "{{ ec2_instance_create_delete_aws_region }}"
-        filters:
-          group-name: "{{ ec2_instance_create_delete_external_sg_name }}"
-      register: sg_info_result
-
-    - name: Create a new SG if it does not exist
-      amazon.aws.ec2_security_group:
-        name: "{{ ec2_instance_create_delete_external_sg_name }}"
-        description: "{{ ec2_instance_create_delete_external_sg_description }}"
-        vpc_id: "{{ ec2_instance_create_delete_vpc_id }}"
-        rules: "{{ ec2_instance_create_delete_external_sg_rules }}"
-        tags: "{{ ec2_instance_create_delete_external_sg_tags | default(omit) }}"
-      when: sg_info_result.security_groups | length == 0
-      register: sg_creation
-
-    - name: Associate the SG to EC2 Instance(existing or newly created)
-      amazon.aws.ec2_instance:
-        instance_ids:
-          - "{{ ec2_instance.instance_ids[0] }}"
-        security_groups:
-          - "{{ ec2_instance_create_delete_external_sg_name }}"
-        vpc_subnet_id: "{{ ec2_instance_create_delete_vpc_subnet_id }}"
-      register: ec2_instance_associate_sg
-
-- name: Create and Attach Internet Gateway if enabled
-  when: ec2_instance_create_delete_associate_igw is true
-  block:
-    - name: Create an Internet Gateway
-      amazon.aws.ec2_vpc_igw:
-        region: "{{ ec2_instance_create_delete_aws_region }}"
-        vpc_id: "{{ ec2_instance_create_delete_vpc_id }}"
-        state: present
-        tags: "{{ ec2_instance_create_delete_igw_tags | default(omit) }}"
-      register: internet_gateway
-
-    - name: Modify the route table to route internet traffic to Internet Gateway
-      amazon.aws.ec2_vpc_route_table:
-        region: "{{ ec2_instance_create_delete_aws_region }}"
-        vpc_id: "{{ ec2_instance_create_delete_vpc_id }}"
-        routes:
-          - dest: "0.0.0.0/0"
-            gateway_id: "{{ internet_gateway.gateway_id }}"
-        state: present
-
-- name: Create and associate Elastic IP if enabled
+- name: Allocate and associate Elastic IP if enabled
   when: ec2_instance_create_delete_associate_eip is true
-  block:
-    - name: Allocate and associate Elastic IP
-      amazon.aws.ec2_eip:
-        device_id: "{{ ec2_instance.instance_ids[0] }}"
-        state: present
-        release_on_disassociation: true
-        tags: "{{ ec2_instance_create_delete_eip_tags | default(omit) }}"
-      register: instance_eip
+  amazon.aws.ec2_eip:
+    device_id: "{{ ec2_instance.instance_ids[0] }}"
+    state: present
+    release_on_disassociation: true
+  register: instance_eip
 
 - name: Get EC2 instance info
   amazon.aws.ec2_instance_info:
     instance_ids: "{{ ec2_instance.instance_ids[0] }}"
-    region: "{{ ec2_instance_create_delete_aws_region }}"
   register: _ec2_instance
 
 - name: Output details of the created EC2 instance
@@ -113,3 +60,8 @@
     msg:
       - "EC2 instance {{ ec2_instance.instance_ids[0] }} created successfully"
       - "Instance details: {{ _ec2_instance.instances[0] }}"
+
+- name: Output private key if a new keypair was created
+  when: new_key_pair_result.key is defined
+  ansible.builtin.debug:
+    msg: "A new key pair was created for ssh access to the instance. Please save this private key for reference, it will not be accessible again: {{ new_key_pair_result.key.private_key }}"

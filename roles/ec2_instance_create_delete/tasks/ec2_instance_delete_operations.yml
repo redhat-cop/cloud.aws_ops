@@ -1,23 +1,23 @@
 ---
-- name: Terminate EC2 Instance
-  amazon.aws.ec2_instance:
-    region: "{{ ec2_instance_create_delete_aws_region }}"
-    state: absent
-    wait: "{{ ec2_instance_create_delete_wait_for_boot }}"
+- name: Get instance info with provided name
+  amazon.aws.ec2_instance_info:
     filters:
       tag:Name: "{{ ec2_instance_create_delete_instance_name }}"
-      instance-state-name: ["running"]
-  when: ec2_instance_create_delete_instance_name is defined and ec2_instance_create_delete_instance_name | length > 0
+      instance-state-name: ["pending", "running", "stopping", "stopped"]
+  register: ec2_info_result
 
-- name: Delete security group if created
-  amazon.aws.ec2_security_group:
-    name: "{{ ec2_instance_create_delete_external_sg_name | default('ec2_instance_create-default-external-sg') }}"
+- name: Disassociate and release EIP if present
+  when: ec2_info_result.instances | length > 0
+  # and ec2_info_result.instances[0].network_interfaces.association.public_ip is defined
+  amazon.aws.ec2_eip:
+    device_id: "{{ ec2_info_result.instances[0].instance_id }}"
     state: absent
-  when: ec2_instance_create_delete_associate_external_sg is defined and ec2_instance_create_delete_associate_external_sg is true
+    release_on_disassociation: true
 
-- name: Detach and delete Internet Gateway if created
-  amazon.aws.ec2_vpc_igw:
-    region: "{{ ec2_instance_create_delete_aws_region }}"
-    vpc_id: "{{ ec2_instance_create_delete_vpc_id }}"
-    state: absent
-  when: ec2_instance_create_delete_associate_igw is defined and ec2_instance_create_delete_associate_igw is true
+- name: Terminate EC2 Instance if present
+  when: ec2_info_result.instances | length > 0
+  amazon.aws.ec2_instance:
+    state: terminated
+    wait: "{{ ec2_instance_create_delete_wait_for_state }}"
+    instance_ids:
+      - "{{ ec2_info_result.instances[0].instance_id }}"

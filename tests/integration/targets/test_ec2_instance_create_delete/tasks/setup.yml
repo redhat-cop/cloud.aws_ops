@@ -3,7 +3,6 @@
   block:
     - name: Get AMI image ID using filters
       amazon.aws.ec2_ami_info:
-        region: "{{ aws_region }}"
         filters:
           architecture: x86_64
           # CentOS Community Platform Engineering (CPE)
@@ -18,32 +17,33 @@
     - name: Create vpc to work in
       amazon.aws.ec2_vpc_net:
         cidr_block: "{{ test_vpc_cidr }}"
-        name: "{{ vpc_name }}"
+        name: "{{ test_vpc_name }}"
         state: present
-        region: "{{ aws_region }}"
       register: vpc
-
-    - name: Define VPC id
-      ansible.builtin.set_fact:
-        test_vpc_id: "{{ vpc.vpc.id }}"
 
     - name: Create EC2 subnet
       amazon.aws.ec2_vpc_subnet:
-        vpc_id: "{{ test_vpc_id }}"
+        vpc_id: "{{ vpc.vpc.id }}"
         cidr: "{{ test_subnet_cidr }}"
         az: "{{ aws_region }}a"
         region: "{{ aws_region }}"
       register: subnet
 
-    - name: Create a key
-      amazon.aws.ec2_key:
-        name: "{{ ec2_key_name }}"
+    - name: Create security group
+      amazon.aws.ec2_security_group:
+        vpc_id: "{{ vpc.vpc.id }}"
+        name: "{{ test_security_group_name }}"
+        description: "Test security group for cloud.aws_ops.ec2_instance_create_delete role"
+
+    - name: Create internet gateway
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
         state: present
-        region: "{{ aws_region }}"
-      register: ec2_key_result
+      register: gateway
 
     - name: Set facts for test resources
       ansible.builtin.set_fact:
+        gateway_id: "{{ gateway.gateway_id }}"
         image_id: "{{ images.images.0.image_id }}"
         subnet_id: "{{ subnet.subnet.id }}"
         vpc_id: "{{ vpc.vpc.id }}"
