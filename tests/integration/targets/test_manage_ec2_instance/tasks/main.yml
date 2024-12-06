@@ -1,5 +1,5 @@
 ---
-- name: Integration tests for ec2_networking_resources role
+- name: Integration tests for manage_ec2_instance role
   module_defaults:
     group/aws:
       aws_access_key: "{{ aws_access_key }}"

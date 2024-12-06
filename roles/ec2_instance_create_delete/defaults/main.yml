@@ -1,4 +1,0 @@
----
-ec2_instance_create_delete_operation: create
-ec2_instance_create_delete_wait_for_state: true
-ec2_instance_create_delete_associate_eip: false

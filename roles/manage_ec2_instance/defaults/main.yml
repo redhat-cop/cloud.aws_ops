@@ -1,0 +1,4 @@
+---
+manage_ec2_instance_operation: create
+manage_ec2_instance_wait_for_state: true
+manage_ec2_instance_associate_eip: false

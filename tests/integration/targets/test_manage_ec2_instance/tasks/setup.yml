@@ -33,7 +33,7 @@
       amazon.aws.ec2_security_group:
         vpc_id: "{{ vpc.vpc.id }}"
         name: "{{ test_security_group_name }}"
-        description: "Test security group for cloud.aws_ops.ec2_instance_create_delete role"
+        description: "Test security group for cloud.aws_ops.manage_ec2_instance role"
 
     - name: Create internet gateway
       amazon.aws.ec2_vpc_igw:

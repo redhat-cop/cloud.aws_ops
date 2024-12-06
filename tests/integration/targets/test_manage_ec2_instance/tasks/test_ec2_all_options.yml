@@ -3,21 +3,21 @@
   block:
     - name: Create EC2 instance with all options
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: create
-        ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
-        ec2_instance_create_delete_instance_type: "{{ test_ec2_instance_type }}"
-        ec2_instance_create_delete_ami_id: "{{ image_id }}"
-        ec2_instance_create_delete_key_name: "{{ test_ec2_key_name }}"
-        ec2_instance_create_delete_vpc_subnet_id: "{{ subnet_id }}"
-        ec2_instance_create_delete_tags:
+        manage_ec2_instance_operation: create
+        manage_ec2_instance_instance_name: "{{ test_ec2_instance_name }}"
+        manage_ec2_instance_instance_type: "{{ test_ec2_instance_type }}"
+        manage_ec2_instance_ami_id: "{{ image_id }}"
+        manage_ec2_instance_key_name: "{{ test_ec2_key_name }}"
+        manage_ec2_instance_vpc_subnet_id: "{{ subnet_id }}"
+        manage_ec2_instance_tags:
           Environment: Testing
-        ec2_instance_create_delete_wait_for_state: true
-        ec2_instance_create_delete_associate_security_groups:
+        manage_ec2_instance_wait_for_state: true
+        manage_ec2_instance_associate_security_groups:
           - "{{ test_security_group_name }}"
-        ec2_instance_create_delete_associate_eip: true
-        ec2_instance_create_delete_eip_tags:
+        manage_ec2_instance_associate_eip: true
+        manage_ec2_instance_eip_tags:
           Environment: Testing
 
     - name: Get EC2 instance info
@@ -42,11 +42,11 @@
 
     - name: Delete created instance
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: delete
-        ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
-        ec2_instance_create_delete_key_name: "{{ test_ec2_key_name }}"
+        manage_ec2_instance_operation: delete
+        manage_ec2_instance_instance_name: "{{ test_ec2_instance_name }}"
+        manage_ec2_instance_key_name: "{{ test_ec2_key_name }}"
 
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:

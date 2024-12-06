@@ -1,10 +1,10 @@
-# ec2_instance_create
+# manage_ec2_instance
 
-A role to create an EC2 instance in AWS.
+A role to create or delete an EC2 instance in AWS.
 
-Users can specify various parameters for instance configuration, including instance type, AMI ID, key pair, tags, VPC/subnet configuration, and whether to associate an EIP. You can choose to wait for the EC2 instance to finish booting before continuing.
+Users can specify various parameters for instance configuration, including instance type, AMI ID, key pair, tags, VPC/subnet configuration, and whether to associate an EIP. You can choose to wait for the EC2 instance to finish booting/terminating before continuing.
 
-This role can be combined with the [cloud.aws_ops.ec2_networking_resources role](../ec2_networking_resources/README.md) to create networking resources for the instance, see [examples](#examples).
+This role can be combined with the [cloud.aws_ops.ec2_networking_resources role](../ec2_networking_resources/README.md) to create/delete networking resources for the instance, see [examples](#examples).
 
 ## Requirements
 
@@ -32,42 +32,42 @@ An AWS account with the following permissions:
 
 The following variables can be set in the role to customize EC2 instance creation and networking configurations:
 
-* **ec2_instance_create_delete_operation**: (Optional)
+* **manage_ec2_instance_operation**: (Optional)
   Target operation for the ec2 instance role. Choices are ["create", "delete"]. Defaults to "create".
 
-* **ec2_instance_create_delete_instance_name**: (Required)
-  The name of the EC2 instance to be created.
+* **manage_ec2_instance_instance_name**: (Required)
+  The name of the EC2 instance to be created/deleted.
 
-* **ec2_instance_create_delete_instance_type**: (Optional)
-  The instance type for the EC2 instance (e.g., `t2.micro`, `m5.large`). Required when `ec2_instance_create_delete_operation` is `create`
+* **manage_ec2_instance_instance_type**: (Optional)
+  The instance type for the EC2 instance (e.g., `t2.micro`, `m5.large`). Required when `manage_ec2_instance_operation` is `create`
 
-* **ec2_instance_create_delete_ami_id**: (Optional)
-  The AMI ID for the EC2 instance. Required when `ec2_instance_create_delete_operation` is `create`
+* **manage_ec2_instance_ami_id**: (Optional)
+  The AMI ID for the EC2 instance. Required when `manage_ec2_instance_operation` is `create`
 
-* **ec2_instance_create_delete_key_name**: (Optional)
+* **manage_ec2_instance_key_name**: (Optional)
   The name of the key pair to use for SSH access to the EC2 instance.
   If the key does not exist, a key pair will be created with the name.
   If not provided, instance will not be accessible via SSH.
-  If provided when `ec2_instance_create_delete_operation` is `delete`, the keypair will also be deleted.
+  If provided when `manage_ec2_instance_operation` is `delete`, the keypair will also be deleted.
 
-* **ec2_instance_create_delete_vpc_subnet_id**: (Optional)
+* **manage_ec2_instance_vpc_subnet_id**: (Optional)
   The ID of the VPC subnet in which the instance will be launched.
   If not provided, instance will be created in the default subnet for the default VPC in the AWS region if present.
 
-* **ec2_instance_create_delete_tags**: (Optional)
+* **manage_ec2_instance_tags**: (Optional)
   A dictionary of tags to assign to the EC2 instance.
 
-* **ec2_instance_create_delete_wait_for_state**: (Optional)
+* **manage_ec2_instance_wait_for_state**: (Optional)
   Whether to wait for the EC2 instance to be in the "running" (if creating an instance) or "terminated" (if deleting an instance) state before continuing. Default is `true`.
 
-* **ec2_instance_create_delete_associate_security_groups**: (Optional)
+* **manage_ec2_instance_associate_security_groups**: (Optional)
   List of security group IDs to associate with the EC2 instance.
 
-* **ec2_instance_create_delete_associate_eip**: (Optional)
+* **manage_ec2_instance_associate_eip**: (Optional)
   Whether to create an Elastic IP (EIP) and associate it with the EC2 instance. Default is `false`.
   If true, EC2 instance must be launched in a VPC with an Internet Gateway (IGW) attached, otherwise this will fail. Use [cloud.aws_ops.ec2_networking_resources role](../ec2_networking_resources/README.md) to create the necessary networking resources.
 
-* **ec2_instance_create_delete_eip_tags**: (Optional)
+* **manage_ec2_instance_eip_tags**: (Optional)
   Tags to assign to the elastic IP.
 
 ## Dependencies
@@ -84,18 +84,18 @@ Using the role on its own in a playbook:
   hosts: localhost
   gather_facts: false
   roles:
-    - role: cloud.aws_ops.ec2_instance_create
+    - role: cloud.aws_ops.manage_ec2_instance
       vars:
-          ec2_instance_create_delete_operation: present
-          ec2_instance_create_delete_aws_region: us-west-2
-          ec2_instance_create_delete_instance_name: my-test-instance
-          ec2_instance_create_delete_instance_type: t2.micro
-          ec2_instance_create_delete_ami_id: ami-066a7fbaa12345678
-          ec2_instance_create_delete_vpc_subnet_id: subnet-071443aa123456789
-          ec2_instance_create_delete_tags:
+          manage_ec2_instance_operation: create
+          manage_ec2_instance_aws_region: us-west-2
+          manage_ec2_instance_instance_name: my-test-instance
+          manage_ec2_instance_instance_type: t2.micro
+          manage_ec2_instance_ami_id: ami-066a7fbaa12345678
+          manage_ec2_instance_vpc_subnet_id: subnet-071443aa123456789
+          manage_ec2_instance_tags:
             Component: my-test-instance
             Environment: Testing
-          ec2_instance_create_delete_wait_for_state: true
+          manage_ec2_instance_wait_for_state: true
 ```
 
 Combining the role with [cloud.aws_ops.ec2_networking_resources](../ec2_networking_resources/README.md):
@@ -114,17 +114,17 @@ Combining the role with [cloud.aws_ops.ec2_networking_resources](../ec2_networki
         ec2_networking_resources_sg_internal_name: my-internal-sg
         ec2_networking_resources_sg_external_name: my-external-sg
         ec2_networking_resources_create_igw: true
-    - role: cloud.aws_ops.ec2_instance_create
+    - role: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: present
-        ec2_instance_create_delete_instance_name: my-test-instance
-        ec2_instance_create_delete_instance_type: t2.micro
-        ec2_instance_create_delete_ami_id: ami-066a7fbaa12345678
-        ec2_instance_create_delete_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
-        ec2_instance_create_delete_associate_security_groups:
+        manage_ec2_instance_operation: present
+        manage_ec2_instance_instance_name: my-test-instance
+        manage_ec2_instance_instance_type: t2.micro
+        manage_ec2_instance_ami_id: ami-066a7fbaa12345678
+        manage_ec2_instance_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
+        manage_ec2_instance_associate_security_groups:
           - my-internal-sg
           - my-external-sg
-        ec2_instance_create_delete_associate_eip: true
+        manage_ec2_instance_associate_eip: true
 ```
 
 Deleting an EC2 instance:
@@ -135,11 +135,11 @@ Deleting an EC2 instance:
   hosts: localhost
   gather_facts: false
   roles:
-    - role: cloud.aws_ops.ec2_instance_create_delete
+    - role: cloud.aws_ops.manage_ec2_instance
       vars:
-          ec2_instance_create_delete_operation: delete
-          ec2_instance_create_delete_instance_name: my-test-instance
-          ec2_instance_create_delete_wait_for_state: true
+          manage_ec2_instance_operation: delete
+          manage_ec2_instance_instance_name: my-test-instance
+          manage_ec2_instance_wait_for_state: true
 ```
 
 ## License

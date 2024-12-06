@@ -5,8 +5,8 @@
   block:
     - name: Include create operations
       ansible.builtin.include_tasks: ec2_instance_create_operations.yml
-      when: ec2_instance_create_delete_operation == 'create'
+      when: manage_ec2_instance_operation == 'create'
 
     - name: Include delete operations
       ansible.builtin.include_tasks: ec2_instance_delete_operations.yml
-      when: ec2_instance_create_delete_operation == 'delete'
+      when: manage_ec2_instance_operation == 'delete'

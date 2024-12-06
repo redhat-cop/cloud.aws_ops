@@ -3,13 +3,13 @@
   block:
     - name: Create EC2 instance with required options only
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: create
-        ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
-        ec2_instance_create_delete_instance_type: "{{ test_ec2_instance_type }}"
-        ec2_instance_create_delete_ami_id: "{{ image_id }}"
-        ec2_instance_create_delete_wait_for_state: false
+        manage_ec2_instance_operation: create
+        manage_ec2_instance_instance_name: "{{ test_ec2_instance_name }}"
+        manage_ec2_instance_instance_type: "{{ test_ec2_instance_type }}"
+        manage_ec2_instance_ami_id: "{{ image_id }}"
+        manage_ec2_instance_wait_for_state: false
 
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:
@@ -28,10 +28,10 @@
 
     - name: Delete created instance
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: delete
-        ec2_instance_create_delete_instance_name: "{{ test_ec2_instance_name }}"
+        manage_ec2_instance_operation: delete
+        manage_ec2_instance_instance_name: "{{ test_ec2_instance_name }}"
 
     - name: Get EC2 instance info
       amazon.aws.ec2_instance_info:

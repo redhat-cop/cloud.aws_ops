@@ -1,68 +1,68 @@
 ---
 argument_specs:
   main:
-    short_description: A role to create an EC2 instance with optional networking resources.
+    short_description: A role to create or delete an EC2 instance with optional networking resources.
     description:
-      - A role to create an EC2 instance.
+      - A role to create or delete an EC2 instance.
       - Can optionally attach security groups and associate an Elastic IP with the instance.
       - Supports custom configurations for instance settings including instance type, AMI, key pair, tags, VPC/subnet, and networking configurations.
     options:
-      ec2_instance_create_delete_operation:
+      manage_ec2_instance_operation:
         description:
           - Whether to create or delete resources using the role.
         required: false
         type: str
         default: create
         choices: [create, delete]
-      ec2_instance_create_delete_instance_name:
+      manage_ec2_instance_instance_name:
         description:
           - The name of the EC2 instance to be created.
         required: true
         type: str
-      ec2_instance_create_delete_instance_type:
+      manage_ec2_instance_instance_type:
         description:
-          - The instance type for the EC2 instance. Required when `ec2_instance_create_delete_operation` is `true`.
+          - The instance type for the EC2 instance. Required when `manage_ec2_instance_operation` is `create`.
         required: false
         type: str
-      ec2_instance_create_delete_ami_id:
+      manage_ec2_instance_ami_id:
         description:
-          - The AMI ID for the EC2 instance. Required when `ec2_instance_create_delete_operation` is `true`.
+          - The AMI ID for the EC2 instance. Required when `manage_ec2_instance_operation` is `create`.
         required: false
         type: str
-      ec2_instance_create_delete_key_name:
+      manage_ec2_instance_key_name:
         description:
-          - The name of the key pair to use for SSH access to the EC2 instance. If the key does not exist, a key pair will be created with the name. If not provided, instance will not be accessible via SSH. If provided when `ec2_instance_create_delete_operation` is `delete`, the keypair will also be deleted.
+          - The name of the key pair to use for SSH access to the EC2 instance. If the key does not exist, a key pair will be created with the name. If not provided, instance will not be accessible via SSH. If provided when `manage_ec2_instance_operation` is `delete`, the keypair will also be deleted.
         required: false
         type: str
-      ec2_instance_create_delete_vpc_subnet_id:
+      manage_ec2_instance_vpc_subnet_id:
         description:
           - The ID of the VPC subnet in which the instance will be launched. If not provided, instance will be created in the default subnet for the default VPC in the AWS region, if present.
         required: false
         type: str
-      ec2_instance_create_delete_tags:
+      manage_ec2_instance_tags:
         description:
           - A dictionary of tags to assign to the EC2 instance.
         required: false
         type: dict
-      ec2_instance_create_delete_wait_for_state:
+      manage_ec2_instance_wait_for_state:
         description:
           - Whether to wait for the EC2 instance to be in the running/terminated state before continuing.
         required: false
         default: true
         type: bool
-      ec2_instance_create_delete_associate_security_groups:
+      manage_ec2_instance_associate_security_groups:
         description:
           - List of security group names or IDs to associate with the EC2 instance.
         required: false
         type: list
         elements: str
-      ec2_instance_create_delete_associate_eip:
+      manage_ec2_instance_associate_eip:
         description:
           - Whether to create and associate an Elastic IP (EIP) with the EC2 instance.
         required: false
         default: false
         type: bool
-      ec2_instance_create_delete_eip_tags:
+      manage_ec2_instance_eip_tags:
         description:
           - Tags to assign to the Elastic IP.
         required: false
