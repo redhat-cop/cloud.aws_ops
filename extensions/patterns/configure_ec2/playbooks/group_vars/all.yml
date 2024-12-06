@@ -15,6 +15,6 @@ allow_external_access_sg_rules:
   - proto: tcp
     ports: 80
     cidr_ip: 0.0.0.0/0
-  - ports: tcp
+  - proto: tcp
     ports: 443
     cidr_ip: 0.0.0.0/0
