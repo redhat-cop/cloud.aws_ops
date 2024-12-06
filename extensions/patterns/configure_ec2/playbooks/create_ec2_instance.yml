@@ -44,15 +44,15 @@
 
     - name: Create EC2 instance
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
       vars:
-        ec2_instance_create_delete_operation: create
-        ec2_instance_create_delete_instance_name: "{{ instance_name }}"
-        ec2_instance_create_delete_instance_type: "{{ instance_type }}"
-        ec2_instance_create_delete_ami_id: "{{ ami_id }}"
-        ec2_instance_create_delete_key_name: "{{ key_name }}"
-        ec2_instance_create_delete_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
-        ec2_instance_create_delete_wait_for_state: "{{ wait_for_state | bool }}"
-        ec2_instance_create_delete_associate_security_groups: "{{ [sg_name] }}"
-        ec2_instance_create_delete_associate_eip: "{{ create_external_access_resources }}"
-        ec2_instance_create_delete_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"
+        manage_ec2_instance_operation: create
+        manage_ec2_instance_instance_name: "{{ instance_name }}"
+        manage_ec2_instance_instance_type: "{{ instance_type }}"
+        manage_ec2_instance_ami_id: "{{ ami_id }}"
+        manage_ec2_instance_key_name: "{{ key_name }}"
+        manage_ec2_instance_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
+        manage_ec2_instance_wait_for_state: "{{ wait_for_state | bool }}"
+        manage_ec2_instance_associate_security_groups: "{{ [sg_name] }}"
+        manage_ec2_instance_associate_eip: "{{ create_external_access_resources }}"
+        manage_ec2_instance_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"

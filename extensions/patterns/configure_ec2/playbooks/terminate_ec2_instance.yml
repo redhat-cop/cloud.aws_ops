@@ -6,15 +6,15 @@
     group/aws:
       aws_region: "{{ aws_region }}"
   tasks:
-    - name: Set ec2_instance_create_delete role vars
+    - name: Set manage_ec2_instance role vars
       ansible.builtin.set_fact:
-        ec2_instance_create_delete_operation: delete
-        ec2_instance_create_delete_instance_name: "{{ instance_name }}"
-        ec2_instance_create_delete_key_name: "{{ key_name | default(omit, true) }}"
+        manage_ec2_instance_operation: delete
+        manage_ec2_instance_instance_name: "{{ instance_name }}"
+        manage_ec2_instance_key_name: "{{ key_name | default(omit, true) }}"
 
     - name: Delete EC2 instance
       ansible.builtin.include_role:
-        name: cloud.aws_ops.ec2_instance_create_delete
+        name: cloud.aws_ops.manage_ec2_instance
 
     - name: Delete networking resources
       ansible.builtin.include_role:
