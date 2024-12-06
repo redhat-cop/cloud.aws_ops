@@ -19,3 +19,9 @@ spec:
     question_description: Name of key pair for instance, include to delete key pair created with other instance resources. Defaults to '{{ instance_name }}-key'
     variable: key_name
     required: false
+
+  - type: text
+    question_name: VPC Name
+    question_description: Name of the VPC to delete, include to delete VPC and associated networking resources created for instance. Defaults to '{{instance_name}}-vpc'
+    variable: vpc_name
+    required: false
