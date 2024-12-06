@@ -1,0 +1,21 @@
+---
+name: Terminate EC2 Instance Survey
+description: Survey to configure the EC2 instance termination pattern
+spec:
+  - type: text
+    question_name: AWS Region
+    question_description: Name of AWS region to create instance in
+    variable: aws_region
+    required: true
+
+  - type: text
+    question_name: Instance Name
+    question_description: Name of EC2 instance
+    variable: instance_name
+    required: true
+
+  - type: text
+    question_name: Key Pair Name
+    question_description: Name of key pair for instance, include to delete key pair created with other instance resources. Defaults to '{{ instance_name }}-key'
+    variable: key_name
+    required: false

@@ -1,0 +1,20 @@
+key_name: "{{ instance_name }}-key"
+wait_for_state: true
+vpc_name: "{{instance_name}}-vpc"
+vpc_cidr: 10.0.0.0/24
+subnet_cidr: 10.0.0.0/25
+sg_name: "{{ instance_name }}-sg"
+sg_description: "Security group for EC2 instance {{ instance_name }}"
+sg_rules:
+  - proto: tcp
+    ports: 22
+    cidr_ip: "{{ vpc_cidr }}"
+external_access: true
+create_external_access_resources: "{{ external_access | bool }}"
+allow_external_access_sg_rules:
+  - proto: tcp
+    ports: 80
+    cidr_ip: 0.0.0.0/0
+  - ports: tcp
+    ports: 443
+    cidr_ip: 0.0.0.0/0

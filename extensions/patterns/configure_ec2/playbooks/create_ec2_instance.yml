@@ -1,0 +1,58 @@
+---
+- name: Create EC2 instance
+  hosts: localhost
+  gather_facts: false
+  module_defaults:
+    group/aws:
+      aws_region: "{{ aws_region }}"
+  tasks:
+    - name: Get security group rules list from string input
+      ansible.builtin.set_fact:
+        sg_rules_list: "{{ sg_rules | from_yaml }}"
+
+    - name: Add external access rules to security group rules if needed
+      ansible.builtin.set_fact:
+        final_sg_rules: "{{ create_external_access_resources | ternary(sg_rules_list + allow_external_access_sg_rules, sg_rules_list) }}"
+
+    - name: Get RHEL 9 AMI ID if needed
+      when: ami_id | default("", true) == ""
+      block:
+        - name: Get RHEL-9 images
+          amazon.aws.ec2_ami_info:
+            filters:
+              architecture: x86_64
+              name: "RHEL-9*"
+            owner:
+              - amazon
+          register: images
+        - name: Update ami_id variable
+          ansible.builtin.set_fact:
+            ami_id: "{{ (images.images | sort(attribute='name') | last).image_id }}"
+
+    - name: Create networking resources
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_networking_resources
+      vars:
+        ec2_networking_resources_operation: create
+        ec2_networking_resources_vpc_name: "{{ vpc_name }}"
+        ec2_networking_resources_vpc_cidr_block: "{{ vpc_cidr }}"
+        ec2_networking_resources_subnet_cidr_block: "{{ subnet_cidr }}"
+        ec2_networking_resources_sg_name: "{{ sg_name }}"
+        ec2_networking_resources_sg_description: "{{ sg_description }}"
+        ec2_networking_resources_sg_rules: "{{ final_sg_rules }}"
+        ec2_networking_resources_create_igw: "{{ create_external_access_resources }}"
+
+    - name: Create EC2 instance
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_instance_create_delete
+      vars:
+        ec2_instance_create_delete_operation: create
+        ec2_instance_create_delete_instance_name: "{{ instance_name }}"
+        ec2_instance_create_delete_instance_type: "{{ instance_type }}"
+        ec2_instance_create_delete_ami_id: "{{ ami_id }}"
+        ec2_instance_create_delete_key_name: "{{ key_name }}"
+        ec2_instance_create_delete_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
+        ec2_instance_create_delete_wait_for_state: "{{ wait_for_state | bool }}"
+        ec2_instance_create_delete_associate_security_groups: "{{ [ sg_name ] }}"
+        ec2_instance_create_delete_associate_eip: "{{ create_external_access_resources }}"
+        ec2_instance_create_delete_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"
