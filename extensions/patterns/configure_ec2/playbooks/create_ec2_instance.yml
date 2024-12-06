@@ -53,6 +53,6 @@
         ec2_instance_create_delete_key_name: "{{ key_name }}"
         ec2_instance_create_delete_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
         ec2_instance_create_delete_wait_for_state: "{{ wait_for_state | bool }}"
-        ec2_instance_create_delete_associate_security_groups: "{{ [ sg_name ] }}"
+        ec2_instance_create_delete_associate_security_groups: "{{ [sg_name] }}"
         ec2_instance_create_delete_associate_eip: "{{ create_external_access_resources }}"
         ec2_instance_create_delete_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"
