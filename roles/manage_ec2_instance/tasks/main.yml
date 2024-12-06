@@ -1,0 +1,12 @@
+---
+- name: EC2 Instance creation or deletion based on operation
+  module_defaults:
+    group/aws: "{{ aws_setup_credentials__output }}"
+  block:
+    - name: Include create operations
+      ansible.builtin.include_tasks: ec2_instance_create_operations.yml
+      when: manage_ec2_instance_operation == 'create'
+
+    - name: Include delete operations
+      ansible.builtin.include_tasks: ec2_instance_delete_operations.yml
+      when: manage_ec2_instance_operation == 'delete'
