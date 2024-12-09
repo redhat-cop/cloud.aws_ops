@@ -1,0 +1,24 @@
+---
+- name: Terminate EC2 instance
+  hosts: localhost
+  gather_facts: false
+  module_defaults:
+    group/aws:
+      aws_region: "{{ aws_region }}"
+  tasks:
+    - name: Set manage_ec2_instance role vars
+      ansible.builtin.set_fact:
+        manage_ec2_instance_operation: delete
+        manage_ec2_instance_instance_name: "{{ instance_name }}"
+        manage_ec2_instance_key_name: "{{ key_name | default(omit, true) }}"
+
+    - name: Delete EC2 instance
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.manage_ec2_instance
+
+    - name: Delete networking resources
+      ansible.builtin.include_role:
+        name: cloud.aws_ops.ec2_networking_resources
+      vars:
+        ec2_networking_resources_operation: delete
+        ec2_networking_resources_vpc_name: "{{ vpc_name }}"
