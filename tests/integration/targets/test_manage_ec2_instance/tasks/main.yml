@@ -1,0 +1,21 @@
+---
+- name: Integration tests for manage_ec2_instance role
+  module_defaults:
+    group/aws:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      security_token: "{{ security_token | default(omit) }}"
+      region: "{{ aws_region }}"
+  block:
+    - name: Create resources required for test
+      ansible.builtin.include_tasks: setup.yml
+
+    - name: Run tests for case 1 - EC2 instance with required options only
+      ansible.builtin.include_tasks: tasks/test_ec2_required_options.yml
+
+    - name: Run tests for case 2 - EC2 instance with all options
+      ansible.builtin.include_tasks: tasks/test_ec2_all_options.yml
+
+  always:
+    - name: Delete any leftover resources used in tests
+      ansible.builtin.include_tasks: teardown.yml
