@@ -47,7 +47,6 @@
   amazon.aws.ec2_eip:
     device_id: "{{ ec2_instance.instance_ids[0] }}"
     state: present
-    release_on_disassociation: true
   register: instance_eip
 
 - name: Get EC2 instance info
