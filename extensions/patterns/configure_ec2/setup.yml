@@ -12,12 +12,12 @@ controller_labels:
 controller_projects:
   - name: AWS Operations / Configure EC2 Instance Pattern Project
     organization: "{{ organization | default('Default') }}"
-    scm_branch: main
+    scm_branch: backstage-templates
     scm_clean: false
     scm_delete_on_update: false
     scm_type: git
     scm_update_on_launch: true
-    scm_url: https://github.com/redhat-cop/cloud.aws_ops.git
+    scm_url: https://github.com/kcagran/cloud.aws_ops.git
 
 controller_templates:
   - name: AWS Operations / Create EC2 Instance
