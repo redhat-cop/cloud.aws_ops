@@ -29,7 +29,7 @@ controller_templates:
     project: AWS Operations / Configure EC2 Instance Pattern Project
     playbook: extensions/patterns/configure_ec2/playbooks/create_ec2_instance.yml
     job_type: run
-    organization: "{{ organization }}"
+    organization: "{{ organization | default('Default') }}"
     labels:
       - cloud.aws_ops
       - configure_ec2_pattern
@@ -46,7 +46,7 @@ controller_templates:
     project: AWS Operations / Configure EC2 Instance Pattern Project
     playbook: extensions/patterns/configure_ec2/playbooks/terminate_ec2_instance.yml
     job_type: run
-    organization: "{{ organization }}"
+    organization: "{{ organization | default('Default') }}"
     labels:
       - cloud.aws_ops
       - configure_ec2_pattern
