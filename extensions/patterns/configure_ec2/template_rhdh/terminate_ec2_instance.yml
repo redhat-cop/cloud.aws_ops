@@ -1,0 +1,108 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: cloud-terminate-ec2
+  title: AWS Operations / Terminate EC2 Instance
+  description: This wizard will guide you on how to terminate EC2 instance in the Amazon cloud
+  namespace: default
+  tags:
+    - aap-operations
+    - intermediate
+    - cloud-aws-ops
+    - configure-ec2-pattern
+    - terminate-ec2-instance
+spec:
+  type: service
+  parameters:
+    - title: Prompts
+      description: Terminate EC2 instance in the Amazon cloud
+      required:
+        - token
+        - inventory
+      properties:
+        token:
+          title: Token
+          type: string
+          description: Oauth2 token
+          ui:field: AAPTokenField
+          ui:widget: password
+          ui:backstage:
+            review:
+              show: false
+        inventory:
+          title: Inventory
+          description: Please enter the inventory you want to use the services on
+          resource: inventories
+          ui:field: AAPResourcePicker
+        credentials:
+          title: Credentials
+          description: Select credentials for accessing the nodes this job will be ran
+            against. You can only select one credential of each type. For
+            machine credentials (SSH), checking "Prompt on launch" without
+            selecting credentials will require you to select a machine
+            credential at run time. If you select credentials and check "Prompt
+            on launch", the selected credential(s) become the defaults that can
+            be updated at run time.
+          type: array
+          ui:field: AAPResourcePicker
+          resource: credentials
+        verbosity:
+          title: Verbosity
+          description: Control the level of output Ansible will produce as the playbook executes.
+          resource: verbosity
+          ui:field: AAPResourcePicker
+    - title: Survey
+      required:
+        - aws_region
+        - instance_name
+      description: Terminate EC2 instance in the Amazon cloud
+      properties:
+        aws_region:
+          title: AWS Region
+          description: AWS region where resources should be created
+          type: string
+          ui:options:
+            rows: 5
+        instance_name:
+          title: Instance Name
+          description: Name of EC2 instance to create
+          type: string
+          ui:options:
+            rows: 5
+        key_name:
+          title: Key Pair Name
+          description: Name of key pair to use or create for SSH access to the EC2 instance. Defaults to '{{ instance_name }}-key'
+          type: string
+          ui:options:
+            rows: 5
+        vpc_name:
+          title: VPC Name
+          description: Name of the VPC to create. Defaults to '{{instance_name}}-vpc'
+          type: string
+          ui:options:
+            rows: 5
+  steps:
+    - id: launch-job
+      name: Launch AWS Operations / Terminate EC2 Instance
+      action: rhaap:launch-job-template
+      input:
+        token: ${{ parameters.token }}
+        values:
+          inventory: ${{ parameters.inventory  }}
+          credentials: ${{ parameters.credentials }}
+          verbosity: ${{parameters.verbosity}}
+          extraVariables:
+            aws_region: ${{ parameters.aws_region  }}
+            instance_name: ${{ parameters.instance_name  }}
+            key_name: ${{ parameters.key_name  }}
+            vpc_name: ${{ parameters.vpc_name  }}
+  output:
+    text:
+      - title: AWS Operations / Terminate EC2 Instance template executed
+          successfully
+        content: |
+          **Job ID:** ${{ steps['launch-job'].output.data.id }}
+          **Job STATUS:** ${{ steps['launch-job'].output.data.status }}
+    links:
+      - title: View in RH AAP
+        url: ${{ steps['launch-job'].output.data.url }}
