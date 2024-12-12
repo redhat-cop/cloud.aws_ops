@@ -4,6 +4,12 @@
 
 This pattern is designed to help get an EC2 instance up and running.
 
+To enable SSH access to the EC2 instance from your local machine, you need to do 2 things:
+
+1. **Provide a Key Name**: Enter a key name in the **key_name** parameter in the survey. A new key will be created (or an existing key with the specified namewill be used) and associated with the EC2 instance. Be sure to save the private key value provided at the end of the job run, as you'll need it for future access to the instance.
+
+2. **Add a Security Group Rule for SSH Access**: Configure a security group rule to allow inbound SSH traffic from your local machine's IP address. Provide this rule in the **sg_rules** parameter in the survey.
+
 ## What This Pattern Covers
 
 ### Projects
