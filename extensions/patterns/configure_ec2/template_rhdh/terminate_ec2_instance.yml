@@ -54,25 +54,25 @@ spec:
       properties:
         aws_region:
           title: AWS Region
-          description: AWS region where resources should be created
+          description: AWS region where resources should be deleted
           type: string
           ui:options:
             rows: 5
         instance_name:
           title: Instance Name
-          description: Name of EC2 instance to create
+          description: Name of EC2 instance to delete
           type: string
           ui:options:
             rows: 5
         key_name:
           title: Key Pair Name
-          description: Name of key pair to use or create for SSH access to the EC2 instance. Defaults to '{{ instance_name }}-key'
+          description: Name of key pair to delete for SSH access to the EC2 instance. Defaults to '{{ instance_name }}-key'
           type: string
           ui:options:
             rows: 5
         vpc_name:
           title: VPC Name
-          description: Name of the VPC to create. Defaults to '{{instance_name}}-vpc'
+          description: Name of the VPC to delete. Defaults to '{{instance_name}}-vpc'
           type: string
           ui:options:
             rows: 5
