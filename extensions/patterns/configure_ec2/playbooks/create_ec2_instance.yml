@@ -17,7 +17,7 @@
     - name: Set manage_ec2_instance_key_name role var
       ansible.builtin.set_fact:
         manage_ec2_instance_key_name: "{{ key_name }}"
-      when: key_name is defined
+      when: key_name is defined and key_name != ''
 
     - name: Get RHEL 9 AMI ID if needed
       when: ami_id | default("", true) == ""
@@ -33,7 +33,7 @@
         - name: Update ami_id variable
           ansible.builtin.set_fact:
             ami_id: "{{ (images.images | sort(attribute='name') | last).image_id }}"
-    
+
     - name: Create networking resources
       ansible.builtin.include_role:
         name: cloud.aws_ops.ec2_networking_resources
