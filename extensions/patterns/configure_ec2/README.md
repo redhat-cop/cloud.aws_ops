@@ -16,8 +16,6 @@ To enable SSH access to the EC2 instance from your local machine, you need to do
     cidr_ip: 203.0.113.0/3
 ```
 
-_Warning_: Please be aware that anyone with access to the job output will be able to view the key.
-
 ## What This Pattern Covers
 
 ### Projects
