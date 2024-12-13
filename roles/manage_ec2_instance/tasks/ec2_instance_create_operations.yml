@@ -21,7 +21,6 @@
         names:
           - "{{ manage_ec2_instance_key_name }}"
       register: key_info_result
-      no_log: true
 
     - name: Create new key pair
       amazon.aws.ec2_key:

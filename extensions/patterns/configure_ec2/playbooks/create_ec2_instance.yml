@@ -21,12 +21,12 @@
           amazon.aws.ec2_key_info:
             names:
               - "{{ key_name }}"
-          register: key_info_result
+          register: pattern_key_info_result
 
         - name: Set manage_ec2_instance_key_name role var
           ansible.builtin.set_fact:
             manage_ec2_instance_key_name: "{{ key_name }}"
-          when: key_info_result.keypairs | length > 0
+          when: pattern_key_info_result.keypairs | length > 0
 
     - name: Get RHEL 9 AMI ID if needed
       when: ami_id | default("", true) == ""
@@ -73,5 +73,5 @@
 
     - name: Warn if key does not exist
       ansible.builtin.debug:
-        msg: "Warning: The key '{{ key_name }}' does not exist!"
-      when: key_name is defined and key_info_result.keypairs | length == 0
+        msg: "Warning: The provided key '{{ key_name }}' does not exist!"
+      when: key_name is defined and pattern_key_info_result.keypairs | length == 0
