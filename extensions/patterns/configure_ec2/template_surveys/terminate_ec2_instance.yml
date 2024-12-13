@@ -16,7 +16,7 @@ spec:
 
   - type: text
     question_name: Key Pair Name
-    question_description: Name of key pair for instance, include to delete key pair created with other instance resources. Defaults to '{{ instance_name }}-key'
+    question_description: Name of key pair for instance, include to delete key pair created with other instance resources.
     variable: key_name
     required: false
 
