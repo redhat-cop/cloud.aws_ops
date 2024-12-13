@@ -6,7 +6,7 @@ Users can specify various parameters for instance configuration, including insta
 
 This role can be combined with the [cloud.aws_ops.ec2_networking_resources role](../ec2_networking_resources/README.md) to create/delete networking resources for the instance, see [examples](#examples).
 
-EC2 instance details and the private key (if a key pair is created) will be displayed as role output. The instance and key pair details are accessible via variables `ec2_instance_manage_create_result` and `ec2_instance_manage_key_pair_result`, respectively.
+The instance and key pair details are accessible via variables `ec2_instance_manage_create_result` and `ec2_instance_manage_key_pair_result`, respectively.
 
 ## Requirements
 
