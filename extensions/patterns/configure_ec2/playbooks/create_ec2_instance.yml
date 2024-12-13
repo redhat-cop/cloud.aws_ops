@@ -14,10 +14,19 @@
       ansible.builtin.set_fact:
         final_sg_rules: "{{ create_external_access_resources | ternary(sg_rules_list + allow_external_access_sg_rules, sg_rules_list) }}"
 
-    - name: Set manage_ec2_instance_key_name role var
-      ansible.builtin.set_fact:
-        manage_ec2_instance_key_name: "{{ key_name }}"
+    - name: Validate key "{{ key_name }}" if given
       when: key_name is defined and key_name != ''
+      block:
+      - name: Check if the key "{{ key_name }}" exists
+        amazon.aws.ec2_key_info:
+          names:
+            - "{{ key_name }}"
+        register: key_info_result
+
+      - name: Set manage_ec2_instance_key_name role var
+        ansible.builtin.set_fact:
+          manage_ec2_instance_key_name: "{{ key_name }}"
+        when: key_info_result.keypairs | length > 0
 
     - name: Get RHEL 9 AMI ID if needed
       when: ami_id | default("", true) == ""
@@ -30,6 +39,7 @@
             owner:
               - amazon
           register: images
+
         - name: Update ami_id variable
           ansible.builtin.set_fact:
             ami_id: "{{ (images.images | sort(attribute='name') | last).image_id }}"
@@ -61,7 +71,7 @@
         manage_ec2_instance_associate_eip: "{{ create_external_access_resources }}"
         manage_ec2_instance_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"
 
-    - name: Output private key if a new keypair was created
-      when: ec2_instance_manage_key_pair_result.key is defined
+    - name: Warn if key "{{ key_name }} does not exist
       ansible.builtin.debug:
-        msg: "A new key pair was created for ssh access to the instance. Please save this private key for reference: {{ ec2_instance_manage_key_pair_result.key.private_key }}"
+        msg: "Warning: The key '{{ key_name }}' does not exist!"
+      when: key_name is defined and key_info_result.keypairs | length == 0
