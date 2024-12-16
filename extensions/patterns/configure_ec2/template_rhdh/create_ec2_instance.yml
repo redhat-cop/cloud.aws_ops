@@ -79,7 +79,7 @@ spec:
             rows: 5
         key_name:
           title: Key Pair Name
-          description: Name of key pair to use or create for SSH access to the EC2 instance. Defaults to '{{ instance_name }}-key'
+          description: Name of key pair to use for SSH access to the EC2 instance. If the key does not exist or is not provided, the instance will not be accessible via SSH.
           type: string
           ui:options:
             rows: 5
