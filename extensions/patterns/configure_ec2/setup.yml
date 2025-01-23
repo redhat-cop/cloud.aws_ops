@@ -57,5 +57,5 @@ controller_templates:
 controller_execution_environments:
   - name: AWS Operations / Configure EC2 Instance Pattern Execution Environment
     description: Execution environment for the Configure EC2 Instance Pattern
-    image: docker.io/hakbailey/aws_ops-ee:latest
+    image: quay.io/abikouo1/ee/cloud-awsops:latest
     pull: always
