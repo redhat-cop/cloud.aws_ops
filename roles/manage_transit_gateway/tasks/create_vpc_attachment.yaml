@@ -1,6 +1,6 @@
 ---
 - name: Create VPC attachment
-  community.aws.ec2_transit_gateway_vpc_attachment:
+  amazon.aws.ec2_transit_gateway_vpc_attachment:
     state: present
     name: "{{ item.name }}"
     transit_gateway: "{{ manage_transit_gateway_tgw_result.transit_gateway.transit_gateway_id }}"

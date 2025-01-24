@@ -2,7 +2,7 @@
 - name: Run create_tgw_attach_vpc role
   block:
     - name: Create  transit gateway
-      community.aws.ec2_transit_gateway:
+      amazon.aws.ec2_transit_gateway:
         state: present
         description: "{{ manage_transit_gateway_transit_gateway.description }}"
         asn: "{{ manage_transit_gateway_transit_gateway.asn }}"
