@@ -1,0 +1,49 @@
+---
+- name: Setup
+  block:
+    - name: Get AMI image ID using filters
+      amazon.aws.ec2_ami_info:
+        filters:
+          architecture: x86_64
+          # CentOS Community Platform Engineering (CPE)
+          owner-id: "125523088429"
+          virtualization-type: hvm
+          root-device-type: ebs
+          name: Fedora-Cloud-Base-*
+      register: images
+      # very spammy
+      no_log: true
+
+    - name: Create vpc to work in
+      amazon.aws.ec2_vpc_net:
+        cidr_block: "{{ test_vpc_cidr }}"
+        name: "{{ test_vpc_name }}"
+        state: present
+      register: vpc
+
+    - name: Create EC2 subnet
+      amazon.aws.ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        cidr: "{{ test_subnet_cidr }}"
+        az: "{{ aws_region }}a"
+        region: "{{ aws_region }}"
+      register: subnet
+
+    - name: Create security group
+      amazon.aws.ec2_security_group:
+        vpc_id: "{{ vpc.vpc.id }}"
+        name: "{{ test_security_group_name }}"
+        description: "Test security group for cloud.aws_ops.manage_ec2_instance role"
+
+    - name: Create internet gateway
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
+        state: present
+      register: gateway
+
+    - name: Set facts for test resources
+      ansible.builtin.set_fact:
+        gateway_id: "{{ gateway.gateway_id }}"
+        image_id: "{{ images.images.0.image_id }}"
+        subnet_id: "{{ subnet.subnet.id }}"
+        vpc_id: "{{ vpc.vpc.id }}"
