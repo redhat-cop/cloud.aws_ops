@@ -14,6 +14,20 @@
       ansible.builtin.set_fact:
         final_sg_rules: "{{ create_external_access_resources | ternary(sg_rules_list + allow_external_access_sg_rules, sg_rules_list) }}"
 
+    - name: Validate key if given
+      when: key_name is defined and key_name != ''
+      block:
+        - name: Check if the key exists
+          amazon.aws.ec2_key_info:
+            names:
+              - "{{ key_name }}"
+          register: key_info_result
+
+        - name: Set manage_ec2_instance_key_name role var
+          ansible.builtin.set_fact:
+            manage_ec2_instance_key_name: "{{ key_name }}"
+          when: key_info_result.keypairs | length > 0
+
     - name: Get RHEL 9 AMI ID if needed
       when: ami_id | default("", true) == ""
       block:
@@ -25,6 +39,7 @@
             owner:
               - amazon
           register: images
+
         - name: Update ami_id variable
           ansible.builtin.set_fact:
             ami_id: "{{ (images.images | sort(attribute='name') | last).image_id }}"
@@ -50,9 +65,13 @@
         manage_ec2_instance_instance_name: "{{ instance_name }}"
         manage_ec2_instance_instance_type: "{{ instance_type }}"
         manage_ec2_instance_ami_id: "{{ ami_id }}"
-        manage_ec2_instance_key_name: "{{ key_name }}"
         manage_ec2_instance_vpc_subnet_id: "{{ ec2_networking_resources_subnet_result.subnet.id }}"
         manage_ec2_instance_wait_for_state: "{{ wait_for_state | bool }}"
         manage_ec2_instance_associate_security_groups: "{{ [sg_name] }}"
         manage_ec2_instance_associate_eip: "{{ create_external_access_resources }}"
         manage_ec2_instance_instance_tags: "{{ instance_tags | default('{}', true) | from_json }}"
+
+    - name: Warn if key does not exist
+      ansible.builtin.debug:
+        msg: "Warning: The key '{{ key_name }}' does not exist!"
+      when: key_name is defined and key_info_result.keypairs | length == 0
