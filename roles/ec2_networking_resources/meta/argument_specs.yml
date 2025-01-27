@@ -1,6 +1,7 @@
 ---
 argument_specs:
   main:
+    version_added: 3.1.0
     short_description: A role to create a basic networking environment for an EC2 instance.
     description:
       - A role to create a basic networking environment for an EC2 instance.
