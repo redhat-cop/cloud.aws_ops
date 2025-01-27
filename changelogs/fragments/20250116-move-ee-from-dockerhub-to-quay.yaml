@@ -1,3 +1,0 @@
----
-minor_changes:
-  - Move EE use for configure_ec2 pattern from DockerHub to quay.io (https://github.com/redhat-cop/cloud.aws_ops/pull/131).
