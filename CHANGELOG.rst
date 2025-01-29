@@ -4,6 +4,24 @@ CHANGE THIS IN changelogs/config.yaml! Release Notes
 
 .. contents:: Topics
 
+v3.1.0
+======
+
+Release Summary
+---------------
+
+This release adds a new role ``ec2_networking_resources`` and a pattern for creating an ec2 instance.
+
+Minor Changes
+-------------
+
+- update FQCN for modules that were migrated from community.aws to amazon.aws (https://github.com/redhat-cop/cloud.aws_ops/pull/120).
+
+New Roles
+---------
+
+- ec2_networking_resources - A role to create a basic networking environment for an EC2 instance.
+
 v3.0.0
 ======
 
