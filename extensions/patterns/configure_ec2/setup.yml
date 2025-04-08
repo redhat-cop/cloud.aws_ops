@@ -18,6 +18,7 @@ controller_projects:
     scm_type: git
     scm_update_on_launch: true
     scm_url: https://github.com/redhat-cop/cloud.aws_ops.git
+    credential: "{{ credential | default(omit, true) }}"
 
 controller_templates:
   - name: AWS Operations / Create EC2 Instance
