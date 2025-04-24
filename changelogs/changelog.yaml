@@ -241,3 +241,14 @@ releases:
         name: ec2_networking_resources
         namespace: null
     release_date: '2025-01-27'
+  3.2.0:
+    changes:
+      minor_changes:
+      - Add an optional credential field to support attaching an SCM credential when
+        creating controller_projects. (https://github.com/redhat-cop/cloud.aws_ops/pull/156)
+      release_summary: This release adds an optional credential field to contoller_projects
+        in ``configure_ec2`` pattern.
+    fragments:
+    - 2025-04-11_controller_project_credential_field.yml
+    - 3.2.0.yml
+    release_date: '2025-05-06'
