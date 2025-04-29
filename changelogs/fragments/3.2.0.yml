@@ -1,1 +1,0 @@
-release_summary: This release adds an optional credential field to contoller_projects in ``configure_ec2`` pattern and updates ansible-lint version.
