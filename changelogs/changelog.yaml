@@ -253,4 +253,4 @@ releases:
     - 2025-04-11_controller_project_credential_field.yml
     - 3.2.0.yml
     - update_ansible-lint.yml
-    release_date: '2025-04-29'
+    release_date: '2025-05-06'
