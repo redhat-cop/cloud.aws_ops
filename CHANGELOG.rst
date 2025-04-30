@@ -4,6 +4,21 @@ CHANGE THIS IN changelogs/config.yaml! Release Notes
 
 .. contents:: Topics
 
+
+v3.2.0
+======
+
+Release Summary
+---------------
+
+This release adds an optional credential field to contoller_projects in ``configure_ec2`` pattern and updates ansible-lint version.
+
+Minor Changes
+-------------
+
+- Add an optional credential field to support attaching an SCM credential when creating controller_projects. (https://github.com/redhat-cop/cloud.aws_ops/pull/156)
+- Bump version of ansible-lint to 25.1.2 (https://github.com/redhat-cop/cloud.aws_ops/pull/159).
+
 v3.1.0
 ======
 
