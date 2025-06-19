@@ -4,7 +4,7 @@
     group/aws:
       aws_access_key: "{{ aws_access_key | default(omit) }}"
       aws_secret_key: "{{ aws_secret_key | default(omit) }}"
-      session_token: "{{ session_token | default(omit) }}"
+      session_token: "{{ security_token | default(omit) }}"
   block:
     - name: Get security group id - primary region
       amazon.aws.ec2_security_group_info:

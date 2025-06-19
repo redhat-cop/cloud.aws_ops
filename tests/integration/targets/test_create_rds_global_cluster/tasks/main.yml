@@ -4,12 +4,12 @@
     group/amazon.cloud.aws:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      session_token: "{{ session_token | default(omit) }}"
+      session_token: "{{ security_token | default(omit) }}"
       region: "{{ aws_region }}"
     group/aws:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-      session_token: "{{ session_token | default(omit) }}"
+      session_token: "{{ security_token | default(omit) }}"
       region: "{{ aws_region }}"
 
   # Due to CI limitations, it is not possible to create a replica in another region

@@ -1,6 +1,6 @@
 ---
 # defaults file for manage_vpc_peering role
-aws_session_token: '{{ session_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 
 test_vpc_name_1: "{{ resource_prefix }}-vpc-1"
 test_vpc_cidr_1: '172.{{ 255 | random(seed=resource_prefix) }}.0.0/28'

@@ -1,4 +1,4 @@
 ---
-aws_session_token: '{{ session_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 s3_bucket_name: "s3-{{ resource_prefix }}"
 cloud_trail_name: "trail-{{ resource_prefix }}"
