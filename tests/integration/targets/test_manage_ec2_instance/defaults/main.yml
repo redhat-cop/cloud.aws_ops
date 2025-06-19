@@ -1,5 +1,5 @@
 ---
-aws_security_token: "{{ security_token | default(omit) }}"
+aws_session_token: "{{ session_token | default(omit) }}"
 
 # Network Configuration
 test_vpc_name: "{{ resource_prefix }}-vpc"

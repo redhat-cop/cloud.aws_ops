@@ -1,5 +1,5 @@
 ---
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ session_token | default(omit) }}'
 plan_name: "{{ resource_prefix }}-plan"
 selection_name: "{{ resource_prefix }}-selection"
 selection_two: "{{ resource_prefix }}-selection-2"

@@ -27,12 +27,11 @@ N/A
     - AWS_SECRET_ACCESS_KEY
     - AWS_SECRET_KEY
     - EC2_SECRET_KEY.
-- **aws_security_token**:
-  - The AWS security token if using temporary access and secret keys.
+- **aws_session_token**:
+  - The AWS session token if using temporary access and secret keys.
   - Mutually exclusive with option aws_profile.
   - Environment variable:
     - AWS_SECURITY_TOKEN
-    - EC2_SECURITY_TOKEN
 - **aws_ca_bundle**:
   - The location of a CA Bundle to use when validating SSL certificates.
   - Environment variable:
@@ -43,7 +42,7 @@ N/A
     - AWS_VALIDATE_CERTS
 - **aws_profile**:
   - The AWS profile to use.
-  - Mutually exclusive with the aws_access_key, aws_secret_key and aws_security_token options.
+  - Mutually exclusive with the aws_access_key, aws_secret_key and aws_session_token options.
   - Environment variable:
     - AWS_PROFILE
     - AWS_DEFAULT_PROFILE.

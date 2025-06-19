@@ -92,7 +92,7 @@ To delete the webapp:
 * **aws_region** (str): (Required) AWS region in which to create webapp resources
 * **dest_region** (str): AWS region to migrate the webapp to, only used when migrating an existing webapp
 * **delete_source** (bool): Whether to delete the source region webapp resources when migrating an existing webapp. Default: `false`
-* **security_token** (str): Security token for AWS session authentication
+* **session_token** (str): Session token for AWS session authentication
 
 ### EC2 instance
 

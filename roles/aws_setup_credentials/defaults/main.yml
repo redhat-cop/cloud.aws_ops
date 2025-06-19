@@ -18,11 +18,9 @@ aws_setup_credentials__connection_env:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SECRET_KEY
       - EC2_SECRET_KEY
-  aws_security_token:
+  aws_session_token:
     env:
-      - AWS_SECURITY_TOKEN
       - AWS_SESSION_TOKEN
-      - EC2_SECURITY_TOKEN
   aws_ca_bundle:
     env:
       - AWS_CA_BUNDLE

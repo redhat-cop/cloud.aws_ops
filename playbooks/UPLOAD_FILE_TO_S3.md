@@ -6,7 +6,7 @@ A playbook to upload a local file to S3. When running this playbook the file to 
 
 * **aws_access_key**: The AWS access key to use. _type_: **str**
 * **aws_secret_key**: The AWS secret key that corresponds to the access key. _type_: **str**
-* **aws_security_token**: The AWS security token if using temporary access and secret keys.  _type_: **str**
+* **aws_session_token**: The AWS session token if using temporary access and secret keys.  _type_: **str**
 * **aws_profile**: A named AWS profile to use for authentication.  _type_: **str**
 
 * **upload_file_to_s3_bucket_name**: (Required) Name of an existing bucket to upload file in. _type_: **str**

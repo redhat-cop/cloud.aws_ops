@@ -31,7 +31,7 @@
   community.aws.ec2_vpc_peer:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-    aws_security_token: "{{ security_token | default(omit) }}"
+    aws_session_token: "{{ session_token | default(omit) }}"
     region: "{{ aws_region }}"
     peer_region: "{{ vpc_peering_accepter_region }}"
     vpc_id: "{{ vpc_peering_manage_vpc_peering_requeter_vpc_id }}"

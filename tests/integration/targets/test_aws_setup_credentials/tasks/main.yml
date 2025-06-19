@@ -3,7 +3,7 @@
   ansible.builtin.include_role:
     name: cloud.aws_ops.aws_setup_credentials
   vars:
-    aws_security_token: '{{ security_token | default(omit) }}'
+    aws_session_token: '{{ session_token | default(omit) }}'
 
 - name: Trying calling module using generating credentials
   module_defaults:

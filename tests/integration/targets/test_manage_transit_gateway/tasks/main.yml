@@ -6,7 +6,7 @@
     group/aws:
       aws_access_key: '{{ aws_access_key }}'
       aws_secret_key: '{{ aws_secret_key }}'
-      security_token: '{{ aws_security_token }}'
+      session_token: '{{ aws_session_token }}'
       region: '{{ aws_region }}'
 
   block:
