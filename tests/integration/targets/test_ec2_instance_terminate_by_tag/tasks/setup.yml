@@ -13,7 +13,7 @@
           architecture: x86_64
           virtualization-type: hvm
           root-device-type: ebs
-          name: Fedora-Cloud-Base-37-*
+          name: Fedora-Cloud-Base-39-*
       register: images
       # very spammy
       no_log: true

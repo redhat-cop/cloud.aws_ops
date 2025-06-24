@@ -4,7 +4,7 @@ customized_ami_source_ami_filters:
   architecture: x86_64
   virtualization-type: hvm
   root-device-type: ebs
-  name: Fedora-Cloud-Base-37-*
+  name: Fedora-Cloud-Base-39-*
 customized_ami_source_ami_user_name: fedora
 
 customized_ami_vpc_cidr: 10.1.0.0/16

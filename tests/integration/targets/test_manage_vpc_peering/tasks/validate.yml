@@ -14,4 +14,4 @@
     - name: Validate that VPC peering was found as expected
       ansible.builtin.assert:
         that:
-          - __vpc_peering.result | length == 1
+          - __vpc_peering.vpc_peering_connections | length == 1
