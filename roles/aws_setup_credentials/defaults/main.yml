@@ -7,17 +7,14 @@ aws_setup_credentials__connection_env:
   aws_endpoint_url:
     env:
       - AWS_URL
-      - EC2_URL
   aws_access_key:
     env:
       - AWS_ACCESS_KEY_ID
       - AWS_ACCESS_KEY
-      - EC2_ACCESS_KEY
   aws_secret_key:
     env:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SECRET_KEY
-      - EC2_SECRET_KEY
   aws_session_token:
     env:
       - AWS_SESSION_TOKEN
@@ -31,6 +28,5 @@ aws_setup_credentials__connection_env:
   aws_region:
     env:
       - AWS_REGION
-      - EC2_REGION
   aws_config:
     env: []
