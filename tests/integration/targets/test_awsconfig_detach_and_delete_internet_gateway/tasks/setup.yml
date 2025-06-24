@@ -17,7 +17,7 @@
       ansible.builtin.set_fact:
         test_vpc_id: "{{ vpc.vpc.id }}"
 
-    - name: Create Subnet for EC2 instance
+    - name: Create subnet for EC2 instance
       amazon.aws.ec2_vpc_subnet:
         vpc_id: "{{ test_vpc_id }}"
         cidr: "{{ test_subnet_cidr }}"
@@ -33,7 +33,7 @@
       ansible.builtin.set_fact:
         internet_gateway_id: "{{ igw.gateway_id }}"
 
-    - name: Create Route table for internet gateway (public subnet)
+    - name: Create route table for internet gateway (public subnet)
       amazon.aws.ec2_vpc_route_table:
         vpc_id: "{{ test_vpc_id }}"
         subnets:

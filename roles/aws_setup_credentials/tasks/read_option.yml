@@ -1,7 +1,7 @@
 ---
 - name: Define key and value variables to search into environment
   ansible.builtin.set_fact:
-    aws_setup_credentials__item_key: "{{ ('dest' in item.value) | ternary(item.value.dest, item.key) }}"
+    aws_setup_credentials__item_key: "{{ (item.value | default({})).get('dest', item.key) }}"
     aws_setup_credentials__item_value: "{{ lookup('vars', item.key, default='') }}"
   no_log: true
 

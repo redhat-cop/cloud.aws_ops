@@ -36,7 +36,7 @@
           vpc-id: "{{ test_vpc_id }}"
       register: _instances
 
-    - name: Delete EC2 instances with dependant Resources
+    - name: Delete EC2 instances with dependant resources
       amazon.aws.ec2_instance:
         instance_ids:
           - "{{ _instances.instances.0.instance_id }}"

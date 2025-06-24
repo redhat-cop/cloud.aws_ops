@@ -19,6 +19,7 @@
           - "{{ _instances.instances.0.instance_id }}"
         wait: true
         state: terminated
+      ignore_errors: true
       when: _instances.instances | length == 1
 
     - name: List routes table from VPC
@@ -26,6 +27,7 @@
         filters:
           vpc-id: "{{ test_vpc_id }}"
           association.main: false
+      ignore_errors: true
       register: route_table
 
     - name: Delete VPC route table
@@ -35,17 +37,20 @@
         lookup: id
         state: absent
       with_items: "{{ route_table.route_tables | map(attribute='id') | list }}"
+      ignore_errors: true
 
     - name: Delete internet gateway
       amazon.aws.ec2_vpc_igw:
         vpc_id: "{{ test_vpc_id }}"
         state: absent
+      ignore_errors: true
 
     - name: Delete subnets
       amazon.aws.ec2_vpc_subnet:
         cidr: "{{ test_subnet_cidr }}"
         state: absent
         vpc_id: "{{ test_vpc_id }}"
+      ignore_errors: true
 
     - name: Delete VPC
       amazon.aws.ec2_vpc_net:
