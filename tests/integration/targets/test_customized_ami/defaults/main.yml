@@ -1,5 +1,5 @@
 ---
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 custom_ami_name: "ami-{{ resource_prefix }}"
 ami_infra_vpc_cidr: 172.1.0.0/16
 ami_infra_subnet_cidr: 172.1.0.0/24

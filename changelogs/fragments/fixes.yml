@@ -1,0 +1,12 @@
+breaking_changes:
+  - setup_aws_credentials - Support for the ``EC2_ACCESS_KEY`` environment variable been removed in the latest major release of amazon.aws 10.0.0 and removed from this role. Please use the ``aws_access_key`` parameter or``AWS_ACCESS_KEY_ID`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+  - setup_aws_credentials - Support for the ``EC2_REGION`` environment variable been removed in the latest major release of amazon.aws 10.0.0 and removed from this role. Please use the ``region` parameter or ``AWS_REGION`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+  - setup_aws_credentials - Support for the ``EC2_SECRET_KEY`` environment variable been removed in the latest major release of amazon.aws 10.0.0 and removed from this role. Please use the ``aws_secret_key` parameter or ``AWS_SECRET_ACCESS_KEY`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+  - setup_aws_credentials - Support for the ``EC2_SECURITY_TOKEN`` and the ``AWS_SECURITY_TOKEN`` environment variable been removed in the latest major release of amazon.aws 10.0.0 and removed from this role. Please use the ``aws_session_token` parameter or ``AWS_SESSION_TOKEN`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+  - setup_aws_credentials - Support for the ``EC2_URL_TOKEN`` environment variable been removed in the latest major release of amazon.aws 10.0.0 and removed from this role. Please use the ``aws_endpoint_url` parameter or ``AWS_URL`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+
+bugfixes:
+  - Fix integration tests to work with ansible-core 2.19 (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+
+minor_changes:
+  - documentation - Update playbooks and roles documentation to provide updated information (https://github.com/redhat-cop/cloud.aws_ops/pull/166).

@@ -1,5 +1,5 @@
 ---
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 awsconfig_apigateway_with_lambda_integration_api_name: "ansible-test-{{ resource_prefix }}"
 awsconfig_apigateway_with_lambda_integration_tags:
   resource_prefix: "{{ resource_prefix }}"

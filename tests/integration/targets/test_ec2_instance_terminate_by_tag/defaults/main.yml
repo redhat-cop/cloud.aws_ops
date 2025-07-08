@@ -1,5 +1,5 @@
 ---
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 test_vpc_name: 'vpc-{{ resource_prefix }}'
 test_vpc_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/16'
 test_subnet_cidr: '101.{{ 255 | random(seed=resource_prefix) }}.0.0/24'

@@ -52,7 +52,7 @@
     - name: Fail when the source s3 bucket is not empty and move_objects_between_buckets_delete_empty_source_bucket is true
       ansible.builtin.fail:
         msg: The source must be emptied before it can be deleted.
-      when: move_objects_between_buckets_delete_empty_source_bucket | default(false) and move_objects_between_buckets_source_bucket_info.s3_keys
+      when: move_objects_between_buckets_delete_empty_source_bucket | default(false) and move_objects_between_buckets_source_bucket_info.s3_keys | length != 0
 
     - name: Delete source s3 bucket when empty
       amazon.aws.s3_bucket:

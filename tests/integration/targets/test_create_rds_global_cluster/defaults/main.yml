@@ -20,4 +20,4 @@ test_replica_cluster_region: us-west-2
 test_replica_enable_global_write_forwarding: true
 test_replica_cluster_instance_name: ansible-test-instance-replica-{{ tiny_prefix }}
 
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'

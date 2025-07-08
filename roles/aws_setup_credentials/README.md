@@ -11,7 +11,6 @@ N/A
 - **aws_endpoint_url**:
   - URL to use to connect to EC2 or your Eucalyptus cloud (by default the module will use EC2 endpoints). Ignored for modules where region is required. Must be specified for all other modules if region is not used.
   - Environment variable:
-    - EC2_URL
     - AWS_URL
 - **aws_access_key**:
   - The AWS access key to use.
@@ -19,20 +18,17 @@ N/A
   - Environment variable:
     - AWS_ACCESS_KEY_ID
     - AWS_ACCESS_KEY
-    - EC2_ACCESS_KEY.
 - **aws_secret_key**:
   - The AWS secret key that corresponds to the access key.
   - Mutually exclusive with option aws_profile.
   - Environment variable:
     - AWS_SECRET_ACCESS_KEY
     - AWS_SECRET_KEY
-    - EC2_SECRET_KEY.
-- **aws_security_token**:
-  - The AWS security token if using temporary access and secret keys.
+- **aws_session_token**:
+  - The AWS session token if using temporary access and secret keys.
   - Mutually exclusive with option aws_profile.
   - Environment variable:
-    - AWS_SECURITY_TOKEN
-    - EC2_SECURITY_TOKEN
+    - AWS_SESSION_TOKEN
 - **aws_ca_bundle**:
   - The location of a CA Bundle to use when validating SSL certificates.
   - Environment variable:
@@ -43,7 +39,7 @@ N/A
     - AWS_VALIDATE_CERTS
 - **aws_profile**:
   - The AWS profile to use.
-  - Mutually exclusive with the aws_access_key, aws_secret_key and aws_security_token options.
+  - Mutually exclusive with the aws_access_key, aws_secret_key and aws_session_token options.
   - Environment variable:
     - AWS_PROFILE
     - AWS_DEFAULT_PROFILE.
@@ -54,7 +50,6 @@ N/A
   - The AWS region to use.
   - Environment variable:
     - AWS_REGION
-    - EC2_REGION.
 
 ## Dependencies
 
@@ -71,7 +66,7 @@ N/A
       tasks:
         - block:
 
-          - name: list availability zones
+          - name: List availability zones
             aws_az_info:
               filter:
                 zone-name: eu-east-1

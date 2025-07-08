@@ -1,5 +1,5 @@
 ---
-aws_security_token: '{{ security_token | default(omit) }}'
+aws_session_token: '{{ security_token | default(omit) }}'
 plan_name: "ansible-test-{{ tiny_prefix }}-plan"
 vault_name: "ansible-test-{{ tiny_prefix }}-vault"
 daily_backup:  # Daily backup at 5am UTC with Amazon defaults for all other settings
