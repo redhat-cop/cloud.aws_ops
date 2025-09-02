@@ -7,17 +7,17 @@
 - name: Gather package facts
   ansible.builtin.package_facts:
     manager: auto
-  register: package_facts
+  register: clone_on_prem_vm__package_facts
 
 - name: Qemu is not installed
   ansible.builtin.debug:
     msg: "qemu is not installed"
-  when: "'qemu' not in package_facts.ansible_facts.packages"
+  when: "'qemu' not in clone_on_prem_vm__package_facts.ansible_facts.packages"
 
 - name: Qemu-img is not installed
   ansible.builtin.debug:
     msg: "qemu-img is not installed"
-  when: "'qemu-img' not in package_facts.ansible_facts.packages"
+  when: "'qemu-img' not in clone_on_prem_vm__package_facts.ansible_facts.packages"
 
 - name: Create temporary directory to create the clone in
   ansible.builtin.tempfile:
