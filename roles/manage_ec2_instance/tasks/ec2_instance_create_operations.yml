@@ -6,12 +6,12 @@
         filters:
           tag:Name: "{{ manage_ec2_instance_instance_name }}"
           instance-state-name: ["pending", "running", "stopping", "stopped"]
-      register: ec2_info_result
+      register: manage_ec2_instance__ec2_info_result
 
     - name: Print warning and exit if instance exists
       ansible.builtin.fail:
         msg: "Instance with name {{ manage_ec2_instance_instance_name }} already exists in {{ aws_region }}. Please provide a different name to avoid updating the existing instance."
-      when: ec2_info_result.instances | length > 0
+      when: manage_ec2_instance__ec2_info_result.instances | length > 0
 
 - name: Create a key pair if required
   when: manage_ec2_instance_key_name is defined and manage_ec2_instance_key_name | length > 0
@@ -20,14 +20,14 @@
       amazon.aws.ec2_key_info:
         names:
           - "{{ manage_ec2_instance_key_name }}"
-      register: key_info_result
+      register: manage_ec2_instance__key_info_result
 
     - name: Create new key pair
       amazon.aws.ec2_key:
         name: "{{ manage_ec2_instance_key_name }}"
         state: present
-      when: key_info_result.keypairs | length == 0
-      register: ec2_instance_manage_key_pair_result
+      when: manage_ec2_instance__key_info_result.keypairs | length == 0
+      register: manage_ec2_instance__key_pair_result
       no_log: true
 
 - name: Create EC2 instance with provided configuration
@@ -41,22 +41,22 @@
     vpc_subnet_id: "{{ manage_ec2_instance_vpc_subnet_id | default(omit) }}"
     tags: "{{ manage_ec2_instance_tags | default(omit) }}"
     wait: "{{ manage_ec2_instance_wait_for_state }}"
-  register: ec2_instance
+  register: manage_ec2_instance__ec2_instance
 
 - name: Allocate and associate Elastic IP if enabled
   when: manage_ec2_instance_associate_eip is true
   amazon.aws.ec2_eip:
-    device_id: "{{ ec2_instance.instance_ids[0] }}"
+    device_id: "{{ manage_ec2_instance__ec2_instance.instance_ids[0] }}"
     state: present
-  register: instance_eip
+  register: manage_ec2_instance__instance_eip
 
 - name: Get EC2 instance info
   amazon.aws.ec2_instance_info:
-    instance_ids: "{{ ec2_instance.instance_ids[0] }}"
-  register: ec2_instance_manage_create_result
+    instance_ids: "{{ manage_ec2_instance__ec2_instance.instance_ids[0] }}"
+  register: manage_ec2_instance__reate_result
 
 - name: Output details of the created EC2 instance
   ansible.builtin.debug:
     msg:
-      - "EC2 instance {{ ec2_instance.instance_ids[0] }} created successfully"
-      - "Instance details: {{ ec2_instance_manage_create_result.instances[0] }}"
+      - "EC2 instance {{ manage_ec2_instance__ec2_instance.instance_ids[0] }} created successfully"
+      - "Instance details: {{ manage_ec2_instance__reate_result.instances[0] }}"
