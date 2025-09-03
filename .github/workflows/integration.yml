@@ -54,7 +54,7 @@ jobs:
     env:
       source: "./source"
       ansible_version: "milestone"
-      python_version: "3.11"
+      python_version: "3.12"
     strategy:
       fail-fast: false
       matrix:
