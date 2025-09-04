@@ -293,4 +293,4 @@ releases:
     - ansible_core_bump.yml
     - fixes.yml
     - release_summary.yml
-    release_date: '2025-09-03'
+    release_date: '2025-09-04'
