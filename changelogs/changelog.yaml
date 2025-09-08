@@ -254,3 +254,43 @@ releases:
     - 3.2.0.yml
     - update_ansible-lint.yml
     release_date: '2025-05-06'
+  4.0.0:
+    changes:
+      breaking_changes:
+      - Support for ansible-core < 2.17 has been dropped.
+      - setup_aws_credentials - Support for the ``EC2_ACCESS_KEY`` environment variable
+        been removed in the latest major release of amazon.aws 10.0.0 and removed
+        from this role. Please use the ``aws_access_key`` parameter or``AWS_ACCESS_KEY_ID``
+        environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      - setup_aws_credentials - Support for the ``EC2_REGION`` environment variable
+        been removed in the latest major release of amazon.aws 10.0.0 and removed
+        from this role. Please use the ``region` parameter or ``AWS_REGION`` environment
+        variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      - setup_aws_credentials - Support for the ``EC2_SECRET_KEY`` environment variable
+        been removed in the latest major release of amazon.aws 10.0.0 and removed
+        from this role. Please use the ``aws_secret_key` parameter or ``AWS_SECRET_ACCESS_KEY``
+        environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      - setup_aws_credentials - Support for the ``EC2_SECURITY_TOKEN`` and the ``AWS_SECURITY_TOKEN``
+        environment variable been removed in the latest major release of amazon.aws
+        10.0.0 and removed from this role. Please use the ``aws_session_token` parameter
+        or ``AWS_SESSION_TOKEN`` environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      - setup_aws_credentials - Support for the ``EC2_URL_TOKEN`` environment variable
+        been removed in the latest major release of amazon.aws 10.0.0 and removed
+        from this role. Please use the ``aws_endpoint_url` parameter or ``AWS_URL``
+        environment variable instead (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      bugfixes:
+      - Fix integration tests to work with ansible-core 2.19 (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      minor_changes:
+      - Rename several register variables to include a role-name prefix, ensuring
+        compliance with the ansible-lint standard.
+      - documentation - Update playbooks and roles documentation to provide updated
+        information (https://github.com/redhat-cop/cloud.aws_ops/pull/166).
+      release_summary: Support for certain environment variables in the ``setup_aws_credentials``
+        role has been removed. This release no longer supports ansible-core versions
+        lower than 2.17.
+    fragments:
+    - ansible-lint.yml
+    - ansible_core_bump.yml
+    - fixes.yml
+    - release_summary.yml
+    release_date: '2025-09-04'
