@@ -25,4 +25,3 @@ jobs:
         if: github.event.pull_request.draft == true
         with:
           labels: needs_triage
-
