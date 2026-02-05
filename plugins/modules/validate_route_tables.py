@@ -66,7 +66,7 @@ options:
 
 EXAMPLES = r"""
 - name: Evaluate routes from EC2 instance to RDS Instance
-  cloud.aws_ops.validate_route_tables:
+  cloud.aws_ops.validate_route-tables:
     dest_subnets:
       - assign_ipv6_address_on_creation: false
         availability_zone: "eu-west-2b"
