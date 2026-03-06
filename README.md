@@ -1,5 +1,5 @@
-# AWS Operations Collection for Ansible
-The Ansible AWS Operations collection includes a variety of Ansible content to help automate, manage, and streamline common operational tasks within AWS environments. This collection is maintained by the Red Hat Communities of Practice.
+# cloud.aws_ops Validated Content Collection
+The Ansible AWS Operations collection includes a variety of Ansible content to help automate, manage, and streamline common operational tasks within AWS environments. This collection is maintained by the [Red Hat Communities of Practice](https://github.com/redhat-cop).
 
 ## Contents
 
@@ -9,10 +9,16 @@ The Ansible AWS Operations collection includes a variety of Ansible content to h
   - [Python Version Compatibility](#python-version-compatibility)
   - [AWS Version Compatibility](#aws-version-compatibility)
 - [Included Content](#included-content)
+  - [Roles](#roles)
+  - [Playbooks](#playbooks)
+  - [Rulebooks](#rulebooks)
+  - [Modules](#modules)
 - [Installation](#installation)
   - [Installing Dependencies](#installing-dependencies)
 - [Use Cases](#use-cases)
 - [Testing](#testing)
+  - [Continuous Integration](#continuious-integration)
+  - [Testing with ansible-test](#testing-with-ansible-test)
 - [Contributing to This Collection](#contributing-to-this-collection)
 - [Support](#support)
 - [Release Notes](#release-notes)
@@ -22,19 +28,13 @@ The Ansible AWS Operations collection includes a variety of Ansible content to h
 
 ## Description
 
-The primary purpose of this collection is to simplify and streamline AWS operations through automation. By leveraging this collection, organizations can reduce manual operational effort, minimize errors, and ensure consistent approaches to managing AWS infrastructure. This leads to faster deployments, better security posture, and more reliable infrastructure management.
+This collection is curated to provide users with a robust set of roles, playbooks, and rulebooks that simplify and streamline various AWS operations. By leveraging this collection, organizations can reduce manual operational effort, minimize errors, and ensure consistent approaches to managing AWS infrastructure. This leads to faster deployments, better security posture, and more reliable infrastructure management.
 
 ## Requirements
 
 ### Ansible Version Compatibility
 
-<!--start requires_ansible-->
 This collection has been tested against the following Ansible versions: **>=2.17.0**.
-
-Plugins and modules within a collection may be tested with only specific Ansible versions.
-A collection may contain metadata that identifies these versions.
-PEP440 is the schema used to describe the versions of Ansible.
-<!--end requires_ansible-->
 
 ### Python Version Compatibility
 
@@ -59,91 +59,55 @@ Click on the name of a role, playbook, or rulebook to view that content's docume
 
 Name | Description
 --- | ---
-[cloud.aws_ops.aws_setup_credentials](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/aws_setup_credentials/README.md)|A role to define credentials for AWS modules.
-[cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API Gateway with Lambda function integration.
-[cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from a virtual private cloud.
-[cloud.aws_ops.awsconfig_multiregion_cloudtrail](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a trail for multiple regions.
-[cloud.aws_ops.backup_create_plan](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/backup_create_plan/README.md)|A role to create an AWS Backup plan.
-[cloud.aws_ops.backup_select_resources](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/backup_select_resources/README.md)|A role to select resources to back up with an existing backup plan.
-[cloud.aws_ops.clone_on_prem_vm](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/clone_on_prem_vm/README.md)|A role to clone an existing on-premises VM using the KVM hypervisor.
-[cloud.aws_ops.create_rds_global_cluster](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/create_rds_global_cluster/README.md)|A role to create/delete Aurora global cluster with a primary cluster and a replica cluster in different regions.
-[cloud.aws_ops.customized_ami](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
-[cloud.aws_ops.deploy_flask_app](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/deploy_flask_app/README.md)|A role to deploy a Flask web application on AWS.
-[cloud.aws_ops.ec2_instance_terminate_by_tag](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate EC2 instances based on a specific tag you specify.
-[cloud.aws_ops.ec2_networking_resources](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/ec2_networking_resources/README.md)|A role to manage EC2 networking resources.
-[cloud.aws_ops.enable_cloudtrail_encryption_with_kms](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
-[cloud.aws_ops.import_image_and_run_aws_instance](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/import_image_and_run_aws_instance/README.md)|A role that imports a local .raw image into an Amazon Machine Image (AMI) and runs an AWS EC2 instance.
-[cloud.aws_ops.manage_ec2_instance](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/manage_ec2_instance/README.md)|A role to manage EC2 instance lifecycle operations.
-[cloud.aws_ops.manage_transit_gateway](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/manage_transit_gateway/README.md)|A role to create/delete transit gateway with VPC and VPN attachments.
-[cloud.aws_ops.manage_vpc_peering](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/manage_vpc_peering/README.md)|A role to create, delete, and accept existing VPC peering connections.
-[cloud.aws_ops.move_objects_between_buckets](https://github.com/redhat-cop/cloud.aws_ops/blob/main/roles/move_objects_between_buckets/README.md)|A role to move objects from one S3 bucket to another bucket.
+[cloud.aws_ops.aws_setup_credentials](roles/aws_setup_credentials/README.md)|A role to define credentials for AWS modules.
+[cloud.aws_ops.awsconfig_apigateway_with_lambda_integration](roles/awsconfig_apigateway_with_lambda_integration/README.md)|A role to create/delete an API Gateway with Lambda function integration.
+[cloud.aws_ops.awsconfig_detach_and_delete_internet_gateway](roles/awsconfig_detach_and_delete_internet_gateway/README.md)|A role to detach and delete the internet gateway you specify from a virtual private cloud.
+[cloud.aws_ops.awsconfig_multiregion_cloudtrail](roles/awsconfig_multiregion_cloudtrail/README.md)|A role to create/delete a trail for multiple regions.
+[cloud.aws_ops.backup_create_plan](roles/backup_create_plan/README.md)|A role to create an AWS Backup plan.
+[cloud.aws_ops.backup_select_resources](roles/backup_select_resources/README.md)|A role to select resources to back up with an existing backup plan.
+[cloud.aws_ops.clone_on_prem_vm](roles/clone_on_prem_vm/README.md)|A role to clone an existing on-premises VM using the KVM hypervisor.
+[cloud.aws_ops.create_rds_global_cluster](roles/create_rds_global_cluster/README.md)|A role to create/delete Aurora global cluster with a primary cluster and a replica cluster in different regions.
+[cloud.aws_ops.customized_ami](roles/customized_ami/README.md)|A role to manage custom AMIs on AWS.
+[cloud.aws_ops.deploy_flask_app](roles/deploy_flask_app/README.md)|A role to deploy a Flask web application on AWS.
+[cloud.aws_ops.ec2_instance_terminate_by_tag](roles/ec2_instance_terminate_by_tag/README.md)|A role to terminate EC2 instances based on a specific tag you specify.
+[cloud.aws_ops.ec2_networking_resources](roles/ec2_networking_resources/README.md)|A role to manage EC2 networking resources.
+[cloud.aws_ops.enable_cloudtrail_encryption_with_kms](roles/enable_cloudtrail_encryption_with_kms/README.md)|A role to encrypt an AWS CloudTrail trail using the AWS Key Management Service (AWS KMS) customer managed key you specify.
+[cloud.aws_ops.import_image_and_run_aws_instance](roles/import_image_and_run_aws_instance/README.md)|A role that imports a local .raw image into an Amazon Machine Image (AMI) and runs an AWS EC2 instance.
+[cloud.aws_ops.manage_ec2_instance](roles/manage_ec2_instance/README.md)|A role to manage EC2 instance lifecycle operations.
+[cloud.aws_ops.manage_transit_gateway](roles/manage_transit_gateway/README.md)|A role to create/delete transit gateway with VPC and VPN attachments.
+[cloud.aws_ops.manage_vpc_peering](roles/manage_vpc_peering/README.md)|A role to create, delete, and accept existing VPC peering connections.
+[cloud.aws_ops.move_objects_between_buckets](roles/move_objects_between_buckets/README.md)|A role to move objects from one S3 bucket to another bucket.
 
 ### Playbooks
 
 Name | Description
 --- | ---
-[cloud.aws_ops.eda](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/README.md)|A set of playbooks to restore AWS CloudTrail configurations, created for use with Event-Driven Ansible rulebooks.
-[cloud.aws_ops.webapp](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a web application on AWS.
-[cloud.aws_ops.upload_file_to_s3](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
-[cloud.aws_ops.move_vm_from_on_prem_to_aws](https://github.com/redhat-cop/cloud.aws_ops/blob/main/playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on-premises VM running on KVM hypervisor to AWS.
+[cloud.aws_ops.eda](playbooks/README.md)|A set of playbooks to restore AWS CloudTrail configurations, created for use with Event-Driven Ansible rulebooks.
+[cloud.aws_ops.webapp](playbooks/webapp/README.md)|A set of playbooks to create, delete, or migrate a web application on AWS.
+[cloud.aws_ops.upload_file_to_s3](playbooks/UPLOAD_FILE_TO_S3.md)|A playbook to upload a local file to S3.
+[cloud.aws_ops.move_vm_from_on_prem_to_aws](playbooks/move_vm_from_on_prem_to_aws/README.md)|A playbook to migrate an existing on-premises VM running on KVM hypervisor to AWS.
 
 ### Rulebooks
 
 Name | Description
 --- | ---
-[cloud.aws_ops.aws_manage_cloudtrail_encryption](https://github.com/redhat-cop/cloud.aws_ops/blob/main/extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS CloudTrail trail will not be deleted or have its encryption removed.
+[cloud.aws_ops.aws_manage_cloudtrail_encryption](extensions/eda/AWS_MANAGE_CLOUDTRAIL_ENCRYPTION.md)|An Event-Driven Ansible rulebook to ensure that an existing encrypted AWS CloudTrail trail will not be deleted or have its encryption removed.
 
 ### Modules
 
 Name | Description
 --- | ---
-[cloud.aws_ops.validate_network_acls](https://github.com/redhat-cop/cloud.aws_ops/blob/main/plugins/modules/validate_network_acls.py)|Validates network ACL configurations for connectivity between AWS resources.
-[cloud.aws_ops.validate_route_tables](https://github.com/redhat-cop/cloud.aws_ops/blob/main/plugins/modules/validate_route_tables.py)|Validates route table configurations for connectivity between AWS resources.
-[cloud.aws_ops.validate_security_group_rules](https://github.com/redhat-cop/cloud.aws_ops/blob/main/plugins/modules/validate_security_group_rules.py)|Validates security group rules for connectivity between AWS resources.
+[cloud.aws_ops.validate_network_acls](plugins/modules/validate_network_acls.py)|Validates network ACL configurations for connectivity between AWS resources.
+[cloud.aws_ops.validate_route_tables](plugins/modules/validate_route_tables.py)|Validates route table configurations for connectivity between AWS resources.
+[cloud.aws_ops.validate_security_group_rules](plugins/modules/validate_security_group_rules.py)|Validates security group rules for connectivity between AWS resources.
 
 <!--end collection content-->
 
 ## Installation
 
-The cloud.aws_ops collection can be installed with the Ansible Galaxy command-line tool:
+To consume this Validated Content from Automation Hub, please ensure that you add the following lines to your ansible.cfg file.
 
-```shell
-ansible-galaxy collection install cloud.aws_ops
 ```
-
-You can also include it in a `requirements.yml` file and install it with `ansible-galaxy collection install -r requirements.yml`, using the format:
-
-```yaml
----
-collections:
-  - name: cloud.aws_ops
-```
-
-Note that if you install any collections from Ansible Galaxy, they will not be upgraded automatically when you upgrade the Ansible package.
-To upgrade the collection to the latest available version, run the following command:
-
-```shell
-ansible-galaxy collection install cloud.aws_ops --upgrade
-```
-
-A specific version of the collection can be installed by using the `version` keyword in the `requirements.yml` file:
-
-```yaml
----
-collections:
-  - name: cloud.aws_ops
-    version: 5.0.0
-```
-
-or using the `ansible-galaxy` command as follows:
-
-```shell
-ansible-galaxy collection install cloud.aws_ops:==5.0.0
-```
-
-To consume this Validated Content from Automation Hub, please ensure that you add the following lines to your ansible.cfg file:
-
-```ini
 [galaxy]
 server_list = automation_hub
 
@@ -152,24 +116,12 @@ url=https://cloud.redhat.com/api/automation-hub/
 auth_url=https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
 token=<SuperSecretToken>
 ```
-
 The token can be obtained from the [Automation Hub Web UI](https://console.redhat.com/ansible/automation-hub/token).
 
-### Installing Dependencies
+Once the above steps are done, you can run the following command to install the collection.
 
-The collection dependencies are not installed by `ansible-galaxy` by default. They must be installed separately:
-
-```shell
-ansible-galaxy collection install amazon.aws:>=5.1.0
-ansible-galaxy collection install community.aws:>=5.0.0
-ansible-galaxy collection install amazon.cloud:>=0.4.0
-ansible-galaxy collection install community.libvirt:>=1.2.0
 ```
-
-The Python module dependencies can be installed using pip:
-
-```shell
-pip install boto3>=1.26.0 botocore>=1.29.0
+ansible-galaxy collection install cloud.aws_ops
 ```
 
 Refer to the following for more details:
@@ -177,58 +129,24 @@ Refer to the following for more details:
 
 ## Use Cases
 
-You can call roles by their Fully Qualified Collection Name (FQCN), such as `cloud.aws_ops.enable_cloudtrail_encryption_with_kms`, or by their short name if you list the `cloud.aws_ops` collection in the playbook's `collections` keyword:
+You can call roles by their Fully Qualified Collection Name (FQCN), such as `cloud.aws_ops.enable_cloudtrail_encryption_with_kms`:
 
 ```yaml
----
-- hosts: localhost
-  gather_facts: false
-  connection: local
+  # The following example restores encryption to an existing AWS Cloudtrail trail using the enable_cloudtrail_encryption_with_kms role
+  - hosts: all
+    tasks:
+      - name: Include 'enable_cloudtrail_encryption_with_kms' role
+        ansible.builtin.include_role:
+          name: cloud.aws_ops.enable_cloudtrail_encryption_with_kms
+        vars:
+          enable_cloudtrail_encryption_with_kms_trail_name: "{{ cloudtrail_name }}"
+          enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
 
-  tasks:
-    - name: Restore encryption to an existing AWS CloudTrail trail
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.enable_cloudtrail_encryption_with_kms
-      vars:
-        enable_cloudtrail_encryption_with_kms_trail_name: "{{ cloudtrail_name }}"
-        enable_cloudtrail_encryption_with_kms_kms_key_id: "{{ kms_alias }}"
+  # The following example uses the ``cloud.aws_ops.clone_on_prem_vm`` role to clone an existing VM on prem using the KVM hypervisor and the ``cloud.aws_ops.import_image_and_run_aws_instance`` role to import a local .raw image into an Amazon machine image (AMI) and run an AWS EC2 instance.
 
-    - name: Create VPC peering connection
-      ansible.builtin.include_role:
-        name: cloud.aws_ops.manage_vpc_peering
-      vars:
-        manage_vpc_peering_operation: create
-        manage_vpc_peering_vpc_id: "{{ vpc_id_1 }}"
-        manage_vpc_peering_peer_vpc_id: "{{ vpc_id_2 }}"
-```
-
-If upgrading older playbooks which were built prior to Ansible 2.10 and this collection's existence, you can also define `collections` in your play and refer to this collection's roles as you did in Ansible 2.9 and below, as in this example:
-
-```yaml
----
-- hosts: localhost
-  gather_facts: false
-  connection: local
-
-  collections:
-    - cloud.aws_ops
-
-  tasks:
-    - name: Create AWS Backup plan
-      ansible.builtin.include_role:
-        name: backup_create_plan
-      vars:
-        backup_create_plan_name: "{{ backup_plan_name }}"
-        backup_create_plan_rules: "{{ backup_rules }}"
-```
-
-For migrating VMs from on-premises to AWS:
-
-```yaml
----
-- hosts: all
-  tasks:
-    - name: Clone on-premises VM
+  - hosts: all
+    tasks:
+    - name: Import 'cloud.aws_ops.clone_on_prem_vm' role
       ansible.builtin.import_role:
         name: cloud.aws_ops.clone_on_prem_vm
       vars:
@@ -239,7 +157,7 @@ For migrating VMs from on-premises to AWS:
         clone_on_prem_vm_overwrite: "{{ overwrite }}"
       delegate_to: kvm
 
-    - name: Import image and run AWS instance
+    - name: Import 'cloud.aws_ops.import_image_and_run_aws_instance' role
       ansible.builtin.import_role:
         name: cloud.aws_ops.import_image_and_run_aws_instance
       vars:
@@ -255,7 +173,45 @@ For documentation on how to use individual roles and other content included in t
 
 ## Testing
 
-This collection is tested using GitHub Actions. To learn more about testing, refer to [CI.md](https://github.com/redhat-cop/cloud.aws_ops/blob/main/CI.md).
+### Continuious Integration
+
+This collection is tested using GitHub Actions. To learn more about the continuous integration process, refer to [CI.md](./CI.md).
+
+### Testing with `ansible-test`
+
+The `tests` directory contains configuration for running sanity and integration tests using [`ansible-test`](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
+
+You can run the collection's test suites with the commands:
+
+```shell
+# Run sanity tests
+ansible-test sanity
+
+# Run integration tests (requires AWS credentials)
+ansible-test integration [target]
+```
+
+Before running integration tests, you must configure AWS credentials:
+
+```shell
+# Using the "default" profile on AWS
+aws configure set aws_access_key_id your-access-key
+aws configure set aws_secret_access_key your-secret-key
+aws configure set region us-east-1
+```
+
+The collection also uses `tox` for linting. Assuming this repository is checked out in the proper structure (e.g., `collections_root/ansible_collections/cloud/aws_ops/`), run:
+
+```shell
+# Run all linters (black, flake8, yamllint)
+tox -e linters
+
+# Run ansible-lint separately
+tox -e ansible-lint
+
+# Run black formatter
+tox -e black
+```
 
 ## Contributing to This Collection
 
@@ -272,12 +228,9 @@ See [CONTRIBUTING.md](https://github.com/redhat-cop/cloud.aws_ops/blob/main/CONT
 
 ## Support
 
-We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://github.com/ansible/community/wiki/News#the-bullhorn). Be sure you are [subscribed](https://eepurl.com/gZmiEP).
-
-We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track [The Bullhorn newsletter](https://eepurl.com/gZmiEP) and join us.
-
-For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
-
+- We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://github.com/ansible/community/wiki/News#the-bullhorn).
+- We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person.
+- For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 For the latest supported versions, refer to the release notes below.
 
 If you encounter issues or have questions, you can submit a support request through the following channels:
