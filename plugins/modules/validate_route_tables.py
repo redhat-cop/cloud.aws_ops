@@ -137,7 +137,7 @@ EXAMPLES = r"""
             interface_id: null
             network_interface_id: null
             origin: "CreateRoute"
-            state": "active"
+            state: "active"
         vpc_id: "vpc-0bee28efef41e1de4"
     dest_vpc_route_tables:
       - associations:
@@ -166,7 +166,7 @@ EXAMPLES = r"""
             interface_id: null
             network_interface_id: null
             origin: "CreateRoute"
-            state": "active"
+            state: "active"
         vpc_id: "vpc-0bee28efef41e1de4"
     src_subnets:
       - assign_ipv6_address_on_creation: false
@@ -184,7 +184,7 @@ EXAMPLES = r"""
         owner_id: "00000000000"
         private_dns_name_options_on_launch:
           enable_resource_name_dns_a_record: false
-          enable_resource_name_dns_aaaa_record": false
+          enable_resource_name_dns_aaaa_record: false
           hostname_type: "ip-name"
         state: "available"
         subnet_arn: "arn:aws:ec2:eu-west-2:721066863947:subnet/subnet-0af56e0d353f88cb8"
@@ -260,8 +260,8 @@ result:
   sample: 'Route table validation successful'
 """
 
-from ipaddress import ip_network
 import copy
+from ipaddress import ip_network
 
 from ansible.module_utils.basic import AnsibleModule
 

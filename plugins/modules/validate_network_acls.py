@@ -96,10 +96,10 @@ result:
   sample: 'Network ACL validation successful'
 """
 
-from ipaddress import ip_network, ip_address
 from collections import namedtuple
-from ansible.module_utils.basic import AnsibleModule
+from ipaddress import ip_address, ip_network
 
+from ansible.module_utils.basic import AnsibleModule
 
 # NACL Entry format
 # [

@@ -17,8 +17,8 @@ tags:
   - infrastructure
   - cluster
 dependencies:
-  amazon.aws: '>=5.1.0'
-  community.aws: '>=5.0.0'
+  amazon.aws: '>=10.0.0,<12.0.0-dev0'
+  community.aws: '>=10.0.0,<12.0.0-dev0'
   amazon.cloud: '>=0.4.0'
   community.libvirt: '>=1.2.0'
 version: 5.0.0-dev0

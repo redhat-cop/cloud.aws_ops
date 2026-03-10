@@ -117,8 +117,8 @@ result:
   sample: 'Security Group validation successful'
 """
 
-from ipaddress import ip_network, ip_address
 import copy
+from ipaddress import ip_address, ip_network
 
 from ansible.module_utils.basic import AnsibleModule
 
