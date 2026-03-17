@@ -2,32 +2,29 @@
 
 ## AWS Operations Collection Testing
 
-GitHub Actions are used to run the CI for the cloud.aws_ops collection. The workflows used for the CI can be found [here](https://github.com/redhat-cop/cloud.aws_ops/tree/main/.github/workflows). These workflows include jobs to run the sanity tests, linters, integration tests, and changelog checks.
-
-The collection uses reusable workflows from [ansible-network/github_actions](https://github.com/ansible-network/github_actions) for standardized testing.
+GitHub Actions are used to run the CI for the cloud.aws_ops collection. The workflows used for the CI can be found in the [.github/workflows](.github/workflows) directory.
 
 ### PR Testing Workflows
 
 The following tests run on every pull request:
 
-| Job | Description | Configuration |
-| --- | ----------- | ------------- |
-| Changelog | Checks for the presence of changelog fragments | ubuntu-latest |
-| Linters | Runs `ansible-lint`, `black`, `flake8`, `yamllint` | Python 3.10 (via tox) |
-| Sanity | Runs ansible sanity checks across multiple Python and ansible-core versions | Determined by [ansible-network reusable workflows](https://github.com/ansible-network/github_actions) |
-| Integration tests | Executes integration test suites on AWS (split across 2 parallel jobs) | Python 3.12, ansible-core milestone, requires "safe to test" label |
+| Job | Description | Python Versions | ansible-core Versions |
+| --- | ----------- | --------------- | --------------------- |
+| [Changelog](.github/workflows/changelog.yml) | Checks for the presence of changelog fragments | 3.12 | devel |
+| [Linters](.github/workflows/linters.yml) | Runs `black`, `flake8`, `yamllint`, and `ansible-lint` on plugins and tests | 3.10 | devel |
+| [Sanity](.github/workflows/sanity.yml) | Runs ansible sanity checks | See compatibility table below | devel, stable-2.17, stable-2.18, stable-2.19, stable-2.20 |
+| [Integration](.github/workflows/integration.yml) | Executes integration test suites on AWS (split across 2 parallel jobs, requires "safe to test" label) | 3.12 | milestone |
 
-For the official Ansible core support matrix, see the [Ansible Release and Maintenance documentation](https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix).
+**Note:** Integration tests require AWS credentials and use the `pull_request_target` trigger. PRs from external contributors require the "safe to test" label to be added by a maintainer before tests will run.
 
-### Collection Dependencies
+### Python Version Compatibility by ansible-core Version
 
-The collection depends on several other collections for integration testing. These dependencies are defined in:
-- [`galaxy.yml`](galaxy.yml) - Production dependencies
-- [`tests/integration/requirements.yml`](tests/integration/requirements.yml) - Test-time dependencies
+These are outlined in the collection's [tox.ini](tox.ini) file (`envlist`) and GitHub Actions workflow configurations.
 
-### Security Model
-
-Integration tests use `pull_request_target` trigger and require explicit approval:
-- PRs from external contributors require the "safe to test" label to be added by a maintainer
-- This prevents unauthorized execution of tests that create AWS resources
-- The `safe-to-test` job validates authorization before any AWS resources are created
+| ansible-core Version | Sanity Tests | Integration Tests |
+| -------------------- | ------------ | ----------------- |
+| devel | 3.12, 3.13, 3.14 | 3.12 |
+| stable-2.20 | 3.12, 3.13, 3.14 | 3.12 |
+| stable-2.19 | 3.11, 3.12, 3.13 | 3.12 |
+| stable-2.18 | 3.11, 3.12, 3.13 | 3.12 |
+| stable-2.17 | 3.10, 3.11, 3.12 | 3.12 |
