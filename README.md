@@ -5,15 +5,14 @@ This repository hosts the `cloud.aws_ops` Ansible Collection.
 ## SonarCloud (code quality)
 
 Static analysis runs on [SonarCloud](https://sonarcloud.io) using `sonar-project.properties` and
-`.github/workflows/sonarcloud.yml`. Coverage shown in Sonar comes from unit-test coverage exported as
-`coverage.xml` at the repository root during CI.
+`.github/workflows/sonarcloud.yml`. **Note:** Coverage in SonarCloud is not wired yet.
 
 The SonarCloud project key must match `sonar.projectKey` (`ansible-collections_cloud.aws_ops`). Adding
 or renaming the project is coordinated via Ansible Collections maintainers.
 
 GitHub does not expose organization secrets to workflows for pull requests opened from forks. The
 Sonar job therefore only runs on pushes to this repository's branches and on pull requests where the
-head branch is on `ansible-collections/cloud.aws_ops` (not from forks). That matches GitHub's
+head branch is on `redhat-cop/cloud.aws_ops` (not from forks). That matches GitHub's
 documented behavior for [secrets in Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
 
 If the project later needs Sonar with coverage on **fork** PRs, maintainers typically add a separate
