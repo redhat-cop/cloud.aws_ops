@@ -1,23 +1,20 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=coverage)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=bugs)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=redhat-cop_cloud.aws_ops&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=redhat-cop_cloud.aws_ops)
+
 # cloud.aws_ops Validated Content Collection
 
 This repository hosts the `cloud.aws_ops` Ansible Collection.
 
 ## SonarCloud (code quality)
 
-Static analysis runs on [SonarCloud](https://sonarcloud.io) using `sonar-project.properties` and
-`.github/workflows/sonarcloud.yml`. **Note:** Coverage in SonarCloud is not wired yet.
+Static analysis and **integration-test coverage** are reported on [SonarCloud](https://sonarcloud.io/project/overview?id=redhat-cop_cloud.aws_ops). Coverage is collected in [.github/workflows/sonarcloud.yml](.github/workflows/sonarcloud.yml), separate from [.github/workflows/integration.yml](.github/workflows/integration.yml). See [SONARCLOUD.md](SONARCLOUD.md).
 
-The SonarCloud project key must match `sonar.projectKey` (`ansible-collections_cloud.aws_ops`). Adding
-or renaming the project is coordinated via Ansible Collections maintainers.
-
-GitHub does not expose organization secrets to workflows for pull requests opened from forks. The
-Sonar job therefore only runs on pushes to this repository's branches and on pull requests where the
-head branch is on `redhat-cop/cloud.aws_ops` (not from forks). That matches GitHub's
-documented behavior for [secrets in Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
-
-If the project later needs Sonar with coverage on **fork** PRs, maintainers typically add a separate
-trusted job after a workflow that uploads coverage artifacts, using GitHub's `workflow_run` event.
-See [workflow_run (GitHub Docs)](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run).
+The SonarCloud project key must match `sonar.projectKey` in [sonar-project.properties](sonar-project.properties) (`redhat-cop_cloud.aws_ops`).
 
 ## Description
 
