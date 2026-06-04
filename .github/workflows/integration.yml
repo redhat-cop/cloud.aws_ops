@@ -84,4 +84,3 @@ jobs:
             git+https://github.com/ansible-collections/community.aws.git,main
             community.crypto
           pre-test-cmd: python -m pip install -r tests/integration/constraints.txt -r tests/integration/requirements.txt
-          ansible_test_targets: ${{ steps.read-targets.outputs.job_targets }}
