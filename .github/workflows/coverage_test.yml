@@ -1,0 +1,116 @@
+---
+    name: coverage_tests
+    
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
+    
+    on: # yamllint disable-line rule:truthy
+      pull_request:
+        branches:
+          - main
+          - stable-*
+      push:
+        branches:
+          - main
+          - stable-*
+      workflow_dispatch:
+    
+    jobs:
+      coverage:
+        name: Integration test coverage
+        runs-on: ubuntu-latest
+        env:
+          ANSIBLE_CORE_REF: "milestone"
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+            with:
+              # ansible-test requires cwd under .../ansible_collections/{namespace}/{name}/
+              path: ansible_collections/cloud/aws_ops
+    
+          - name: Checkout amazon.aws dependency
+            uses: ansible-network/github_actions/.github/actions/checkout_dependency@47822b51aee957080e811cc434443c4e3bb9569a
+            with:
+              repository: ansible-collections/amazon.aws
+              path: ansible_collections/amazon/aws
+              ref: main
+
+          - name: Checkout community.aws dependency
+            uses: ansible-network/github_actions/.github/actions/checkout_dependency@47822b51aee957080e811cc434443c4e3bb9569a
+            with:
+              repository: ansible-collections/community.aws
+              path: ansible_collections/community/aws
+              ref: main
+
+          - name: Checkout community.crypto dependency
+            uses: ansible-network/github_actions/.github/actions/checkout_dependency@47822b51aee957080e811cc434443c4e3bb9569a
+            with:
+              repository: ansible-collections/community.crypto
+              path: ansible_collections/community/crypto
+              ref: main
+    
+          - name: Set up Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: "3.12"
+    
+          - name: Install Ansible (ansible-test)
+            run: |
+              python -m pip install --upgrade pip
+              python -m pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_CORE_REF}.tar.gz"
+
+          - name: Install integration test dependencies
+            run: |
+              python -m pip install -r ansible_collections/cloud/aws_ops/tests/integration/constraints.txt -r ansible_collections/cloud/aws_ops/tests/integration/requirements.txt
+
+          - name: Create AWS/sts session credentials
+            uses: ansible/ansible-test-auth@008750a5bf07124c3ab86d30d73d7319d7518f36  # v1.0.0, committed on Mar 13, 2026
+    
+          - name: Run integration tests with coverage
+            working-directory: ansible_collections/cloud/aws_ops
+            run: ansible-test integration --venv --coverage --python 3.12 --requirements
+    
+          - name: Combine and emit coverage XML
+            working-directory: ansible_collections/cloud/aws_ops
+            run: |
+              ansible-test coverage combine --venv --python 3.12 --requirements
+              ansible-test coverage xml --venv --python 3.12 --requirements
+    
+          - name: Prepare coverage.xml for SonarCloud
+            env:
+              COLLECTION_DIR: ${{ github.workspace }}/ansible_collections/cloud/aws_ops
+            run: |
+              set -euo pipefail
+              xml=$(find "${COLLECTION_DIR}/tests/output/reports" -maxdepth 1 -name '*.xml' ! -name '*powershell*' | head -1)
+              if [[ -z "${xml}" ]]; then
+                echo "::error::coverage XML not found under tests/output/reports"
+                exit 1
+              fi
+              cp "${xml}" "${GITHUB_WORKSPACE}/coverage.xml"
+              sed -i "s#${GITHUB_WORKSPACE}/##g" "${GITHUB_WORKSPACE}/coverage.xml"
+              sed -i 's#ansible_collections/cloud/aws_ops/##g' "${GITHUB_WORKSPACE}/coverage.xml"
+              if ! grep -q '<coverage' "${GITHUB_WORKSPACE}/coverage.xml"; then
+                echo "::error::coverage.xml does not look like Cobertura XML"
+                exit 1
+              fi
+              test -s "${GITHUB_WORKSPACE}/coverage.xml"
+    
+          - name: Upload coverage artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: coverage
+              path: ${{ github.workspace }}/coverage.xml
+      
+      coverage_tests:
+        name: SonarCloud Coverage tests
+        needs:
+          - coverage
+        runs-on: ubuntu-latest
+        if: ${{ always() }}
+        steps:
+          - run: >-
+              python -c "assert 'failure' not in
+              set([
+              '${{ needs.coverage.result }}'
+              ])"
