@@ -11,6 +11,11 @@ on:
     branches:
       - main
       - stable-*
+  pull_request:
+    branches:
+      - main
+      - stable-*
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,17 +23,10 @@ permissions:
   actions: read
 
 jobs:
-  safe-to-test:
-    if: ${{ github.event.label.name == 'safe to test' }} || ${{ github.event.action != 'labeled' }}
-    uses: ansible-network/github_actions/.github/workflows/safe-to-test.yml@d6170859194bb9ca227655c03c9048455364a822  # main, committed on Jul 26, 2023
-
   splitter:
-    needs:
-      - safe-to-test
     runs-on: ubuntu-latest
     env:
       source_dir: "cloud_awsops"
-      SPLITTER_TEST_ALL_THE_TARGETS: "true"
     outputs:
       targets: ${{ steps.splitter.outputs.targets }}
       test_jobs: ${{ steps.splitter.outputs.jobs }}
@@ -47,6 +45,7 @@ jobs:
           collections_to_test: ${{ env.source_dir }}
           total_jobs: 1
           base_ref: "${{ github.event.pull_request.base.ref }}"
+          splitter_test_all_the_targets: 'true'
 
       - name: Display splitter output
         run: |
