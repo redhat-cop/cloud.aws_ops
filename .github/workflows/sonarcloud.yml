@@ -41,24 +41,24 @@ jobs:
           echo "Found coverage files: ${coverage_files:-none}"
           echo "COVERAGE_PATHS=${coverage_files}" >> "$GITHUB_ENV"
 
-          - name: Prepare SonarCloud args
-          env:
-            COMMIT_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-            EVENT_NAME: ${{ github.event_name }}
-            PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
-            PR_HEAD_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || '' }}
-            PR_BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || '' }}
-          run: |
-            SONAR_ARGS="-Dsonar.scm.revision=\"${COMMIT_SHA}\""
-            if [[ "${EVENT_NAME}" == "pull_request" ]]; then
-              SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.key=${PR_NUMBER}"
-              SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.branch=${PR_HEAD_REF}"
-              SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.base=${PR_BASE_REF}"
-            fi
-            if [[ -n "${COVERAGE_PATHS:-}" ]]; then
-              SONAR_ARGS="${SONAR_ARGS} -Dsonar.python.coverage.reportPaths=${COVERAGE_PATHS}"
-            fi
-            echo "SONAR_ARGS=${SONAR_ARGS}" >> "$GITHUB_ENV"
+      - name: Prepare SonarCloud args
+        env:
+          COMMIT_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
+          PR_HEAD_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || '' }}
+          PR_BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || '' }}
+        run: |
+          SONAR_ARGS="-Dsonar.scm.revision=\"${COMMIT_SHA}\""
+          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+            SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.key=${PR_NUMBER}"
+            SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.branch=${PR_HEAD_REF}"
+            SONAR_ARGS="${SONAR_ARGS} -Dsonar.pullrequest.base=${PR_BASE_REF}"
+          fi
+          if [[ -n "${COVERAGE_PATHS:-}" ]]; then
+            SONAR_ARGS="${SONAR_ARGS} -Dsonar.python.coverage.reportPaths=${COVERAGE_PATHS}"
+          fi
+          echo "SONAR_ARGS=${SONAR_ARGS}" >> "$GITHUB_ENV"
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9

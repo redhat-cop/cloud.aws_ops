@@ -104,6 +104,9 @@ jobs:
 
   coverage_tests:
     name: SonarCloud scan
+    permissions:
+      contents: read
+      pull-requests: read
     needs:
       - coverage
     if: >-
