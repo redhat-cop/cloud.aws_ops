@@ -49,3 +49,12 @@ Integration tests run on real AWS infrastructure and require the "safe to test" 
 - Integration targets are automatically split across 2 parallel jobs
 - Split is determined by `ansible_test_splitter` action based on changed files
 - Each job runs the subset of tests relevant to the PR's changes
+
+### SonarCloud and coverage
+
+| Workflow | Description |
+| -------- | ----------- |
+| [Integration](.github/workflows/integration.yml) | Integration tests only (no coverage) |
+| [SonarCloud](.github/workflows/sonarcloud.yml) | Separate integration run with `--coverage`, **`coverage`** job, then **`finalize`** Sonar scan |
+
+This collection does not use an **`all_green`** gate. Coverage for Sonar is **not** produced by the Integration workflow. Details: [SONARCLOUD.md](SONARCLOUD.md).
