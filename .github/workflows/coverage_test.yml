@@ -25,7 +25,7 @@ jobs:
       PYTHON_VERSION: "3.13"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           # ansible-test requires cwd under .../ansible_collections/{namespace}/{name}/
           path: ansible_collections/cloud/aws_ops
@@ -51,8 +51,15 @@ jobs:
           path: ansible_collections/community/crypto
           ref: main
 
+      - name: Checkout community.general dependency
+        uses: ansible-network/github_actions/.github/actions/checkout_dependency@47822b51aee957080e811cc434443c4e3bb9569a
+        with:
+          repository: ansible-collections/community.general
+          path: ansible_collections/community/general
+          ref: main
+
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
