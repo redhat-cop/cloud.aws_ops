@@ -21,7 +21,7 @@ jobs:
       test_jobs: ${{ steps.splitter.outputs.jobs }}
     steps:
       - name: Checkout collection
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           path: ${{ env.source_dir }}
           fetch-depth: "0"
@@ -48,7 +48,7 @@ jobs:
     env:
       source: "./source"
       ansible_version: "milestone"
-      python_version: "3.12"
+      python_version: "3.13"
       ansible_test_splitter_targets: "${{ needs.splitter.outputs.targets }}"
     strategy:
       fail-fast: false

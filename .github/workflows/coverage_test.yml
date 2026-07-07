@@ -22,9 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ANSIBLE_CORE_REF: "milestone"
+      PYTHON_VERSION: "3.13"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v49c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # ansible-test requires cwd under .../ansible_collections/{namespace}/{name}/
           path: ansible_collections/cloud/aws_ops
@@ -51,9 +52,9 @@ jobs:
           ref: main
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ansible (ansible-test)
         run: |
@@ -69,13 +70,13 @@ jobs:
 
       - name: Run integration tests with coverage
         working-directory: ansible_collections/cloud/aws_ops
-        run: ansible-test integration --venv --coverage --python 3.12 --requirements
+        run: ansible-test integration --venv --coverage --python ${{ env.PYTHON_VERSION }} --requirements
 
       - name: Combine and emit coverage XML
         working-directory: ansible_collections/cloud/aws_ops
         run: |
-          ansible-test coverage combine --venv --python 3.12 --requirements
-          ansible-test coverage xml --venv --python 3.12 --requirements
+          ansible-test coverage combine --venv --python ${{ env.PYTHON_VERSION }} --requirements
+          ansible-test coverage xml --venv --python ${{ env.PYTHON_VERSION }} --requirements
 
       - name: Prepare coverage.xml for SonarCloud
         env:
@@ -97,7 +98,7 @@ jobs:
           test -s "${GITHUB_WORKSPACE}/coverage.xml"
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1 authored on Apr 10, 2026
         with:
           name: coverage
           path: ${{ github.workspace }}/coverage.xml
