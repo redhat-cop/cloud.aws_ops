@@ -6,10 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 on:  # yamllint disable-line rule:truthy
-  pull_request:
-    branches:
-      - main
-      - stable-*
   push:
     branches:
       - main

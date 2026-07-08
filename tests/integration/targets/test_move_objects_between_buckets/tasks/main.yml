@@ -31,7 +31,7 @@
     - name: Put object (text) in source bucket
       amazon.aws.s3_object:
         bucket: "{{ bucket.src }}"
-        object: /template/test.txt
+        object: template/test.txt
         content: "{{ lookup('file', 'test.txt') }}"
         mode: put
 

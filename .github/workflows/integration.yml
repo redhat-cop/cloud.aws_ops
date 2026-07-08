@@ -31,7 +31,7 @@ jobs:
         uses: ansible/cloud-content-ci-automation/.github/actions/ansible_test_splitter@a93c78e1d842d4ee8961769110d88ac16bcc217a  # main, Commits on May 15, 2026
         with:
           collections_to_test: ${{ env.source_dir }}
-          total_jobs: 2
+          total_jobs: 8
           base_ref: "${{ github.event.pull_request.base.ref }}"
 
       - name: Display splitter output
