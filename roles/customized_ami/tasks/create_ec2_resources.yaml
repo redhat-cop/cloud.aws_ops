@@ -87,7 +87,7 @@
 
 # This is only needed for ansible-test coverage collection
 - name: Install coverage on remote host for ansible-test coverage collection
-  #The ANSIBLE_TEST_CONTENT_ROOT guard limits this to ansible-test runs, not production playbooks.
+  # The ANSIBLE_TEST_CONTENT_ROOT guard limits this to ansible-test runs, not production playbooks.
   when: lookup('env', 'ANSIBLE_TEST_CONTENT_ROOT', default='') | length > 0
   ansible.builtin.raw: python3 -m pip install --user 'coverage>=7.0'
   delegate_to: ec2  # or bastion hostname
