@@ -85,3 +85,4 @@ jobs:
             community.crypto
             community.general
           pre-test-cmd: python -m pip install -r tests/integration/constraints.txt -r tests/integration/requirements.txt
+          coverage: never
