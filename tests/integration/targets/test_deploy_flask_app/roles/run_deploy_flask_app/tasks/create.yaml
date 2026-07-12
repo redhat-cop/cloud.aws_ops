@@ -196,7 +196,8 @@
           - "{{ secgroup.group_id }}"
         user_data: |
           #!/bin/bash
-          yum install -y python3 python3-virtualenv sshpass netcat ansible-core
+          set -euo pipefail
+          dnf install -y python3 python3-virtualenv sshpass nmap-ncat ansible-core python3-coverage
         wait: true
         state: started
       register: vm_result
