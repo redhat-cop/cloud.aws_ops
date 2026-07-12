@@ -26,6 +26,12 @@
     ansible_python_interpreter: /usr/bin/python3
     ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_bastion_ssh_private_key_path }}'
 
+- name: Install coverage on bastion host for coverage collection
+  ansible.builtin.raw: dnf install -y python3-coverage
+  delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
+  become: true
+  changed_when: false
+
 - name: Create key pair to connect to the workers
   amazon.aws.ec2_key:
     name: "{{ deploy_flask_app__workers_keypair_name }}"
@@ -46,14 +52,6 @@
     unsafe_writes: true
   when: deploy_flask_app__keypair_result is changed
   delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
-
-# This is only needed for ansible-test coverage collection
-- name: Install coverage on remote host for ansible-test coverage collection
-  # The ANSIBLE_TEST_CONTENT_ROOT guard limits this to ansible-test runs, not production playbooks.
-  when: lookup('env', 'ANSIBLE_TEST_CONTENT_ROOT', default='') | length > 0
-  ansible.builtin.raw: python3 -m pip install --user 'coverage>=7.0'
-  delegate_to: ec2  # or bastion hostname
-  changed_when: false
 
 - name: Create workers instances
   block:

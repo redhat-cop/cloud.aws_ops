@@ -85,12 +85,10 @@
     ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ customized_ami_private_key_file }}
     ansible_python_interpreter: auto
 
-# This is only needed for ansible-test coverage collection
-- name: Install coverage on remote host for ansible-test coverage collection
-  # The ANSIBLE_TEST_CONTENT_ROOT guard limits this to ansible-test runs, not production playbooks.
-  when: lookup('env', 'ANSIBLE_TEST_CONTENT_ROOT', default='') | length > 0
-  ansible.builtin.raw: python3 -m pip install --user 'coverage>=7.0'
-  delegate_to: ec2  # or bastion hostname
+- name: Install coverage on remote host for coverage collection
+  ansible.builtin.raw: dnf install -y python3-coverage
+  delegate_to: ec2
+  become: true
   changed_when: false
 
 - name: Gather facts from ec2 instance
