@@ -39,10 +39,10 @@
 
 - name: Ensure SSH directory exists on bastion host
   ansible.builtin.file:
-    path: "{{ deploy_flask_app_workers_ssh_private_key | expanduser | dirname }}"
+    path: "{{ deploy_flask_app_workers_ssh_private_key | dirname }}"
     state: directory
     mode: "0700"
-  when: (deploy_flask_app_workers_ssh_private_key | expanduser | dirname) not in ['/tmp', '/var/tmp', '/']
+  when: (deploy_flask_app_workers_ssh_private_key | dirname) not in ['/tmp', '/var/tmp', '/']
   delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
 
 - name: Save key pair content into file on bastion host
