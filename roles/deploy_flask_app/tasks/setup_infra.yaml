@@ -24,13 +24,10 @@
     ansible_ssh_user: "{{ deploy_flask_app_bastion_host_username }}"
     ansible_host: "{{ deploy_flask_app__bastion_public_ip }}"
     ansible_python_interpreter: /usr/bin/python3
-    ansible_ssh_common_args: '-o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ deploy_flask_app_bastion_ssh_private_key_path }}'
-
-- name: Install coverage on bastion host for coverage collection
-  ansible.builtin.raw: dnf install -y python3-coverage
-  delegate_to: "{{ deploy_flask_app__bastion_hostname }}"
-  become: true
-  changed_when: false
+    # Prefer ansible_ssh_private_key_file over -i so ~ expands; IdentitiesOnly
+    # avoids "Too many authentication failures" when ssh-agent has many keys.
+    ansible_ssh_private_key_file: "{{ deploy_flask_app_bastion_ssh_private_key_path | expanduser }}"
+    ansible_ssh_common_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes'
 
 - name: Create key pair to connect to the workers
   amazon.aws.ec2_key:
