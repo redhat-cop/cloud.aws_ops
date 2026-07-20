@@ -83,6 +83,10 @@
             - "{{ test__security_group.group_id }}"
         security_groups:
           - "{{ test__security_group.group_id }}"
+        user_data: |
+          #!/bin/bash
+          set -euo pipefail
+          dnf install -y python3-coverage
         wait: true
         state: started
       register: test__ec2_instance
@@ -92,5 +96,8 @@
         hostname: "{{ ami_ec2_instance_name }}"
         ansible_ssh_user: "{{ ami_user_name }}"
         ansible_host: "{{ test__ec2_instance.instances.0.public_ip_address }}"
-        ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ setup_rsa_keys__private_key_file }}
+        # Prefer ansible_ssh_private_key_file over -i so ~ expands; IdentitiesOnly
+        # avoids "Too many authentication failures" when ssh-agent has many keys.
+        ansible_ssh_private_key_file: "{{ setup_rsa_keys__private_key_file | expanduser }}"
+        ansible_ssh_common_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes'
         ansible_python_interpreter: auto
