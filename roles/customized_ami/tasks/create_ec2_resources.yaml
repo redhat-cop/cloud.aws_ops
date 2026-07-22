@@ -82,7 +82,10 @@
     hostname: ec2
     ansible_ssh_user: "{{ customized_ami_source_ami_user_name }}"
     ansible_host: "{{ customized_ami__ec2.instances.0.public_ip_address }}"
-    ansible_ssh_common_args: -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no -i {{ customized_ami_private_key_file }}
+    # Prefer ansible_ssh_private_key_file over -i so ~ expands; IdentitiesOnly
+    # avoids "Too many authentication failures" when ssh-agent has many keys.
+    ansible_ssh_private_key_file: "{{ customized_ami_private_key_file | expanduser }}"
+    ansible_ssh_common_args: '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes'
     ansible_python_interpreter: auto
 
 - name: Gather facts from ec2 instance
