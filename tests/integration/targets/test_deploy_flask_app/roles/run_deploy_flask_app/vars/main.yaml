@@ -19,11 +19,11 @@ rds_allocated_storage_gb: 20
 rds_instance_class: db.m6g.large
 rds_instance_name: mysampledb123
 rds_engine: postgres
-rds_engine_version: "16.3"
 bastion_host_type: t3.micro
 bastion_host_venv_path: ~/env
-image_filter: Fedora-Cloud-Base-39-*
-bastion_host_iam_role: "{{ resource_prefix }}-role"
+image_filter: Fedora-Cloud-Base-*.x86_64-4*
+image_owner_id: "125523088429"
+bastion_host_iam_role: "ansible-test-{{ tiny_prefix }}-bastion-host-role"
 
 # vars for the deploy_flask_app role and create task
 # =================================================
@@ -46,3 +46,9 @@ deploy_flask_app_force_init: false
 deploy_flask_app_rds_master_password: L#5cH2mgy_
 deploy_flask_app_rds_master_username: ansible
 deploy_flask_app_bastion_rsa_key_dir: "~/.ssh-{{ resource_prefix }}"
+
+# Role defaults use /tmp paths; on Fedora bastions the fedora user cannot
+# chmod /tmp when ensuring the parent directory for the workers SSH key.
+deploy_flask_app_workers_ssh_private_key: ~/.ssh/workers_id_rsa
+deploy_flask_app_workers_inventory_file: ~/workers_inventory.yaml
+deploy_flask_app_workers_playbook_file: ~/deploy_app.yaml

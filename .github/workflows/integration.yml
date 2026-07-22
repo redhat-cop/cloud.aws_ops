@@ -21,7 +21,7 @@ jobs:
       test_jobs: ${{ steps.splitter.outputs.jobs }}
     steps:
       - name: Checkout collection
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           path: ${{ env.source_dir }}
           fetch-depth: "0"
@@ -31,7 +31,7 @@ jobs:
         uses: ansible/cloud-content-ci-automation/.github/actions/ansible_test_splitter@a93c78e1d842d4ee8961769110d88ac16bcc217a  # main, Commits on May 15, 2026
         with:
           collections_to_test: ${{ env.source_dir }}
-          total_jobs: 2
+          total_jobs: 8
           base_ref: "${{ github.event.pull_request.base.ref }}"
 
       - name: Display splitter output
@@ -48,7 +48,7 @@ jobs:
     env:
       source: "./source"
       ansible_version: "milestone"
-      python_version: "3.12"
+      python_version: "3.13"
       ansible_test_splitter_targets: "${{ needs.splitter.outputs.targets }}"
     strategy:
       fail-fast: false
@@ -83,4 +83,6 @@ jobs:
             git+https://github.com/ansible-collections/amazon.aws.git,main
             git+https://github.com/ansible-collections/community.aws.git,main
             community.crypto
+            community.general
           pre-test-cmd: python -m pip install -r tests/integration/constraints.txt -r tests/integration/requirements.txt
+          coverage: never

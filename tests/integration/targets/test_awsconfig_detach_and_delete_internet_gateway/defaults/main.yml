@@ -5,7 +5,10 @@ test_image_filter:
   architecture: x86_64
   virtualization-type: hvm
   root-device-type: ebs
-  name: Fedora-Cloud-Base-39-*
+  # CentOS Community Platform Engineering (CPE)
+  owner-id: "125523088429"
+  # Avoid ELN/Rawhide; match current Fedora 4x cloud images
+  name: Fedora-Cloud-Base-*.x86_64-4*
 
 test_vpc_name: "vpc-{{ resource_prefix }}"
 test_vpc_cidr: "172.{{ 255 | random(seed=resource_prefix) }}.0.0/16"
