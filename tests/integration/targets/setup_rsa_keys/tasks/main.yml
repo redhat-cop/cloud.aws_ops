@@ -1,16 +1,16 @@
 ---
-- name: Create temporary directory to generate keys
-  ansible.builtin.tempfile:
+- name: Create directory to generate keys in
+  ansible.builtin.file:
+    path: "{{ setup_rsa_keys__path }}"
     state: directory
-    suffix: ssh
-  register: setup_rsa_keys__tmpdir
-  notify: 'Delete temporary RSA key directory'
+  notify: 'Delete RSA key directory'
 
 - name: Generate RSA keys
   community.crypto.openssh_keypair:
-    path: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa"
+    path: "{{ setup_rsa_keys__path }}/id_rsa"
+    unsafe_writes: true
 
 - name: Define path to private and public keys
   ansible.builtin.set_fact:
-    setup_rsa_keys__public_key_file: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa.pub"
-    setup_rsa_keys__private_key_file: "{{ setup_rsa_keys__tmpdir.path }}/id_rsa"
+    setup_rsa_keys__public_key_file: "{{ setup_rsa_keys__path }}/id_rsa.pub"
+    setup_rsa_keys__private_key_file: "{{ setup_rsa_keys__path }}/id_rsa"

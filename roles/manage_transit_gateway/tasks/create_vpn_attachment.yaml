@@ -13,5 +13,5 @@
 
 - name: Print debug message
   ansible.builtin.debug:
-    msg: Transit gateway VPN attachment {{ item.name }} already exists.
+    msg: Transit gateway VPN attachment for customer gateway {{ item.customer_gateway_id }} already exists.
   when: manage_transit_gateway_tgw_vpn_attachment_result is not changed
