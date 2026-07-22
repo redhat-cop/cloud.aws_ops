@@ -7,6 +7,7 @@
           architecture: x86_64
           virtualization-type: hvm
           root-device-type: ebs
+          owner-id: "{{ image_owner_id }}"
           name: "{{ image_filter }}"
       register: images
 
@@ -122,6 +123,16 @@
         state: present
       register: rds_sg
 
+    - name: Gather information about RDS engine version
+      amazon.aws.rds_engine_versions_info:
+        engine: "{{ rds_engine }}"
+        default_only: true
+      register: run_deploy_flask_app_rds_engine_version
+
+    - name: Set variable for rds_engine_version' variable
+      ansible.builtin.set_fact:
+        rds_engine_version: "{{ run_deploy_flask_app_rds_engine_version.db_engine_versions.0.engine_version }}"
+
     - name: Create RDS instance (PostGreSQL Database)
       amazon.aws.rds_instance:
         force_update_password: true
@@ -152,6 +163,7 @@
     - name: Generate RSA keys
       community.crypto.openssh_keypair:
         path: "{{ deploy_flask_app_bastion_rsa_key_dir }}/id_rsa"
+        unsafe_writes: true
 
     - name: Create key pair to connect to the VM
       amazon.aws.ec2_key:
@@ -184,7 +196,8 @@
           - "{{ secgroup.group_id }}"
         user_data: |
           #!/bin/bash
-          yum install -y python3 python3-virtualenv sshpass netcat ansible-core
+          set -euo pipefail
+          dnf install -y python3 python3-virtualenv sshpass nmap-ncat ansible-core python3-coverage
         wait: true
         state: started
       register: vm_result
