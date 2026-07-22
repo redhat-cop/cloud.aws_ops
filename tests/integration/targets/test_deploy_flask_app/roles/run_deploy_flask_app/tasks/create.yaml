@@ -132,7 +132,7 @@
     - name: Set variable for rds_engine_version' variable
       ansible.builtin.set_fact:
         rds_engine_version: "{{ run_deploy_flask_app_rds_engine_version.db_engine_versions.0.engine_version }}"
-    
+
     - name: Create RDS instance (PostGreSQL Database)
       amazon.aws.rds_instance:
         force_update_password: true
