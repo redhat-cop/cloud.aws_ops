@@ -14,7 +14,7 @@
         name: cloud.aws_ops.customized_ami
       vars:
         customized_ami_packages:
-          - podman
+          - nginx
         customized_ami_name: "{{ custom_ami_name }}"
 
     - name: Validate settings for initial AMI
@@ -24,11 +24,12 @@
         - name: Create EC2 instance using custom AMI
           ansible.builtin.include_tasks: create_infra.yml
 
-        - name: Ensure Podman is installed into EC2 instance
-          ansible.builtin.command: podman pull docker.io/nginx
+        - name: Start nginx service on EC2 instance
+          ansible.builtin.service:
+            name: nginx
+            state: started
           delegate_to: "{{ ami_ec2_instance_name }}"
           become: true
-          changed_when: false
 
     # Test: update custom AMI
     - name: Update custom AMI
@@ -47,15 +48,15 @@
         - name: Create EC2 instance using custom AMI
           ansible.builtin.include_tasks: create_infra.yml
 
-        - name: Trying to run Podman
-          ansible.builtin.command: podman pull docker.io/nginx
+        - name: Check nginx package from initial AMI is not present
+          ansible.builtin.command: rpm -q nginx
           ignore_errors: true
           register: __result
           delegate_to: "{{ ami_ec2_instance_name }}"
           become: true
           changed_when: false
 
-        - name: Validate that Podman is not installed
+        - name: Validate that nginx from initial AMI is not present
           ansible.builtin.assert:
             that:
               - __result is failed
