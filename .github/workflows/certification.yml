@@ -40,7 +40,9 @@ jobs:
     # For details on tested ansible-core branches and Python versions,
     # see: https://github.com/ansible-collections/partner-certification-checker#tested-ansible-core-branches-and-python-versions
     with:
-      requirements-file: tests/integration/requirements.yml
+      pre-test-cmd: >-
+        ansible-galaxy collection build . --output-path /tmp &&
+        ansible-galaxy collection install /tmp/cloud-aws_ops-*.tar.gz -p ansible_collections
     #   ansible-core-version: '2.18.0'
     #   skip-sanity-versions: 'stable-2.16'
     #   collection-root: 'ansible_collections/junipernetworks/junos'
